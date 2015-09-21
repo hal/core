@@ -15,20 +15,13 @@ import java.util.Set;
 public interface SecurityFramework extends SecurityService {
 
     /**
-     * Get the security context associated with the current {@link com.gwtplatform.mvp.client.proxy.PlaceRequest}
+     * Get the security context associated with a token.
+     * Usually that the current {@link com.gwtplatform.mvp.shared.proxy.PlaceRequest}
+     *
      * @see com.gwtplatform.mvp.client.proxy.PlaceManager
      * @return the current security context
      */
     SecurityContext getSecurityContext(String id);
-
-    /**
-     * Create a security context for a particular place.
-     * Retrieves access control meta data from {@link org.jboss.as.console.spi.AccessControl} annotation.
-     *
-     * @param id
-     * @param callback
-     */
-    void createSecurityContext(String id, AsyncCallback<SecurityContext> callback);
 
     /**
      * Create a security context for a particular place.
@@ -39,10 +32,15 @@ public interface SecurityFramework extends SecurityService {
      */
     void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback);
 
+    /**
+     * Assign a context for a token
+     * @param id
+     * @param context
+     */
     void assignContext(String id, SecurityContext context);
 
     /**
-     * Check wether or not a context exists.
+     * Check whether or not a context exists.
      *
      * @param id
      * @return
@@ -50,9 +48,13 @@ public interface SecurityFramework extends SecurityService {
     boolean hasContext(String id);
 
     /**
-     * Removes a context and forces re-creation
-     * @param id
+     * Force the registered {@link org.jboss.ballroom.client.rbac.SecurityContextAware} widgets
+     * to evaluate the security constraints.
+     *
+     * Note: This does not recompute the security context, it merely instructs the widgets re-apply the security context.
+     * If you need to recompute the context trigger a {@link org.jboss.ballroom.client.rbac.SecurityContextChangedEvent} instead.
+     *
+     * @param id - the place token
      */
-    void flushContext(String id);
-
+    void forceUpdate(String id);
 }

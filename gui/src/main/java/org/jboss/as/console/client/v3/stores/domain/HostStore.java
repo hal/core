@@ -299,7 +299,12 @@ public class HostStore extends ChangeSupport {
         return selectedServer != null;
     }
 
-    public String getSelectedServer() {
+    /**
+     * Use {@link ServerStore#getSelectedServer()} instead
+     * @return  the name of the selected instance
+     */
+    @Deprecated
+    public String getSelectedServerInstance() {
         if(null== selectedServer)
             throw new IllegalStateException("No server instance selected");
 

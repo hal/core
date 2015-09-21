@@ -69,6 +69,7 @@ import org.jboss.as.console.client.v3.stores.domain.SocketBindingStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.CreateServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.actions.DeleteServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
+import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
@@ -76,6 +77,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -178,39 +180,48 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         getEventBus().addHandler(PreviewEvent.TYPE, this);
         getEventBus().addHandler(FinderScrollEvent.TYPE, this);
 
-        hostHandler = hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Action action) {
+        hostHandler = hostStore.addChangeHandler(action -> {
 
-                if (!isVisible()) return;
+            if (!isVisible()) return;
 
-                if(action instanceof RefreshHosts) {
-                    getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
-                }
-
+            if(action instanceof RefreshHosts) {
+                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
             }
+
         });
 
-        serverGroupStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Action action) {
-                getView().updateServerGroups(serverGroupStore.getServerGroups());
-            }
+        serverGroupStore.addChangeHandler(CreateServerGroup.class, action -> {
+            getView().updateServerGroups(serverGroupStore.getServerGroups());
+        });
+
+
+        serverGroupStore.addChangeHandler(DeleteServerGroup.class, action -> {
+            getView().updateServerGroups(serverGroupStore.getServerGroups());
+        });
+
+        serverGroupStore.addChangeHandler(RefreshServerGroups.class, action -> {
+            getView().updateServerGroups(serverGroupStore.getServerGroups());
         });
 
         // switching between host/group views
-        serverStore.addChangeHandler(FilterType.class, new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Action action) {
-                if (!isVisible()) return;
+        serverStore.addChangeHandler(FilterType.class, action -> {
 
-                if(serverStore.getFilter().equals(FilterType.HOST))
-                    getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
-                else
-                    loadServerGroups();
-            }
+            if (!isVisible()) return;
+
+            if(serverStore.getFilter().equals(FilterType.HOST))
+                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
+            else
+                loadServerGroups();
         });
 
+        serverStore.addChangeHandler(GroupSelection.class,
+                action -> {
+                    // RBAC: context change propagation
+                    SecurityContextChangedEvent.fire(
+                            HostMgmtPresenter.this,
+                            "/server-group=*", serverStore.getSelectedGroup()
+                    );
+                });
 
 
     }

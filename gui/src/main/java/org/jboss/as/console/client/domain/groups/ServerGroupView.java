@@ -25,8 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.MultiView;
-import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -47,7 +45,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 2/16/11
  */
-public class ServerGroupView extends MultiViewImpl implements ServerGroupPresenter.MyView {
+public class ServerGroupView extends SuspendableViewImpl implements ServerGroupPresenter.MyView {
 
     private ServerGroupPresenter presenter;
     private VerticalPanel panel;
@@ -66,100 +64,10 @@ public class ServerGroupView extends MultiViewImpl implements ServerGroupPresent
         this.presenter = presenter;
     }
 
-
-
     @Override
-    public void createWidget() {
-
-
-      /*  final ToolStrip toolStrip = new ToolStrip();
-
-        ToolButton newServerGroupBtn =  new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewGroupDialoge();
-            }
-        });
-        newServerGroupBtn.setOperationAddress("/server-group=*", "add");
-
-        newServerGroupBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverGroupsView());
-        toolStrip.addToolButtonRight(newServerGroupBtn);
-        
-        ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
-        deleteBtn.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ServerGroupRecord serverGroup = getSelectionModel().getSelectedObject();
-                Feedback.confirm(
-                        Console.MESSAGES.deleteServerGroup(),
-                        Console.MESSAGES.deleteServerGroupConfirm(serverGroup.getName()),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.onDeleteGroup(serverGroup);
-                            }
-                        });
-            }
-        });
-
-        deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverGroupsView());
-        deleteBtn.setOperationAddress("/server-group=*", "remove");
-        toolStrip.addToolButtonRight(deleteBtn);
-
-
-        ToolButton copyBtn = new ToolButton(Console.CONSTANTS.common_label_copy());
-        copyBtn.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                final ServerGroupRecord serverGroup = getSelectionModel().getSelectedObject();
-                presenter.launchCopyWizard(serverGroup);
-            }
-        });
-
-        copyBtn.setOperationAddress("/server-group=*", "add");
-        toolStrip.addToolButtonRight(copyBtn);
-        toolStrip.setFilter("/server-group=*");*/
-
-        // ---------------------------------------------
-
-       /* serverGroupTable = new DefaultCellTable<ServerGroupRecord>(8, new ProvidesKey<ServerGroupRecord>() {
-            @Override
-            public Object getKey(ServerGroupRecord item) {
-                return item.getName()+"_"+item.getProfileName();
-            }
-        });
-        serverGroupProvider = new ListDataProvider<ServerGroupRecord>();
-        serverGroupProvider.addDataDisplay(serverGroupTable);
-
-        // Create columns
-        Column<ServerGroupRecord, String> nameColumn = new Column<ServerGroupRecord, String>(new TextCell()) {
-            @Override
-            public String getValue(ServerGroupRecord object) {
-                return object.getName();
-            }
-        };
-
-
-        Column<ServerGroupRecord, String> profileColumn = new Column<ServerGroupRecord, String>(new TextCell()) {
-            @Override
-            public String getValue(ServerGroupRecord object) {
-                return object.getProfileName();
-            }
-        };
-
-
-        serverGroupTable.addColumn(nameColumn, "Group Name");
-        serverGroupTable.addColumn(profileColumn, "Profile");
-*/
-
-        // ---------------------------------------------------
+    public Widget createWidget() {
 
         details = new ServerGroupDetails(presenter);
-
-        // ---------------------------------------------------
-
-
 
         jvmEditor = new JvmEditor(presenter, true, true);
         jvmEditor.setAddressCallback(new FormHelpPanel.AddressCallback() {
@@ -175,8 +83,6 @@ public class ServerGroupView extends MultiViewImpl implements ServerGroupPresent
         propertyEditor = new PropertyEditor(presenter, true);
         propertyEditor.setOperationAddress("/server-group={selected.entity}/system-property=*", "add");
 
-        // --------------------
-
         headline = new HTML("");
         headline.setStyleName("content-header-label");
 
@@ -188,48 +94,8 @@ public class ServerGroupView extends MultiViewImpl implements ServerGroupPresent
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
 
-
-       /* details.bind(serverGroupTable);
-
-        serverGroupTable.getSelectionModel().addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler() {
-                    @Override
-                    public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                        ServerGroupRecord group = getSelectionModel().getSelectedObject();
-                        SecurityContextChangedEvent.fire(presenter, "/server-group=*", group.getName());
-                        presenter.loadJVMConfiguration(group);
-                        presenter.loadProperties(group);
-                    }
-                });
-
-*/
-
-        register("edit", layout.build());
+        return layout.build();
     }
-
-  /*  public void setServerGroups(final List<ServerGroupRecord> groups) {
-
-
-        *//*serverGroupProvider.getList().clear();
-        serverGroupProvider.getList().addAll(groups);
-        serverGroupProvider.refresh();
-
-        *//*boolean matchedPreselection = false;
-        for(ServerGroupRecord group : groups)
-        {
-            if(group.getName().equals(preselection))
-            {
-                serverGroupTable.getSelectionModel().setSelected(group, true);
-                matchedPreselection = true;
-                break;
-            }
-        }
-
-        if(!matchedPreselection)
-            serverGroupTable.selectDefaultEntity();
-
-        //serverGroupTable.selectDefaultEntity();
-    }*/
 
     @Override
     public void updateFrom(ServerGroupRecord group) {
@@ -269,8 +135,4 @@ public class ServerGroupView extends MultiViewImpl implements ServerGroupPresent
         propertyEditor.setProperties(group.getName(), properties);
     }
 
-    @Override
-    public void setPreselection(String preselection) {
-        this.preselection = preselection;
-    }
 }

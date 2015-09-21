@@ -56,7 +56,7 @@ public class ServerStore extends ChangeSupport {
 
     private Map<String, List<Server>> host2server = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
-    private ServerRef selectServer;
+    private ServerRef selectedServer;
     private String filter = FilterType.HOST;
     private String selectedGroup;
 
@@ -110,7 +110,7 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = SelectServer.class)
     public void onSelectServer(SelectServer selection, final Dispatcher.Channel channel) {
 
-        this.selectServer = new ServerRef(selection.getHost(), selection.getServer());
+        this.selectedServer = new ServerRef(selection.getHost(), selection.getServer());
         channel.ack();
 
     }
@@ -453,8 +453,12 @@ public class ServerStore extends ChangeSupport {
         return serverInstances != null ? serverInstances : new ArrayList<ServerInstance>();
     }
 
-    public ServerRef getSelectServer() {
-        return selectServer;
+    public boolean hasSelectedServer() {
+        return selectedServer !=null;
+    }
+
+    public ServerRef getSelectedServer() {
+        return selectedServer;
     }
 
     // -----------------------------------------------

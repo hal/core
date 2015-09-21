@@ -1,11 +1,11 @@
 package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -69,6 +69,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private final Map<String, SecurityContextAware> contextAwareWidgets;
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
+    protected Map<String, SecurityContext> subContextMapping = new HashMap<String, SecurityContext>();
 
     private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
 
@@ -124,7 +125,12 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     @Override
     public SecurityContext getSecurityContext(String id) {
 
-        SecurityContext securityContext = contextMapping.get(id);
+        SecurityContext securityContext = null;
+
+        if(subContextMapping.containsKey(id)) // child context enabled?
+            securityContext = subContextMapping.get(id);
+        else
+            securityContext = contextMapping.get(id);
 
         if(null==securityContext) {
             // if this happens the order of presenter initialisation is probably wrong
@@ -156,46 +162,27 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
             throw new IllegalArgumentException("Source needs to be presenter place");
 
         final String token = ((Place)presenter.getProxy()).getNameToken();
+        final String addressTemplate = event.getResourceAddress();
 
-        SecurityContext context = event.getSecurityContext();
-        String addressTemplate = event.getResourceAddress();
+        ModelNode addressNode = AddressMapping.fromString(addressTemplate)
+                .asResource(coreGUIContext, event.getWildcards()
+                );
 
-        if (context == null) {
+        String resourceAddress = normalize(addressNode.get(ADDRESS));
 
-            ModelNode addressNode = AddressMapping.fromString(addressTemplate)
-                    .asResource(coreGUIContext, event.getWildcards()
-                    );
+        SecurityContext context = contextMapping.get(token);// important: getSecurityContext() is not side effect free
 
-            String resourceAddress = normalize(addressNode.get(ADDRESS));
-
-            context = getSecurityContext(token);
-
-            // look for child context
-            if (context.hasChildContext(resourceAddress)) {
-                context = context.getChildContext(resourceAddress);
-            }
-
+        // look for child context
+        if (context.hasChildContext(resourceAddress)) {
+            SecurityContext childContext = context.getChildContext(resourceAddress);
+            subContextMapping.put(token, childContext);
+        }
+        else {
+            subContextMapping.remove(token);
         }
 
-        // update widgets (if attached and filter applies)
-        for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
+        forceUpdate(token);
 
-            SecurityContextAware widget = entry.getValue();
-            if(widget.getToken().equals(token)) {   // only touch the ones that matter
-                boolean update = true;
-                if (widget.getFilter() != null) {
-                    update = widget.getFilter().equals(addressTemplate);
-                }
-                if (update && widget.isAttached()) {
-                    widget.updateSecurityContext(context);
-                }
-            }
-        }
-
-    }
-
-    public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-         createSecurityContext(id, requiredResourcesRegistry.getResources(id), requiredResourcesRegistry.isRecursive(id), callback);
     }
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
@@ -508,11 +495,6 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     @Override
-    public void flushContext(String nameToken) {
-        contextMapping.remove(nameToken);
-    }
-
-    @Override
     public Set<String> getReadOnlyJavaNames(Class<?> type, SecurityContext securityContext) {
 
         // Fallback
@@ -569,7 +551,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public Set<String> getFilteredDMRNames(String resourceAddress, List<String> formItemNames, SecurityContext securityContext) {
-       // TODO: at some point this should refer to the actual resource address
+        // TODO: at some point this should refer to the actual resource address
         Set<String> readOnly = new HashSet<String>();
         for(String item : formItemNames)
         {
@@ -580,5 +562,29 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 readOnly.add(item);
         }
         return readOnly;
+    }
+
+    @Override
+    public void forceUpdate(String id) {
+        // update widgets (if attached and filter applies)
+        for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
+
+            SecurityContextAware widget = entry.getValue();
+            if(widget.getToken().equals(id)) {   // only touch the ones that matter
+                boolean update = true;
+                /*
+                TODO: is the filter still needed?
+                if (widget.getFilter() != null) {
+                    update = widget.getFilter().equals(addressTemplate);
+                }
+                if (update && widget.isAttached()) {
+                    widget.onSecurityContextChanged();
+                }*/
+
+                if (widget.isAttached()) {
+                    widget.onSecurityContextChanged();
+                }
+            }
+        }
     }
 }

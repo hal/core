@@ -35,8 +35,8 @@ import org.jboss.as.console.client.core.MultiView;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
@@ -69,7 +69,6 @@ import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
@@ -77,13 +76,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
 /**
  * @author Heiko Braun
  * @date 3/3/11
- *
- * IA - refactoring remaining issues:
- *
- * + jvm settings
- * + system properties
- * - server status preview
- * ? start/stop server
  *
  */
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
@@ -109,9 +101,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         void setProperties(String reference, List<PropertyRecord> properties);
         void setGroups(List<ServerGroupRecord> result);
         void updateFrom(Server server);
-        void setHosts(Set<String> hostNames, String selectedHost);
-
-        void setSelectedServer(Server selectServer);
     }
 
 
@@ -169,8 +158,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         if(action instanceof RefreshServer)
         {
-            Server server = serverStore.findServer(serverStore.getSelectServer());
-            getView().updateFrom(server);
+            refreshView();
         }
     }
 
@@ -182,12 +170,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             @Override
             public void execute() {
 
-                if(serverStore.getSelectServer()!=null) {
-                    getView().updateFrom(serverStore.findServer(serverStore.getSelectServer()));
-                    getView().setSelectedServer(serverStore.findServer(serverStore.getSelectServer()));
+                if(serverStore.getSelectedServer()!=null) {
+                    refreshView();
                 }
-
-                getView().setHosts(hostStore.getHostNames(), hostStore.getSelectedHost());
 
                 getView().toggle(
                         placeManager.getCurrentPlaceRequest().getParameter("action", "none")
@@ -196,12 +181,22 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         });
     }
 
+    private void refreshView() {
+        Server server = serverStore.findServer(serverStore.getSelectedServer());
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                ServerConfigPresenter.this,
+                "/{selected.host}/server-config=*", server.getName()
+        );
+
+        getView().updateFrom(server);
+    }
+
     public void onServerConfigSelectionChanged(final Server server) {
         if (server != null) {
             loadJVMConfiguration(server);
             loadProperties(server);
-
-            SecurityContextChangedEvent.fire(this, "/{selected.host}/server-config=*", server.getName());
         }
     }
 
@@ -220,7 +215,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             @Override
             public void onSuccess(List<ServerGroupRecord> serverGroups) {
                 getView().setGroups(serverGroups);
-                getView().setHosts(hostStore.getHostNames(), hostStore.getSelectedHost());
                 cmd.execute();
             }
         });
@@ -236,8 +230,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         CloseApplicationEvent.fire(this);
     }
 
-
-
     public void onSaveChanges(final Server entity, Map<String, Object> changedValues) {
         circuit.dispatch(new UpdateServer(entity, changedValues));
     }
@@ -250,7 +242,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     @Override
     public void onCreateJvm(String reference, Jvm jvm) {
         ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectServer().getHostName());
+        address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -268,7 +260,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public void onDeleteJvm(String reference, Jvm jvm) {
 
         ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectServer().getHostName());
+        address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -288,7 +280,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         if (changedValues.size() > 0) {
             ModelNode address = new ModelNode();
-            address.add("host", serverStore.getSelectServer().getHostName());
+            address.add("host", serverStore.getSelectedServer().getHostName());
             address.add("server-config", reference);
             address.add(JVM, jvmName);
             final String selectedConfigName = reference;
@@ -310,7 +302,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         }
 
         ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectServer().getHostName());
+        address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -328,7 +320,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public void onDeleteProperty(String reference, final PropertyRecord prop) {
 
         ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectServer().getHostName());
+        address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -393,14 +385,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     public String getFilter() {
         return serverStore.getFilter();
-    }
-
-    public String getSelectedGroup() {
-        return serverStore.getSelectedGroup();
-    }
-
-    public ServerRef getSelectedServer() {
-        return serverStore.getSelectServer();
     }
 
 }

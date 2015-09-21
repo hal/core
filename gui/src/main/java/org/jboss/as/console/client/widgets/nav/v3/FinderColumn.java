@@ -10,6 +10,9 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -27,6 +30,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -34,6 +38,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityContextAware;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -45,9 +50,10 @@ import java.util.List;
  * @author Heiko Braun
  * @since 09/01/15
  */
-public class FinderColumn<T>  {
+public class FinderColumn<T> implements SecurityContextAware {
 
 
+    private static final String RBAC_SUPPRESSED = "rbac-suppressed";
     private ColumnFilter filter;
 
     public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, UNKNOWN}
@@ -59,6 +65,7 @@ public class FinderColumn<T>  {
 
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
+    private final ListDataProvider<T> dataProvider;
     private final FinderId correlationId;
     private final String title;
     private final Display display;
@@ -116,7 +123,6 @@ public class FinderColumn<T>  {
         this.token = token;
         this.id = Document.get().createUniqueId();
 
-
         selectionModel = new SingleSelectionModel<T>(keyProvider);
 
         cellTable = new CellTable<T>(pageSize, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
@@ -124,6 +130,9 @@ public class FinderColumn<T>  {
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
         cellTable.setEmptyTableWidget(new HTML("<div class='empty-finder-column'>No Items!</div>"));
+
+        this.dataProvider = new ListDataProvider<>(keyProvider);
+        dataProvider.addDataDisplay(cellTable);
 
         Column<T, SafeHtml> titleColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
             @Override
@@ -230,7 +239,6 @@ public class FinderColumn<T>  {
 
         cellTable.setRowStyles(new RowStyles<T>() {
 
-
             @Override
             public String getStyleNames(T row, int rowIndex) {
                 boolean isFolder = display.isFolder(row);
@@ -252,24 +260,32 @@ public class FinderColumn<T>  {
                 // skip empty menus
                 if(accessibleMenuItems.size()==0) return;
 
-
                 // toggle row level tools
-                boolean hasSelection = selectionModel.getSelectedObject()!=null;
-
-                int row = cellTable.getKeyboardSelectedRow();
-                if (row < cellTable.getRowCount()) {
-                    TableRowElement rowElement = cellTable.getRowElement(row);
-
-                    if(hasSelection) {
-                        rowElement.addClassName("nav-hover");
-                    } else {
-                        rowElement.removeClassName("nav-hover");
-                    }
-                }
+                toggleRowLevelTools( () -> selectionModel.getSelectedObject()==null);
             }
         });
 
     }
+
+    @FunctionalInterface
+    public interface Disclose {
+      boolean isDisclosed();
+    }
+
+    private void toggleRowLevelTools(Disclose fn) {
+
+        int row = cellTable.getKeyboardSelectedRow();
+        if (row < cellTable.getRowCount()) {
+            TableRowElement rowElement = cellTable.getRowElement(row);
+
+            if(!fn.isDisclosed()) {
+                rowElement.addClassName("nav-hover");
+            } else {
+                rowElement.removeClassName("nav-hover");
+            }
+        }
+    }
+
 
     /**
      * Central point for security context changes
@@ -281,31 +297,34 @@ public class FinderColumn<T>  {
      */
     private void applySecurity(final SecurityContext securityContext, boolean update) {
 
+        // System.out.println("<< Process SecurityContext on column "+title+": "+securityContext+">>");
+
         boolean writePrivilege = securityContext.getWritePriviledge().isGranted();
 
         // calculate accessible menu items
         filterNonPrivilegeOperations(writePrivilege, accessibleTopMenuItems, topMenuItems);
         filterNonPrivilegeOperations(writePrivilege, accessibleMenuItems, menuItems);
 
-        /*if(filter!=null)   TODO: decide if search becomes hidden by default
-        {
-            // a default op that's always available
-            accessibleTopMenuItems.add(
-                    new MenuDelegate("Search", new ContextualCommand() {
-                        @Override
-                        public void executeOn(Object item) {
-
-                        }
-                    })
-            );
-        };*/
-
-
         // the top menu is build here
         if(!plain)
             buildTopMenu(headerMenu);
 
         // the row level menu is build when the celltable is filled
+        // hence we need to refresh it
+
+        toggleRowLevelTools(() -> true); // hide it
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                dataProvider.refresh();
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        toggleRowLevelTools( () -> selectionModel.getSelectedObject()==null); // show when selected
+                    }
+                });
+            }
+        });
 
     }
 
@@ -582,6 +601,11 @@ public class FinderColumn<T>  {
             }
         };
 
+        layout.getElement().setId(id);
+
+        // security context state changes
+        SECURITY_SERVICE.registerWidget(id, this);
+
         layout.addStyleName("navigation-column");
         layout.getElement().setId(id);   // RBAC
         layout.getElement().setAttribute("data-column", title);
@@ -601,6 +625,7 @@ public class FinderColumn<T>  {
 
             headerMenu = new LayoutPanel();
             headerMenu.setStyleName("fill-layout");
+            headerMenu.addStyleName("header-menu");
             header.add(headerMenu); // fill we be filled through #applySecurity()
 
             header.setWidgetLeftWidth(headerTitle, 0, Style.Unit.PX, 60, Style.Unit.PCT);
@@ -655,6 +680,7 @@ public class FinderColumn<T>  {
     };
 
     private void buildTopMenu(LayoutPanel container) {
+
         String groupId = HTMLPanel.createUniqueId();
 
         SafeHtmlBuilder sb = new SafeHtmlBuilder();
@@ -670,6 +696,8 @@ public class FinderColumn<T>  {
         container.add(headerMenu);
 
         if(accessibleTopMenuItems.size()>0) {
+
+            container.getElement().removeClassName(RBAC_SUPPRESSED);
 
             MenuDelegate firstItem = accessibleTopMenuItems.get(0);
             HTML item = new HTML(firstItem.getTitle());
@@ -703,6 +731,11 @@ public class FinderColumn<T>  {
             }
 
         }
+        else {
+            // no items
+            container.getElement().addClassName(RBAC_SUPPRESSED);
+        }
+
     }
 
     public void updateFrom(List<T> records) {
@@ -713,8 +746,10 @@ public class FinderColumn<T>  {
 
         if(filter!=null) filter.clear();
         selectionModel.clear();
-        cellTable.setRowCount(records.size(), true);
-        cellTable.setRowData(0, records);
+        /*cellTable.setRowCount(records.size(), true);
+        cellTable.setRowData(0, records);*/
+
+        dataProvider.setList(records);
 
         if(!plain) {
             updateTitle();
@@ -758,4 +793,41 @@ public class FinderColumn<T>  {
         }
     }*/
 
+    // SecurityContextAware widget contract
+
+
+    @Override
+    public void setFilter(String resourceAddress) {
+           // not used atm
+    }
+
+    @Override
+    public String getFilter() {
+        return null; // not used atm
+    }
+
+    @Override
+    public void onSecurityContextChanged() {
+        applySecurity(SECURITY_SERVICE.getSecurityContext(token), true);
+    }
+
+    @Override
+    public String getToken() {
+        return token;
+    }
+
+    @Override
+    public HandlerRegistration addAttachHandler(AttachEvent.Handler handler) {
+        return layout.addAttachHandler(handler);
+    }
+
+    @Override
+    public boolean isAttached() {
+        return layout.isAttached();
+    }
+
+    @Override
+    public void fireEvent(GwtEvent<?> gwtEvent) {
+        Console.getPlaceManager().fireEvent(gwtEvent);
+    }
 }

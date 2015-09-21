@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * The security context has access to the authorisation meta data and provides policies to reason over it.
- * Each security context is associated with a specific {@link com.gwtplatform.mvp.client.proxy.PlaceRequest}.
+ * Each security context is associated with a specific ID (usually the place token).
  *
  * @see org.jboss.ballroom.client.rbac.SecurityService
  * @see com.gwtplatform.mvp.client.proxy.PlaceManager
@@ -221,6 +221,10 @@ public class SecurityContextImpl implements SecurityContext {
         return resourceAddress != null && childContexts.containsKey(resourceAddress);
     }
 
+    Set<String> getChildContextKeys() {
+        return childContexts.keySet();
+    }
+
     @Override
     public SecurityContext getChildContext(String resourceAddress) {
         return childContexts.get(resourceAddress);
@@ -255,6 +259,10 @@ public class SecurityContextImpl implements SecurityContext {
         ChildContext(final String resourceAddress, final Constraints constraints) {
             this.resourceAddress = resourceAddress;
             this.constraints = constraints;
+        }
+
+        public String getResourceAddress() {
+            return resourceAddress;
         }
 
         @Override
@@ -332,6 +340,21 @@ public class SecurityContextImpl implements SecurityContext {
          */
         @Override
         public void seal() {}
+
+        @Override
+        public String toString() {
+            return "ChildContext{" +
+                    "resourceAddress='" + resourceAddress + '\'' +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityContextImpl{" +
+                "id='" + nameToken + '\'' +
+                ", childContexts=" + childContexts.size() +
+                '}';
     }
 }
 

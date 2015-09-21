@@ -518,7 +518,7 @@ public class LogStore extends ChangeSupport {
         ModelNode address = new ModelNode();
         if (!bootstrap.isStandalone()) {
             address.add("host", hostStore.getSelectedHost());
-            address.add("server", hostStore.getSelectedServer());
+            address.add("server", hostStore.getSelectedServerInstance());
         }
         address.add("subsystem", "logging");
         return address;

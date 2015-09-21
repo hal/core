@@ -16,8 +16,24 @@ public class RBACUtil {
     public static SafeHtml dump(SecurityContext sc) {
         SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-        SecurityContextImpl context = (SecurityContextImpl)sc;
+        SecurityContextImpl context = (SecurityContextImpl)sc; // parent context
 
+
+        html.appendHtmlConstant("<hr/><b>Child Contexts:</b> <br/>");
+                    html.appendHtmlConstant("<ul>");
+        for (String key : context.getChildContextKeys()) {
+            SecurityContextImpl.ChildContext childContext = (SecurityContextImpl.ChildContext) context.getChildContext(key);
+            html.appendHtmlConstant("<li>").appendEscaped(childContext.getResourceAddress()).appendHtmlConstant("</li>");
+
+        }
+        html.appendHtmlConstant("</ul>");
+
+        writeContext(html, context);
+
+        return html.toSafeHtml();
+    }
+
+    private static void writeContext(SafeHtmlBuilder html, SecurityContextImpl context) {
         // required resource
         html.appendHtmlConstant("<h2>Resources References for: "+context.nameToken+"</h2>");
         html.appendHtmlConstant("<h3>Required</h3>");
@@ -43,8 +59,6 @@ public class RBACUtil {
 
         dumpPermissions(html, context.accessConstraints);
         dumpPermissions(html, context.optionalConstraints);
-
-        return html.toSafeHtml();
     }
 
     private static void dumpPermissions(SafeHtmlBuilder html, Map<String, Constraints> resourcePrivileges) {

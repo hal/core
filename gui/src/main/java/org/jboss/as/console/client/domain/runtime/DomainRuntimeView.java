@@ -284,7 +284,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public void executeOn(Server server) {
                         presenter.refreshServer();
                     }
-                }, MenuDelegate.Role.Operation)
+                }, MenuDelegate.Role.Navigation)
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<Server>() {

@@ -22,29 +22,26 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.GroupSuspendDialogue;
 import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.hosts.CopyServerWizard;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.NewServerConfigWizard;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
 import org.jboss.as.console.client.domain.topology.ServerInstanceOp;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
@@ -56,10 +53,9 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -115,17 +111,20 @@ public class DomainRuntimePresenter
     private final ServerStore serverStore;
     private final HostInformationStore hostInfoStore;
     private final DispatchAsync dispatcher;
+    private final ServerGroupStore serverGroupStore;
     private HandlerRegistration handlerRegistration;
     private final HostStore hostStore;
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
-    private final ServerGroupDAO serverGroupStore;
+    private final ServerGroupDAO serverGroupDAO;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                                   HostStore hostStore, SubsystemLoader subsysStore,
-                                  ServerGroupDAO serverGroupStore, Header header,
-                                  Dispatcher circuit, ServerStore serverStore, HostInformationStore hostInfoStore, DispatchAsync dispatcher) {
+                                  ServerGroupDAO serverGroupDAO, Header header,
+                                  Dispatcher circuit, ServerStore serverStore,
+                                  HostInformationStore hostInfoStore, DispatchAsync dispatcher,
+                                  ServerGroupStore serverGroupStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, TYPE_MainContent);
 
@@ -133,11 +132,12 @@ public class DomainRuntimePresenter
 
         this.hostStore = hostStore;
         this.subsysStore = subsysStore;
-        this.serverGroupStore = serverGroupStore;
+        this.serverGroupDAO = serverGroupDAO;
         this.circuit = circuit;
         this.serverStore = serverStore;
         this.hostInfoStore = hostInfoStore;
         this.dispatcher = dispatcher;
+        this.serverGroupStore = serverGroupStore;
     }
 
     @Override
@@ -145,7 +145,7 @@ public class DomainRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
 
-        HandlerRegistration previewReg = getEventBus().addHandler(PreviewEvent.TYPE, this);
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
 
         handlerRegistration = serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
@@ -156,13 +156,19 @@ public class DomainRuntimePresenter
                 if(action instanceof SelectServer)
                 {
                     // changing the server selection: update subsystems on server
-                    if (hostStore.hasSelectedServer()) {
+                    if (serverStore.hasSelectedServer()) {
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                             @Override
                             public void execute() {
                                 loadSubsystems();
                             }
                         });
+
+                        // RBAC: context change propagation
+                        SecurityContextChangedEvent.fire(
+                                DomainRuntimePresenter.this,
+                                "/{selected.host}/server-config=*", serverStore.getSelectedServer().getServerName()
+                        );
                     }
                     else {
                         getView().setSubsystems(Collections.EMPTY_LIST);
@@ -177,23 +183,23 @@ public class DomainRuntimePresenter
 
                 // Refresh the server list when:
                 // - changes to host/group filter refresh the server list
-                // - group and host selection events
+                // - host selection events
                 // - server's are added or removed
 
                 else if(
-                        (action instanceof FilterType)
-                                || (action instanceof GroupSelection)
-                                || (action instanceof HostSelection)
+                        (action instanceof HostSelection)
                                 || (action instanceof RemoveServer)
                                 || (action instanceof AddServer)
                                 || (action instanceof CopyServer)
                                 || (action instanceof RefreshServer)
+                                || (action instanceof GroupSelection)
                         ) {
 
                     refreshServerList();
                 }
             }
         });
+
     }
 
 
@@ -238,7 +244,7 @@ public class DomainRuntimePresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-
+        System.out.println("first");
     }
 
     @Override
@@ -253,9 +259,9 @@ public class DomainRuntimePresenter
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final String serverSelection = hostStore.getSelectedServer();
+                final String serverSelection = hostStore.getSelectedServerInstance();
                 ServerInstance server = serverStore.getServerInstance(serverSelection);
-                serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
+                serverGroupDAO.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
         };
         final Function<FunctionContext> f3 = new Function<FunctionContext>() {
@@ -354,7 +360,7 @@ public class DomainRuntimePresenter
     public void launchNewConfigDialoge() {
 
         // TODO: server group store (circuit)
-        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+        serverGroupDAO.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> serverGroups) {
                 window = new DefaultWindow(Console.MESSAGES.createTitle("New Server Configuration"));
@@ -373,7 +379,6 @@ public class DomainRuntimePresenter
                 window.center();
             }
         });
-
 
     }
 
@@ -446,7 +451,7 @@ public class DomainRuntimePresenter
     }
 
     public ServerRef getSelectedServer() {
-        return serverStore.getSelectServer();
+        return serverStore.getSelectedServer();
     }
 
 

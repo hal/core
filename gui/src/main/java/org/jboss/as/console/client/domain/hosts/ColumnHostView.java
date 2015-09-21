@@ -41,6 +41,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -241,9 +242,9 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     clearNestedPresenter();
 
-                    presenter.getPlaceManager().revealPlace(
+                    /*presenter.getPlaceManager().revealPlace(
                             new PlaceRequest(NameTokens.HostMgmtPresenter)
-                    );
+                    );*/
 
                     browseColumn.getSelectedItem().getCmd().execute();
                 }
@@ -291,12 +292,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     final String selectedHost = hosts.getSelectedItem();
                     columnManager.updateActiveSelection(hostColWidget);
 
-                    if(!presenter.getPlaceManager().getCurrentPlaceRequest().matchesNameToken(NameTokens.DomainRuntimePresenter))
-                    {
-                        presenter.getPlaceManager().revealRelativePlace(
-                                new PlaceRequest(NameTokens.DomainRuntimePresenter)
-                        );
-                    }
+                    openNestedPresenter(NameTokens.DomainRuntimePresenter);
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
@@ -306,7 +302,6 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
-
                 }
                 else
                 {
@@ -360,14 +355,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     columnManager.updateActiveSelection(groupsColWidget);
 
-                    PlaceManager placeManager = presenter.getPlaceManager();
-
-                    // hb: some trickery with regard to nested presenters
-                    // it needs to be relative, but should not append to existing hirarchies
-                    List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
-                    next.add(placeManager.getCurrentPlaceHierarchy().get(0));
-                    next.add(new PlaceRequest(NameTokens.DomainRuntimePresenter));
-                    placeManager.revealPlaceHierarchy(next);
+                    openNestedPresenter(NameTokens.DomainRuntimePresenter);
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
@@ -377,7 +365,6 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
-
                 }
                 else
                 {
@@ -541,6 +528,14 @@ public class ColumnHostView extends SuspendableViewImpl
                 }, MenuDelegate.Role.Operation)
         );
 
+    }
+
+    private void openNestedPresenter(String token) {
+        PlaceManager placeManager = presenter.getPlaceManager();
+        List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
+        next.add(placeManager.getCurrentPlaceHierarchy().get(0));
+        next.add(new PlaceRequest(token));
+        placeManager.revealPlaceHierarchy(next);
     }
 
     @Override

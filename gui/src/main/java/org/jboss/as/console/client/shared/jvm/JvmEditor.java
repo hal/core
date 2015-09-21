@@ -90,11 +90,13 @@ public class JvmEditor {
         rootPanel = new SecurityContextAwareVerticalPanel() {
 
             @Override
-            public void updateSecurityContext(final SecurityContext securityContext) {
+            public void onSecurityContextChanged() {
                 // TODO Is it safe to save the state of the privilege here and evaluate it in setSelectedRecord()?
                 // TODO Is this method always called first? AFAICT that's the case.
+                SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(token);
                 writeGranted = securityContext.getWritePriviledge().isGranted();
             }
+
         };
         rootPanel.setStyleName("fill-layout-width");
 

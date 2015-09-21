@@ -25,7 +25,7 @@ import org.jboss.gwt.circuit.Action;
 
 /**
  * Read the log files of the selected server (taken
- * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServer()})
+ * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServerInstance()})
  *
  * @author Harald Pehl
  */

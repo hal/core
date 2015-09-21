@@ -196,14 +196,4 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
 
 
     }
-
-    @Override
-    public void setSelectedServer(Server selectServer) {
-
-    }
-
-    @Override
-    public void setHosts(Set<String> hostNames, String selectedHost) {
-
-    }
 }

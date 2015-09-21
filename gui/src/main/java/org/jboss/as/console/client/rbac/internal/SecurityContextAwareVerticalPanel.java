@@ -34,11 +34,11 @@ import org.jboss.ballroom.client.spi.Framework;
  */
 public abstract class SecurityContextAwareVerticalPanel extends VerticalPanel implements SecurityContextAware {
 
-    static Framework FRAMEWORK = GWT.create(Framework.class);
-    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
+    protected static Framework FRAMEWORK = GWT.create(Framework.class);
+    protected static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
     private final String id;
-    private final String token;
+    protected final String token;
     private String filter;
 
     public SecurityContextAwareVerticalPanel() {

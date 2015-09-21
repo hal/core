@@ -33,7 +33,7 @@ public class RuntimeBaseAddress {
         if(!bootstrap.isStandalone())
         {
             baseAddress.add("host", hostStore.getSelectedHost());
-            baseAddress.add("server", hostStore.getSelectedServer());
+            baseAddress.add("server", hostStore.getSelectedServerInstance());
         }
 
         return baseAddress;

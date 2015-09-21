@@ -79,9 +79,9 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                     @Override
                     public void execute() {
                         DefaultPlaceManager.super.doRevealPlace(request, updateBrowserUrl);
-                        if (updateBrowserUrl) {
+                       /* if (updateBrowserUrl) {
                             eventBus.fireEvent(new LHSHighlightEvent(request.getNameToken()));
-                        }
+                        }*/
                     }
                 });
             }

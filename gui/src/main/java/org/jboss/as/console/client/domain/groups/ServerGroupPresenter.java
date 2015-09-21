@@ -22,6 +22,7 @@ package org.jboss.as.console.client.domain.groups;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
@@ -30,13 +31,13 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.MultiView;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
 import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
@@ -49,11 +50,13 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -86,21 +89,16 @@ public class ServerGroupPresenter
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
 
 
-    public interface MyView extends MultiView {
+    public interface MyView extends View {
         void setPresenter(ServerGroupPresenter presenter);
-
         void updateSocketBindings(List<String> result);
         void setJvm(ServerGroupRecord group, Jvm jvm);
         void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
-        void setPreselection(String preselection);
         void updateProfiles(List<ProfileRecord> result);
-
         void updateFrom(ServerGroupRecord group);
     }
 
-
     private ServerGroupDAO serverGroupDAO;
-
     private DefaultWindow window;
     private DefaultWindow propertyWindow;
 
@@ -108,27 +106,31 @@ public class ServerGroupPresenter
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private ApplicationMetaData propertyMetaData;
-    private final ServerStore serverStore;
+    private final ServerGroupStore serverGroupStore;
     private final PlaceManager placeManager;
-
+    private final SecurityFramework securityFramework;
+    private final ServerStore serverStore;
 
     @Inject
     public ServerGroupPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            ServerGroupDAO serverGroupStore,
+            ServerGroupDAO serverGroupDAO,
             ProfileStore profileStore,
             DispatchAsync dispatcher, BeanFactory factory,
-            ApplicationMetaData propertyMetaData, ServerStore serverStore, PlaceManager placeManager) {
+            ApplicationMetaData propertyMetaData, ServerGroupStore serverGroupStore, PlaceManager placeManager,
+            SecurityFramework securityFramework, ServerStore serverStore) {
         super(eventBus, view, proxy);
 
-        this.serverGroupDAO = serverGroupStore;
+        this.serverGroupDAO = serverGroupDAO;
         this.profileStore = profileStore;
 
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.propertyMetaData = propertyMetaData;
-        this.serverStore = serverStore;
+        this.serverGroupStore = serverGroupStore;
         this.placeManager = placeManager;
+        this.securityFramework = securityFramework;
+        this.serverStore = serverStore;
     }
 
     @Override
@@ -157,12 +159,8 @@ public class ServerGroupPresenter
                     @Override
                     public void onSuccess(ServerGroupRecord result) {
 
-                        getView().updateFrom(result);
+                        updateView(result);
 
-                        // (4)
-                        getView().toggle(
-                                placeManager.getCurrentPlaceRequest().getParameter("action", "none")
-                        );
                     }
                 });
 
@@ -181,18 +179,25 @@ public class ServerGroupPresenter
                 new SimpleCallback<ServerGroupRecord>() {
                     @Override
                     public void onSuccess(ServerGroupRecord group) {
-                        getView().updateFrom(group);
+                        updateView(group);
                     }
                 });
+    }
+
+    private void updateView(ServerGroupRecord serverGroup) {
+         // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                ServerGroupPresenter.this,
+                "/server-group=*", serverGroup.getName()
+        );
+
+        getView().updateFrom(serverGroup);
     }
 
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
-
-    // ----------------------------------------------------------------
-
 
     public void onDeleteGroup(final ServerGroupRecord group) {
 
@@ -208,29 +213,6 @@ public class ServerGroupPresenter
                 staleModel();
 
                 loadServerGroup();
-            }
-        });
-    }
-
-    public void createNewGroup(final ServerGroupRecord newGroup) {
-
-        closeDialoge();
-
-        serverGroupDAO.create(newGroup, new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean success) {
-
-                if (success) {
-
-                    Console.info(Console.MESSAGES.added(newGroup.getName()));
-                    loadServerGroup();
-
-                } else {
-                    Console.error(Console.MESSAGES.addingFailed(newGroup.getName()));
-                }
-
-                staleModel();
-
             }
         });
     }
