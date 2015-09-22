@@ -259,7 +259,7 @@ public class DomainRuntimePresenter
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final String serverSelection = hostStore.getSelectedServerInstance();
+                final String serverSelection = serverStore.getSelectedServer().getServerName();
                 ServerInstance server = serverStore.getServerInstance(serverSelection);
                 serverGroupDAO.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }

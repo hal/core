@@ -5,8 +5,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -41,7 +39,6 @@ public class HostStore extends ChangeSupport {
     private final DispatchAsync dispatcher;
 
     private String selectedHost;
-    private String selectedServer;
 
     private Topology topology;
 
@@ -67,8 +64,6 @@ public class HostStore extends ChangeSupport {
 
                 // default host selection
                 selectedHost = hostNames.iterator().next();
-
-                defaultServerSelection();
 
                 callback.onSuccess(hostNames);
             }
@@ -123,7 +118,7 @@ public class HostStore extends ChangeSupport {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if (response.isFailure()) {
-                    callback.onFailure(new RuntimeException("Failed to synchronize host model: "+response.getFailureDescription()));
+                    callback.onFailure(new RuntimeException("Failed to synchronize host model: " + response.getFailureDescription()));
                 } else {
                     List<ModelNode> items = response.get(RESULT).asList();
                     List<String> hostNames = new ArrayList<String>(items.size());
@@ -224,19 +219,6 @@ public class HostStore extends ChangeSupport {
         channel.ack(false);
     }
 
-    @Process(actionType = RemoveServer.class)
-    public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
-        if(action.getServerRef().getServerName().equals(selectedServer)) {
-            this.selectedServer = null;
-            channel.ack(true);
-        }
-        else
-        {
-            channel.ack();
-        }
-
-    }
-
     @Process(actionType = RefreshHosts.class)
     public void onRefreshHosts(final Dispatcher.Channel channel) {
 
@@ -249,10 +231,6 @@ public class HostStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean result) {
 
-                // verify the selected server is still among the list of active servers
-                if(!topology.getServerNames(selectedHost).contains(selectedServer))
-                    selectedServer = null;
-
                 channel.ack();
             }
         });
@@ -263,53 +241,12 @@ public class HostStore extends ChangeSupport {
 
         selectedHost = action.getHostName();
 
-        defaultServerSelection();
-
         channel.ack();
-
-    }
-
-    @Process(actionType = SelectServerInstance.class)
-    public void onSelectedServer(final SelectServerInstance action, final Dispatcher.Channel channel) {
-        this.selectedServer = action.getServer()    ;
-        channel.ack();
-    }
-
-    private void defaultServerSelection() {
-
-        Set<String> instancesOnHost  = topology.getServerNames(selectedHost);
-
-        if(instancesOnHost.size()>0)
-        {
-            selectedServer = instancesOnHost.iterator().next();
-        }
-        else if(instancesOnHost.isEmpty())
-        {
-            // no selection possible
-            selectedServer = null;
-        }
-
 
     }
 
     // -----------------------------------------
     // data access
-
-    public boolean hasSelectedServer() {
-        return selectedServer != null;
-    }
-
-    /**
-     * Use {@link ServerStore#getSelectedServer()} instead
-     * @return  the name of the selected instance
-     */
-    @Deprecated
-    public String getSelectedServerInstance() {
-        if(null== selectedServer)
-            throw new IllegalStateException("No server instance selected");
-
-        return selectedServer;
-    }
 
     public Set<String> getHostNames() {
         return topology.getHostNames();

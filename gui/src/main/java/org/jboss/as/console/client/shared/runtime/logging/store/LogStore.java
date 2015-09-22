@@ -34,7 +34,7 @@ import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -73,7 +73,7 @@ public class LogStore extends ChangeSupport {
     private final static int PAGE_SIZE = 25;
     private final static int FOLLOW_INTERVAL = 1200; // ms
 
-    private final HostStore hostStore;
+    private final ServerStore serverStore;
     private final DispatchAsync dispatcher;
     private final Scheduler scheduler;
     private final BootstrapContext bootstrap;
@@ -119,8 +119,9 @@ public class LogStore extends ChangeSupport {
     protected boolean pauseFollow;
 
     @Inject
-    public LogStore(HostStore hostStore, DispatchAsync dispatcher, Scheduler scheduler, BootstrapContext bootstrap) {
-        this.hostStore = hostStore;
+    public LogStore(ServerStore serverStore, DispatchAsync dispatcher, Scheduler scheduler, BootstrapContext bootstrap) {
+        this.serverStore = serverStore;
+
         this.dispatcher = dispatcher;
         this.scheduler = scheduler;
         this.bootstrap = bootstrap;
@@ -517,8 +518,8 @@ public class LogStore extends ChangeSupport {
     private ModelNode baseAddress() {
         ModelNode address = new ModelNode();
         if (!bootstrap.isStandalone()) {
-            address.add("host", hostStore.getSelectedHost());
-            address.add("server", hostStore.getSelectedServerInstance());
+            address.add("host", serverStore.getSelectedServer().getHostName());
+            address.add("server", serverStore.getSelectedServer().getServerName());
         }
         address.add("subsystem", "logging");
         return address;

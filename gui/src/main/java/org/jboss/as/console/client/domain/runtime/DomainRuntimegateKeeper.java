@@ -13,17 +13,15 @@ import javax.inject.Inject;
 public class DomainRuntimegateKeeper implements Gatekeeper {
 
     private final HostManagementGatekeeper hostKeeper;
-    private final HostStore hostStore;
 
     @Inject
-    public DomainRuntimegateKeeper(HostStore hostStore, HostManagementGatekeeper hostKeeper) {
-        this.hostStore = hostStore;
+    public DomainRuntimegateKeeper(HostManagementGatekeeper hostKeeper) {
         this.hostKeeper = hostKeeper;
     }
 
     @Override
     public boolean canReveal() {
         boolean parentAllows = hostKeeper.canReveal();
-        return parentAllows && hostStore.hasSelectedServer();
+        return parentAllows ;
     }
 }

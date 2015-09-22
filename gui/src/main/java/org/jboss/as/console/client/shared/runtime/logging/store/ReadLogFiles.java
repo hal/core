@@ -21,11 +21,12 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.store;
 
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.gwt.circuit.Action;
 
 /**
  * Read the log files of the selected server (taken
- * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServerInstance()})
+ * from {@link ServerStore#getSelectedServer()})
  *
  * @author Harald Pehl
  */
