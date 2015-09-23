@@ -20,4 +20,12 @@ public final class ServerRef {
     public String getServerName() {
         return serverName;
     }
+
+    @Override
+    public String toString() {
+        return "ServerRef{" +
+                "host='" + hostName + '\'' +
+                ", server='" + serverName + '\'' +
+                '}';
+    }
 }

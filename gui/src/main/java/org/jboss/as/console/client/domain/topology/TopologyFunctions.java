@@ -1,13 +1,18 @@
 package org.jboss.as.console.client.domain.topology;
 
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.RuntimeState;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerFlag;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -34,7 +39,10 @@ public final class TopologyFunctions {
     public static final String GROUPS_KEY = TopologyFunctions.class.getName() + ".groups";
     public static final String GROUP_TO_PROFILE_KEY = TopologyFunctions.class.getName() + ".groupToProfile";
 
-    private TopologyFunctions() {}
+
+    private TopologyFunctions() {
+
+    }
 
     /**
      * Reads the hosts and groups and puts them as a list of {@link HostInfo} and {@link ServerGroup} instances under
@@ -110,10 +118,13 @@ public final class TopologyFunctions {
 
         private final DispatchAsync dispatcher;
         private final BeanFactory beanFactory;
+        private final EntityAdapter<Server> serverAdapter;
 
         public ReadServerConfigs(final DispatchAsync dispatcher, final BeanFactory beanFactory) {
+
             this.dispatcher = dispatcher;
             this.beanFactory = beanFactory;
+            this.serverAdapter = new EntityAdapter<Server>(Server.class, Console.MODULES.getApplicationMetaData());
         }
 
         @Override
@@ -142,12 +153,31 @@ public final class TopologyFunctions {
                         String step = entry.getKey();
                         HostInfo hostInfo = entry.getValue();
                         ModelNode currentStep = stepsResult.get(step);
+
                         if (currentStep.get(RESULT).isDefined()) {
+
+                            List<Server> serverConfigs = new LinkedList<>();
                             List<ServerInstance> servers = new LinkedList<>();
                             List<Property> properties = currentStep.get(RESULT).asPropertyList();
+
                             for (Property property : properties) {
                                 String name = property.getName();
                                 ModelNode scModel = property.getValue();
+
+                                // SERVER CONFIG
+                                Server server = serverAdapter.fromDMR(scModel);
+                                server.setHostName(hostInfo.getName());
+                                server.setStarted(scModel.get("status").asString().equalsIgnoreCase("STARTED"));
+                                server.setRuntimeState(RuntimeState.valueOf(scModel.get("status").asString()));
+
+                                // Does not exists (yet)
+                                //server.setServerState(SrvState.valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase()));
+
+                                server.setSuspendState(SuspendState.UNKOWN);   // TODO: https://issues.jboss.org/browse/WFLY-4910
+                                server.setProfile(groupToProfile.get(server.getGroup()));
+                                serverConfigs.add(server);
+
+                                // SERVER INSTANCE
                                 String group = scModel.get("group").asString();
 
                                 ServerInstance serverInstance = beanFactory.serverInstance().as();
@@ -161,6 +191,8 @@ public final class TopologyFunctions {
 
                                 servers.add(serverInstance);
                             }
+
+                            hostInfo.setServerConfigs(serverConfigs);
                             hostInfo.setServerInstances(servers);
                         }
                     }

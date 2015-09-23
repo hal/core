@@ -39,7 +39,7 @@ public class ServerGroup implements Comparable<ServerGroup>
     SortedMap<HostInfo, List<ServerInstance>> serversPerHost;
 
 
-    ServerGroup(final String name, final String profile)
+    public ServerGroup(final String name, final String profile)
     {
         this.name = name;
         this.profile = profile;
@@ -85,7 +85,7 @@ public class ServerGroup implements Comparable<ServerGroup>
         return name;
     }
 
-    void fill(final List<HostInfo> hosts)
+    public void fill(final List<HostInfo> hosts)
     {
         maxServersPerHost = 0;
         serversPerHost.clear();

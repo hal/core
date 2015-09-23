@@ -39,9 +39,6 @@ public interface HostInformationStore {
     void getServerConfiguration(String host, String server, final AsyncCallback<Server> callback);
     void getServerInstances(String host, AsyncCallback<List<ServerInstance>> callback);
 
-    void updateServerInstance(String host, final Server handle, final AsyncCallback<ServerInstance> callback);
-    void getVirtualMachines(String host, final AsyncCallback<List<String>> callback) ;
-
     void startServer(String host, String configName, boolean startIt, final AsyncCallback<Boolean> callback);
 
     void killServer(String host, String configName, boolean destroyIt, final AsyncCallback<Boolean> callback);

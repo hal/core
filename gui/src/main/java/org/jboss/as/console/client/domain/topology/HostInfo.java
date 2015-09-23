@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.topology;
 
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 
 import java.util.List;
@@ -14,6 +15,7 @@ public class HostInfo implements Comparable<HostInfo> {
     boolean isController;
     boolean status;
     private List<ServerInstance> serverInstances;
+    private List<Server> serverConfigs;
 
     public HostInfo(String name, boolean controller) {
         this.name = name;
@@ -64,5 +66,13 @@ public class HostInfo implements Comparable<HostInfo> {
 
     public List<ServerInstance> getServerInstances() {
         return serverInstances;
+    }
+
+    public void setServerConfigs(List<Server> serverConfigs) {
+        this.serverConfigs = serverConfigs;
+    }
+
+    public List<Server> getServerConfigs() {
+        return serverConfigs;
     }
 }

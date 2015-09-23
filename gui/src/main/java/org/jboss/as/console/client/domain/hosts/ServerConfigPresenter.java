@@ -170,7 +170,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             @Override
             public void execute() {
 
-                if(serverStore.getSelectedServer()!=null) {
+                if (serverStore.getSelectedServer() != null) {
                     refreshView();
                 }
 
@@ -232,6 +232,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     public void onSaveChanges(final Server entity, Map<String, Object> changedValues) {
         circuit.dispatch(new UpdateServer(entity, changedValues));
+        circuit.dispatch(new RefreshServer());
     }
 
     public String getSelectedHost() {

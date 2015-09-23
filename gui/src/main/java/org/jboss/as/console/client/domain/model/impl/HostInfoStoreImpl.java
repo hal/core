@@ -341,46 +341,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
         });
     }
 
-    public void getVirtualMachines(final String host, final AsyncCallback<List<String>> callback) {
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
-        operation.get(CHILD_TYPE).set("jvm");
-        operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", host);
-
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to load VM's from host :"+host));
-                }
-                else {
-                    List<ModelNode> payload = response.get("result").asList();
-
-                    List<String> records = new ArrayList<String>(payload.size());
-
-                    for(ModelNode jvm : payload)
-                        records.add(jvm.asString());
-
-                    callback.onSuccess(records);
-                }
-
-            }
-
-        });
-    }
-
-
-
     @Override
     public void getServerInstances(final String host, final AsyncCallback<List<ServerInstance>> callbackReference) {
 
@@ -592,55 +552,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
     }
 
-
-    public void updateServerInstance(String host, final Server handle, final AsyncCallback<ServerInstance> callback) {
-
-
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(INCLUDE_RUNTIME).set(true);
-        operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", host);
-        operation.get(ADDRESS).add("server", handle.getName());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-
-            @Override
-            public void onFailure(Throwable caught) {
-                ServerInstance instance = createInstanceModel(handle);
-                instance.setRunning(false);
-                callback.onSuccess(instance);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode statusResponse = result.get();
-                ModelNode payload = statusResponse.get(RESULT);
-
-                ServerInstance instance = createInstanceModel(handle);
-
-                if (statusResponse.isFailure()) {
-                    instance.setRunning(false);
-                } else {
-                    instance.setRunning(handle.isStarted());
-
-                    if (payload.hasDefined("server-state")) {
-                        String state = payload.get("server-state").asString();
-                        if (state.equals("reload-required")) {
-                            instance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                        } else if (state.equals("restart-required")) {
-                            instance.setFlag(ServerFlag.RESTART_REQUIRED);
-                        }
-                    }
-
-                }
-
-                callback.onSuccess(instance);
-            }
-        });
-    }
 
     private ServerInstance createInstanceModel(Server handle) {
         ServerInstance instance = factory.serverInstance().as();

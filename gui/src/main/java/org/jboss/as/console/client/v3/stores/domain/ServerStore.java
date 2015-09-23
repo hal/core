@@ -3,20 +3,26 @@ package org.jboss.as.console.client.v3.stores.domain;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.domain.topology.ServerGroup;
+import org.jboss.as.console.client.domain.topology.TopologyFunctions;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
@@ -30,8 +36,6 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
 import javax.inject.Inject;
@@ -39,6 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -51,28 +57,34 @@ public class ServerStore extends ChangeSupport {
 
     private final DispatchAsync dispatcher;
     private final ApplicationMetaData propertyMetaData;
+    private final BeanFactory beanFactory;
     private final HostInformationStore hostInfo;
     private final HostStore hostStore;
 
+    private Map<String, ServerGroup> serverGroups = new HashMap<>();
     private Map<String, List<Server>> host2server = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
+
     private ServerRef selectedServer;
     private String filter = FilterType.HOST;
     private String selectedGroup;
 
     @Inject
-    public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
+    public ServerStore(HostStore hostStore, HostInformationStore hostInfo,
+                       DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
+                       BeanFactory beanFactory) {
         this.hostStore = hostStore;
         this.hostInfo = hostInfo;
         this.dispatcher = dispatcher;
         this.propertyMetaData = propertyMetaData;
+        this.beanFactory = beanFactory;
     }
 
     // -----------------------------------------------
     // init
 
     public void init(final String hostName, final AsyncCallback<List<Server>> callback) {
-        synchronizeServerModel(hostName, new AsyncCallback<Boolean>() {
+        synchronizeServerModel(new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable throwable) {
                 callback.onFailure(throwable);
@@ -115,17 +127,10 @@ public class ServerStore extends ChangeSupport {
 
     }
 
-    class RefreshValues {
-        List<Server> servers;
-        List<ServerInstance> instances;
-    }
-
     @Process(actionType = RefreshServer.class, dependencies = {HostStore.class})
     public void onRefresh(final Dispatcher.Channel channel) {
 
-        final String hostName = hostStore.getSelectedHost();
-
-        synchronizeServerModel(hostName, new AsyncCallback<Boolean>() {
+        synchronizeServerModel(new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable throwable) {
                 channel.nack(throwable);
@@ -139,65 +144,58 @@ public class ServerStore extends ChangeSupport {
 
     }
 
-    private void synchronizeServerModel(final String hostName, final AsyncCallback<Boolean> callback) {
+    private void synchronizeServerModel(final AsyncCallback<Boolean> callback) {
 
-        Function<RefreshValues> fetchServers = new Function<RefreshValues>() {
+        Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
-            public void execute(final Control<RefreshValues> control) {
-                hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
-                    @Override
-                    public void onSuccess(List<Server> servers) {
-                        control.getContext().servers = servers;
-                        control.proceed();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        control.abort();
-                        Console.error("Failed to load servers", caught.getMessage());
-                    }
-                });
-
-            }
-        };
-
-        Function<RefreshValues> fetchInstances = new Function<RefreshValues>() {
-            @Override
-            public void execute(final Control<RefreshValues> control) {
-                hostInfo.getServerInstances(hostName, new SimpleCallback<List<ServerInstance>>() {
-                    @Override
-                    public void onSuccess(List<ServerInstance> servers) {
-                        control.getContext().instances = servers;
-                        control.proceed();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        control.abort();
-                        Console.error("Failed to load server instances", caught.getMessage());
-                    }
-                });
-
-            }
-        };
-
-        Outcome<RefreshValues> outcome = new Outcome<RefreshValues>() {
-            @Override
-            public void onFailure(RefreshValues context) {
-                callback.onFailure(new RuntimeException("Failed to synchronize server model"));
+            public void onFailure(final FunctionContext context) {
+                callback.onFailure(new RuntimeException("Unable to load topology: "+context.getErrorMessage()));
             }
 
             @Override
-            public void onSuccess(RefreshValues context) {
+            public void onSuccess(final FunctionContext context) {
 
-                host2server.put(hostName, context.servers);
-                instanceModel.put(hostName, context.instances);
+
+                host2server.clear();
+                instanceModel.clear();
+
+                List<HostInfo> hosts = context.pop();
+                deriveGroups(hosts);
+
+                for (HostInfo h : hosts) {
+                    host2server.put(h.getName(), h.getServerConfigs());
+                    instanceModel.put(h.getName(), h.getServerInstances());
+                }
 
                 callback.onSuccess(true);
             }
         };
 
-        new Async().waterfall(new RefreshValues(), outcome, fetchServers, fetchInstances);
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
+                new TopologyFunctions.ReadHostsAndGroups(dispatcher),
+                new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
+                new TopologyFunctions.FindRunningServerInstances(dispatcher));
+    }
+
+    /**
+     * Builds {@link ServerGroup} instances and populates the map {@link #serverGroups}
+     */
+    private SortedSet<ServerGroup> deriveGroups(List<HostInfo> hosts) {
+        serverGroups.clear();
+        for (HostInfo host : hosts) {
+            List<ServerInstance> serverInstances = host.getServerInstances();
+            for (ServerInstance server : serverInstances) {
+                String group = server.getGroup();
+                String profile = server.getProfile();
+                ServerGroup serverGroup = serverGroups.get(group);
+                if (serverGroup == null) {
+                    serverGroup = new ServerGroup(group, profile);
+                    serverGroup.fill(hosts);
+                    serverGroups.put(group, serverGroup);
+                }
+            }
+        }
+        return new TreeSet<ServerGroup>(serverGroups.values());
     }
 
     @Process(actionType = AddServer.class)
@@ -402,8 +400,9 @@ public class ServerStore extends ChangeSupport {
     public List<Server> getServerForGroup(String group) {
 
         List<Server> matchingServer = new ArrayList<>();
-        for (Map.Entry<String, List<Server>> servers : host2server.entrySet()) {
-            for (Server server : servers.getValue()) {
+        for (String host : host2server.keySet()) {
+            List<Server> servers = host2server.get(host);
+            for (Server server : servers) {
                 if(server.getGroup().equals(group))
                 {
                     matchingServer.add(server);
@@ -425,17 +424,17 @@ public class ServerStore extends ChangeSupport {
     private void normalizeModel(List<Server> servers) {
 
         for (Server server : servers) {
-            ServerInstance serverInstance = getServerInstance(server.getName());
+            ServerInstance serverInstance = getServerInstance(new ServerRef(server.getHostName(), server.getName()));
             server.setServerState(serverInstance.getServerState());
             server.setSuspendState(serverInstance.getSuspendState());
         }
     }
 
-    public ServerInstance getServerInstance(String name) {
+    public ServerInstance getServerInstance(ServerRef serverRef) {
         ServerInstance match = null;
-        for(ServerInstance server : instanceModel.get(hostStore.getSelectedHost()))
+        for(ServerInstance server : instanceModel.get(serverRef.getHostName()))
         {
-            if(server.getName().equals(name))
+            if(server.getName().equals(serverRef.getServerName()))
             {
                 match = server;
                 break;
@@ -443,7 +442,7 @@ public class ServerStore extends ChangeSupport {
         }
 
         if(null==match)
-            throw new IllegalArgumentException("No such server instance "+ name);
+            throw new IllegalArgumentException("No such server instance "+ serverRef);
 
         return match;
     }
