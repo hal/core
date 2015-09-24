@@ -48,7 +48,7 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JmsMetricPresenter)
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"jms", "queue", "topic", "size"})
     public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
     }

@@ -42,7 +42,7 @@ public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebMetricPresenter)
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=web"}, recursive = false)
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/subsystem=web"}, recursive = false)
     @SearchIndex(keywords = {"web", "http", "connections"})
     public interface MyProxy extends Proxy<WebMetricPresenter>, Place {}
 

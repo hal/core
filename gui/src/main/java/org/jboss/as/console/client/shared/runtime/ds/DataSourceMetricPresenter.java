@@ -50,8 +50,8 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourceMetricPresenter)
     @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
-            "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
+            "/{implicit.host}/{selected.server}/subsystem=datasources/data-source=*",
+            "/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
     @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})
     public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {}
 

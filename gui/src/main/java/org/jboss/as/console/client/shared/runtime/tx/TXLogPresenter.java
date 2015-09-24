@@ -43,8 +43,8 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
     @SearchIndex(keywords = {"recovery", "durability", "transaction-log", "transaction"})
     @RuntimeExtension(name = "Transaction Logs", group = RuntimeGroup.METRICS, key = "transactions")
     @AccessControl(
-            resources = {"/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store"},
-            operations = "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store#probe")
+            resources = {"/{implicit.host}/{selected.server}/subsystem=transactions/log-store=log-store"},
+            operations = "/{implicit.host}/{selected.server}/subsystem=transactions/log-store=log-store#probe")
     public interface MyProxy extends Proxy<TXLogPresenter>, Place {
     }
 

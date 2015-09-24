@@ -76,8 +76,8 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     @SearchIndex(keywords = {"domain", "domain-overview", "server", "server-group", "start", "stop", "status"})
     @AccessControl(resources = {
             "/server-group=*",
-            "/{selected.host}/server-config=*"
-            //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
+            "/{implicit.host}/server-config=*"
+            //"/{implicit.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
             }, recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place {}
 

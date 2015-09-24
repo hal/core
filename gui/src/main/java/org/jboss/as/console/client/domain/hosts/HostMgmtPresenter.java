@@ -119,6 +119,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
     @AccessControl(resources = {
+            "/host=*",
             "/server-group=*",
             "opt://server-group={selected.entity}/system-property=*"},
             recursive = false)
@@ -239,6 +240,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
         HostMgmtPresenter.super.onReset();
         Console.MODULES.getHeader().highlight(getProxy().getNameToken());
+        // don't refresh the state here, it conflicts with the revaling of the nested presenters
+        // and wil cause the finder to collapse
     }
 
     private void loadServerGroups() {
@@ -251,7 +254,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         refreshState();
     }
 
-    private void refreshState() {
+    public void refreshState() {
         circuit.dispatch(new RefreshHosts());
         loadServerGroups();
     }

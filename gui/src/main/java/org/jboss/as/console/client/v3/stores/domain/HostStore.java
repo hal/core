@@ -4,7 +4,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -205,18 +204,6 @@ public class HostStore extends ChangeSupport {
         };
 
         new Async().waterfall(new Topology(), outcome, functions.toArray(new Function[functions.size()]));
-    }
-
-    @Process(actionType = RefreshServer.class)
-    public void onRefreshServer(final Dispatcher.Channel channel) {
-
-        // a) provide at least a selected host
-        if(null==selectedHost)
-            throw new IllegalStateException("no host selected!");
-
-        // b) (optional) refresh hosts before the sever store loads the servers
-
-        channel.ack(false);
     }
 
     @Process(actionType = RefreshHosts.class)

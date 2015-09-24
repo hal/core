@@ -56,7 +56,7 @@ public class ServerList {
 
         if(isRuntimeView)
         {
-            this.RESOURCE_ADDRESS = AddressTemplate.of("/{selected.host}/{selected.server}/subsystem=undertow/server=*");
+            this.RESOURCE_ADDRESS = AddressTemplate.of("/{implicit.host}/{selected.server}/subsystem=undertow/server=*");
         }
         else
         {

@@ -227,7 +227,7 @@ final class HtmlGenerator {
         if (groupLinks) {
             decision = securityContext.getOperationPriviledge("/server-group=*", "start-servers");
         } else {
-            decision = securityContext.getOperationPriviledge("/{selected.host}/server-config=*", "start");
+            decision = securityContext.getOperationPriviledge("/{implicit.host}/server-config=*", "start");
         }
 
         if (decision.isGranted()) {

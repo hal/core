@@ -56,8 +56,8 @@ public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPr
     @ProxyCodeSplit
     @NameToken(NameTokens.JndiPresenter)
     @AccessControl(
-            resources = {"/{selected.host}/{selected.server}/subsystem=naming"},
-            operations = {"/{selected.host}/{selected.server}/subsystem=naming#jndi-view"},
+            resources = {"/{implicit.host}/{selected.server}/subsystem=naming"},
+            operations = {"/{implicit.host}/{selected.server}/subsystem=naming#jndi-view"},
             recursive = false)
     @SearchIndex(keywords = {"jndi", "lookup", "jndi-tree"})
     public interface MyProxy extends Proxy<JndiPresenter>, Place {}

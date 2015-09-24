@@ -72,7 +72,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @NameToken(NameTokens.HostJVMPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
-    @AccessControl(resources = {"/{selected.host}/jvm=*",})
+    @AccessControl(resources = {"/{implicit.host}/jvm=*",})
     public interface MyProxy extends Proxy<HostJVMPresenter>, Place {}
 
 

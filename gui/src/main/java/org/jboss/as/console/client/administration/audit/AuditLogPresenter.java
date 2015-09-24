@@ -40,7 +40,7 @@ public class AuditLogPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.AuditLogPresenter)
     @SearchIndex(keywords = {"audit", "log", "management"})
-    @AccessControl(resources = {"/{selected.host}/core-service=management/access=audit"})
+    @AccessControl(resources = {"/{implicit.host}/core-service=management/access=audit"})
     public interface MyProxy extends Proxy<AuditLogPresenter>, Place {}
 
 

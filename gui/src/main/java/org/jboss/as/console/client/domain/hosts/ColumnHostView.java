@@ -134,6 +134,13 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
+        hosts.setTopMenuItems(new MenuDelegate<String>("Refresh", new ContextualCommand<String>() {
+            @Override
+            public void executeOn(String item) {
+                presenter.refreshState();
+            }
+        }, MenuDelegate.Role.Navigation));
+
         groups = new FinderColumn<ServerGroupRecord>(
                 FinderColumn.FinderId.RUNTIME,
                 "Server Group",

@@ -77,7 +77,7 @@ public class JberetStore extends ChangeSupport {
     public static final AddressTemplate THREAD_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("thread-factory=*");
     public static final AddressTemplate THREAD_POOL_ADDRESS = AddressTemplate.of(ROOT).append("thread-pool=*");
 
-    public static final String METRICS_ROOT = "{selected.host}/{selected.server}/subsystem=batch-jberet";
+    public static final String METRICS_ROOT = "{implicit.host}/{selected.server}/subsystem=batch-jberet";
     public static final AddressTemplate METRICS_ROOT_ADDRESS = AddressTemplate.of(METRICS_ROOT);
     public static final AddressTemplate THREAD_POOL_METRICS_ADDRESS = AddressTemplate.of(METRICS_ROOT).append("thread-pool=*");
 

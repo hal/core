@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ConnectorMetricView {
 
-    public static final AddressTemplate BASE_ADDRESS  = AddressTemplate.of("{selected.host}/{selected.server}/subsystem=undertow/server=*");
+    public static final AddressTemplate BASE_ADDRESS  = AddressTemplate.of("{implicit.host}/{selected.server}/subsystem=undertow/server=*");
 
     private final HttpMetricPresenter presenter;
     private final DefaultCellTable table;

@@ -61,7 +61,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @NameToken(NameTokens.HostInterfacesPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"interface", "network-interface", "bind-address"})
-    @AccessControl(resources = {"/{selected.host}/interface=*",})
+    @AccessControl(resources = {"/{implicit.host}/interface=*",})
     public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {}
 
 

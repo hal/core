@@ -43,10 +43,10 @@ public class VMMetricsPresenter
     @OperationMode(STANDALONE)
     @AccessControl(
             resources = {
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
+                    "/{implicit.host}/{selected.server}/core-service=platform-mbean/type=runtime",
+                    "/{implicit.host}/{selected.server}/core-service=platform-mbean/type=threading",
+                    "/{implicit.host}/{selected.server}/core-service=platform-mbean/type=memory",
+                    "/{implicit.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
             }
     )
     public interface MyProxy extends Proxy<VMMetricsPresenter>, Place {

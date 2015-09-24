@@ -48,7 +48,7 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     @ProxyCodeSplit
     @NameToken(NameTokens.JPAMetricPresenter)
     @SearchIndex(keywords = {"jpa", "hibernate"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/deployment=*/subsystem=jpa"})
     public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {}
 
 

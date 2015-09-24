@@ -34,7 +34,7 @@ public class WebServiceRuntimePresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServiceRuntimePresenter)
     @SearchIndex(keywords = {"webservices", "jaxws", "endpoint", "jbossws"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"})
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/deployment=*/subsystem=webservices"})
     public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {}
 
 

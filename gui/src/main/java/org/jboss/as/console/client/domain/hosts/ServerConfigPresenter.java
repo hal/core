@@ -50,9 +50,7 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -87,8 +85,8 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     @NameToken(NameTokens.ServerPresenter)
     @OperationMode(DOMAIN)
     @AccessControl(resources = {
-            "/{selected.host}/server-config=*",
-            "opt://{selected.host}/server-config=*/system-property=*"},
+            "/{implicit.host}/server-config=*",
+            "opt://{implicit.host}/server-config=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"server", "server-config", "jvm", "socket-binding"})
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {}
@@ -187,7 +185,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 ServerConfigPresenter.this,
-                "/{selected.host}/server-config=*", server.getName()
+                "/{implicit.host}/server-config=*", server.getName()
         );
 
         getView().updateFrom(server);
@@ -376,12 +374,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                         getView().setProperties(server.getName(), properties);
                     }
                 });
-    }
-
-    public void onSaveCopy(final String targetHost, final Server original, final Server newServer) {
-        closeApplicationView();
-        circuit.dispatch(new CopyServer(targetHost, original, newServer));
-
     }
 
     public String getFilter() {

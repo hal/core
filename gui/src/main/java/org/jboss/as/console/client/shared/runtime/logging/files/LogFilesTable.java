@@ -115,7 +115,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
         });
         download.setEnabled(false);
         // actually the attribute 'stream' is relevant for download, however we need to pass an operation here
-        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
+        download.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(download, BASE_ID, "download");
         tools.addToolButtonRight(download);
 
@@ -131,7 +131,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
             }
         });
         view.setEnabled(false);
-        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
+        view.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
         panel.add(tools);
@@ -160,7 +160,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
                 dataProvider.getList());
         table.addColumnSortHandler(sortHandler);
         // TODO Find a way to combine the double click handler with RBAC like
-        // foo.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
+        // foo.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
 //        table.addCellPreviewHandler(new CellPreviewEvent.Handler<ModelNode>() {
 //            @Override
 //            public void onCellPreview(CellPreviewEvent<ModelNode> event) {

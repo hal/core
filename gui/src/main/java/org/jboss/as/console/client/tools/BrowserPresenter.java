@@ -6,15 +6,18 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ReadRequiredResources;
+import org.jboss.as.console.client.core.RequiredResourcesContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.util.LRUCache;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -39,10 +42,12 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
     private static final ModelNode ROOT = new ModelNode().setEmptyList();
     private DispatchAsync dispatcher;
+    private final CoreGUIContext statementContext;
     private boolean hasBeenRevealed;
     private ModelNode pinToAddress = null;
 
-    private LRUCache<String, SecurityContext> contextCache = new LRUCache<String, SecurityContext>(25);
+    private LRUCache<AddressTemplate, SecurityContext> contextCache = new LRUCache<AddressTemplate, SecurityContext>(25);
+    final ResourceDescriptionRegistry resourceDescriptionRegistry = new ResourceDescriptionRegistry();
 
     public interface MyView extends PopupView {
         void setPresenter(BrowserPresenter presenter);
@@ -57,10 +62,11 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     @Inject
     public BrowserPresenter(
             EventBus eventBus, MyView view,
-            DispatchAsync dispatcher) {
+            DispatchAsync dispatcher, CoreGUIContext statementContext) {
         super(eventBus, view);
 
         this.dispatcher = dispatcher;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -230,41 +236,74 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
 
 
-    public void readResource(final ModelNode address, boolean isPlaceHolder) {
+    public void readResource(final ModelNode modelNode, boolean isPlaceHolder) {
 
+        _loadMetaData(modelNode, new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
+            @Override
+            public void onFailure(ResourceData context) {
 
-        Function<ResourceData> secFn = new Function<ResourceData>() {
+            }
+
+            @Override
+            public void onSuccess(ResourceData context) {
+                getView().updateResource(modelNode, context.securityContext, context.description, context.data);
+            }
+        });
+
+    }
+
+    private void _loadMetaData(ModelNode modelNodeAddress, ResourceData resourceData, Outcome<ResourceData> delegate) {
+
+        AddressTemplate address = AddressTemplate.of(AddressUtils.toString(modelNodeAddress, true));
+        String token = "token"; // not used, it's a single request
+
+        Function<ResourceData> metaFn = new Function<ResourceData>() {
             @Override
             public void execute(final Control<ResourceData> control) {
 
-                SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
-
-                final String addressString = AddressUtils.toString(address, true);
-
                 final Set<String> resources = new HashSet<String>();
-                resources.add(addressString);
+                resources.add(address.getTemplate());
 
-                if(contextCache.containsKey(addressString))
+                if(contextCache.containsKey(address))
                 {
-                    control.getContext().securityContext = contextCache.get(addressString);
+                    control.getContext().securityContext = contextCache.get(address);
+                    control.getContext().description = resourceDescriptionRegistry.lookup(address);
                     control.proceed();
                 }
                 else {
 
-                    securityFramework.createSecurityContext(addressString, resources, false,
-                            new AsyncCallback<SecurityContext>() {
+                    // we delegate to an existing instance that does the parsing
+                    // TOOD: the API is pretty awkward and the parser should be extracted so it can be used standalone,
+                    // without the dependency on the Flow framework
+
+                    final RequiredResourcesContext ctx = new RequiredResourcesContext(token, resources, resourceDescriptionRegistry);
+                    final ReadRequiredResources operation = new ReadRequiredResources(dispatcher, statementContext);
+                    operation.add(address.getTemplate(), false);
+
+                    operation.execute(
+                            new Control<RequiredResourcesContext>() {
                                 @Override
-                                public void onFailure(Throwable caught) {
-                                    Console.error("Failed to create security context for "+addressString, caught.getMessage());
+                                public void proceed() {
+
+                                    SecurityContext securityContext = ctx.getSecurityContext();
+                                    securityContext.seal();
+                                    contextCache.put(address, securityContext);
+                                    control.getContext().securityContext = securityContext;
+
+                                    control.getContext().description = resourceDescriptionRegistry.lookup(address);
+                                    System.out.println("Loaded data for " +  address);
+                                    control.proceed();
+                                }
+
+                                @Override
+                                public void abort() {
+                                    Console.error("Failed to create security context for " + address, ctx.getError().getMessage());
                                     control.abort();
                                 }
 
                                 @Override
-                                public void onSuccess(SecurityContext result) {
-                                    final String cacheKey = AddressUtils.asKey(address, true);
-                                    contextCache.put(cacheKey, result);
-                                    control.getContext().securityContext = result;
-                                    control.proceed();
+                                public RequiredResourcesContext getContext() {
+                                    return ctx;
                                 }
                             }
                     );
@@ -273,32 +312,12 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        Function<ResourceData> descFn = new Function<ResourceData>() {
-            @Override
-            public void execute(final Control<ResourceData> control) {
-                _readDescription(address, new SimpleCallback<ModelNode>() {
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Console.error("Failed to read resource description: " + caught.getMessage());
-                        control.abort();
-                    }
-
-                    @Override
-                    public void onSuccess(ModelNode result) {
-                        control.getContext().description = result;
-                        control.proceed();
-                    }
-                });
-            }
-        };
-
         Function<ResourceData> dataFn = new Function<ResourceData>() {
             @Override
             public void execute(final Control<ResourceData> control) {
 
                 if(!control.getContext().isTransient) {
-                    _readResouce(address, new SimpleCallback<ModelNode>() {
+                    _readResouce(modelNodeAddress, new SimpleCallback<ModelNode>() {
 
                         @Override
                         public void onFailure(Throwable caught) {
@@ -322,68 +341,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         };
 
 
-        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
-            @Override
-            public void onFailure(ResourceData context) {
-
-            }
-
-            @Override
-            public void onSuccess(ResourceData context) {
-                getView().updateResource(address, context.securityContext, context.description, context.data);
-            }
-        }, secFn, descFn, dataFn);
-
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(resourceData, delegate, metaFn, dataFn);
 
     }
-
-    private void _readDescription(ModelNode address, final AsyncCallback<ModelNode> callback) {
-
-        final ModelNode descriptionOp  = new ModelNode();
-        descriptionOp.get(ADDRESS).set(address);
-        descriptionOp.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-        descriptionOp.get(OPERATIONS).set(true);
-
-        dispatcher.execute(new DMRAction(descriptionOp), new SimpleCallback<DMRResponse>() {
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        callback.onFailure(caught);
-                    }
-
-                    @Override
-                    public void onSuccess(DMRResponse dmrResponse) {
-
-                        final ModelNode response = dmrResponse.get();
-
-                        if(response.isFailure())
-                        {
-                            callback.onFailure(new RuntimeException("Failed to load resource description: "+response.getFailureDescription()));
-                        }
-                        else {
-
-
-                            ModelNode resourceDescription = null;
-
-                            if (ModelType.LIST.equals(response.get(RESULT).getType()))
-                                resourceDescription = response.get(RESULT).asList().get(0).get(RESULT).asObject();
-                            else {
-                                // workaround ...
-                                if (!response.hasDefined(RESULT)) {
-                                    Console.warning("Failed to read description" + descriptionOp.get(ADDRESS));
-                                    resourceDescription = new ModelNode();
-                                } else {
-                                    resourceDescription = response.get(RESULT).asObject();
-                                }
-                            }
-
-                            callback.onSuccess(resourceDescription);
-                        }
-                    }
-                }
-        );
-    }
-
 
     private void _readResouce(ModelNode address, final AsyncCallback<ModelNode> callback) {
 
@@ -504,94 +464,18 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     public void onPrepareAddChildResource(final ModelNode address, final boolean isSingleton) {
 
 
-        Function<ResourceData> secFn = new Function<ResourceData>() {
-            @Override
-            public void execute(final Control<ResourceData> control) {
-
-                SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
-
-                final String addressString = AddressUtils.toString(address, isSingleton);
-
-                final Set<String> resources = new HashSet<String>();
-                resources.add(addressString);
-
-                if(contextCache.containsKey(addressString))
-                {
-                    control.getContext().securityContext = contextCache.get(addressString);
-                    control.proceed();
-                }
-                else {
-
-                    securityFramework.createSecurityContext(addressString, resources, false,
-                            new AsyncCallback<SecurityContext>() {
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    Console.error("Failed to create security context for "+addressString, caught.getMessage());
-                                    control.abort();
-                                }
-
-                                @Override
-                                public void onSuccess(SecurityContext result) {
-                                    final String cacheKey = AddressUtils.asKey(address, false);
-                                    contextCache.put(cacheKey, result);
-                                    control.getContext().securityContext = result;
-                                    control.proceed();
-                                }
-                            }
-                    );
-                }
-
-            }
-        };
-
-        Function<ResourceData> descFn = new Function<ResourceData>() {
-            @Override
-            public void execute(final Control<ResourceData> control) {
-
-                final ModelNode operation = new ModelNode();
-                operation.get(ADDRESS).set(address);
-                operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-                operation.get(OPERATIONS).set(true);
-
-                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        _loadMetaData(address, new ResourceData(true), new Outcome<ResourceData>() {
                     @Override
-                    public void onSuccess(DMRResponse dmrResponse) {
-                        ModelNode response = dmrResponse.get();
-
-                        if (response.isFailure()) {
-                            Console.error("Failed to read resource description" + address.asString(),
-                                    response.getFailureDescription());
-                        } else {
-
-                            ModelNode desc = null;
-                            ModelNode result = response.get(RESULT);
-                            if (ModelType.LIST.equals(result.getType()))
-                                desc = result.asList().get(0).get(RESULT).asObject();
-                            else {
-                                desc = result.asObject();
-                            }
-
-                            control.getContext().description = desc;
-                            control.proceed();
-
-                        }
+                    public void onFailure(ResourceData context) {
 
                     }
-                });
-            }
-        };
 
-        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(true), new Outcome<ResourceData>() {
-            @Override
-            public void onFailure(ResourceData context) {
-
-            }
-
-            @Override
-            public void onSuccess(ResourceData context) {
-                getView().showAddDialog(address, isSingleton, context.securityContext, context.description);
-            }
-        }, secFn, descFn);
+                    @Override
+                    public void onSuccess(ResourceData context) {
+                        getView().showAddDialog(address, isSingleton, context.securityContext, context.description);
+                    }
+                }
+        );
 
     }
 

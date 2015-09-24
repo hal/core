@@ -50,7 +50,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     @ProxyCodeSplit
     @NameToken(NameTokens.LogFiles)
     @SearchIndex(keywords = {"log-file", "log-view", "server-log", "download"})
-    @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
+    @AccessControl(resources = "/{implicit.host}/{selected.server}/subsystem=logging", recursive = true)
     public interface MyProxy extends Proxy<LogFilesPresenter>, Place {}
 
 

@@ -227,6 +227,7 @@ public class ChildView {
     public void showAddDialog(final ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode description) {
 
         String resourceAddress = AddressUtils.asKey(address, isSingleton);
+
         if(securityContext.getOperationPriviledge(resourceAddress, "add").isGranted()) {
             _showAddDialog(address, securityContext, description);
         }

@@ -66,7 +66,7 @@ public class Bootstrapper {
 
     private void prepareSecurityContext(Scheduler.ScheduledCommand andThen) {
         // creates an empty (always true) security context for the bootstrap steps
-        securityFramework.createSecurityContext(null, Collections.<String>emptySet(), false,
+        /*securityFramework.createSecurityContext(null, Collections.<String>emptySet(), false,
                 new AsyncCallback<SecurityContext>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -77,6 +77,7 @@ public class Bootstrapper {
                     public void onSuccess(SecurityContext result) {
                         andThen.execute();
                     }
-                });
+                });*/
+        andThen.execute();
     }
 }

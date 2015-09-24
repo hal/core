@@ -79,7 +79,7 @@ public class AddressUtils {
         StringBuilder sb = new StringBuilder();
         int i=0;
         for (final Property tuple : tuples) {
-            sb.append("/");
+            if(i>0) sb.append("/");
 
             sb.append(tuple.getName());
             sb.append("=");
@@ -104,7 +104,7 @@ public class AddressUtils {
 
         int i=0;
         for (final Property tuple : tuples) {
-            sb.append("/");
+            if(i>0) sb.append("/");
 
             sb.append(tuple.getName());
             sb.append("=");

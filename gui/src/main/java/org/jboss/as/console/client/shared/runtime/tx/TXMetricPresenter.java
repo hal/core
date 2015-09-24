@@ -42,7 +42,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
     @ProxyCodeSplit
     @NameToken(NameTokens.TXMetrics)
     @RuntimeExtension(name="Transactions", group=RuntimeGroup.METRICS, key="transactions")
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "commit", "failure", "transaction-log"})
     public interface MyProxy extends Proxy<TXMetricPresenter>, Place {}
 

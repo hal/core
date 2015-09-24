@@ -67,7 +67,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
     @SearchIndex(keywords = {"patching", "update", "upgrade"})
-    @AccessControl(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
+    @AccessControl(resources = {"/{implicit.host}", "/{implicit.host}/core-service=patching"}, recursive = false)
     public interface MyProxy extends Proxy<PatchManagementPresenter>, Place {
     }
 

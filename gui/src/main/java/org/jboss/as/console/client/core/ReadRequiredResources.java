@@ -56,18 +56,31 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
     private static final String EXCEPTIONS = "exceptions";
     private static final String ACCESS_CONTROL = "access-control";
     private static final String COMBINED_DESCRIPTIONS = "combined-descriptions";
+    private static final String HOST_PREFIX = "/host=*";
 
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final List<Input> input;
+    private final List<String> implictResources;
 
     public ReadRequiredResources(DispatchAsync dispatcher, StatementContext statementContext) {
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.input = new ArrayList<>();
+        this.implictResources = new ArrayList<>();
     }
 
     public void add(String requiredResource, boolean recursive) {
+
+        // skip contexts that should be created implicitly
+        // workaround for /host=* registrations that cannot reliably be queried
+        if(requiredResource.startsWith(HOST_PREFIX))
+        {
+            implictResources.add(requiredResource);
+            return;
+        }
+
+
         ResourceRef ref = new ResourceRef(requiredResource);
         ResourceAddress address = new ResourceAddress(ref.getAddress(), new ModelNode().setEmptyList(), statementContext);
         ResourceDescription description = new ResourceDescription(requiredResource, address);
@@ -216,6 +229,15 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                     }
                 }
             }
+
+
+            // implicitly register contexts here
+            for (String address : implictResources) {
+                control.getContext().getSecurityContextImpl().setConstraints(
+                        address, createUnconstrained(address)
+                        );
+            }
+
             control.proceed();
         }
 
@@ -316,6 +338,42 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                     constraints.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE).asBoolean());
                 }
             }
+            return constraints;
+        }
+
+        private Constraints createUnconstrained(String address) {
+            final Constraints constraints = new Constraints(address) {
+                @Override
+                public boolean isAddress() {
+                    return false;
+                }
+
+                @Override
+                public boolean isReadResource() {
+                    return true;
+                }
+
+                @Override
+                public boolean isWriteResource() {
+                    return true;
+                }
+
+                @Override
+                public boolean isAttributeRead(String name) {
+                    return true;
+                }
+
+                @Override
+                public boolean isAttributeWrite(String name) {
+                    return true;
+                }
+
+                @Override
+                public boolean isOperationExec(String resourceAddress, String name) {
+                    return true;
+                }
+            };
+
             return constraints;
         }
 

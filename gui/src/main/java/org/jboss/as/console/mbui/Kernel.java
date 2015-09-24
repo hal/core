@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.NoGatekeeperContext;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
 import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
@@ -208,7 +209,7 @@ public class Kernel implements NavigationDelegate {
                 RequiredResources resourceVisitor = new RequiredResources();
                 dialog.getInterfaceModel().accept(resourceVisitor);
 
-                securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(), false,
+               /* securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(), false,
                         new AsyncCallback<SecurityContext>() {
                             @Override
                             public void onFailure(Throwable caught) {
@@ -224,7 +225,9 @@ public class Kernel implements NavigationDelegate {
                                 control.proceed();
                             }
                         }
-                );
+                );*/
+
+                control.getContext().set(ContextKey.SECURITY_CONTEXT, new NoGatekeeperContext());
 
             }
         };

@@ -135,7 +135,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 onNavigate(HEAD);
             }
         });
-        head.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        head.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(head, BASE_ID, "head");
 
         prev = new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
@@ -144,7 +144,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 onNavigate(PREVIOUS);
             }
         });
-        prev.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        prev.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(prev, BASE_ID, "prev");
 
         next = new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
@@ -153,7 +153,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 onNavigate(NEXT);
             }
         });
-        next.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        next.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(next, BASE_ID, "next");
 
         tail = new ToolButton("Tail", new ClickHandler() {
@@ -162,7 +162,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 onNavigate(TAIL);
             }
         });
-        tail.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        tail.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(tail, BASE_ID, "tail");
 
         ToolStrip navigationTools = new ToolStrip();

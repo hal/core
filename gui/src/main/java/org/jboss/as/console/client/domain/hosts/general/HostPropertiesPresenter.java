@@ -69,7 +69,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @NameToken(NameTokens.HostPropertiesPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"system-property", "property"})
-    @AccessControl(resources = {"/{selected.host}/system-property=*",})
+    @AccessControl(resources = {"/{implicit.host}/system-property=*",})
     public interface MyProxy extends ProxyPlace<HostPropertiesPresenter>, Place {}
 
 

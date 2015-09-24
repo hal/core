@@ -102,7 +102,7 @@ public class DomainDeploymentFinder
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             "/deployment=*",
-            //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
+            //"/{implicit.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={selected.group}/deployment=*"},
             recursive = false)
     public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {}

@@ -23,6 +23,7 @@ public class CoreGUIContext implements StatementContext {
     public final static String USER = "global.user";
     public final static String SELECTED_PROFILE = "selected.profile";
     public final static String SELECTED_HOST = "selected.host";
+    public final static String IMPLICT_HOST = "implicit.host";
     public final static String SELECTED_SERVER = "selected.server";
     private final ServerStore serverStore;
 
@@ -58,12 +59,22 @@ public class CoreGUIContext implements StatementContext {
 
     @Override
     public String[] resolveTuple(String key) {
-        if(SELECTED_PROFILE.equals(key) && profileSelection.isSet())
-            return new String[] {"profile", profileSelection.getName()};
-        else if(isDomainMode() && SELECTED_HOST.equals(key))
+        if(SELECTED_PROFILE.equals(key) && profileSelection.isSet()) {
+            return new String[]{"profile", profileSelection.getName()};
+        }
+        else if(isDomainMode() && SELECTED_HOST.equals(key)) {
             return new String[] {"host", hostStore.getSelectedHost()};
-        else if(isDomainMode() && SELECTED_SERVER.equals(key))
-            return new String[] {"server", serverStore.getSelectedServer().getServerName()};
+        }
+        else if(isDomainMode() && IMPLICT_HOST.equals(key)) {
+            String hostName = serverStore.hasSelectedServer() ?
+                    serverStore.getSelectedServer().getHostName() :
+                    hostStore.getSelectedHost();
+
+            return new String[]{"host", hostName};
+        }
+        else if(isDomainMode() && SELECTED_SERVER.equals(key)) {
+            return new String[]{"server", serverStore.getSelectedServer().getServerName()};
+        }
         return null;
     }
 

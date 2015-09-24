@@ -24,15 +24,6 @@ public interface SecurityFramework extends SecurityService {
     SecurityContext getSecurityContext(String id);
 
     /**
-     * Create a security context for a particular place.
-     *
-     * @param id
-     * @param requiredResources a list of resources to operate on
-     * @param callback
-     */
-    void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback);
-
-    /**
      * Assign a context for a token
      * @param id
      * @param context

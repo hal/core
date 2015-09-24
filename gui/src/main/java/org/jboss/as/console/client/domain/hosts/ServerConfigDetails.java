@@ -121,7 +121,7 @@ public class ServerConfigDetails {
 
         form.setEnabled(false);
         layout.add(form.asWidget());
-        form.setSecurityContextFilter("/{selected.host}/server-config=*");
+        form.setSecurityContextFilter("/{implicit.host}/server-config=*");
 
         return layout;
     }

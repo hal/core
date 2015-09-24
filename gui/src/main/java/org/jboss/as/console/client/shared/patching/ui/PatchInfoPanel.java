@@ -98,7 +98,7 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
                 presenter.launchApplyWizard();
             }
         });
-        applyButton.setOperationAddress("/{selected.host}/core-service=patching", "patch");
+        applyButton.setOperationAddress("/{implicit.host}/core-service=patching", "patch");
         applyButton.getElement().setId(asId(PREFIX, getClass(), "_Apply"));
         tools.addToolButtonRight(applyButton);
         ClickHandler rollbackHandler = new ClickHandler() {
@@ -111,13 +111,13 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
             }
         };
         ToolButton rollbackButton = new ToolButton(Console.CONSTANTS.patch_manager_rollback());
-        rollbackButton.setOperationAddress("/{selected.host}/core-service=patching", "rollback");
+        rollbackButton.setOperationAddress("/{implicit.host}/core-service=patching", "rollback");
         rollbackButton.getElement().setId(asId(PREFIX, getClass(), "_Rollback"));
         rollbackButton.addClickHandler(rollbackHandler);
         tools.addToolButtonRight(rollbackButton);
 
         ToolButton restartButton = new ToolButton(Console.CONSTANTS.common_label_restart());
-        restartButton.setOperationAddress("/{selected.host}", "shutdown");
+        restartButton.setOperationAddress("/{implicit.host}", "shutdown");
         restartButton.getElement().setId(asId(PREFIX, getClass(), "_Restart"));
         restartButton.addClickHandler(new RestartHandler(host, presenter));
         tools.addToolButtonRight(restartButton);

@@ -58,7 +58,7 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
     @SearchIndex(keywords = {"runtime", "environment", "jvm"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
+    @AccessControl(resources = {"/{implicit.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
     public interface MyProxy extends Proxy<EnvironmentPresenter>, Place {
     }
 

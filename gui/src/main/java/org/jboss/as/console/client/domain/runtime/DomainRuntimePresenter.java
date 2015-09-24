@@ -89,7 +89,7 @@ public class DomainRuntimePresenter
     @NameToken(NameTokens.DomainRuntimePresenter)
     @RequiredResources(
             resources = {
-                    "/{selected.host}/server-config=*"
+                    "/{implicit.host}/server-config=*"
             },
             recursive = false)
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
@@ -167,7 +167,7 @@ public class DomainRuntimePresenter
                         // RBAC: context change propagation
                         SecurityContextChangedEvent.fire(
                                 DomainRuntimePresenter.this,
-                                "/{selected.host}/server-config=*", serverStore.getSelectedServer().getServerName()
+                                "/{implicit.host}/server-config=*", serverStore.getSelectedServer().getServerName()
                         );
                     }
                     else {
@@ -244,7 +244,7 @@ public class DomainRuntimePresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        System.out.println("first");
+
     }
 
     @Override
