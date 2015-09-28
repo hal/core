@@ -70,12 +70,7 @@ public class AssignToGroupWizard {
         TextColumn<DeploymentRecord> titleColumn = new TextColumn<DeploymentRecord>() {
             @Override
             public String getValue(DeploymentRecord record) {
-                String title = null;
-                if(record.getRuntimeName().length()>37)
-                    title = record.getRuntimeName().substring(0,36)+"...";
-                else
-                    title = record.getRuntimeName();
-                return title;
+                return record.getRuntimeName();
             }
         };
 
