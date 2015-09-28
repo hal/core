@@ -22,8 +22,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.inject.Inject;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -58,6 +56,9 @@ public class ServerGroupDeploymentBrowser
     private ServerGroupRecord currentServerGroup;
     private DeploymentBrowser deploymentBrowser;
     private FeatureSet featureSet;
+    private ToolButton assign;
+    private ToolButton remove;
+    private ToolButton enableDisable;
 
 
     public ServerGroupDeploymentBrowser(final DomainDeploymentPresenter presenter,
@@ -76,45 +77,40 @@ public class ServerGroupDeploymentBrowser
                 keyProvider);
 
         ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_assign(), new
-                ClickHandler()
-                {
+        assign = new ToolButton(Console.CONSTANTS.common_label_assign(), new
+                ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent clickEvent)
-                    {
+                    public void onClick(ClickEvent clickEvent) {
                         presenter.launchAssignDeploymentToGroupWizard(currentServerGroup);
                     }
-                }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_remove(), new
+                });
+        tools.addToolButtonRight(assign);
+        remove = new ToolButton(Console.CONSTANTS.common_label_remove(), new
 
 
-                ClickHandler()
-                {
+                ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent clickEvent)
-                    {
+                    public void onClick(ClickEvent clickEvent) {
                         DeploymentRecord selection = selectionModel.getSelectedObject();
-                        if (selection != null)
-                        {
+                        if (selection != null) {
                             presenter.onRemoveDeploymentInGroup(selection);
                         }
                     }
-                }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_enOrDisable(), new
+                });
+        tools.addToolButtonRight(remove);
+        enableDisable = new ToolButton(Console.CONSTANTS.common_label_enOrDisable(), new
 
 
-                ClickHandler()
-                {
+                ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent clickEvent)
-                    {
+                    public void onClick(ClickEvent clickEvent) {
                         DeploymentRecord selection = selectionModel.getSelectedObject();
-                        if (selection != null)
-                        {
+                        if (selection != null) {
                             presenter.onDisableDeploymentInGroup(selection);
                         }
                     }
-                }));
+                });
+        tools.addToolButtonRight(enableDisable);
 
         deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel, featureSet);
 
@@ -149,6 +145,13 @@ public class ServerGroupDeploymentBrowser
         }
         if (anyEnabled)
         {
+            // HAL-343 / BZ1028443: Disable until reference server is resolved
+            final boolean assignEnabled = assign.isEnabled();
+            final boolean removeEnabled = remove.isEnabled();
+            final boolean enableDisableEnabled = enableDisable.isEnabled();
+            assign.setEnabled(false);
+            remove.setEnabled(false);
+            enableDisable.setEnabled(false);
             hostInfoStore.loadServerInstances(currentServerGroup.getName(), new SimpleCallback<List<ServerInstance>>()
             {
                 @Override
@@ -182,6 +185,17 @@ public class ServerGroupDeploymentBrowser
                     {
                         Console.warning("No active server in this group.", "Unable to retrieve deployment subsystem information. ");
                     }
+                    assign.setEnabled(assignEnabled);
+                    remove.setEnabled(removeEnabled);
+                    enableDisable.setEnabled(enableDisableEnabled);
+                }
+
+                @Override
+                public void onFailure(final Throwable caught) {
+                    super.onFailure(caught);
+                    assign.setEnabled(assignEnabled);
+                    remove.setEnabled(removeEnabled);
+                    enableDisable.setEnabled(enableDisableEnabled);
                 }
 
                 ServerInstance matchingServer(ServerInstance server)
