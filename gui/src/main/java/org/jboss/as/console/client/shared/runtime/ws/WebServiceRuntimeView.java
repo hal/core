@@ -24,6 +24,7 @@ import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
+import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ColumnSortHandler;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -45,6 +46,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     private Sampler sampler;
     private Column[] columns;
     private WebServiceRuntimePresenter presenter;
+    private SingleSelectionModel<WebServiceEndpoint> selectionModel;
 
     @Override
     public void setPresenter(WebServiceRuntimePresenter presenter) {
@@ -115,7 +117,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         table.addColumnSortHandler(sortHandler);
         table.getColumnSortList().push(nameCol); // initial sort is on name
 
-        final SingleSelectionModel<WebServiceEndpoint> selectionModel = new SingleSelectionModel(keyProvider);
+        selectionModel = new SingleSelectionModel(keyProvider);
         table.setSelectionModel(selectionModel);
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -123,19 +125,8 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 final WebServiceEndpoint selection = selectionModel.getSelectedObject();
-                if(selection!=null) {
-                    sampler.clearSamples();
-                    sampler.addSample(
-                            new Metric(
-                                    selection.getRequestCount(),
-                                    selection.getResponseCount(),
-                                    selection.getFaultCount()
-                            ));
-                }
-                else
-                {
-                    sampler.clearSamples();
-                }
+                sampler.clearSamples();
+                addSample(selection);
             }
         });
         DefaultPager pager = new DefaultPager();
@@ -173,10 +164,10 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
                 )
                 .setForm(basics);
 
-        columns = new Column[] {
+        columns = new Column[]{
                 new NumberColumn("request-count", "Number of request").setBaseline(true),
-                new NumberColumn("response-count","Responses"),
-                new NumberColumn("fault-count","Faults")
+                new NumberColumn("response-count", "Responses"),
+                new NumberColumn("fault-count", "Faults")
         };
 
 
@@ -195,7 +186,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
 
 
         sampler = new BulletGraphView("Web Service Requests", "total number", true)
-                        .setColumns(columns);
+                .setColumns(columns);
 
         VerticalPanel p = new VerticalPanel();
         p.setStyleName("fill-layout-width");
@@ -215,7 +206,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     }
 
     public void updateEndpoints(List<WebServiceEndpoint> endpoints) {
-        ((SingleSelectionModel)table.getSelectionModel()).clear();
+        ((SingleSelectionModel) table.getSelectionModel()).clear();
 
         dataProvider.setList(endpoints);
         sortHandler.setList(dataProvider.getList());
@@ -224,10 +215,16 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         ColumnSortEvent.fire(table, table.getColumnSortList());
 
         table.selectDefaultEntity();
+        WebServiceEndpoint selection = selectionModel.getSelectedObject();
+        addSample(selection);
+    }
 
-       /* ((SingleSelectionModel)table.getSelectionModel()).clear();
-        dataProvider.setList(endpoints);
-        table.selectDefaultEntity();*/
-
+    private void addSample(WebServiceEndpoint endpoint) {
+        if (endpoint != null) {
+            sampler.addSample(new Metric(
+                    endpoint.getRequestCount(),
+                    endpoint.getResponseCount(),
+                    endpoint.getFaultCount()));
+        }
     }
 }
