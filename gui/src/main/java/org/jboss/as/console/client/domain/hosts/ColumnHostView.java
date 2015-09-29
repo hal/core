@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
@@ -41,7 +40,6 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -123,16 +121,8 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts.setShowSize(true);
 
-        hosts.setPreviewFactory(new PreviewFactory<String>() {
-            @Override
-            public void createPreview(String data, AsyncCallback<SafeHtml> callback) {
-                SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Host Configuration").appendHtmlConstant("</h2>");
-                html.appendEscaped("One of the primary new features of WildFly 8 is the ability to manage multiple WildFly instances from a single control point. A collection of such servers is referred to as the members of a \"domain\" with a single Domain Controller process acting as the central management control point. All of the WildFly 8 instances in the domain share a common management policy, with the Domain Controller acting to ensure that each server is configured according to that policy. Domains can span multiple physical (or virtual) machines, with all WildFly 8 instances on a given host under the control of a special Host Controller process. One Host Controller instance is configured to act as the central Domain Controller. The Host Controller on each host interacts with the Domain Controller to control the lifecycle of the application server instances running on its host and to assist the Domain Controller in managing them.");
-                html.appendHtmlConstant("</div>");
-                callback.onSuccess(html.toSafeHtml());
-            }
-        });
+        hosts.setPreviewFactory(
+                (data, callback) -> contentFactory.createContent(PreviewContent.INSTANCE.runtime_host(), callback));
 
         hosts.setTopMenuItems(new MenuDelegate<String>("Refresh", new ContextualCommand<String>() {
             @Override
@@ -187,16 +177,8 @@ public class ColumnHostView extends SuspendableViewImpl
                         }, MenuDelegate.Role.Operation)
         );
 
-        groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
-            @Override
-            public void createPreview(ServerGroupRecord data, AsyncCallback<SafeHtml> callback) {
-                SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Server Groups").appendHtmlConstant("</h2>");
-                html.appendEscaped("A server group is set of server instances that will be managed and configured as one. In a managed domain each application server instance is a member of a server group. (Even if the group only has a single server, the server is still a member of a group.) It is the responsibility of the Domain Controller and the Host Controllers to ensure that all servers in a server group have a consistent configuration. They should all be configured with the same profile and they should have the same deployment content deployed.");
-                html.appendHtmlConstant("</div>");
-                callback.onSuccess(html.toSafeHtml());
-            }
-        });
+        groups.setPreviewFactory((data, callback) -> contentFactory
+                .createContent(PreviewContent.INSTANCE.runtime_server_group(), callback));
 
         hostColWidget = hosts.asWidget();
         groupsColWidget = groups.asWidget();
@@ -229,7 +211,16 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }, NameTokens.HostMgmtPresenter);
 
-
+        browseColumn.setPreviewFactory(new PreviewFactory<FinderItem>() {
+            @Override
+            public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
+                if ("Hosts".equals(data.getTitle())) {
+                    contentFactory.createContent(PreviewContent.INSTANCE.runtime_hosts(), callback);
+                } else if ("Server Groups".equals(data.getTitle())) {
+                    contentFactory.createContent(PreviewContent.INSTANCE.runtime_server_groups(), callback);
+                }
+            }
+        });
 
         Widget browseWidget = browseColumn.asWidget();
         columnManager.addWest(browseWidget);
@@ -243,8 +234,7 @@ public class ColumnHostView extends SuspendableViewImpl
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 columnManager.reduceColumnsTo(1);
-                if(browseColumn.hasSelectedItem())
-                {
+                if (browseColumn.hasSelectedItem()) {
                     columnManager.updateActiveSelection(browseWidget);
 
                     clearNestedPresenter();
@@ -310,11 +300,6 @@ public class ColumnHostView extends SuspendableViewImpl
                             }
                     );
                 }
-                else
-                {
-                    clearNestedPresenter();
-                    startupContent();
-                }
             }
         });
 
@@ -372,11 +357,6 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
-                }
-                else
-                {
-                    clearNestedPresenter();
-                    startupContent();
                 }
             }
         });
@@ -565,6 +545,7 @@ public class ColumnHostView extends SuspendableViewImpl
         //layout.getElement().setAttribute("style", "overflow-x:auto");
         //layout.getElement().setId("scrolling");
         //layout.setWidth("2000px");
+        startupContent();
         return layout;
 
     }
@@ -598,16 +579,11 @@ public class ColumnHostView extends SuspendableViewImpl
     }
 
     private void startupContent() {
-        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty(),
+        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty_domain(),
                 new SimpleCallback<SafeHtml>() {
                     @Override
                     public void onSuccess(SafeHtml previewContent) {
-                        Scheduler.get().scheduleDeferred(() -> {
-                            if(contentCanvas.getWidgetCount()==0) { // nested presenter shows preview
-                                contentCanvas.clear();
-                                contentCanvas.add(new HTML(previewContent));
-                            }
-                        });
+                        contentCanvas.add(new HTML(previewContent));
                     }
                 }
         );
@@ -616,7 +592,12 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void preview(SafeHtml html) {
-        // TODO remove
+        if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(browseColumn.getToken())) {
+            Scheduler.get().scheduleDeferred(() -> {
+                contentCanvas.clear();
+                contentCanvas.add(new HTML(html));
+            });
+        }
     }
 
     @Override

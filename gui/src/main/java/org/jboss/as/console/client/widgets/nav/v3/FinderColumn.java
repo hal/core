@@ -277,11 +277,12 @@ public class FinderColumn<T> implements SecurityContextAware {
         int row = cellTable.getKeyboardSelectedRow();
         if (row < cellTable.getRowCount()) {
             TableRowElement rowElement = cellTable.getRowElement(row);
-
-            if(!fn.isDisclosed()) {
-                rowElement.addClassName("nav-hover");
-            } else {
-                rowElement.removeClassName("nav-hover");
+            if (rowElement != null) {
+                if(!fn.isDisclosed()) {
+                    rowElement.addClassName("nav-hover");
+                } else {
+                    rowElement.removeClassName("nav-hover");
+                }
             }
         }
     }

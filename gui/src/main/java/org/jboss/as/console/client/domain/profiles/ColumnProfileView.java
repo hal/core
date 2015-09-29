@@ -23,7 +23,6 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
@@ -31,7 +30,6 @@ import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemReference;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -456,10 +454,6 @@ public class ColumnProfileView extends SuspendableViewImpl
                         presenter.loadProfiles();
                     }
                 }
-                else
-                {
-                    startupContent();
-                }
             }
 
         });
@@ -522,13 +516,12 @@ public class ColumnProfileView extends SuspendableViewImpl
     }
 
     private void startupContent() {
-
         contentFactory.createContent(
                 PreviewContent.INSTANCE.profiles_empty(),
                 new SimpleCallback<SafeHtml>() {
                     @Override
                     public void onSuccess(SafeHtml previewContent) {
-                        setPreview(previewContent);
+                        contentCanvas.add(new HTML(previewContent));
                     }
                 }
         );
@@ -537,6 +530,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     @Override
     public Widget createWidget() {
         Widget widget = splitlayout.asWidget();
+        startupContent();
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -694,22 +688,17 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     @Override
     public void setPresenter(ProfileMgmtPresenter presenter) {
-
         this.presenter = presenter;
     }
 
     @Override
     public void setPreview(final SafeHtml html) {
-
-        if(contentCanvas.getWidgetCount()==0) {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    contentCanvas.add(new HTML(html));
-                }
+        if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(config.getToken())) {
+            Scheduler.get().scheduleDeferred(() -> {
+                contentCanvas.clear();
+                contentCanvas.add(new HTML(html));
             });
         }
-
     }
 
     @Override

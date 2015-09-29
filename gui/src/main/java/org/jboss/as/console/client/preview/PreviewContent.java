@@ -42,8 +42,23 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("properties.html")
     ExternalTextResource properties();
 
-    @Source("runtime_empty.html")
-    ExternalTextResource runtime_empty();
+    @Source("runtime_empty_standalone.html")
+    ExternalTextResource runtime_empty_standalone();
+
+    @Source("runtime_empty_domain.html")
+    ExternalTextResource runtime_empty_domain();
+
+    @Source("runtime_hosts.html")
+    ExternalTextResource runtime_hosts();
+
+    @Source("runtime_host.html")
+    ExternalTextResource runtime_host();
+
+    @Source("runtime_server_groups.html")
+    ExternalTextResource runtime_server_groups();
+
+    @Source("runtime_server_group.html")
+    ExternalTextResource runtime_server_group();
 
     @Source("sockets.html")
     ExternalTextResource sockets();
@@ -84,6 +99,12 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/batch.html")
     ExternalTextResource batch();
 
+    @Source("content/batch.html")
+    ExternalTextResource batch_jberet();
+
+    @Source("content/cache_container.html")
+    ExternalTextResource cache_container();
+
     @Source("content/content_repository.html")
     ExternalTextResource content_repository();
 
@@ -117,11 +138,17 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/jpa.html")
     ExternalTextResource jpa();
 
+    @Source("content/jsp_servlet.html")
+    ExternalTextResource jsp_servlet();
+
     @Source("content/logging.html")
     ExternalTextResource logging();
 
     @Source("content/mail.html")
     ExternalTextResource mail();
+
+    @Source("content/mod_cluster.html")
+    ExternalTextResource modcluster();
 
     @Source("content/resource_adapters.html")
     ExternalTextResource ra_finder();
@@ -134,6 +161,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("content/server_group.html")
     ExternalTextResource server_group();
+
+    @Source("content/server_group_content.html")
+    ExternalTextResource server_group_content();
 
     @Source("content/servlet.html")
     ExternalTextResource servlet();

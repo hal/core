@@ -316,7 +316,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             presenter.loadUnassignedContent();
         });
         BrowseByItem serverGroupsItem = new BrowseByItem("Server Groups",
-                PreviewContent.INSTANCE.server_group(), () -> {
+                PreviewContent.INSTANCE.server_group_content(), () -> {
             columnManager.appendColumn(serverGroupColumnWidget);
             presenter.loadServerGroups();
         });

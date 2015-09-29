@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -19,6 +20,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 
 import java.util.List;
 
@@ -37,8 +39,11 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
     private Widget mailSessCol;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}<br/><span style='font-size:9px'>({2})</span></div>")
+        @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title, String jndiName);
+
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The mail session is bound to {1}.</p></div>")
+        SafeHtml mailSessionPreview(String name, String jndi);
     }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
@@ -95,6 +100,13 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     }
                 }, presenter.getProxy().getNameToken())
         ;
+
+        mailSessions.setPreviewFactory(new PreviewFactory<MailSession>() {
+            @Override
+            public void createPreview(final MailSession data, final AsyncCallback<SafeHtml> callback) {
+                callback.onSuccess(TEMPLATE.mailSessionPreview(data.getName(), data.getJndiName()));
+            }
+        });
 
         mailSessions.setTopMenuItems(
                 new MenuDelegate<MailSession>(

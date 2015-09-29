@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -20,7 +21,9 @@ import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -42,6 +45,9 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
+
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The resource adapter is defined in {1} {2}.</p></div>")
+        SafeHtml resourceAdapterPreview(String name, String archiveOrModule, String archiveOrModuleName);
     }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
@@ -98,6 +104,18 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
                     }
                 }, presenter.getProxy().getNameToken())
         ;
+
+        adapter.setPreviewFactory(new PreviewFactory<Property>() {
+            @Override
+            public void createPreview(final Property data, final AsyncCallback<SafeHtml> callback) {
+                String name = data.getName();
+                ModelNode resourceAdapter = data.getValue();
+                String archiveOrModule = resourceAdapter.hasDefined("archive") ? "archive" : "module";
+                String archiveOrModuleName = resourceAdapter.hasDefined("archive") ? resourceAdapter.get("archive")
+                        .asString() : resourceAdapter.get("module").asString();
+                callback.onSuccess(TEMPLATE.resourceAdapterPreview(name, archiveOrModule, archiveOrModuleName));
+            }
+        });
 
         adapter.setTopMenuItems(
                 new MenuDelegate<Property>(

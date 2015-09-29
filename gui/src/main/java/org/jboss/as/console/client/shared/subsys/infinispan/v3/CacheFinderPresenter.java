@@ -44,6 +44,7 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.AccessControl;
@@ -69,7 +70,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  *
  * @author Heiko Braun
  */
-public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView, CacheFinderPresenter.MyProxy> {
+public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView, CacheFinderPresenter.MyProxy> implements
+        PreviewEvent.Handler {
 
 
     private final DispatchAsync dispatcher;
@@ -121,6 +123,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     @Override
     protected void onBind() {
         super.onBind();
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
         getView().setPresenter(this);
     }
 
@@ -367,6 +370,12 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
 
         containerView.updateFrom(cacheContainer.getValue());
 
+    }
+
+    @Override
+    public void onPreview(final PreviewEvent event) {
+        if(isVisible())
+            getView().setPreview(event.getHtml());
     }
 }
 

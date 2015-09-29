@@ -26,7 +26,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -229,4 +228,7 @@ public class ProfileMgmtPresenter
         window.hide();
     }
 
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
 }

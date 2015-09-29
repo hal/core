@@ -10,6 +10,7 @@ gwt-unitCache
 .settings
 .project
 .classpath
+.wakatime-project
 *.*~
 *.releaseBackup
 release.properties

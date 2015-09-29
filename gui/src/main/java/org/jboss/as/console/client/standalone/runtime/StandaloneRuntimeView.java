@@ -506,7 +506,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     }
 
     private void startupContent() {
-        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty(),
+        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty_standalone(),
                 new SimpleCallback<SafeHtml>() {
                     @Override
                     public void onSuccess(SafeHtml previewContent) {

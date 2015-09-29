@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -20,6 +21,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
@@ -42,6 +44,9 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
+
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The configuration of an infinispan cache container.</p></div>")
+        SafeHtml preview(String name);
     }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
@@ -98,6 +103,13 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                     }
                 }, presenter.getProxy().getNameToken())
         ;
+
+        cacheContainer.setPreviewFactory(new PreviewFactory<Property>() {
+            @Override
+            public void createPreview(final Property data, final AsyncCallback<SafeHtml> callback) {
+                callback.onSuccess(TEMPLATE.preview(data.getName()));
+            }
+        });
 
         cacheContainer.setTopMenuItems(
                 new MenuDelegate<Property>(
@@ -178,7 +190,6 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
 
     @Override
     public void setPreview(final SafeHtml html) {
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -186,6 +197,5 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                 previewCanvas.add(new HTML(html));
             }
         });
-
     }
 }

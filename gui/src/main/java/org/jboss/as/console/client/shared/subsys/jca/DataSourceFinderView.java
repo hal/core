@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -24,6 +25,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
@@ -48,13 +50,22 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
     private FinderColumn<XADataSource> xadatasources;
     private Widget xaColWidget;
 
+
     interface Template extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title, String jndiName);
 
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
+
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>{1}</p></div>")
+        SafeHtml typePreview(String title, String description);
+
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The datasource is {1} and bound to {2}.</p></div>")
+        SafeHtml datasourcePreview(String name, String enabledDisabled, String JNDI);
     }
+
 
     private static final Template TEMPLATE = GWT.create(Template.class);
 
@@ -130,6 +141,19 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }, presenter.getProxy().getNameToken());
 
+        typeColumn.setPreviewFactory(new PreviewFactory<FinderItem>() {
+            @Override
+            public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
+                if ("Non-XA".equals(data.getTitle())) {
+                    callback.onSuccess(TEMPLATE.typePreview("Non-XA Datasources",
+                            "Manage Non-XA datasources, which are used for applications which do not use transactions, or applications which use transactions with a single database."));
+                } else {
+                    callback.onSuccess(TEMPLATE.typePreview("XA Datasources",
+                            "Manage XA datasources, which are used by applications whose transactions are distributed across multiple databases."));
+                }
+            }
+        });
+
 
         datasources = new FinderColumn<DataSource>(
                 FinderColumn.FinderId.CONFIGURATION,
@@ -159,6 +183,14 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }, presenter.getProxy().getNameToken())
         ;
+
+        datasources.setPreviewFactory(new PreviewFactory<DataSource>() {
+            @Override
+            public void createPreview(final DataSource data, final AsyncCallback<SafeHtml> callback) {
+                callback.onSuccess(
+                        TEMPLATE.datasourcePreview(data.getName(), (data.isEnabled() ? "enabled" : "disabled"), data.getJndiName()));
+            }
+        });
 
         datasources.setTopMenuItems(
                 new MenuDelegate<DataSource>(
@@ -202,13 +234,16 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 }, MenuDelegate.Role.Operation),
 
                 new MenuDelegate<DataSource>("En/Disable",
-                        new ContextualCommand<DataSource>(){
+                        new ContextualCommand<DataSource>() {
                             @Override
                             public void executeOn(DataSource item) {
 
                                 final boolean nextState = !item.isEnabled();
-                                String title = nextState ? Console.MESSAGES.enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
-                                String text = nextState ? Console.MESSAGES.enableConfirm("datasource "+item.getName()) : Console.MESSAGES.disableConfirm("datasource "+item.getName()) ;
+                                String title = nextState ? Console.MESSAGES
+                                        .enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
+                                String text = nextState ? Console.MESSAGES
+                                        .enableConfirm("datasource " + item.getName()) : Console.MESSAGES
+                                        .disableConfirm("datasource " + item.getName());
                                 Feedback.confirm(title, text,
                                         new Feedback.ConfirmationHandler() {
                                             @Override
@@ -221,8 +256,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                             }
                         },
                         MenuDelegate.Role.Operation
-                )
-                {
+                ) {
                     @Override
                     public String render(DataSource data) {
                         return data.isEnabled() ? "Disable" : "Enable";
@@ -262,6 +296,15 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 }, presenter.getProxy().getNameToken())
         ;
 
+        xadatasources.setPreviewFactory(new PreviewFactory<XADataSource>() {
+            @Override
+            public void createPreview(final XADataSource data, final AsyncCallback<SafeHtml> callback) {
+                callback.onSuccess(
+                        TEMPLATE.datasourcePreview(data.getName(),
+                                (data.isEnabled() ? "enabled" : "disabled"), data.getJndiName()));
+            }
+        });
+
         xadatasources.setTopMenuItems(
                 new MenuDelegate<XADataSource>(
                         "Add", new ContextualCommand<XADataSource>() {
@@ -290,7 +333,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
                         Feedback.confirm(
                                 Console.MESSAGES.deleteTitle("XA Datasource"),
-                                Console.MESSAGES.deleteConfirm("XA Datasource "+ds.getName()),
+                                Console.MESSAGES.deleteConfirm("XA Datasource " + ds.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -305,13 +348,16 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 }, MenuDelegate.Role.Operation),
 
                 new MenuDelegate<XADataSource>("En/Disable",
-                        new ContextualCommand<XADataSource>(){
+                        new ContextualCommand<XADataSource>() {
                             @Override
                             public void executeOn(XADataSource item) {
 
                                 final boolean nextState = !item.isEnabled();
-                                String title = nextState ? Console.MESSAGES.enableConfirm("XA datasource") : Console.MESSAGES.disableConfirm("datasource");
-                                String text = nextState ? Console.MESSAGES.enableConfirm("XA datasource "+item.getName()) : Console.MESSAGES.disableConfirm("datasource "+item.getName()) ;
+                                String title = nextState ? Console.MESSAGES
+                                        .enableConfirm("XA datasource") : Console.MESSAGES.disableConfirm("datasource");
+                                String text = nextState ? Console.MESSAGES
+                                        .enableConfirm("XA datasource " + item.getName()) : Console.MESSAGES
+                                        .disableConfirm("datasource " + item.getName());
                                 Feedback.confirm(title, text,
                                         new Feedback.ConfirmationHandler() {
                                             @Override
@@ -350,8 +396,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 columnManager.reduceColumnsTo(1);
-                if(typeColumn.hasSelectedItem())
-                {
+                if (typeColumn.hasSelectedItem()) {
                     FinderItem item = typeColumn.getSelectedItem();
                     columnManager.updateActiveSelection(typeColWidget);
                     item.getCmd().execute();
@@ -363,8 +408,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
         datasources.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(datasources.hasSelectedItem())
-                {
+                if (datasources.hasSelectedItem()) {
                     DataSource item = datasources.getSelectedItem();
                     columnManager.updateActiveSelection(datasourceColWidget);
 
