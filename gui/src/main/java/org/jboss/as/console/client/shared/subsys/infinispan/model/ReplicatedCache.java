@@ -168,7 +168,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="locking/LOCKING/acquire-timeout")
     @FormItem(defaultValue="15000",
             label="Acquire Timeout (ms)",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_locking")
@@ -180,7 +180,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="locking/LOCKING/concurrency-level")
     @FormItem(defaultValue="1000",
             label="Concurrency Level",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_locking")
@@ -303,7 +303,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="expiration/EXPIRATION/max-idle")
     @FormItem(defaultValue="-1",
             label="Max Idle",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX_ALLOW_NEGATIVE",
             formItemTypeForAdd="NUMBER_BOX_ALLOW_NEGATIVE",
             localTabName ="subsys_infinispan_expiration")
@@ -315,7 +315,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="expiration/EXPIRATION/lifespan")
     @FormItem(defaultValue="-1",
             label="Lifespan",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX_ALLOW_NEGATIVE",
             formItemTypeForAdd="NUMBER_BOX_ALLOW_NEGATIVE",
             localTabName ="subsys_infinispan_expiration")
@@ -327,7 +327,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="expiration/EXPIRATION/interval")
     @FormItem(defaultValue="5000",
             label="Interval",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX_ALLOW_NEGATIVE",
             formItemTypeForAdd="NUMBER_BOX_ALLOW_NEGATIVE",
             localTabName ="subsys_infinispan_expiration")
@@ -780,7 +780,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="queue-size")
     @FormItem(defaultValue="1000",
             label="Queue Size",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_attrs")
@@ -792,7 +792,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="queue-flush-interval")
     @FormItem(defaultValue="10",
             label="Queue Flush Interval",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_attrs")
@@ -804,7 +804,7 @@ public interface ReplicatedCache extends InvalidationCache {
     @Binding(detypedName="remote-timeout")
     @FormItem(defaultValue="17500",
             label="Remote Timeout (ms)",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_attrs")
