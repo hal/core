@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -42,10 +43,13 @@ import org.jboss.as.console.client.shared.properties.LoadPropertiesCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -82,17 +86,19 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     private final DispatchAsync dispatcher;
     private final HostStore hostStore;
     private final BeanFactory factory;
+    private final CoreGUIContext statementContext;
     private DefaultWindow propertyWindow;
 
     @Inject
     public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
-                                   DispatchAsync dispatcher,BeanFactory factory, HostStore hostStore) {
+                                   DispatchAsync dispatcher,BeanFactory factory, HostStore hostStore, CoreGUIContext statementContext) {
         super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
         this.factory = factory;
 
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -105,11 +111,17 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
 
     @Override
     protected void onAction(Action action) {
-        //placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
-        loadProperties();
+
+        switchContext();
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadProperties();
+            }
+        });
     }
 
-     @Override
+    @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
@@ -118,7 +130,33 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     protected void onReset() {
         super.onReset();
 
-        loadProperties();
+        switchContext();
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadProperties();
+            }
+        });
+
+    }
+
+    private void switchContext() {
+
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext);
+                return resolved;
+            }
+        };
+
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                HostPropertiesPresenter.this,
+                resolver
+        );
     }
 
     private PlaceRequest hostPlaceRequest() {

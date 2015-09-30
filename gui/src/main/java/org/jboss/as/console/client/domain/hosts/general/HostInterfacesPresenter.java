@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -36,12 +37,15 @@ import org.jboss.as.console.client.shared.general.InterfaceManagement;
 import org.jboss.as.console.client.shared.general.InterfaceManagementImpl;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
@@ -74,6 +78,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
 
     private final DispatchAsync dispatcher;
     private final ApplicationMetaData metaData;
+    private final CoreGUIContext statementContext;
     private final InterfaceManagement delegate;
     private final HostStore hostStore;
 
@@ -81,14 +86,15 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @Inject
     public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                                    HostStore hostStore, Dispatcher circuit,
-                                   DispatchAsync dispatcher, ApplicationMetaData metaData
-                                   ) {
+                                   DispatchAsync dispatcher, ApplicationMetaData metaData,
+                                   CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy, circuit);
 
         this.hostStore = hostStore;
         this.dispatcher = dispatcher;
         this.metaData = metaData;
+        this.statementContext = statementContext;
 
         this.delegate = new InterfaceManagementImpl(dispatcher, new EntityAdapter<Interface>(Interface.class, metaData),
                 metaData.getBeanMetaData(Interface.class));
@@ -117,7 +123,29 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @Override
     protected void onReset() {
         super.onReset();
-        loadInterfaces();
+
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext);
+                return resolved;
+            }
+        };
+
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                HostInterfacesPresenter.this,
+                resolver
+        );
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadInterfaces();
+            }
+        });
+
     }
 
     private PlaceRequest hostPlaceRequest() {

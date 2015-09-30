@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -38,12 +39,15 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -84,16 +88,18 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
     private final DispatchAsync dispatcher;
     private final HostStore hostStore;
+    private final CoreGUIContext statementContext;
     private final EntityAdapter<Jvm> adapter;
     private DefaultWindow window;
 
     @Inject
     public HostJVMPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-                            HostStore hostStore, ApplicationMetaData metaData) {
+                            HostStore hostStore, ApplicationMetaData metaData, CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
+        this.statementContext = statementContext;
         this.adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
     }
 
@@ -119,7 +125,29 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @Override
     protected void onReset() {
         super.onReset();
-        loadJVMConfig();
+
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext);
+                return resolved;
+            }
+        };
+
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                HostJVMPresenter.this,
+                resolver
+        );
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadJVMConfig();
+            }
+        });
+
     }
 
     private PlaceRequest hostPlaceRequest() {
