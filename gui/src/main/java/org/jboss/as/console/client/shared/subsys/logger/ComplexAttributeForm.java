@@ -126,13 +126,13 @@ public class ComplexAttributeForm {
             }
 
             @Override
-            public boolean hasChildContext(String s) {
+            public boolean hasChildContext(Object s, String resolvedKey) {
                 return false;
             }
 
             @Override
-            public SecurityContext getChildContext(String s) {
-                return null;
+            public void activateChildContext(Object resourceAddress, String resolvedKey) {
+
             }
 
             @Override

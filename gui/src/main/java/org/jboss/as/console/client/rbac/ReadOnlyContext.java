@@ -65,12 +65,12 @@ public class ReadOnlyContext implements SecurityContext {
     }
 
     @Override
-    public boolean hasChildContext(final String resourceAddress) {
+    public boolean hasChildContext(final Object resourceAddress, String resolvedKey) {
         return false;
     }
 
     @Override
-    public SecurityContext getChildContext(final String resourceAddress) {
-        return null;
+    public void activateChildContext(Object resourceAddress, String resolvedKey) {
+
     }
 }

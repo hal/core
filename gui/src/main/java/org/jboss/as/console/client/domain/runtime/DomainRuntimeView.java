@@ -21,6 +21,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -40,6 +41,7 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -324,9 +326,11 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         "View", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(final Server server) {
+
                         placeManager.revealRelativePlace(
                                 new PlaceRequest(NameTokens.ServerPresenter).with("action", "edit")
                         );
+
                     }
                 }),
                 new MenuDelegate<Server>(

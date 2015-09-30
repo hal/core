@@ -2,6 +2,8 @@ package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
@@ -27,31 +29,42 @@ public class SecurityContextImpl implements SecurityContext {
     String nameToken;
 
     /**
-     * Set of required resources.
-     * Taken from access control meta data
+     * Set of {@link org.jboss.as.console.spi.RequiredResources}
      */
-    Set<ResourceRef> requiredResources;
+    Set<AddressTemplate> requiredResources;
+
     /**
      * A list of access constraint definitions
      * (result of :read-resource-description(access-control=true))
      */
-    Map<String, Constraints> accessConstraints = new HashMap<String, Constraints>();
-    Map<String, Constraints> optionalConstraints = new HashMap<String, Constraints>();
-    Map<String, SecurityContext> childContexts = new HashMap<String, SecurityContext>();
+    private Map<AddressTemplate, Map<String,Constraints>> accessConstraints = new HashMap<>();
+    private Map<AddressTemplate, String> activeConstraints = new HashMap<>();
+    private AddressTemplate[] resourceAddresses;
 
-
-    /**
-     * A sealed context cannot be modified
-     */
-    private boolean sealed;
-
-    public SecurityContextImpl(String nameToken, Set<ResourceRef> requiredResources) {
+    public SecurityContextImpl(String nameToken, Set<AddressTemplate> requiredResources) {
         this.nameToken = nameToken;
         this.requiredResources = requiredResources;
     }
 
     public SafeHtml asHtml() {
-        return RBACUtil.dump(this);
+        try {
+            return RBACUtil.dump(this);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return new SafeHtmlBuilder().appendEscaped(e.getMessage()).toSafeHtml();
+        }
+    }
+
+    Set<AddressTemplate> getResourceAddresses() {
+        return accessConstraints.keySet();
+    }
+
+    public Set<String> getConstraintsKeys(AddressTemplate address) {
+        return accessConstraints.get(address).keySet();
+    }
+
+    public String getActiveKey(AddressTemplate address) {
+        return activeConstraints.get(address);
     }
 
     public interface Priviledge {
@@ -65,25 +78,23 @@ public class SecurityContextImpl implements SecurityContext {
      */
     private AuthorisationDecision checkPriviledge(Priviledge p, boolean includeOptional) {
 
-        if(!sealed)
-            throw new RuntimeException("Should be sealed before policy decisions are evaluated");
 
         AuthorisationDecision decision = new AuthorisationDecision(true);
-        for(ResourceRef ref : requiredResources)
+        for(AddressTemplate ref : requiredResources)
         {
-            if(ref.optional) continue; // skip optional ones
+            if(ref.isOptional()) continue; // skip optional ones
 
-            final Constraints model = getConstraints(ref.address, includeOptional);
+            final Constraints model = getConstraints(ref, includeOptional);
             if(model!=null)
             {
                 if(!p.isGranted(model))
                 {
-                    decision.getErrorMessages().add(ref.address);
+                    decision.getErrorMessages().add(ref.toString());
                 }
             }
             else
             {
-                decision.getErrorMessages().add("Missing constraints for "+ ref.address);
+                decision.getErrorMessages().add("Missing constraints for "+ ref.toString());
             }
 
             if(decision.hasErrorMessages())
@@ -107,7 +118,7 @@ public class SecurityContextImpl implements SecurityContext {
             public boolean isGranted(Constraints c) {
 
                 boolean readable = c.isReadResource();
-                if(!readable)
+                if (!readable)
                     Log.info("read privilege denied for: " + c.getResourceAddress());
                 return readable;
             }
@@ -117,7 +128,8 @@ public class SecurityContextImpl implements SecurityContext {
 
     @Override
     public AuthorisationDecision getReadPrivilege(String resourceAddress) {
-        Constraints constraints = getConstraints(resourceAddress, false);
+        AddressTemplate addr = AddressTemplate.of(resourceAddress);
+        Constraints constraints = getConstraints(addr, false);
         return new AuthorisationDecision(constraints.isReadResource());
     }
 
@@ -137,7 +149,8 @@ public class SecurityContextImpl implements SecurityContext {
 
     @Override
     public AuthorisationDecision getWritePrivilege(String resourceAddress) {
-        Constraints constraints = getConstraints(resourceAddress, false);
+        AddressTemplate addr = AddressTemplate.of(resourceAddress);
+        Constraints constraints = getConstraints(addr, false);
         return new AuthorisationDecision(constraints.isWriteResource());
     }
 
@@ -162,8 +175,8 @@ public class SecurityContextImpl implements SecurityContext {
 
     @Override
     public AuthorisationDecision getAttributeWritePriviledge(String resourceAddress, String attributeName) {
-
-        Constraints constraints = getConstraints(resourceAddress, true);
+        AddressTemplate addr = AddressTemplate.of(resourceAddress);
+        Constraints constraints = getConstraints(addr, true);
         Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
 
         if(null==attributePerm)
@@ -174,7 +187,8 @@ public class SecurityContextImpl implements SecurityContext {
 
     @Override
     public AuthorisationDecision getAttributeReadPriviledge(String resourceAddress, String attributeName) {
-        Constraints constraints = getConstraints(resourceAddress, true);
+        AddressTemplate addr = AddressTemplate.of(resourceAddress);
+        Constraints constraints = getConstraints(addr, true);
         Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
 
         if(null==attributePerm)
@@ -183,14 +197,17 @@ public class SecurityContextImpl implements SecurityContext {
         return new AuthorisationDecision(attributePerm.isRead());
     }
 
-    private Constraints getConstraints(String resourceAddress, boolean includeOptional) {
-        Constraints constraints;
-        if (includeOptional) {
-            constraints = accessConstraints.containsKey(resourceAddress) ?
-                    accessConstraints.get(resourceAddress) : optionalConstraints.get(resourceAddress);
-        } else {
-            constraints = accessConstraints.get(resourceAddress);
-        }
+    Constraints getActiveConstraints(AddressTemplate address) {
+
+        String key = activeConstraints.containsKey(address) ? activeConstraints.get(address) : address.getTemplate(); // default
+        Map<String, Constraints> availableConstraints = accessConstraints.get(address);
+        Constraints constraints = availableConstraints.get(key);
+        return constraints;
+    }
+
+    Constraints getConstraints(AddressTemplate resourceAddress, boolean includeOptional) {
+
+        Constraints constraints = getActiveConstraints(resourceAddress);
 
         // at least here must have found something!
         if (null == constraints) {
@@ -200,161 +217,63 @@ public class SecurityContextImpl implements SecurityContext {
         return constraints;
     }
 
-    public void setConstraints(String resourceAddress, Constraints model) {
-        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
-        accessConstraints.put(resourceAddress, model);
+    public void addConstraints(AddressTemplate resourceAddress, Constraints model) {
+
+        if(!accessConstraints.containsKey(resourceAddress))
+            accessConstraints.put(resourceAddress, new HashMap<>());
+
+
+        // by default the orig template will act as key
+        Map<String, Constraints> scope = accessConstraints.get(resourceAddress);
+
+        String resolvedKey = resourceAddress.getTemplate();
+        if(scope.containsKey(resolvedKey))
+            throw new IllegalStateException("Constraints already registered: "+resolvedKey);
+
+        scope.put(resolvedKey, model);
     }
 
-    public void setOptionalConstraints(String resourceAddress, Constraints model) {
-        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
-        optionalConstraints.put(resourceAddress, model);
-    }
+    public void addChildContext(AddressTemplate resourceAddress, String resolvedKey, Constraints constraints) {
 
-    public void addChildContext(String resourceAddress, Constraints model) {
-        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
-        ChildContext childContext = new ChildContext(resourceAddress, model);
-        childContexts.put(resourceAddress, childContext);
+        if(!accessConstraints.containsKey(resourceAddress))
+            throw new IllegalStateException("Missing parent context for address "+ resourceAddress);
+
+        Map<String, Constraints> scope = accessConstraints.get(resourceAddress);
+
+        if(scope.containsKey(resolvedKey)) {
+            new IllegalStateException("Child context already exists, skipping: " + resolvedKey).printStackTrace();
+            return;
+        }
+
+        scope.put(resolvedKey, constraints);
     }
 
     @Override
-    public boolean hasChildContext(final String resourceAddress) {
-        return resourceAddress != null && childContexts.containsKey(resourceAddress);
-    }
-
-    Set<String> getChildContextKeys() {
-        return childContexts.keySet();
+    public boolean hasChildContext(final Object resourceAddress, String resolvedKey) {
+        return resourceAddress != null && accessConstraints.get((AddressTemplate)resourceAddress).get(resolvedKey)!=null;
     }
 
     @Override
-    public SecurityContext getChildContext(String resourceAddress) {
-        return childContexts.get(resourceAddress);
+    public void activateChildContext(Object resourceAddress, String resolvedKey) {
+        if(null==resolvedKey)
+            activeConstraints.remove(resourceAddress);
+        else
+            activeConstraints.put((AddressTemplate) resourceAddress, resolvedKey);
     }
 
     public void seal() {
-        this.sealed = true;
-
-        // TODO: move all policies that can be evaluated once into this method
+       // not used anymore
     }
 
     @Override
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
-
-        Constraints constraints = getConstraints(resourceAddress, true);
+        AddressTemplate addr = AddressTemplate.of(resourceAddress);
+        Constraints constraints = getConstraints(addr, true);
         boolean execPerm = constraints.isOperationExec(resourceAddress, operationName);
         AuthorisationDecision descision = new AuthorisationDecision(true);
         descision.setGranted(execPerm);
         return descision;
     }
 
-    /**
-     * Security context which solely is based on the resource address specified as constructor parameter. The methods
-     * which take a resource address as parameter don't operate on that address, but the one given as constructor
-     * parameter.
-     */
-    static class ChildContext implements SecurityContext {
-
-        private final String resourceAddress;
-        private final Constraints constraints;
-
-        ChildContext(final String resourceAddress, final Constraints constraints) {
-            this.resourceAddress = resourceAddress;
-            this.constraints = constraints;
-        }
-
-        public String getResourceAddress() {
-            return resourceAddress;
-        }
-
-        @Override
-        public AuthorisationDecision getReadPriviledge() {
-            return new AuthorisationDecision(constraints.isReadResource());
-        }
-
-        @Override
-        public AuthorisationDecision getReadPrivilege(final String resourceAddress) {
-            return getReadPriviledge();
-        }
-
-        @Override
-        public AuthorisationDecision getWritePriviledge() {
-            return new AuthorisationDecision(constraints.isWriteResource());
-        }
-
-
-        @Override
-        public AuthorisationDecision getWritePrivilege(final String resourceAddress) {
-            return getWritePriviledge();
-        }
-
-        @Override
-        public AuthorisationDecision getAttributeWritePriviledge(final String attributeName) {
-            Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
-            if (attributePerm == null) { throw new RuntimeException("No such attribute: " + attributeName); }
-            return new AuthorisationDecision(attributePerm.isWrite());
-        }
-
-        @Override
-        public AuthorisationDecision getAttributeWritePriviledge(final String resourceAddress,
-                final String attributeName) {
-            return getAttributeWritePriviledge(attributeName);
-        }
-
-        @Override
-        public AuthorisationDecision getAttributeReadPriviledge(String attributeName) {
-            Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
-            if (attributePerm == null) { throw new RuntimeException("No such attribute: " + attributeName); }
-            return new AuthorisationDecision(attributePerm.isRead());
-        }
-
-        @Override
-        public AuthorisationDecision getAttributeReadPriviledge(String resourceAddress, String attributeName) {
-            return getAttributeReadPriviledge(attributeName);
-        }
-
-        @Override
-        public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
-            boolean execPerm = constraints.isOperationExec(this.resourceAddress, operationName);
-            AuthorisationDecision descision = new AuthorisationDecision(true);
-            descision.setGranted(execPerm);
-            return descision;
-        }
-
-        /**
-         * @return false
-         */
-        @Override
-        public boolean hasChildContext(final String resourceAddress) {
-            return false;
-        }
-
-        /**
-         * @return null
-         */
-        @Override
-        public SecurityContext getChildContext(final String resourceAddress) {
-            return null;
-        }
-
-        /**
-         * Sealed by default
-         */
-        @Override
-        public void seal() {}
-
-        @Override
-        public String toString() {
-            return "ChildContext{" +
-                    "resourceAddress='" + resourceAddress + '\'' +
-                    '}';
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "SecurityContextImpl{" +
-                "id='" + nameToken + '\'' +
-                ", childContexts=" + childContexts.size() +
-                '}';
-    }
 }
 

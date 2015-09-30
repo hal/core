@@ -1,30 +1,34 @@
 package org.jboss.as.console.client.rbac;
 
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * A set of constraints for a resource.
+ *
  * @author Heiko Braun
  * @date 7/9/13
  */
 public class Constraints {
 
 
-    private final String resourceAddress;
+    private final AddressTemplate resourceAddress;
     private boolean readResource, writeResource;
 
     Map<String, AttributePerm> attributePermissions = new HashMap<String,AttributePerm>();
-    Map<String, Set<String>> execPermission = new HashMap<String, Set<String>>();
+    Map<AddressTemplate, Set<String>> execPermission = new HashMap<AddressTemplate, Set<String>>();
 
     private boolean address = true;
 
-    public Constraints(String resourceAddress) {
+    public Constraints(AddressTemplate resourceAddress) {
         this.resourceAddress = resourceAddress;
     }
 
-    public String getResourceAddress() {
+    public AddressTemplate getResourceAddress() {
         return resourceAddress;
     }
 
@@ -81,7 +85,7 @@ public class Constraints {
                 attributePermissions.get(name).isWrite() : true;
     }
 
-    public void setOperationExec(String resourceAddress, String operationName, boolean exec) {
+    public void setOperationExec(AddressTemplate resourceAddress, String operationName, boolean exec) {
 
         if(exec)
         {
@@ -93,9 +97,14 @@ public class Constraints {
 
     }
 
+    public boolean isOperationExec(AddressTemplate address, String name) {
+
+        return execPermission.containsKey(address) ? execPermission.get(address).contains(name) : false;
+    }
+
     public boolean isOperationExec(String resourceAddress , String name) {
 
-        return execPermission.containsKey(resourceAddress) ? execPermission.get(resourceAddress).contains(name) : false;
+        return isOperationExec(AddressTemplate.of(resourceAddress), name);
     }
 
     class AttributePerm

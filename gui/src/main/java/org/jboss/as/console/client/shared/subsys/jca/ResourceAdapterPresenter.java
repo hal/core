@@ -36,6 +36,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -172,7 +173,7 @@ public class ResourceAdapterPresenter
     }*/
 
     public void onCreateProperty(AddressTemplate address, ModelNode entity, String... names) {
-        LinkedList<String> args = new LinkedList<>();
+        List<String> args = new LinkedList<>();
         args.add(0, selectedAdapter);
         for (String name : names) {
             args.add(name);

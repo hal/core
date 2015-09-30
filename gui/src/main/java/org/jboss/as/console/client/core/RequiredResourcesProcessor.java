@@ -25,7 +25,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.rbac.NoGatekeeperContext;
+import org.jboss.as.console.client.rbac.SecurityContextImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -36,6 +38,7 @@ import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -75,7 +78,12 @@ public class RequiredResourcesProcessor {
 
     public void process(final String token, final AsyncCallback<Void> callback) {
         if (!nameTokenRegistry.wasRevealed(token)) {
-            Set<String> requiredResources = requiredResourcesRegistry.getResources(token);
+
+            Set<AddressTemplate> requiredResources = new HashSet<>();
+            for (String s : requiredResourcesRegistry.getResources(token)) {
+                requiredResources.add(AddressTemplate.of(s));
+            }
+
             boolean recursive = requiredResourcesRegistry.isRecursive(token);
             if (requiredResources.isEmpty()) {
                 finishWithContext(token, new NoGatekeeperContext(), callback);
@@ -85,8 +93,7 @@ public class RequiredResourcesProcessor {
 
                 System.out.println("Num partitions: "+functions.size());
 
-                RequiredResourcesContext context = new RequiredResourcesContext(token, requiredResources,
-                        resourceDescriptionRegistry);
+                RequiredResourcesContext context = new RequiredResourcesContext(token);
                 Outcome<RequiredResourcesContext> outcome = new Outcome<RequiredResourcesContext>() {
                     @Override
                     public void onFailure(RequiredResourcesContext context) {
@@ -95,7 +102,13 @@ public class RequiredResourcesProcessor {
 
                     @Override
                     public void onSuccess(RequiredResourcesContext context) {
-                        finishWithContext(token, context.getSecurityContext(), callback);
+
+                        // push to registry
+                        for (AddressTemplate addressTemplate : context.getDescriptions().keySet()) {
+                            resourceDescriptionRegistry.add(addressTemplate, context.getDescriptions().get(addressTemplate));
+                        }
+
+                        finishWithContext(token, context, callback);
                     }
                 };
                 //noinspection unchecked
@@ -111,17 +124,24 @@ public class RequiredResourcesProcessor {
 
     private void finishWithContext(String token, SecurityContext securityContext, AsyncCallback<Void> callback) {
         nameTokenRegistry.revealed(token);
-        securityContext.seal();
         securityFramework.assignContext(token, securityContext);
         callback.onSuccess(null);
     }
 
-    private List<ReadRequiredResources> partition(Set<String> requiredResources, boolean recursive, int batchSize) {
+    private void finishWithContext(String token, RequiredResourcesContext context, AsyncCallback<Void> callback) {
+        nameTokenRegistry.revealed(token);
+        SecurityContextImpl securityContext = new SecurityContextImpl(token, context.getDescriptions().keySet());
+        context.mergeWith(securityContext);
+        securityFramework.assignContext(token, securityContext);
+        callback.onSuccess(null);
+    }
+
+    private List<ReadRequiredResources> partition(Set<AddressTemplate> requiredResources, boolean recursive, int batchSize) {
         int index = 0;
         List<ReadRequiredResources> functions = new ArrayList<>();
 
         ReadRequiredResources rrr = null;
-        for (Iterator<String> iterator = requiredResources.iterator(); iterator.hasNext(); index++) {
+        for (Iterator<AddressTemplate> iterator = requiredResources.iterator(); iterator.hasNext(); index++) {
             if (index % batchSize == 0) {
                 rrr = new ReadRequiredResources(dispatcher, statementContext);
                 functions.add(rrr);

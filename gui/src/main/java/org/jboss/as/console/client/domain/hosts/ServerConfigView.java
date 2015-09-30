@@ -30,11 +30,9 @@ import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -58,59 +56,6 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
     @Override
     public void createWidget() {
 
-        final ToolStrip toolStrip = new ToolStrip();
-
-        /*ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewConfigDialoge();
-            }
-        });
-        addBtn.setOperationAddress("/{implicit.host}/server-config=*", "add");
-        addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverConfigView());
-        toolStrip.addToolButtonRight(addBtn);*/
-
-       /* ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
-        deleteBtn.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-
-                final Server server = serverColumn.getSelectedItem();
-
-                Feedback.confirm(
-                        Console.MESSAGES.deleteServerConfig(),
-                        Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.tryDelete(server);
-                            }
-                        });
-            }
-        });
-        deleteBtn.setOperationAddress("/{implicit.host}/server-config=*", "remove");
-        deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverConfigView());
-        toolStrip.addToolButtonRight(deleteBtn);*/
-
-
-      /*  ToolButton copyBtn = new ToolButton(Console.CONSTANTS.common_label_copy());
-        copyBtn.addClickHandler(new ClickHandler(){
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-
-                final Server server = serverColumn.getSelectedItem();
-                presenter.onLaunchCopyWizard(server);
-            }
-        });
-        copyBtn.setOperationAddress("/{implicit.host}/server-config=*", "add");
-
-        toolStrip.addToolButtonRight(copyBtn);
-        toolStrip.setFilter("/{implicit.host}/server-config=*");  */
-
-        // ------------------------------------------------------
-
-
         details = new ServerConfigDetails(presenter);
 
         // jvm editor
@@ -128,7 +73,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
         });
 
         propertyEditor = new PropertyEditor(presenter, true);
-//        propertyEditor.setOperationAddress("/{implicit.host}/server-config=*/system-property=*", "add");
+        //propertyEditor.setOperationAddress("/{implicit.host}/server-config={selected.server}/system-property=*", "add");
 
 
         // --------------------

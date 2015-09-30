@@ -9,9 +9,11 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ReadRequiredResources;
 import org.jboss.as.console.client.core.RequiredResourcesContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityContextImpl;
 import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
@@ -261,8 +263,8 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             @Override
             public void execute(final Control<ResourceData> control) {
 
-                final Set<String> resources = new HashSet<String>();
-                resources.add(address.getTemplate());
+                final Set<AddressTemplate> resources = new HashSet<AddressTemplate>();
+                resources.add(address);
 
                 if(contextCache.containsKey(address))
                 {
@@ -276,21 +278,27 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                     // TOOD: the API is pretty awkward and the parser should be extracted so it can be used standalone,
                     // without the dependency on the Flow framework
 
-                    final RequiredResourcesContext ctx = new RequiredResourcesContext(token, resources, resourceDescriptionRegistry);
+                    final RequiredResourcesContext ctx = new RequiredResourcesContext(token);
                     final ReadRequiredResources operation = new ReadRequiredResources(dispatcher, statementContext);
-                    operation.add(address.getTemplate(), false);
+                    operation.add(address, false);
 
                     operation.execute(
                             new Control<RequiredResourcesContext>() {
                                 @Override
                                 public void proceed() {
 
-                                    SecurityContext securityContext = ctx.getSecurityContext();
-                                    securityContext.seal();
+                                    // create a new security context
+                                    SecurityContextImpl securityContext = new SecurityContextImpl(ctx.getToken(), resources);
+                                    ctx.mergeWith(securityContext);
+
                                     contextCache.put(address, securityContext);
                                     control.getContext().securityContext = securityContext;
 
-                                    control.getContext().description = resourceDescriptionRegistry.lookup(address);
+                                    ResourceDescription description = ctx.getDescriptions().get(address);
+
+                                    // the registry acts as cache in this case, see above
+                                    resourceDescriptionRegistry.add(address, description);
+                                    control.getContext().description = description;
                                     System.out.println("Loaded data for " +  address);
                                     control.proceed();
                                 }

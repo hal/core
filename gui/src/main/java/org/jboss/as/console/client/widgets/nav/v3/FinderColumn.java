@@ -597,14 +597,20 @@ public class FinderColumn<T> implements SecurityContextAware {
         layout = new LayoutPanel() {
             @Override
             protected void onLoad() {
-                applySecurity(SECURITY_SERVICE.getSecurityContext(FinderColumn.this.token), false);
+
+                 // security context state changes
+                SECURITY_SERVICE.registerWidget(id, FinderColumn.this);
+            }
+
+            @Override
+            protected void onUnload() {
+                SECURITY_SERVICE.unregisterWidget(id);
             }
         };
 
-        layout.getElement().setId(id);
 
-        // security context state changes
-        SECURITY_SERVICE.registerWidget(id, this);
+
+        layout.getElement().setId(id);
 
         layout.addStyleName("navigation-column");
         layout.getElement().setId(id);   // RBAC
@@ -808,7 +814,10 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     @Override
     public void onSecurityContextChanged() {
-        applySecurity(SECURITY_SERVICE.getSecurityContext(token), true);
+
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(token);
+        System.out.println("<< Process SecurityContext on finder column "+id+": "+securityContext+">>");
+        applySecurity(securityContext, true);
     }
 
     @Override

@@ -39,6 +39,7 @@ import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
@@ -53,6 +54,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -112,6 +114,7 @@ public class DomainRuntimePresenter
     private final HostInformationStore hostInfoStore;
     private final DispatchAsync dispatcher;
     private final ServerGroupStore serverGroupStore;
+    private final CoreGUIContext statementContext;
     private HandlerRegistration handlerRegistration;
     private final HostStore hostStore;
     private final PlaceManager placeManager;
@@ -124,7 +127,7 @@ public class DomainRuntimePresenter
                                   ServerGroupDAO serverGroupDAO, Header header,
                                   Dispatcher circuit, ServerStore serverStore,
                                   HostInformationStore hostInfoStore, DispatchAsync dispatcher,
-                                  ServerGroupStore serverGroupStore) {
+                                  ServerGroupStore serverGroupStore, CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, TYPE_MainContent);
 
@@ -138,6 +141,7 @@ public class DomainRuntimePresenter
         this.hostInfoStore = hostInfoStore;
         this.dispatcher = dispatcher;
         this.serverGroupStore = serverGroupStore;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -164,10 +168,20 @@ public class DomainRuntimePresenter
                             }
                         });
 
+
+                        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+                            @Override
+                            public String resolve(AddressTemplate template) {
+                                String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedServer().getServerName());
+                                return resolved;
+                            }
+                        };
+
+
                         // RBAC: context change propagation
                         SecurityContextChangedEvent.fire(
                                 DomainRuntimePresenter.this,
-                                "/{implicit.host}/server-config=*", serverStore.getSelectedServer().getServerName()
+                                resolver
                         );
                     }
                     else {

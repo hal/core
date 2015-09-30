@@ -26,8 +26,9 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -49,14 +50,16 @@ import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.nav.v3.CloseApplicationEvent;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -64,6 +67,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.List;
 import java.util.Map;
@@ -79,17 +83,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
-    private DefaultWindow window;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{implicit.host}/server-config=*",
             "opt://{implicit.host}/server-config=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"server", "server-config", "jvm", "socket-binding"})
-    public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<ServerConfigPresenter>, Place {}
 
 
     public interface MyView extends MultiView {
@@ -101,9 +103,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         void updateFrom(Server server);
     }
 
-
     private final ServerStore serverStore;
     private final Dispatcher circuit;
+    private final StatementContext statementContext;
     private HostInformationStore hostInfoStore;
     private ServerGroupDAO serverGroupDAO;
 
@@ -122,7 +124,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                                  HostInformationStore hostInfoStore, ServerGroupDAO serverGroupStore,
                                  DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
                                  BeanFactory factory, PlaceManager placeManager, HostStore hostStore,
-                                 ServerStore serverStore, Dispatcher circuit) {
+                                 ServerStore serverStore, Dispatcher circuit, final CoreGUIContext delegateContext) {
 
         super(eventBus, view, proxy, circuit);
 
@@ -136,6 +138,35 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         this.hostStore = hostStore;
 
         this.circuit = circuit;
+        this.statementContext = delegateContext;
+    }
+
+    @Override
+    public boolean useManualReveal() {
+        return true;
+    }
+
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
+        Command cmd = () ->  {
+            getProxy().manualReveal(ServerConfigPresenter.this);
+        };
+
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedServer().getServerName());
+                return resolved;
+            }
+        };
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                ServerConfigPresenter.this,
+                cmd,
+                resolver
+        );
+
     }
 
     @Override
@@ -181,13 +212,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     private void refreshView() {
         Server server = serverStore.findServer(serverStore.getSelectedServer());
-
-        // RBAC: context change propagation
-        SecurityContextChangedEvent.fire(
-                ServerConfigPresenter.this,
-                "/{implicit.host}/server-config=*", server.getName()
-        );
-
         getView().updateFrom(server);
     }
 

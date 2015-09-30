@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.rbac;
 
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+
 /**
  * @deprecated Replace with {@link org.jboss.as.console.client.v3.dmr.AddressTemplate}
  */
@@ -7,18 +9,18 @@ package org.jboss.as.console.client.rbac;
 public class ResourceRef {
     private static final String OPT = "opt:/";
 
-    String address;
+    AddressTemplate address;
     boolean optional;
 
     public ResourceRef(String resourceRef) {
         if(resourceRef.startsWith(OPT))
         {
-            this.address = resourceRef.substring(5, resourceRef.length());
+            this.address = AddressTemplate.of(resourceRef.substring(5, resourceRef.length()));
             optional = true;
         }
         else
         {
-            this.address = resourceRef;
+            this.address = AddressTemplate.of(resourceRef);
             optional = false;
         }
     }
@@ -44,7 +46,7 @@ public class ResourceRef {
     }
 
 
-    public String getAddress() {
+    public AddressTemplate getAddress() {
         return address;
     }
 

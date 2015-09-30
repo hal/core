@@ -127,7 +127,7 @@ public class ServerStore extends ChangeSupport {
 
     }
 
-    @Process(actionType = RefreshServer.class, dependencies = {HostStore.class})
+    @Process(actionType = RefreshServer.class)
     public void onRefresh(final Dispatcher.Channel channel) {
 
         synchronizeServerModel(new AsyncCallback<Boolean>() {

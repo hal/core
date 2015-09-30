@@ -1,6 +1,6 @@
 package org.jboss.as.console.mbui.dmr;
 
-import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -8,7 +8,8 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 /**
  * NOTE: Stores the actual address as DMR property 'address'.
@@ -20,13 +21,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 @Deprecated
 public class ResourceAddress extends ModelNode {
 
-    public ResourceAddress(String addressTemplate, StatementContext context) {
-        ModelNode resolved = AddressMapping.fromString(addressTemplate).asResource(context);
+    public ResourceAddress(String addressString, StatementContext context) {
+        ModelNode resolved = AddressTemplate.of(addressString).resolve(context);
         set(resolved); // resolved is a model node which contains ADDRESS
     }
 
-    public ResourceAddress(String addressTemplate, ModelNode baseAddress, StatementContext context) {
-        ModelNode resolved = AddressMapping.fromString(addressTemplate).asResource(baseAddress, context);
+    public ResourceAddress(AddressTemplate addressTemplate, StatementContext context) {
+        ModelNode resolved = addressTemplate.resolve(context);
         set(resolved); // resolved is a model node which contains ADDRESS
     }
 

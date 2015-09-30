@@ -81,7 +81,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         });
 
         propertyEditor = new PropertyEditor(presenter, true);
-        propertyEditor.setOperationAddress("/server-group={selected.entity}/system-property=*", "add");
+        //propertyEditor.setOperationAddress("/server-group=*/system-property=*", "add");
 
         headline = new HTML("");
         headline.setStyleName("content-header-label");

@@ -167,11 +167,13 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 } else {
 
                     /*
-                    hb: Going back to the first place of the hirarchy allows nested presenters
+                    hb: Going back to the first place of the hierarchy allows nested presenters
                     to skip their onReset() by comparing the current tokens when that method is invoked.
                     this way they can keep their state (i.e. selections) and allow refresh when being called directly (aka token matches)
                      */
-                    placeManager.revealPlace(places.get(0));
+                    //placeManager.revealPlace(places.get(0));
+                    placeManager.navigateBack();
+
                 }
 
             }

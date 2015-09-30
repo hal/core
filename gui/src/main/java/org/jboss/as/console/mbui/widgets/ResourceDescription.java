@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.mbui.widgets;
 
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.dmr.client.ModelDescriptionConstants;
@@ -39,11 +40,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.MODEL_DESCRIPTION;
 @Deprecated
 public class ResourceDescription {
 
-    private final String template;
+    private final AddressTemplate template;
     private final ResourceAddress address;
     private ResourceDefinition definition;
 
-    public ResourceDescription(String template, ResourceAddress address) {
+    public ResourceDescription(AddressTemplate template, ResourceAddress address) {
         this.template = template;
         this.address = address;
     }
@@ -92,7 +93,7 @@ public class ResourceDescription {
         return null;
     }
 
-    public String getTemplate() {
+    public AddressTemplate getTemplate() {
         return template;
     }
 }

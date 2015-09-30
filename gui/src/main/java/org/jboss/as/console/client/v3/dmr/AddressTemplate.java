@@ -102,6 +102,10 @@ public class AddressTemplate {
         return tokens;
     }
 
+    public int getNumTokens() {
+        return tokens.size();
+    }
+
     private String join(boolean optional, LinkedList<Token> tokens) {
         StringBuilder builder = new StringBuilder();
         if (optional) {
@@ -212,9 +216,68 @@ public class AddressTemplate {
 
     // ------------------------------------------------------ resolve
 
+    public ResourceAddress resolve(StatementContext context, List<String> wildcards) {
+        Resolution<ModelNode> resolution = new Resolution<ModelNode>() {
+             private ModelNode modelNode;
+
+             @Override
+             public void init() {
+                 this.modelNode = new ModelNode();
+             }
+
+             @Override
+             public void addKeyValue(String key, String value) {
+                 this.modelNode.add(key, value);
+             }
+
+             @Override
+             public ModelNode getResult() {
+                 return modelNode;
+             }
+         };
+
+         _resolve(context, wildcards, resolution);
+
+         return new ResourceAddress(resolution.getResult());
+    }
+
     public ResourceAddress resolve(StatementContext context, String... wildcards) {
         return resolve(context, Arrays.asList(wildcards));
     }
+
+    public String resolveAsKey(StatementContext context, String... wildcards) {
+
+        Resolution<StringBuffer> resolution = new Resolution<StringBuffer>() {
+            private StringBuffer sb;
+            @Override
+            public void init() {
+                sb = new StringBuffer();
+            }
+
+            @Override
+            public void addKeyValue(String key, String value) {
+                sb.append("/").append(key).append("=").append(value);
+            }
+
+            @Override
+            public StringBuffer getResult() {
+                return sb;
+            }
+        };
+
+        _resolve(context, Arrays.asList(wildcards), resolution);
+
+        return resolution.getResult().toString();
+    }
+
+    interface Resolution<T> {
+        void init();
+
+        void addKeyValue(String key, String value);
+
+        T getResult();
+    }
+
     /**
      * Resolve this address template against the specified statement context.
      *
@@ -222,10 +285,12 @@ public class AddressTemplate {
      * @param wildcards An optional list of wildcards which are used to resolve any wildcards in this address template
      * @return a full qualified resource address which might be empty, but which does not contain any tokens
      */
-    public ResourceAddress resolve(StatementContext context, List<String> wildcards) {
+    private <T> void _resolve(StatementContext context, List<String> wildcards, Resolution<T> resolution) {
 
         int wildcardCount = 0;
-        ModelNode model = new ModelNode();
+
+        resolution.init();
+
         Memory<String[]> tupleMemory = new Memory<>();
         Memory<String> valueMemory = new Memory<>();
 
@@ -249,7 +314,7 @@ public class AddressTemplate {
                 if (resolvedValue == null) {
                     Log.warn("Suppress token expression '" + tokenRef + "'. It cannot be resolved");
                 } else {
-                    model.add(resolvedValue[0], resolvedValue[1]);
+                    resolution.addKeyValue(resolvedValue[0], resolvedValue[1]);
                 }
 
             } else {
@@ -289,10 +354,10 @@ public class AddressTemplate {
                     addressValue = wildcards.get(wildcardCount);
                     wildcardCount++;
                 }
-                model.add(resolvedKey, addressValue);
+                resolution.addKeyValue(resolvedKey, addressValue);
             }
         }
-        return new ResourceAddress(model);
+
     }
 
 

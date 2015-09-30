@@ -49,12 +49,15 @@ import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -81,9 +84,9 @@ public class ServerGroupPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/server-group=*",
-            "opt://server-group={selected.entity}/system-property=*"},
+            "opt://server-group=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"group", "server-group", "profile", "socket-binding", "jvm"})
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
@@ -110,6 +113,7 @@ public class ServerGroupPresenter
     private final PlaceManager placeManager;
     private final SecurityFramework securityFramework;
     private final ServerStore serverStore;
+    private final CoreGUIContext statementContext;
 
     @Inject
     public ServerGroupPresenter(
@@ -118,7 +122,7 @@ public class ServerGroupPresenter
             ProfileStore profileStore,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData propertyMetaData, ServerGroupStore serverGroupStore, PlaceManager placeManager,
-            SecurityFramework securityFramework, ServerStore serverStore) {
+            SecurityFramework securityFramework, ServerStore serverStore, CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
         this.serverGroupDAO = serverGroupDAO;
@@ -131,6 +135,7 @@ public class ServerGroupPresenter
         this.placeManager = placeManager;
         this.securityFramework = securityFramework;
         this.serverStore = serverStore;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -185,10 +190,20 @@ public class ServerGroupPresenter
     }
 
     private void updateView(ServerGroupRecord serverGroup) {
-         // RBAC: context change propagation
+
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext, serverGroup.getName());
+                return resolved;
+            }
+        };
+
+
+        // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 ServerGroupPresenter.this,
-                "/server-group=*", serverGroup.getName()
+                resolver
         );
 
         getView().updateFrom(serverGroup);

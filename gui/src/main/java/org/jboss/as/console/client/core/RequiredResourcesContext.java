@@ -21,56 +21,33 @@
  */
 package org.jboss.as.console.client.core;
 
-import org.jboss.as.console.client.rbac.ReadOnlyContext;
-import org.jboss.as.console.client.rbac.ResourceRef;
+import org.jboss.as.console.client.rbac.Constraints;
 import org.jboss.as.console.client.rbac.SecurityContextImpl;
-import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl
+ * @author Heiko Braun
  */
 public class RequiredResourcesContext {
 
-    private final String token;
-    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
-    private final SecurityContextImpl securityContextImpl;
-    private boolean readOnly;
     private Throwable error;
+    private final String token;
 
-    public RequiredResourcesContext(String token, Set<String> requiredResources,
-                                    ResourceDescriptionRegistry resourceDescriptionRegistry) {
+    private Map<AddressTemplate, ResourceDescription> descriptions = new HashMap<>();
+    private Map<AddressTemplate, Constraints> parentConstraints = new HashMap<>();
+    private Map<AddressTemplate, Map<String,Constraints>> childConstraints = new HashMap<>();
+
+    public RequiredResourcesContext(String token) {
         this.token = token;
-        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
-
-        Set<ResourceRef> refs = new HashSet<>();
-        for (String requiredResource : requiredResources) {
-            refs.add(new ResourceRef(requiredResource));
-        }
-        this.securityContextImpl = new SecurityContextImpl(token, refs);
     }
 
     public String getToken() {
         return token;
-    }
-
-    public SecurityContext getSecurityContext() {
-        return readOnly ? new ReadOnlyContext() : securityContextImpl;
-    }
-
-    SecurityContextImpl getSecurityContextImpl() {
-        return securityContextImpl;
-    }
-
-    void makeReadonly() {
-        this.readOnly = true;
-    }
-
-    public ResourceDescriptionRegistry getResourceDescriptionRegistry() {
-        return resourceDescriptionRegistry;
     }
 
     public void setError(final Throwable error) {
@@ -79,5 +56,47 @@ public class RequiredResourcesContext {
 
     public Throwable getError() {
         return error;
+    }
+
+
+    public void addDescriptionResult(AddressTemplate addressTemplate, ResourceDescription resourceDescription) {
+        descriptions.put(addressTemplate, resourceDescription);
+    }
+
+    public void addConstraintResult(AddressTemplate addressTemplate, Constraints constraints) {
+        parentConstraints.put(addressTemplate, constraints);
+    }
+
+    public void addConstraintResult(AddressTemplate addressTemplate, String resolvedKey, Constraints constraints) {
+        if(!childConstraints.containsKey(addressTemplate))
+            childConstraints.put(addressTemplate, new HashMap<>());
+        childConstraints.get(addressTemplate).put(resolvedKey, constraints);
+    }
+
+    public Map<AddressTemplate, ResourceDescription> getDescriptions() {
+        return descriptions;
+    }
+
+    public Map<AddressTemplate, Constraints> getParentConstraints() {
+        return parentConstraints;
+    }
+
+    public Map<AddressTemplate, Map<String, Constraints>> getChildConstraints() {
+        return childConstraints;
+    }
+
+    public void mergeWith(SecurityContextImpl ctx) {
+        Map<AddressTemplate, Constraints> parentConstraints = getParentConstraints();
+        for (AddressTemplate addressTemplate : parentConstraints.keySet()) {
+            ctx.addConstraints(addressTemplate, parentConstraints.get(addressTemplate));
+        }
+
+        Map<AddressTemplate, Map<String, Constraints>> childConstraints = getChildConstraints();
+        for (AddressTemplate addressTemplate : childConstraints.keySet()) {
+            Map<String, Constraints> resolved = childConstraints.get(addressTemplate);
+            for (String key : resolved.keySet()) {
+                ctx.addChildContext(addressTemplate, key, resolved.get(key));
+            }
+        }
     }
 }

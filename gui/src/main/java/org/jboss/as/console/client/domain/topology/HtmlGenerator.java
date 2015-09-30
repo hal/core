@@ -175,9 +175,9 @@ final class HtmlGenerator {
 
     SecurityContext findContext(final String resourceAddress) {
         SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(NameTokens.Topology); // TODO: pass presenter
-        if (securityContext.hasChildContext(resourceAddress)) {
+        /*if (securityContext.hasChildContext(resourceAddress)) {
             securityContext = securityContext.getChildContext(resourceAddress);
-        }
+        }*/
         return securityContext;
     }
 

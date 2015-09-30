@@ -60,6 +60,7 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
@@ -75,6 +76,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
@@ -83,9 +85,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,6 +110,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private final ServerGroupDAO serverGroupDAO;
     private final ServerGroupStore serverGroupStore;
     private final SocketBindingStore socketBindingStore;
+    private final CoreGUIContext statementContext;
 
     public PlaceManager getPlaceManager() {
         return placeManager;
@@ -119,9 +120,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
     @AccessControl(resources = {
-            "/host=*",
             "/server-group=*",
-            "opt://server-group={selected.entity}/system-property=*"},
+            "opt://server-group=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"host", "jvm", "group", "server-group", "profile", "socket-binding"})
     public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
@@ -155,7 +155,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                              BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
                              UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
-                             ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore) {
+                             ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore,
+                             CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter,
                 TYPE_MainContent);
@@ -172,6 +173,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.serverGroupDAO = serverGroupDAO;
         this.serverGroupStore = serverGroupStore;
         this.socketBindingStore = socketBindingStore;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -217,10 +219,19 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
         serverStore.addChangeHandler(GroupSelection.class,
                 action -> {
+
+                    SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+                        @Override
+                        public String resolve(AddressTemplate template) {
+                            String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedGroup());
+                            return resolved;
+                        }
+                    };
+
                     // RBAC: context change propagation
                     SecurityContextChangedEvent.fire(
                             HostMgmtPresenter.this,
-                            "/server-group=*", serverStore.getSelectedGroup()
+                            resolver
                     );
                 });
 

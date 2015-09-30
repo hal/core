@@ -1,12 +1,16 @@
 package org.jboss.as.console.client.rbac;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.Place;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ReadRequiredResources;
+import org.jboss.as.console.client.core.RequiredResourcesContext;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityContextAware;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
@@ -14,6 +18,7 @@ import org.jboss.ballroom.client.rbac.SecurityContextChangedHandler;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.flow.client.Control;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -42,7 +47,6 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private final Map<String, SecurityContextAware> contextAwareWidgets;
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
-    protected Map<String, SecurityContext> subContextMapping = new HashMap<String, SecurityContext>();
 
     @Inject
     public SecurityFrameworkImpl(RequiredResourcesRegistry requiredResourcesRegistry, DispatchAsync dispatcher,
@@ -72,12 +76,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
         if(null==id) return new NoGatekeeperContext(); // used with connect pages
 
-        SecurityContext securityContext = null;
-
-        if(subContextMapping.containsKey(id)) // child context enabled?
-            securityContext = subContextMapping.get(id);
-        else
-            securityContext = contextMapping.get(id);
+        SecurityContext securityContext = contextMapping.get(id);
 
         if(null==securityContext) {
             // if this happens the order of presenter initialisation is probably wrong
@@ -93,6 +92,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     @Override
     public void registerWidget(final String id, final SecurityContextAware widget) {
         contextAwareWidgets.put(id, widget);
+        widget.onSecurityContextChanged(); // apply security context when being loaded
+
     }
 
     @Override
@@ -103,33 +104,148 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     @Override
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
 
-
         Presenter presenter = (Presenter) event.getSource(); // mandatory, see SecurityContextChangedEvent#fire()
         if(!(presenter.getProxy() instanceof Place))
             throw new IllegalArgumentException("Source needs to be presenter place");
 
         final String token = ((Place)presenter.getProxy()).getNameToken();
-        final String addressTemplate = event.getResourceAddress();
 
-        ModelNode addressNode = AddressMapping.fromString(addressTemplate)
-                .asResource(statementContext, event.getWildcards()
+        /*AddressTemplate addressTemplate = AddressTemplate.of(event.getResourceAddress());
+        String resolvedKey = addressTemplate.resolveAsKey(statementContext, event.getWildcards());*/
+
+        // instead of using a specific address, we can rely on one of the address associated with the current context
+        // assumption: if that single address exists, all the others should also
+        SecurityContext securityContext = getSecurityContext(token);
+        if(!(securityContext instanceof SecurityContextImpl))
+            throw new IllegalStateException("Cannot process context change on security context of type "+securityContext.getClass());
+
+        AddressTemplate probeTemplate =  ((SecurityContextImpl)securityContext).getResourceAddresses().iterator().next();
+        String probeKey = event.getResolver().resolve(probeTemplate);
+
+        System.out.println("Context changed: " + probeKey + " at #" + token+ ": "+token);
+
+        // reset clear the previous child context selection
+        if(event.isReset())
+            deactivateChildContexts((SecurityContextImpl)securityContext, event);
+        else
+        {
+
+            SecurityContext context = contextMapping.get(token);
+
+            // look for child context
+            if (context.hasChildContext(probeTemplate, probeKey)) { // the probe is one of many, just used for testing the condition
+
+                activetChildContexts((SecurityContextImpl)securityContext, event);
+
+            } else {
+
+                // not found, create and activate it
+                lazyLoadChildcontext(
+                        context, token,
+                        event
                 );
 
-        String resourceAddress = normalize(addressNode.get(ADDRESS));
+            }
 
-        SecurityContext context = contextMapping.get(token);// important: getSecurityContext() is not side effect free
-
-        // look for child context
-        if (context.hasChildContext(resourceAddress)) {
-            SecurityContext childContext = context.getChildContext(resourceAddress);
-            subContextMapping.put(token, childContext);
-        }
-        else {
-            subContextMapping.remove(token);
         }
 
-        forceUpdate(token);
+    }
 
+    private void deactivateChildContexts(SecurityContextImpl securityContext, SecurityContextChangedEvent event) {
+        for (AddressTemplate requiredResource : securityContext.requiredResources) {
+            securityContext.activateChildContext(requiredResource, null);
+
+        }
+
+        notifyWidgets(event, securityContext.nameToken);
+
+    }
+
+    private void activetChildContexts(SecurityContextImpl securityContext, SecurityContextChangedEvent event) {
+        for (AddressTemplate requiredResource : securityContext.requiredResources) {
+            String resolvedKey = event.getResolver().resolve(requiredResource);
+            securityContext.activateChildContext(requiredResource, resolvedKey);
+        }
+
+        notifyWidgets(event, securityContext.nameToken);
+    }
+
+    private void notifyWidgets(SecurityContextChangedEvent event, final String token) {
+        if(event.getPostContruct()!=null)
+            event.getPostContruct().execute();
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                forceUpdate(token);
+            }
+        });
+    }
+
+    private void lazyLoadChildcontext(final SecurityContext parentContext, String token,
+            SecurityContextChangedEvent event) {
+
+
+        final Set<AddressTemplate> resources = new HashSet<AddressTemplate>();
+        final Map<AddressTemplate, String> resolvedKeys = new HashMap<>();
+        final Map<AddressTemplate, AddressTemplate> childToParent = new HashMap<>();
+
+        // Merge parent context addresses to retain full scope,
+        // but adopt to child specifics
+        for (AddressTemplate requiredResource : ((SecurityContextImpl) parentContext).requiredResources) {
+
+            String resolvedKey = event.getResolver().resolve(requiredResource);
+            resolvedKeys.put(requiredResource, resolvedKey);
+            AddressTemplate child = AddressTemplate.of(resolvedKey);
+            resources.add(child);
+
+            childToParent.put(child, requiredResource);
+        }
+
+        final RequiredResourcesContext ctx = new RequiredResourcesContext(token);
+        final ReadRequiredResources operation = new ReadRequiredResources(dispatcher, statementContext);
+
+        // fetch each resolved resource
+        for (AddressTemplate resource : resources) {
+            operation.add(resource, false);
+        }
+
+        operation.execute(
+                new Control<RequiredResourcesContext>() {
+                    @Override
+                    public void proceed() {
+
+                        // although it has been resolved as parent context, we register it as child
+                        // the same twist applies to the addressing above
+                        for (AddressTemplate address : resources) {
+                            AddressTemplate parentAddress = childToParent.get(address);
+                            Constraints constraints = ctx.getParentConstraints().get(address);
+
+                            String resolvedKey = resolvedKeys.get(parentAddress);
+                            ((SecurityContextImpl)parentContext).addChildContext(parentAddress, resolvedKey, constraints);
+
+                            // activate the new context right away
+                            parentContext.activateChildContext(parentAddress, resolvedKey);
+                        }
+
+                        notifyWidgets(event, token);
+                    }
+
+                    @Override
+                    public void abort() {
+
+                        if (event.getPostContruct() != null)
+                            event.getPostContruct().execute();
+
+                        Console.error("Failed to create security (child) context for #" + token, ctx.getError().getMessage());
+                    }
+
+                    @Override
+                    public RequiredResourcesContext getContext() {
+                        return ctx;
+                    }
+                }
+        );
     }
 
 

@@ -24,12 +24,7 @@ package org.jboss.as.console.client.core;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.rbac.Constraints;
-import org.jboss.as.console.client.rbac.ResourceRef;
-import org.jboss.as.console.client.rbac.SecurityContextImpl;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ResourceDescription;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -40,13 +35,19 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
- * TODO Replace deprecated with new API
  * @author Harald Pehl
+ * @author Heiko Braun
  */
 public class ReadRequiredResources implements Function<RequiredResourcesContext> {
 
@@ -56,35 +57,22 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
     private static final String EXCEPTIONS = "exceptions";
     private static final String ACCESS_CONTROL = "access-control";
     private static final String COMBINED_DESCRIPTIONS = "combined-descriptions";
-    private static final String HOST_PREFIX = "/host=*";
 
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final List<Input> input;
-    private final List<String> implictResources;
 
     public ReadRequiredResources(DispatchAsync dispatcher, StatementContext statementContext) {
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.input = new ArrayList<>();
-        this.implictResources = new ArrayList<>();
     }
 
-    public void add(String requiredResource, boolean recursive) {
-
-        // skip contexts that should be created implicitly
-        // workaround for /host=* registrations that cannot reliably be queried
-        if(requiredResource.startsWith(HOST_PREFIX))
-        {
-            implictResources.add(requiredResource);
-            return;
-        }
+    public void add(AddressTemplate addressTemplate, boolean recursive) {
 
 
-        ResourceRef ref = new ResourceRef(requiredResource);
-        ResourceAddress address = new ResourceAddress(ref.getAddress(), new ModelNode().setEmptyList(), statementContext);
-        ResourceDescription description = new ResourceDescription(requiredResource, address);
-        ModelNode operation = address.clone();
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(addressTemplate.resolve(statementContext));
         operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
         operation.get(OPERATIONS).set(true);
         operation.get(ACCESS_CONTROL).set(COMBINED_DESCRIPTIONS);
@@ -94,7 +82,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
         operation.get(INCLUDE_ALIASES).set(true); // TODO Test if this is still necessary once WFLY-2738 is fixed
         // TODO What about notifications?
 
-        input.add(new Input(requiredResource, ref, address, description, operation));
+        input.add(new Input(addressTemplate, operation));
     }
 
     @Override
@@ -120,19 +108,11 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
     private static class Input {
         final AddressTemplate addressTemplate;
-        final String requiredResource;
-        final ResourceRef ref;
-        final ResourceAddress address;
-        final ResourceDescription description;
         final ModelNode operation;
 
-        public Input(String requiredResource, ResourceRef ref, ResourceAddress address, ResourceDescription description,
-                     ModelNode operation) {
-            this.requiredResource = requiredResource;
-            this.addressTemplate = AddressTemplate.of(requiredResource);
-            this.ref = ref;
-            this.address = address;
-            this.description = description;
+        public Input(AddressTemplate ref, ModelNode operation) {
+
+            this.addressTemplate = ref;
             this.operation = operation;
         }
     }
@@ -142,7 +122,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
         private final Control<RequiredResourcesContext> control;
         private final List<ModelNode> steps;
         private final Map<String, Input> stepToInput;
-        private final Set<ResourceRef> references;
+        private final Set<AddressTemplate> references;
 
         private Parser(Control<RequiredResourcesContext> control, List<ModelNode> steps, Map<String, Input> stepToInput) {
             this.control = control;
@@ -151,15 +131,14 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
             this.references = new HashSet<>();
             for (Input in : stepToInput.values()) {
-                references.add(in.ref);
+                references.add(in.addressTemplate);
             }
         }
 
         @Override
         public void onFailure(Throwable caught) {
-            control.getContext().makeReadonly();
-            control.getContext().setError(caught);
 
+            control.getContext().setError(caught);
             caught.printStackTrace();
 
             control.abort();
@@ -172,7 +151,6 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
             if (response.isFailure()) {
                 Log.error("Failed to retrieve access control meta data, fallback to temporary read-only context: ",
                         response.getFailureDescription());
-                control.getContext().makeReadonly();
 
             } else {
                 ModelNode compositeResult = response.get(RESULT);
@@ -185,7 +163,8 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                         // response. The former requires parsing the response to access control
                         // meta data matching the inquiry.
                         Input in = stepToInput.get(step);
-                        List<ModelNode> inquiryAddress = in.address.get(ADDRESS).asList();
+                        // TODO: why is this mapped to the input and not resolved from the template?
+                        List<ModelNode> inquiryAddress = in.operation.get(ADDRESS).asList();
 
                         // it's a List response when asking for '<resourceType>=*"
                         ModelNode payload = null;
@@ -204,10 +183,9 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                                 }
                             }
                             if (payload == null) {
-                                Log.error("Failed to process response: "+stepResult.toString());
 
                                 control.getContext().setError(
-                                        new RuntimeException("Unexpected response format at address: "+in.requiredResource)
+                                        new RuntimeException("Unexpected response format at address: "+in.addressTemplate.toString())
                                 );
                                 control.abort();
                             }
@@ -215,27 +193,27 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                             payload = stepResult;
                         }
 
-                        // TODO extract the functions to parse and process the
-                        // resource descriptions and the security related metadata
+                        // add the description to the registry
+                       /* ResourceDescriptionRegistry resourceDescriptionRegistry = control.getContext().getResourceDescriptionRegistry();
+                        resourceDescriptionRegistry.add(
+                                in.addressTemplate,
+                                new org.jboss.as.console.client.v3.dmr.ResourceDescription(payload)
+                        );*/
 
-                        // update & store description
-                        in.description.setDefinition(new ResourceDefinition(payload));
-//                        control.getContext().getResourceDescriptionRegistry().add(in.description);
-                        control.getContext().getResourceDescriptionRegistry().add(in.addressTemplate, new org.jboss.as.console.client.v3.dmr.ResourceDescription(payload));
+                        control.getContext().addDescriptionResult(
+                                in.addressTemplate,
+                                new org.jboss.as.console.client.v3.dmr.ResourceDescription(payload)
+                        );
 
-                        // break down into root resource and children
-                        parseAccessControlChildren(in.ref, references, control.getContext().getSecurityContextImpl(),
-                                payload);
+                        // extract and register the access control meta data
+                        parseAccessControlChildren(
+                                in.addressTemplate,
+                                control.getContext(),
+                                references,
+                                payload
+                        );
                     }
                 }
-            }
-
-
-            // implicitly register contexts here
-            for (String address : implictResources) {
-                control.getContext().getSecurityContextImpl().setConstraints(
-                        address, createUnconstrained(address)
-                        );
             }
 
             control.proceed();
@@ -253,8 +231,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
             return numMatchingTokens == responseAddress.size();
         }
 
-        private void parseAccessControlChildren(ResourceRef ref, Set<ResourceRef> references,
-                                                SecurityContextImpl context, ModelNode payload) {
+        private void parseAccessControlChildren(AddressTemplate ref, RequiredResourcesContext context, Set<AddressTemplate> references, ModelNode payload) {
             // parse the root resource itself
             parseAccessControlMetaData(ref, context, payload);
 
@@ -263,7 +240,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                 ModelNode childNodes = payload.get(CHILDREN);
                 Set<String> children = childNodes.keys();
                 for (String child : children) {
-                    ResourceRef childAddress = new ResourceRef(ref.getAddress() + "/" + child + "=*");
+                    AddressTemplate childAddress = ref.append("/" + child + "=*");
                     if (!references.contains(childAddress)) // might already be parsed
                     {
                         ModelNode childModel = childNodes.get(child);
@@ -271,34 +248,29 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                         {
                             ModelNode childPayload = childModel.get(MODEL_DESCRIPTION).asPropertyList().get(0).getValue();
                             references.add(childAddress); /// dynamically update the list of required resources
-                            parseAccessControlChildren(childAddress, references, context, childPayload);
+                            parseAccessControlChildren(childAddress, context, references, childPayload);
                         }
                     }
                 }
             }
         }
 
-        private void parseAccessControlMetaData(final ResourceRef ref, SecurityContextImpl context, ModelNode payload) {
+        private void parseAccessControlMetaData(final AddressTemplate addressTemplate, RequiredResourcesContext context, ModelNode payload) {
             ModelNode accessControl = payload.get(ACCESS_CONTROL);
             if (accessControl.isDefined() && accessControl.hasDefined(DEFAULT)) {
 
                 // default policy for requested resource type
-                Constraints defaultConstraints = parseConstraints(ref, accessControl.get(DEFAULT));
-                if (ref.isOptional()) {
-                    context.setOptionalConstraints(ref.getAddress(), defaultConstraints);
-                } else {
-                    context.setConstraints(ref.getAddress(), defaultConstraints);
-                }
+                Constraints defaultConstraints = parseConstraints(addressTemplate, accessControl.get(DEFAULT));
+                context.addConstraintResult(addressTemplate, defaultConstraints);
 
                 // exceptions (instances) of requested resource type
                 if (accessControl.hasDefined(EXCEPTIONS)) {
                     for (Property exception : accessControl.get(EXCEPTIONS).asPropertyList()) {
                         ModelNode addressNode = exception.getValue().get(ADDRESS);
-                        String address = normalize(addressNode);
-                        if (address != null) {
-                            ResourceRef exceptionRef = new ResourceRef(address);
+                        AddressTemplate exceptionRef = AddressTemplate.of(normalize(addressNode));
+                        if (exceptionRef != null) {
                             Constraints instanceConstraints = parseConstraints(exceptionRef, exception.getValue());
-                            context.addChildContext(address, instanceConstraints);
+                            context.addConstraintResult(addressTemplate, exceptionRef.resolveAsKey(statementContext), instanceConstraints);
                         } else {
                             Log.error("Skip exception " + exception.getName() + ": No address found in " + exception
                                     .getValue());
@@ -308,8 +280,8 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
             }
         }
 
-        private Constraints parseConstraints(final ResourceRef ref, ModelNode policyModel) {
-            Constraints constraints = new Constraints(ref.getAddress());
+        private Constraints parseConstraints(final AddressTemplate ref, ModelNode policyModel) {
+            Constraints constraints = new Constraints(ref);
 
             // resource constraints
             if (policyModel.hasDefined(ADDRESS) && !policyModel.get(ADDRESS).asBoolean()) {
@@ -324,7 +296,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                 List<Property> operations = policyModel.get(OPERATIONS).asPropertyList();
                 for (Property op : operations) {
                     ModelNode opConstraintModel = op.getValue();
-                    constraints.setOperationExec(ref.getAddress(), op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
+                    constraints.setOperationExec(ref, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
                 }
             }
 
@@ -341,41 +313,6 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
             return constraints;
         }
 
-        private Constraints createUnconstrained(String address) {
-            final Constraints constraints = new Constraints(address) {
-                @Override
-                public boolean isAddress() {
-                    return false;
-                }
-
-                @Override
-                public boolean isReadResource() {
-                    return true;
-                }
-
-                @Override
-                public boolean isWriteResource() {
-                    return true;
-                }
-
-                @Override
-                public boolean isAttributeRead(String name) {
-                    return true;
-                }
-
-                @Override
-                public boolean isAttributeWrite(String name) {
-                    return true;
-                }
-
-                @Override
-                public boolean isOperationExec(String resourceAddress, String name) {
-                    return true;
-                }
-            };
-
-            return constraints;
-        }
 
         private String normalize(final ModelNode address) {
             if (address.isDefined()) {

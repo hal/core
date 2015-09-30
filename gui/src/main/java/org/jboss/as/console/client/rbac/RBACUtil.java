@@ -2,9 +2,8 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -18,14 +17,23 @@ public class RBACUtil {
 
         SecurityContextImpl context = (SecurityContextImpl)sc; // parent context
 
-
         html.appendHtmlConstant("<hr/><b>Child Contexts:</b> <br/>");
-                    html.appendHtmlConstant("<ul>");
-        for (String key : context.getChildContextKeys()) {
-            SecurityContextImpl.ChildContext childContext = (SecurityContextImpl.ChildContext) context.getChildContext(key);
-            html.appendHtmlConstant("<li>").appendEscaped(childContext.getResourceAddress()).appendHtmlConstant("</li>");
+        html.appendHtmlConstant("<ul>");
+        for (AddressTemplate address : context.getResourceAddresses()) {
+            html.appendHtmlConstant("<li><i>").appendEscaped(address.toString()).appendHtmlConstant("</i></li>");
+            String activeKey = context.getActiveKey(address);
+
+            html.appendHtmlConstant("<ul>");
+            for (String key : context.getConstraintsKeys(address)) {
+                if(key.equals(activeKey))
+                    html.appendHtmlConstant("<li><b>").appendEscaped(key).appendHtmlConstant("</b></li>");
+                else
+                    html.appendHtmlConstant("<li>").appendEscaped(key).appendHtmlConstant("</li>");
+            }
+            html.appendHtmlConstant("</ul>");
 
         }
+
         html.appendHtmlConstant("</ul>");
 
         writeContext(html, context);
@@ -38,35 +46,35 @@ public class RBACUtil {
         html.appendHtmlConstant("<h2>Resources References for: "+context.nameToken+"</h2>");
         html.appendHtmlConstant("<h3>Required</h3>");
         html.appendHtmlConstant("<ul>");
-        for(ResourceRef ref : context.requiredResources)
+        for(AddressTemplate ref : context.requiredResources)
         {
-            if(ref.optional) continue;
-            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
+            if(ref.isOptional()) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.toString()).appendHtmlConstant("</li>");
         }
         html.appendHtmlConstant("</ul><p/>");
 
         // optional resource
         html.appendHtmlConstant("<h3>Optional</h3>");
         html.appendHtmlConstant("<ul>");
-        for(ResourceRef ref : context.requiredResources)
+        for(AddressTemplate ref : context.requiredResources)
         {
-            if(!ref.optional) continue;
-            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
+            if(!ref.isOptional()) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.toString()).appendHtmlConstant("</li>");
         }
         html.appendHtmlConstant("</ul><p/>");
 
         html.appendHtmlConstant("<h2>Constraints</h2>");
 
-        dumpPermissions(html, context.accessConstraints);
-        dumpPermissions(html, context.optionalConstraints);
+        dumpPermissions(html, context);
+        //dumpPermissions(html, context.optionalConstraints);
     }
 
-    private static void dumpPermissions(SafeHtmlBuilder html, Map<String, Constraints> resourcePrivileges) {
-        for(String resource : resourcePrivileges.keySet())
+    private static void dumpPermissions(SafeHtmlBuilder html, SecurityContextImpl securityContext) {
+        for(AddressTemplate resource : securityContext.requiredResources)
         {
-            html.appendHtmlConstant("<h3>").appendEscaped(resource).appendHtmlConstant("</h3>");
+            html.appendHtmlConstant("<h3>").appendEscaped(resource.toString()).appendHtmlConstant("</h3>");
 
-            Constraints constraints = resourcePrivileges.get(resource);
+            Constraints constraints = securityContext.getActiveConstraints(resource); // default constraints
             html.appendHtmlConstant("<ul>");
             html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadResource()).appendHtmlConstant("</li>");
             html.appendHtmlConstant("<li>").appendEscaped("write-config:"+constraints.isWriteResource()).appendHtmlConstant("</li>");
@@ -121,7 +129,7 @@ public class RBACUtil {
             html.appendHtmlConstant("</th>");
             html.appendHtmlConstant("</tr>");
 
-            if(!constraints.execPermission.isEmpty())
+           /*TODO if(!constraints.execPermission.isEmpty())
             {
                 for(String op : constraints.execPermission.get(resource))
                 {
@@ -134,7 +142,7 @@ public class RBACUtil {
                     html.appendHtmlConstant("</td>");
                     html.appendHtmlConstant("</tr>");
                 }
-            }
+            }*/
 
             html.appendHtmlConstant("</table>");
         }

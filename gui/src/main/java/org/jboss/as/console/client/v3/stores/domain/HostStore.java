@@ -64,6 +64,8 @@ public class HostStore extends ChangeSupport {
                 // default host selection
                 selectedHost = hostNames.iterator().next();
 
+                System.out.println("<< default host selection: "+ selectedHost +" >>");
+
                 callback.onSuccess(hostNames);
             }
         });
