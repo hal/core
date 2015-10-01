@@ -22,6 +22,7 @@ package org.jboss.as.console.client.domain.hosts.general;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -30,7 +31,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
@@ -77,7 +78,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
     @AccessControl(resources = {"/{selected.host}/jvm=*",})
-    public interface MyProxy extends Proxy<HostJVMPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostJVMPresenter>, Place {}
 
 
     public interface MyView extends View {
@@ -118,14 +119,18 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     }
 
     @Override
+    public boolean useManualReveal() {
+        return true;
+    }
+
+    @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
-    @Override
-    protected void onReset() {
-        super.onReset();
 
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
@@ -134,12 +139,19 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
             }
         };
 
+        Command cmd = () -> getProxy().manualReveal(HostJVMPresenter.this);
 
         // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 HostJVMPresenter.this,
+                cmd,
                 resolver
         );
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override

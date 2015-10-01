@@ -22,6 +22,7 @@ package org.jboss.as.console.client.domain.hosts.general;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -112,13 +113,17 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @Override
     protected void onAction(Action action) {
 
-        switchContext();
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 loadProperties();
             }
         });
+    }
+
+    @Override
+    public boolean useManualReveal() {
+        return true;
     }
 
     @Override
@@ -130,8 +135,6 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     protected void onReset() {
         super.onReset();
 
-        switchContext();
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -141,8 +144,8 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
 
     }
 
-    private void switchContext() {
-
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
@@ -151,10 +154,12 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
             }
         };
 
+        Command cmd = () -> getProxy().manualReveal(HostPropertiesPresenter.this);
 
         // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 HostPropertiesPresenter.this,
+                cmd,
                 resolver
         );
     }

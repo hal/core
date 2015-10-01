@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.groups;
 
+import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -27,12 +28,12 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -55,7 +56,6 @@ import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -89,7 +89,7 @@ public class ServerGroupPresenter
             "opt://server-group=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"group", "server-group", "profile", "socket-binding", "jvm"})
-    public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<ServerGroupPresenter>, Place {}
 
 
     public interface MyView extends View {
@@ -145,6 +145,26 @@ public class ServerGroupPresenter
     }
 
     @Override
+    public void prepareFromRequest(PlaceRequest request) {
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedGroup());
+                return resolved;
+            }
+        };
+
+        Command cmd = () -> getProxy().manualReveal(ServerGroupPresenter.this);
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                ServerGroupPresenter.this,
+                cmd,
+                resolver
+        );
+    }
+
+    @Override
     protected void onReset() {
 
         super.onReset();
@@ -173,12 +193,6 @@ public class ServerGroupPresenter
         });
     }
 
-
-    private void staleModel() {
-        fireEvent(new StaleModelEvent(StaleModelEvent.SERVER_GROUPS));
-    }
-
-    @Deprecated
     private void loadServerGroup() {
         serverGroupDAO.loadServerGroup(serverStore.getSelectedGroup(),
                 new SimpleCallback<ServerGroupRecord>() {
@@ -190,21 +204,6 @@ public class ServerGroupPresenter
     }
 
     private void updateView(ServerGroupRecord serverGroup) {
-
-        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
-            @Override
-            public String resolve(AddressTemplate template) {
-                String resolved = template.resolveAsKey(statementContext, serverGroup.getName());
-                return resolved;
-            }
-        };
-
-
-        // RBAC: context change propagation
-        SecurityContextChangedEvent.fire(
-                ServerGroupPresenter.this,
-                resolver
-        );
 
         getView().updateFrom(serverGroup);
     }
@@ -224,9 +223,6 @@ public class ServerGroupPresenter
                 } else {
                     Console.error(Console.MESSAGES.deletionFailed(group.getName()));
                 }
-
-                staleModel();
-
                 loadServerGroup();
             }
         });

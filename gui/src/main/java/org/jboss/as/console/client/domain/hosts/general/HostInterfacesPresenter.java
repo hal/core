@@ -20,13 +20,14 @@
 package org.jboss.as.console.client.domain.hosts.general;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
@@ -66,7 +67,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"interface", "network-interface", "bind-address"})
     @AccessControl(resources = {"/{selected.host}/interface=*",})
-    public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostInterfacesPresenter>, Place {}
 
 
     public interface MyView extends View {
@@ -103,6 +104,11 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     }
 
     @Override
+    public boolean useManualReveal() {
+        return true;
+    }
+
+    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
@@ -121,9 +127,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     }
 
     @Override
-    protected void onReset() {
-        super.onReset();
-
+    public void prepareFromRequest(PlaceRequest request) {
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
@@ -132,12 +136,19 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
             }
         };
 
+        Command cmd = () -> getProxy().manualReveal(HostInterfacesPresenter.this);
 
         // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 HostInterfacesPresenter.this,
+                cmd,
                 resolver
         );
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
