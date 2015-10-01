@@ -24,6 +24,7 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -56,6 +57,7 @@ import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizar
 import org.jboss.as.console.client.v3.deployment.wizard.AssignContentDialog;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceDomainDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.UnassignContentDialog;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -65,9 +67,11 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -78,6 +82,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +108,7 @@ public class DomainDeploymentFinder
     @RequiredResources(resources = {
             "/deployment=*",
             //"/{implicit.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
-            "/server-group={selected.group}/deployment=*"},
+            "/server-group=*/deployment=*"},
             recursive = false)
     public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {}
 
@@ -128,20 +133,21 @@ public class DomainDeploymentFinder
     private final DispatchAsync dispatcher;
     private final Dispatcher circuit;
     private final ServerGroupStore serverGroupStore;
+    private final StatementContext statementContext;
     private final AddContentWizard addContentWizard;
     private final AssignContentDialog assignContentDialog;
     private final UnassignContentDialog unassignContentDialog;
     private final AddDomainDeploymentWizard addDeploymentWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
-
+    private String selectedGroup;
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public DomainDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
-            final Dispatcher circuit, final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext,
-            final Header header) {
+                                  final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
+                                  final Dispatcher circuit, final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext,
+                                  final Header header, CoreGUIContext statementContext) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainDeploymentFinder,
                 TYPE_MainContent);
         this.beanFactory = beanFactory;
@@ -174,6 +180,24 @@ public class DomainDeploymentFinder
                     Console.info(context.upload.getName() + " successfully replaced.");
                     loadAssignments(context.serverGroup);
                 });
+
+        this.statementContext = statementContext;
+
+       /* this.statementContext = new FilteringStatementContext(statementContext, new FilteringStatementContext.Filter() {
+
+
+            @Override
+            public String filter(String key) {
+                if("selected.group".equals(key))
+                    return DomainDeploymentFinder.this.selectedGroup;
+                return null;
+            }
+
+            @Override
+            public String[] filterTuple(String key) {
+                return null;
+            }
+        });*/
     }
 
     @Override
@@ -190,7 +214,7 @@ public class DomainDeploymentFinder
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
-            final boolean revealDefault) {
+                                 final boolean revealDefault) {
         circuit.dispatch(new RefreshServerGroups());
     }
 
@@ -226,8 +250,19 @@ public class DomainDeploymentFinder
 
     // ------------------------------------------------------ deployment methods
 
+    private void resetContext() {
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                DomainDeploymentFinder.this
+        );
+
+    }
     public void loadContentRepository() {
-        new Async<FunctionContext>().single(new FunctionContext(),
+
+        resetContext();
+
+        Scheduler.get().scheduleDeferred(() -> new Async<FunctionContext>().single(new FunctionContext(),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -241,11 +276,16 @@ public class DomainDeploymentFinder
                     }
                 },
                 new DeploymentFunctions.LoadContentAssignments(dispatcher)
-        );
+        ));
+
+
     }
 
     public void loadUnassignedContent() {
-        new Async<FunctionContext>().single(new FunctionContext(),
+
+        resetContext();
+
+        Scheduler.get().scheduleDeferred(() -> new Async<FunctionContext>().single(new FunctionContext(),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -265,7 +305,8 @@ public class DomainDeploymentFinder
                     }
                 },
                 new DeploymentFunctions.LoadContentAssignments(dispatcher)
-        );
+        ));
+
     }
 
     public void loadServerGroups() {
@@ -464,6 +505,20 @@ public class DomainDeploymentFinder
     }
 
     public void loadAssignments(final String serverGroup) {
+
+        this.selectedGroup = serverGroup;
+        switchContext(serverGroup);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                _loadAssignmments(serverGroup);
+            }
+        });
+
+    }
+
+    private void _loadAssignmments(String serverGroup) {
         // TODO Optimize - find a way to cache the reference server
         List<Function<FunctionContext>> functions = new ArrayList<>();
         functions.add(new DeploymentFunctions.LoadAssignments(dispatcher, serverGroup));
@@ -496,5 +551,22 @@ public class DomainDeploymentFinder
         //noinspection unchecked
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 functions.toArray(new Function[functions.size()]));
+    }
+
+    private void switchContext(String serverGroup) {
+        SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
+            @Override
+            public String resolve(AddressTemplate template) {
+                String resolved = template.resolveAsKey(statementContext, serverGroup);
+                return resolved;
+            }
+        };
+
+
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(
+                DomainDeploymentFinder.this,
+                resolver
+        );
     }
 }

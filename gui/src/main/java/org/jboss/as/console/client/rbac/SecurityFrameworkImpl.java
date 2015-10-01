@@ -119,16 +119,21 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         if(!(securityContext instanceof SecurityContextImpl))
             throw new IllegalStateException("Cannot process context change on security context of type "+securityContext.getClass());
 
-        AddressTemplate probeTemplate =  ((SecurityContextImpl)securityContext).getResourceAddresses().iterator().next();
-        String probeKey = event.getResolver().resolve(probeTemplate);
-
-        System.out.println("Context changed: " + probeKey + " at #" + token+ ": "+token);
 
         // reset clear the previous child context selection
-        if(event.isReset())
-            deactivateChildContexts((SecurityContextImpl)securityContext, event);
+        if(event.isReset()) {
+
+            System.out.println("Context reset at #" + token + ": " + token);
+
+            deactivateChildContexts((SecurityContextImpl) securityContext, event);
+        }
         else
         {
+
+            AddressTemplate probeTemplate =  ((SecurityContextImpl)securityContext).getResourceAddresses().iterator().next();
+            String probeKey = event.getResolver().resolve(probeTemplate);
+
+            System.out.println("Context changed: " + probeKey + " at #" + token + ": " + token);
 
             SecurityContext context = contextMapping.get(token);
 

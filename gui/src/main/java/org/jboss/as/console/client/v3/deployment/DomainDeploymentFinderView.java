@@ -256,10 +256,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
         //noinspection Convert2MethodRef
         contentColumn = new ContentColumn("All Content", columnManager,
-                new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard(), Operation),
-                new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
-                new MenuDelegate<>("Unassign", item -> presenter.launchUnassignContentDialog(item)),
-                new MenuDelegate<>("Remove", item -> {
+                new MenuDelegate<Content>("Add", item -> presenter.launchAddContentWizard(), Operation)
+                        .setOperationAddress("/deployment=*", "add"),
+                new MenuDelegate<Content>("Assign", item -> presenter.launchAssignContentDialog(item), Operation)
+                        .setOperationAddress("/deployment=*", "add"),
+                new MenuDelegate<Content>("Unassign", item -> presenter.launchUnassignContentDialog(item), Operation)
+                        .setOperationAddress("/deployment=*", "remove"),
+                new MenuDelegate<Content>("Remove", item -> {
                     if (!item.getAssignments().isEmpty()) {
                         String serverGroups = "\t- " + Joiner.on("\n\t- ").join(
                                 Lists.transform(item.getAssignments(), Assignment::getServerGroup));
@@ -273,7 +276,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                                     }
                                 });
                     }
-                }, Operation));
+                }, Operation).setOperationAddress("/deployment=*", "remove"));
 
         contentColumn.setFilter((item, token) ->
                 item.getName().contains(token) || item.getRuntimeName().contains(token));
@@ -283,14 +286,16 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         //noinspection Convert2MethodRef
         unassignedColumn = new ContentColumn("Unassigned", columnManager,
                 null,
-                new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
-                new MenuDelegate<>("Remove", item ->
+                new MenuDelegate<Content>("Assign", item -> presenter.launchAssignContentDialog(item), Operation)
+                        .setOperationAddress("/deployment=*", "add"),
+                new MenuDelegate<Content>("Remove", item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
                                 isConfirmed -> {
                                     if (isConfirmed) {
                                         presenter.removeContent(item, true);
                                     }
-                                }), Operation));
+                                }), Operation)
+                        .setOperationAddress("/deployment=*", "remove"));
 
         unassignedColumn.setFilter((item, token) ->
                 item.getName().contains(token) || item.getRuntimeName().contains(token));

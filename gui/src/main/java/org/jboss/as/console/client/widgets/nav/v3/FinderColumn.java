@@ -299,11 +299,9 @@ public class FinderColumn<T> implements SecurityContextAware {
 
         // System.out.println("<< Process SecurityContext on column "+title+": "+securityContext+">>");
 
-        boolean writePrivilege = securityContext.getWritePriviledge().isGranted();
-
         // calculate accessible menu items
-        filterNonPrivilegeOperations(writePrivilege, accessibleTopMenuItems, topMenuItems);
-        filterNonPrivilegeOperations(writePrivilege, accessibleMenuItems, menuItems);
+        filterNonPrivilegeOperations(securityContext, accessibleTopMenuItems, topMenuItems);
+        filterNonPrivilegeOperations(securityContext,accessibleMenuItems, menuItems);
 
         // the top menu is build here
         if(!plain)
@@ -328,9 +326,14 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     }
 
-    private void filterNonPrivilegeOperations(boolean writePrivilege, List<MenuDelegate> target, MenuDelegate[] source) {
+    private void filterNonPrivilegeOperations(SecurityContext securityContext, List<MenuDelegate> target, MenuDelegate[] source) {
+
         target.clear();
         for (MenuDelegate menuItem : source) {
+
+            boolean writePrivilege = menuItem.hasOperationAddress() ?
+                    securityContext.getOperationPriviledge(menuItem.getResource(), menuItem.getOp()).isGranted() :
+                    securityContext.getWritePriviledge().isGranted();
 
             // Role.Operation will be filtered depending on the permission
             if(MenuDelegate.Role.Operation == menuItem.getRole()

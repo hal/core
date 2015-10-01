@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-
 /**
  * @author Heiko Braun
  * @since 19/01/15
@@ -50,10 +47,18 @@ public class MenuDelegate<T>{
         return this;
     }
 
+    public String getResource() {
+        return resource;
+    }
 
-    public void setOperationAddress(String resource, String op) {
+    public String getOp() {
+        return op;
+    }
+
+    public MenuDelegate<T> setOperationAddress(String resource, String op) {
         this.resource = resource;
         this.op = op;
+        return this;
     }
 
     public String[] getOperationAddress() {
