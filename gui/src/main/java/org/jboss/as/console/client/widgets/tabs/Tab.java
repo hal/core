@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.widgets.tabs;
 
+import static org.jboss.as.console.client.StringUtils.abbreviateMiddle;
+
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -36,9 +38,6 @@ import static org.jboss.as.console.client.widgets.tabs.Templates.TEMPLATES;
 class Tab extends Composite {
 
     static final String STYLE_NAME = "hal-TabLayout-tab";
-
-    private final static int MAX_LENGTH = 15;
-    private final static String ELLIPSIS = "...";
 
     private final DefaultTabLayoutPanel tabLayout;
     private int index;
@@ -119,6 +118,8 @@ class Tab extends Composite {
 
         private final boolean truncate;
 
+        private final static int MAX_LENGTH = 15;
+        
         TabLabel(final Element element, final String text, boolean truncate) {
             super(element);
             this.truncate = truncate;
@@ -133,7 +134,7 @@ class Tab extends Composite {
         @Override
         public void setText(final String text) {
             if (truncate) {
-                super.setText(abbreviateMiddle(text));
+                super.setText(abbreviateMiddle(text,MAX_LENGTH));
                 setTitle(text);
             } else {
                 super.setText(text);
@@ -158,18 +159,6 @@ class Tab extends Composite {
                 default:
                     break;
             }
-        }
-
-        private String abbreviateMiddle(String str) {
-            if (str == null || MAX_LENGTH >= str.length()) {
-                return str;
-            }
-
-            final int targetSting = MAX_LENGTH - ELLIPSIS.length();
-            final int startOffset = targetSting / 2 + targetSting % 2;
-            final int endOffset = str.length() - targetSting / 2;
-
-            return str.substring(0, startOffset) + ELLIPSIS + str.substring(endOffset);
         }
     }
 

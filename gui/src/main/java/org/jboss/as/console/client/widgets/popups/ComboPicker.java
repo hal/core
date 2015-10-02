@@ -19,6 +19,8 @@ package org.jboss.as.console.client.widgets.popups;
  * MA  02110-1301, USA.
  */
 
+import static org.jboss.as.console.client.StringUtils.shortenStringIfNecessary;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -250,15 +252,7 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
     private void setDisplayedValue(String display)
     {
         displayed.setActual(display);
-        displayed.setText(clip(display, numCharsClip));
-    }
-
-    private static String clip(String value, int clipping)
-    {
-        String result = value;
-        if(value!=null && value.length()>clipping)
-            result = value.substring(0, clipping)+"...";
-        return result;
+        displayed.setText(shortenStringIfNecessary(display, numCharsClip));
     }
 
     public void setValues(Collection<String> values)
