@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.widgets.tables;
 
+import static org.jboss.as.console.client.StringUtils.shortenStringIfNecessary;
+
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -27,12 +29,8 @@ public abstract class ShortcutColumn<T> extends Column<T, SafeHtml> {
     protected abstract String getName(T value);
 
     protected SafeHtml asSafeHtml(String name) {
-        if (name != null && name.length() > maxLength) {
-            String shortName = name.substring(0, maxLength - 1) + "...";
-            return TEMPLATES.shortcut(shortName, name);
-        } else {
-            return SafeHtmlUtils.fromString(name);
-        }
+        return (name != null && name.length() > maxLength) ? TEMPLATES
+                .shortcut(shortenStringIfNecessary(name, maxLength), name) : SafeHtmlUtils.fromString(name);
     }
 
     interface Templates extends SafeHtmlTemplates {
