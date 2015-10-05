@@ -3,6 +3,7 @@ out
 target
 .DS_Store
 .idea
+.wakatime-project
 build.number
 *.bak
 gwt-unitCache
