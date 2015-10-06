@@ -343,7 +343,7 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
-                            <disableClassMetadata>true</disableClassMetadata>
+                            <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
                         </configuration>
                     </plugin>
@@ -383,7 +383,7 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
-                            <disableClassMetadata>true</disableClassMetadata>
+                            <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
                         </configuration>
                     </plugin>
