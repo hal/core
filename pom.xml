@@ -183,6 +183,9 @@
                         </goals>
                         <configuration>
                             <rules>
+                                <requireOS>
+                                    <arch>amd64</arch>
+                                </requireOS>
                                 <!--
                                     The "gui" module doesn't compiles with JDK 8 (at least, yet).
                                     To disable this enforcer, build with -Denforcer.skip=true
