@@ -27,6 +27,7 @@ import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -46,12 +47,20 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     // @formatter:on
 
     private final Header header;
+    private final BootstrapContext bootstrapContext;
 
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final Header header) {
+            final Header header, BootstrapContext bootstrapContext) {
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
         this.header = header;
+        this.bootstrapContext = bootstrapContext;
+    }
+
+    @Override
+    protected void onBind() {
+        super.onBind();
+        GuidedTourHelper.init(bootstrapContext);
     }
 
     @Override
