@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.search;
 
+import static org.jboss.as.console.client.StringUtils.shortenStringIfNecessary;
+
 import com.google.gwt.user.client.ui.SuggestOracle;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public class IndexSuggestOracle extends SuggestOracle {
             for (Document hit : hits) {
                 String description = hit.getDescription();
                 boolean tooLong = description.length() > 125;
-                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
+                String shortDesc = shortenStringIfNecessary(description, 125);
                 String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
                 DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
                         display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
@@ -55,6 +57,7 @@ public class IndexSuggestOracle extends SuggestOracle {
         }
     }
 
+    
     @Override
     public boolean isDisplayStringHTML() {
         return true;

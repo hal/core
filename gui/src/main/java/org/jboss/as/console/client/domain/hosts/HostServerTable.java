@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import static org.jboss.as.console.client.StringUtils.shortenStringIfNecessary;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -22,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
@@ -36,6 +39,8 @@ import org.jboss.gwt.circuit.Dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import java_cup.shift_action;
 
 /**
  * A miller column based selection of host/serve combinations
@@ -76,14 +81,6 @@ public class HostServerTable {
 
     public HostServerTable() {
         this.circuit = Console.MODULES.getCircuitDispatcher();
-    }
-
-    private static String clip(String value, int clipping)
-    {
-        String result = value;
-        if(value!=null && value.length()>clipping)
-            result = value.substring(0, clipping)+"...";
-        return result;
     }
 
     public void setRightToLeft(boolean rightToLeft) {
@@ -294,8 +291,8 @@ public class HostServerTable {
 
     public void updateDisplay(String hostName, String serverName) {
 
-        String host = clip(hostName, clipAt);
-        String server = clip(serverName, clipAt);
+        String host = shortenStringIfNecessary(hostName, clipAt);
+        String server = shortenStringIfNecessary(serverName, clipAt);
 
         currentDisplayedValue.setHTML(
                 "Host:&nbsp;<b>" + host + "</b><br/>" +
@@ -405,7 +402,7 @@ public class HostServerTable {
                 String host,
                 SafeHtmlBuilder safeHtmlBuilder)
         {
-            safeHtmlBuilder.append(HOST_TEMPLATE.message(clip(host, clipAt)));
+            safeHtmlBuilder.append(HOST_TEMPLATE.message(shortenStringIfNecessary(host, clipAt)));
         }
 
     }
@@ -419,7 +416,7 @@ public class HostServerTable {
                 SafeHtmlBuilder safeHtmlBuilder)
         {
             String icon = "icon-ok"; //server.isRunning() ? "icon-ok":"icon-ban-circle";
-            String name = clip(server, clipAt);
+            String name = shortenStringIfNecessary(server, clipAt);
             safeHtmlBuilder.append(SERVER_TEMPLATE.message(name, icon));
         }
 
