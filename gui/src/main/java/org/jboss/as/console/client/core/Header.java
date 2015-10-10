@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.core;
 
+import static org.jboss.as.console.client.StringUtils.ELLIPSIS;
+
 import com.google.common.base.CharMatcher;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -252,7 +254,7 @@ public class Header implements ValueChangeHandler<String> {
             if (bootstrap.getRunAs()!=null) {
                 runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(bootstrap.getRunAs());
             } else {
-                runAsRole.appendEscaped("...");
+                runAsRole.appendEscaped(ELLIPSIS);
             }
 
             runAsBtn.setHTML(runAsRole.toSafeHtml());
