@@ -1260,10 +1260,6 @@ public interface UIConstants extends Constants {
 
     String tx_jacorb_state_dmr_error();
 
-    String tx_jacorb_state_not_present();
-
-    String tx_jacorb_state_wrong_value();
-
     String forbidden_desc();
 
     String common_label_search();
