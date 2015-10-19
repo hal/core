@@ -123,12 +123,18 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 final WebServiceEndpoint selection = selectionModel.getSelectedObject();
-                sampler.addSample(
-                        new Metric(
-                                selection.getRequestCount(),
-                                selection.getResponseCount(),
-                                selection.getFaultCount()
-                        ));
+                if(selection!=null) {
+                    sampler.addSample(
+                            new Metric(
+                                    selection.getRequestCount(),
+                                    selection.getResponseCount(),
+                                    selection.getFaultCount()
+                            ));
+                }
+                else
+                {
+                    sampler.clearSamples();
+                }
             }
         });
         DefaultPager pager = new DefaultPager();
@@ -182,7 +188,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         refreshBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onReset();
+                presenter.loadEndpoints(true);
             }
         });
 
@@ -208,6 +214,8 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     }
 
     public void updateEndpoints(List<WebServiceEndpoint> endpoints) {
+        ((SingleSelectionModel)table.getSelectionModel()).clear();
+
         dataProvider.setList(endpoints);
         sortHandler.setList(dataProvider.getList());
 
@@ -215,5 +223,10 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         ColumnSortEvent.fire(table, table.getColumnSortList());
 
         table.selectDefaultEntity();
+
+       /* ((SingleSelectionModel)table.getSelectionModel()).clear();
+        dataProvider.setList(endpoints);
+        table.selectDefaultEntity();*/
+
     }
 }
