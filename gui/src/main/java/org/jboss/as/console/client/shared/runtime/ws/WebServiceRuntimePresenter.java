@@ -70,7 +70,7 @@ public class WebServiceRuntimePresenter
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                loadEndpoints();
+                loadEndpoints(false);
 
             }
         });    }
@@ -79,10 +79,10 @@ public class WebServiceRuntimePresenter
     protected void onReset() {
         super.onReset();
 
-        loadEndpoints();
+        loadEndpoints(false);
     }
 
-    private void loadEndpoints() {
+    public void loadEndpoints(boolean msg) {
 
         endpointRegistry.create().refreshEndpoints(new LoggingCallback<List<WebServiceEndpoint>>() {
 
@@ -94,6 +94,9 @@ public class WebServiceRuntimePresenter
             @Override
             public void onSuccess(List<WebServiceEndpoint> result) {
                 getView().updateEndpoints(result);
+
+                if(msg) Console.info("Successfully refreshed statistics.");
+
             }
         });
     }
