@@ -266,7 +266,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                 SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
 
-                final String addressString = AddressUtils.toString(address, false); // TODO: what about squatting resources?
+                final String addressString = AddressUtils.toString(address, true); // TODO: what about squatting resources?
 
                 final Set<String> resources = new HashSet<String>();
                 resources.add(addressString);
@@ -288,7 +288,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                                 @Override
                                 public void onSuccess(SecurityContext result) {
-                                    final String cacheKey = AddressUtils.asKey(address, false);
+                                    final String cacheKey = AddressUtils.asKey(address, true);
                                     contextCache.put(cacheKey, result);
                                     control.getContext().securityContext = result;
                                     control.proceed();
