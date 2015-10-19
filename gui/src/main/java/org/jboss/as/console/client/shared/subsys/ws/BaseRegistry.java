@@ -18,8 +18,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
  */
 public class BaseRegistry {
 
-    final static String NO_METRICS = "WFLYWS0037: No metrics available";
-
     DispatchAsync dispatcher;BeanFactory factory;
 
     public BaseRegistry(BeanFactory factory, DispatchAsync dispatcher) {
@@ -35,23 +33,20 @@ public class BaseRegistry {
             for(ModelNode node : modelNodes)
             {
 
-                List<Property> addressTokens = node.get(ADDRESS).asPropertyList();
+                WebServiceEndpoint endpoint = null;
+                try {
+                    List<Property> addressTokens = node.get(ADDRESS).asPropertyList();
 
-                ModelNode value = node.get(RESULT).asObject();
-                WebServiceEndpoint endpoint = factory.webServiceEndpoint().as();
+                    ModelNode value = node.get(RESULT).asObject();
+                    endpoint = factory.webServiceEndpoint().as();
 
-                endpoint.setName(value.get("name").asString());
-                endpoint.setClassName(value.get("class").asString());
-                endpoint.setContext(value.get("context").asString());
-                endpoint.setType(value.get("type").asString());
-                endpoint.setWsdl(value.get("wsdl-url").asString());
-                endpoint.setDeployment(addressTokens.get(0).getValue().asString());
+                    endpoint.setName(value.get("name").asString());
+                    endpoint.setClassName(value.get("class").asString());
+                    endpoint.setContext(value.get("context").asString());
+                    endpoint.setType(value.get("type").asString());
+                    endpoint.setWsdl(value.get("wsdl-url").asString());
+                    endpoint.setDeployment(addressTokens.get(0).getValue().asString());
 
-                // the following needs 'statistics-enabled == true'
-                // TODO Is this error message valid / stable across community & product versions?
-                if (NO_METRICS.equals(value.get("request-count").asString())) {
-                    Console.warning("Web Service statistics are not enabled", "To see runtime data like number of requests, please turn on statistics in the webservice configuration.");
-                } else {
                     endpoint.setRequestCount(value.get("request-count").asInt(0));
                     endpoint.setResponseCount(value.get("response-count").asInt(0));
                     endpoint.setFaultCount(value.get("fault-count").asInt(0));
@@ -59,7 +54,11 @@ public class BaseRegistry {
                     endpoint.setAverageProcessingTime(value.get("average-processing-time").asInt(0));
                     endpoint.setMaxProcessingTime(value.get("max-processing-time").asInt(0));
                     endpoint.setTotalProcessingTime(value.get("total-processing-time").asInt(0));
+                } catch (IllegalArgumentException e) {
+                    Console.error("Failed to parse response. Are the statistics enabled?", e.getMessage());
+                    continue;
                 }
+
                 endpoints.add(endpoint);
             }
         }
