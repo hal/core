@@ -272,7 +272,6 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
 
     // ------------------------------------------------------ properties
 
-
     @Override
     public Widget getWidget(int index) {
         if (index == PAGE_LIMIT - 1) {

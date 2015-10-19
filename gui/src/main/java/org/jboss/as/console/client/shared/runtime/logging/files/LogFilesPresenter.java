@@ -32,7 +32,11 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.runtime.logging.store.*;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
+import org.jboss.as.console.client.shared.runtime.logging.store.ReadLogFiles;
+import org.jboss.as.console.client.shared.runtime.logging.store.SelectLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.StreamLogFile;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
@@ -47,19 +51,20 @@ import java.util.List;
 
 public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView, LogFilesPresenter.MyProxy> {
 
+    // @formatter:off
     @ProxyCodeSplit
     @NameToken(NameTokens.LogFiles)
     @SearchIndex(keywords = {"log-file", "log-view", "server-log", "download"})
     @AccessControl(resources = "/{implicit.host}/{selected.server}/subsystem=logging", recursive = true)
     public interface MyProxy extends Proxy<LogFilesPresenter>, Place {}
 
-
-    public interface MyView extends View, HasPresenter<LogFilesPresenter> { // @formatter:off
+    public interface MyView extends View, HasPresenter<LogFilesPresenter> {
         void list(List<ModelNode> logFiles);
+        void reset();
         void open(LogFile logFile);
         void refresh(LogFile logFile);
-        boolean isLogFileSelected();
-    } // @formatter:on
+    }
+    // @formatter:on
 
 
     /**
@@ -81,7 +86,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
 
     @Inject
     public LogFilesPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                             Dispatcher circuit, LogStore logStore, HostStore hostStore) {
+            Dispatcher circuit, LogStore logStore, HostStore hostStore) {
         super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
@@ -131,32 +136,26 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     @Override
     protected void onReset() {
         super.onReset();
+        getView().reset();
         circuit.dispatch(new ReadLogFiles());
-        if (getView().isLogFileSelected() && logStore.getActiveLogFile() != null) {
-            circuit.dispatch(new SelectLogFile(logStore.getActiveLogFile().getName()));
-        }
     }
 
     public void onStreamLogFile(final String logFile, final int fileSize) {
         if (logStore.isOpen(logFile)) {
-            this.circuit.dispatch(new SelectLogFile(logFile));
+            circuit.dispatch(new SelectLogFile(logFile));
         } else {
             if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
                 Feedback.confirm(
                         "Download Log File",
                         "Downloading this log file may take some time. Do you want to proceed?",
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    streamingProgress.monitor(logFile);
-                                }
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                streamingProgress.monitor(logFile);
                             }
                         });
             } else {
                 streamingProgress.monitor(logFile);
             }
-
         }
     }
 }

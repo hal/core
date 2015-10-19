@@ -154,6 +154,8 @@ public class LogStore extends ChangeSupport {
                             ": " + response.getFailureDescription()));
                 } else {
                     logFiles.clear();
+                    activeLogFile = null;
+
                     List<Property> properties = response.get(RESULT).asPropertyList();
                     for (Property property : properties) {
                         ModelNode node = property.getValue();

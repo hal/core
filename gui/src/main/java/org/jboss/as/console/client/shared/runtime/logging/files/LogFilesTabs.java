@@ -22,10 +22,6 @@
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.runtime.logging.store.CloseLogFile;
@@ -42,29 +38,31 @@ public class LogFilesTabs extends Composite {
     private final DefaultTabLayoutPanel tabLayout;
 
     public LogFilesTabs(final Dispatcher circuit) {
-        this.tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
-        this.tabLayout.addSelectionHandler(new SelectionHandler<Integer>() {
-            @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                LogFilePanel logFilePanel = selectedLogFilePanel();
-                if (logFilePanel != null) {
-                    circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
-                    logFilePanel.onResize();
-                }
+        tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
+        tabLayout.addSelectionHandler(event -> {
+            LogFilePanel logFilePanel = selectedLogFilePanel();
+            if (logFilePanel != null) {
+                circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
+                logFilePanel.onResize();
             }
         });
-        this.tabLayout.addCloseHandler(new CloseHandler<Widget>() {
-            @Override
-            public void onClose(CloseEvent<Widget> event) {
-                if (event.getTarget() instanceof LogFilePanel) {
-                    LogFilePanel logFilePanel = (LogFilePanel) event.getTarget();
-                    circuit.dispatch(new CloseLogFile(logFilePanel.getName()));
-                }
+        tabLayout.addCloseHandler(event -> {
+            if (event.getTarget() instanceof LogFilePanel) {
+                LogFilePanel logFilePanel = (LogFilePanel) event.getTarget();
+                circuit.dispatch(new CloseLogFile(logFilePanel.getName()));
             }
         });
 
         initWidget(tabLayout);
         addStyleName("default-tabpanel");
+    }
+
+    public void reset() {
+        int count = tabLayout.getWidgetCount();
+        // remove anything but the first tab which contains the list of log files
+        for (int i = 1; i < count; i++) {
+            tabLayout.remove(i);
+        }
     }
 
     public void open(LogFile logFile) {

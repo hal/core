@@ -62,6 +62,11 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilesPresent
     }
 
     @Override
+    public void reset() {
+        logFilesTabs.reset();
+    }
+
+    @Override
     public void open(LogFile logFile) {
         logFilesTabs.open(logFile);
     }
@@ -69,10 +74,5 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilesPresent
     @Override
     public void refresh(LogFile logFile) {
         logFilesTabs.refresh(logFile);
-    }
-
-    @Override
-    public boolean isLogFileSelected() {
-        return logFilesTabs.selectedLogFilePanel() != null;
     }
 }

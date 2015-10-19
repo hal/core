@@ -25,13 +25,18 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -67,26 +72,23 @@ public class LogFilePanel extends Composite implements LogFilesId {
 
         editor = new AceEditor();
         editor.addStyleName("hal-LogViewer");
-        editor.addAttachHandler(new AttachEvent.Handler() {
-            @Override
-            public void onAttachOrDetach(AttachEvent event) {
-                if (event.isAttached()) {
-                    Scheduler.get().scheduleDeferred(
-                            new Scheduler.ScheduledCommand() {
-                                @Override
-                                public void execute() {
-                                    editor.startEditor();
-                                    editor.setReadOnly(true);
-                                    editor.setShowGutter(true);
-                                    editor.setShowPrintMargin(false);
-                                    editor.setModeByName("logfile");
-                                    editor.setThemeByName("logfile");
-                                    editor.setText(logFile.getContent());
-                                    editor.setFontSize("11px");
-                                }
+        editor.addAttachHandler(event -> {
+            if (event.isAttached()) {
+                Scheduler.get().scheduleDeferred(
+                        new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                editor.startEditor();
+                                editor.setReadOnly(true);
+                                editor.setShowGutter(true);
+                                editor.setShowPrintMargin(false);
+                                editor.setModeByName("logfile");
+                                editor.setThemeByName("logfile");
+                                editor.setText(logFile.getContent());
+                                editor.setFontSize("11px");
                             }
-                    );
-                }
+                        }
+                );
             }
         });
         HorizontalPanel editorPanel = new HorizontalPanel();
@@ -121,15 +123,12 @@ public class LogFilePanel extends Composite implements LogFilesId {
     }
 
     public void onResize() {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                int panelHeight = panel.getElement().getParentElement().getOffsetHeight();
-                int editorHeight = panelHeight - HEADER_HEIGHT - TOOLS_HEIGHT - MARGIN_BOTTOM;
+        Scheduler.get().scheduleDeferred(() -> {
+            int panelHeight = panel.getElement().getParentElement().getOffsetHeight();
+            int editorHeight = panelHeight - HEADER_HEIGHT - TOOLS_HEIGHT - MARGIN_BOTTOM;
 
-                if (panelHeight > 0) {
-                    editor.setHeight(editorHeight + "px");
-                }
+            if (panelHeight > 0) {
+                editor.setHeight(editorHeight + "px");
             }
         });
     }
