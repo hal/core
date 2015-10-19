@@ -31,7 +31,7 @@ public class HttpMetricView extends SuspendableViewImpl implements HttpMetricPre
         serverList = new ServerList(presenter, true);
         connectorView = new ConnectorMetricView(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), serverList.asWidget());
+        panel.addPage("HTTP Server", serverList.asWidget());
         panel.addPage("Connectors", connectorView.asWidget());
 
         // default page

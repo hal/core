@@ -107,7 +107,6 @@ public class Footer {
 
         // only enabled in dev mode
         if (!GWT.isScript()) {
-            toolReference.add(new String[]{"Modelling", "mbui-workbench"});
             toolReference.add(new String[]{"Resource Access", "access-log"});
 //            toolReference.add(new String[]{"Search Index", "indexing"});
         }
@@ -153,8 +152,8 @@ public class Footer {
         settings.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                placeManager.revealPlace(
-                        new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build(), false
+                placeManager.revealRelativePlace(
+                        new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build()
                 );
             }
 

@@ -67,6 +67,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -174,7 +175,17 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                     this way they can keep their state (i.e. selections) and allow refresh when being called directly (aka token matches)
                      */
                     //placeManager.revealPlace(places.get(0));
-                    placeManager.navigateBack();
+
+                    List<PlaceRequest> previousPLaces = new ArrayList<PlaceRequest>();
+                    int i=0;
+                    for (PlaceRequest place : places) {
+                        if(i<places.size()-1)
+                            previousPLaces.add(place);
+                        i++;
+                    }
+                    placeManager.revealPlaceHierarchy(previousPLaces);
+
+                    //placeManager.navigateBack();
 
                 }
 
@@ -554,6 +565,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             // hence we need to capture the actual place hierarchy so we can safely navigate back
 
             places = new ArrayList(placeManager.getCurrentPlaceHierarchy());
+
             String nameToken = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
             BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(nameToken);
 
