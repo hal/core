@@ -161,6 +161,13 @@ public class BulletGraphView implements Sampler {
 
     private void renderDefault(){
         vis.data(generateDefaultData()).render();
+
+        for(int i=0; i<columns.length;i++)
+                {
+                    grid.setText(i, 0, columns[i].label);
+                    grid.setText(i, 1, "");
+                }
+
     }
 
     private void render(JsArrayGeneric<Bullet> bullets){
