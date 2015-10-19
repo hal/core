@@ -36,6 +36,7 @@ import org.jboss.gwt.flow.client.Function;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -164,7 +165,8 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                         // meta data matching the inquiry.
                         Input in = stepToInput.get(step);
                         // TODO: why is this mapped to the input and not resolved from the template?
-                        List<ModelNode> inquiryAddress = in.operation.get(ADDRESS).asList();
+
+                        List<ModelNode> inquiryAddress = in.operation.hasDefined(ADDRESS) ? in.operation.get(ADDRESS).asList() : Collections.EMPTY_LIST;
 
                         // it's a List response when asking for '<resourceType>=*"
                         ModelNode payload = null;
