@@ -89,7 +89,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     @Override
     protected void onHide() {
         super.onHide();
-        Console.getPlaceManager().revealRelativePlace(-1);
+        Console.getPlaceManager().navigateBack();
     }
 
     public void onRefresh() {

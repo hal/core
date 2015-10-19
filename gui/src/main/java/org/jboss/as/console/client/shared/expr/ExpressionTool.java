@@ -3,6 +3,7 @@ package org.jboss.as.console.client.shared.expr;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.tools.Tool;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -87,6 +88,8 @@ public class ExpressionTool implements Tool {
         window.trapWidget(new WindowContentBuilder(panel, options).build());
 
         window.setGlassEnabled(true);
+
+        window.addCloseHandler(closeEvent -> Console.getPlaceManager().navigateBack());
 
         return window;
     }
