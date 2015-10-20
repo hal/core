@@ -315,9 +315,23 @@ public class ModelNodeFormBuilder {
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case INT:
-                            formItem = new NumberBoxItem(attr.getName(), label);
+                            if(attrDesc.hasDefined("min") && attrDesc.hasDefined("max"))
+                            {
+                                formItem = new NumberBoxItem(
+                                        attr.getName(), label,
+                                        attrDesc.get("min").asLong(),
+                                        attrDesc.get("max").asLong()
+                                );
+                            }
+                            else
+                            {
+                                formItem = new NumberBoxItem(attr.getName(), label);
+                            }
+
                             formItem.setRequired(isRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
+
+
                             break;
                         case LIST:
                             formItem = new ListItem(attr.getName(), label);

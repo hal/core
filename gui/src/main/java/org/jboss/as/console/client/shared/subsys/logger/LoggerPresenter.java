@@ -231,6 +231,7 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
     }
 
     public void onSaveNamedResource(AddressTemplate address, String name, Map changeset) {
+        System.out.println(changeset);
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 

@@ -431,7 +431,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                             String stringValue = (String) obj;
                             if(stringValue.startsWith("$"))
                                 node.setExpression(stringValue);
-                            else if("".equals(stringValue))
+                            else if("".equals(stringValue))   // TODO better item.isUndefined() ?
                                 node.clear(); // TODO: depends on nillable?
                             else
                                 node.set(stringValue);
@@ -440,25 +440,25 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         // Numeric Values
                         else if (baseType == Long.class) {
                             Long longValue = (Long) obj;
-                            if(0 == longValue)
+                            if(item.isUndefined())
                                 node.clear();
                             else
                                 node.set(longValue);
                         } else if (baseType == Integer.class) {
                             Integer intValue = (Integer) obj;
-                            if(0 == intValue)
+                            if(item.isUndefined())
                                 node.clear();
                             else
                                 node.set(intValue);
                         } else if (baseType == BigDecimal.class) {
                             BigDecimal bigValue = (BigDecimal) obj;
-                            if(0.00 == bigValue.doubleValue())
+                            if(item.isUndefined())
                                 node.clear();
                             else
                                 node.set(bigValue);
                         } else if (baseType == Double.class) {
                             Double dValue = (Double) obj;
-                            if(0.00 == dValue)
+                            if(item.isUndefined())
                                 node.clear();
                             else
                                 node.set(dValue);
