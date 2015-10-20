@@ -23,8 +23,10 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcas
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
@@ -36,6 +38,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
@@ -53,11 +56,27 @@ public class MsgClusteringPresenter
         extends Presenter<MsgClusteringPresenter.MyView, MsgClusteringPresenter.MyProxy>
         implements CommonMsgPresenter {
 
+    public void onLaunchAddResourceDialog(AddressTemplate baseAddress) {
+
+    }
+
+    public void onRemoveResource(AddressTemplate baseAddress, String name) {
+
+    }
+
+    public void onSaveResource(AddressTemplate baseAddress, String name, Map changeset) {
+
+    }
+
     // ------------------------------------------------------ proxy & view
     // @formatter:off
     @ProxyCodeSplit
     @NameToken(NameTokens.ActivemqMsgClusteringPresenter)
-    @RequiredResources(resources = {"{selected.profile}/subsystem=messaging-activemq/server=*"})
+    @RequiredResources(resources = {
+            "{selected.profile}/subsystem=messaging-activemq/server=*",
+            "{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/broadcast-group=*"
+    }
+    )
     @SearchIndex(keywords = {"jms", "messaging", "cluster", "broadcast", "discovery"})
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {}
 
@@ -65,7 +84,7 @@ public class MsgClusteringPresenter
         void setPresenter(MsgClusteringPresenter presenter);
         void setProvider(List<Property> result);
         void setSelectedProvider(String currentServer);
-        void setBroadcastGroups(List<ActivemqBroadcastGroup> groups);
+        void setBroadcastGroups(List<Property> groups);
         void setDiscoveryGroups(List<ActivemqDiscoveryGroup> groups);
         void setClusterConnection(List<ActivemqClusterConnection> groups);
     }
@@ -90,7 +109,7 @@ public class MsgClusteringPresenter
             PlaceManager placeManager, DispatchAsync dispatcher,
             RevealStrategy revealStrategy, ApplicationMetaData propertyMetaData,
             SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry,
-            StatementContext statementContext) {
+            CoreGUIContext coreGUIContext) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -98,11 +117,29 @@ public class MsgClusteringPresenter
         this.revealStrategy = revealStrategy;
         this.securityFramework = securityFramework;
         this.descriptionRegistry = descriptionRegistry;
-        this.statementContext = statementContext;
 
         bcastGroupAdapter = new EntityAdapter<>(ActivemqBroadcastGroup.class, propertyMetaData);
         discGroupAdapter = new EntityAdapter<>(ActivemqDiscoveryGroup.class, propertyMetaData);
         clusterConnectionsAdapter = new EntityAdapter<>(ActivemqClusterConnection.class, propertyMetaData);
+
+        this.statementContext = new FilteringStatementContext(coreGUIContext, new FilteringStatementContext.Filter() {
+            @Override
+            public String filter(String key) {
+                if("activemq.server".equals(key))
+                    return currentServer;
+                else
+                    return null;
+            }
+
+            @Override
+            public String[] filterTuple(String key) {
+                return new String[0];
+            }
+        });
+    }
+
+    public StatementContext getStatementContext() {
+        return statementContext;
     }
 
     @Override
@@ -175,16 +212,7 @@ public class MsgClusteringPresenter
                             response.getFailureDescription());
                 } else {
                     List<Property> model = response.get(RESULT).asPropertyList();
-                    List<ActivemqBroadcastGroup> groups = new ArrayList<>();
-                    for (Property prop : model) {
-                        ModelNode node = prop.getValue();
-                        ActivemqBroadcastGroup entity = bcastGroupAdapter.fromDMR(node);
-                        entity.setName(prop.getName());
-
-                        entity.setConnectors(EntityAdapter.modelToList(node, "connectors"));
-                        groups.add(entity);
-                    }
-                    getView().setBroadcastGroups(groups);
+                    getView().setBroadcastGroups(model);
                 }
             }
         });
@@ -295,7 +323,7 @@ public class MsgClusteringPresenter
         });
     }
 
-    public void launchNewBroadcastGroupWizard() {
+    /*public void launchNewBroadcastGroupWizard() {
         loadExistingSocketBindings(new AsyncCallback<List<String>>() {
             @Override
             public void onFailure(Throwable throwable) {
@@ -313,7 +341,7 @@ public class MsgClusteringPresenter
             }
         });
     }
-
+*/
     public String getCurrentServer() {
         return currentServer;
     }

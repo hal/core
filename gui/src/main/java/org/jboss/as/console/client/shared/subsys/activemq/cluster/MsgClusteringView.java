@@ -67,7 +67,7 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
     public void setProvider(List<Property> provider) {}
 
     @Override
-    public void setBroadcastGroups(List<ActivemqBroadcastGroup> groups) {
+    public void setBroadcastGroups(List<Property> groups) {
         broadcastGroupList.setBroadcastGroups(groups);
     }
 

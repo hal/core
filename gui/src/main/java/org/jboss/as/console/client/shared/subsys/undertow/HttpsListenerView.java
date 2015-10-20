@@ -35,7 +35,7 @@ public class HttpsListenerView {
             AddressTemplate.of("{selected.profile}/subsystem=undertow/server={undertow.server}/https-listener=*");
 
     private final HttpPresenter presenter;
-    private final DefaultCellTable table;
+    private final DefaultCellTable<Property> table;
     private final ListDataProvider<Property> dataProvider;
     private List<Property> data;
     private SingleSelectionModel<Property> selectionModel;
