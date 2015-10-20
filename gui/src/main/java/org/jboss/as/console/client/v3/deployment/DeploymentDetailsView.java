@@ -21,45 +21,37 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import org.jboss.dmr.client.ModelNode;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.tools.ModelBrowser;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
  * @author Harald Pehl
  */
-public class Subdeployment extends ModelNode {
+public class DeploymentDetailsView extends SuspendableViewImpl implements DeploymentDetailsPresenter.MyView {
 
-    private final Deployment parent;
-    private final String name;
-    private final List<Subsystem> subsystems;
+    private final DispatchAsync dispatcher;
+    private final StatementContext statementContext;
+    private ModelBrowser modelBrowser;
 
-    public Subdeployment(final Deployment parent, final String name, final ModelNode node) {
-        this.parent = parent;
-        this.name = name;
-        this.subsystems = new ArrayList<>();
-        set(node);
-
-        if (node.hasDefined("subsystem")) {
-            Deployment.parseSubsystems(node, subsystems);
-        }
+    @Inject
+    public DeploymentDetailsView(DispatchAsync dispatcher, StatementContext statementContext) {
+        this.dispatcher = dispatcher;
+        this.statementContext = statementContext;
     }
 
     @Override
-    public String toString() {
-        return "Subdeployment{" + name + "}";
+    public Widget createWidget() {
+        modelBrowser = new ModelBrowser(dispatcher, statementContext);
+        return modelBrowser.asWidget();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Deployment getParent() {
-        return parent;
-    }
-
-    public List<Subsystem> getSubsystems() {
-        return subsystems;
+    @Override
+    public void showDetails(final ResourceAddress resourceAddress) {
+        modelBrowser.onReset(resourceAddress);
     }
 }

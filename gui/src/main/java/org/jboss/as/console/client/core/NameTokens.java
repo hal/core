@@ -137,6 +137,7 @@ public class NameTokens {
 
     public static final String DomainDeploymentFinder = "domain-deployments";
     public static final String StandaloneDeploymentFinder = "standalone-deployments";
+    public static final String DeploymentDetails = "deployments-details";
     public static final String DeploymentScanner = "deployment-scanner";
 
 

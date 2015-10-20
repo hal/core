@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -52,10 +53,12 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Arrays;
 
 import static org.jboss.as.console.client.widgets.nav.v3.FinderColumn.FinderId.DEPLOYMENT;
+import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Navigation;
 import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Operation;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -84,7 +87,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
     @Inject
     @SuppressWarnings("unchecked")
-    public DomainDeploymentFinderView(final DispatchAsync dispatcher, final PreviewContentFactory contentFactory) {
+    public DomainDeploymentFinderView(final PlaceManager placeManager, final DispatchAsync dispatcher,
+            final Dispatcher circuit, final PreviewContentFactory contentFactory) {
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
@@ -93,7 +97,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
         // ------------------------------------------------------ subdeployments
 
-        subdeploymentColumn = new SubdeploymentColumn(columnManager, 4, NameTokens.DomainDeploymentFinder);
+        subdeploymentColumn = new SubdeploymentColumn(placeManager, circuit, columnManager, 4,
+                NameTokens.DomainDeploymentFinder);
         subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
 
@@ -149,6 +154,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         };
         //noinspection Convert2MethodRef
         assignmentColumn.setMenuItems(
+                new MenuDelegate<>("View", item -> presenter.showDetails(item), Navigation),
                 enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
                 new MenuDelegate<>("Unassign", item ->
@@ -172,11 +178,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             if (assignmentColumn.hasSelectedItem()) {
                 columnManager.updateActiveSelection(assignmentColumnWidget);
                 Assignment assignment = assignmentColumn.getSelectedItem();
-                if (assignment.isEnabled() && assignment.hasDeployment() && assignment.getDeployment()
-                        .hasSubdeployments()) {
+                if (assignment.isEnabled() && assignment.hasDeployment()) {
                     Deployment deployment = assignment.getDeployment();
-                    columnManager.appendColumn(subdeploymentColumnWidget);
-                    subdeploymentColumn.updateFrom(deployment.getSubdeployments());
+                    circuit.dispatch(new SelectDeploymentAction(deployment));
+                    if (deployment.hasSubdeployments()) {
+                        columnManager.appendColumn(subdeploymentColumnWidget);
+                        subdeploymentColumn.updateFrom(deployment.getSubdeployments());
+                    }
                 }
             }
         });

@@ -40,7 +40,8 @@ public class Deployment extends Content {
 
 
     /**
-     * Expects a "subsystem" child resource
+     * Expects a "subsystem" child resource. Modeled as a static helper method to make it usable from both
+     * deployments and subdeployments.
      */
     static void parseSubsystems(ModelNode node, List<Subsystem> subsystems) {
         List<Property> properties = node.get("subsystem").asPropertyList();
@@ -66,7 +67,7 @@ public class Deployment extends Content {
         if (node.hasDefined("subdeployment")) {
             List<Property> properties = node.get("subdeployment").asPropertyList();
             for (Property property : properties) {
-                Subdeployment subdeployment = new Subdeployment(property.getName(), property.getValue());
+                Subdeployment subdeployment = new Subdeployment(this, property.getName(), property.getValue());
                 subdeployments.add(subdeployment);
             }
         }

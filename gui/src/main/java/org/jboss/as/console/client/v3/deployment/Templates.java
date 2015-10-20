@@ -25,7 +25,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 
@@ -76,16 +75,16 @@ final class Templates {
         SafeHtml noReferenceServer(String name, String serverGroup, SafeHtml status);
 
         @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "{1}{2}{3}" +
+                "{1}{2}" +
                 "</div>")
-        SafeHtml standaloneDeployment(String name, SafeHtml ed, SafeHtml status, SafeHtml details);
+        SafeHtml standaloneDeployment(String name, SafeHtml ed, SafeHtml details);
 
         @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "{3}{4}{5}" +
+                "{3}{4}" +
                 "<h3>Reference Server</h3><p>The information was taken from host '{1}', server '{2}'.</p>" +
                 "</div>")
         SafeHtml domainDeployment(String name, String host, String server,
-                SafeHtml ed, SafeHtml status, SafeHtml details);
+                SafeHtml ed, SafeHtml details);
 
         @Template("<div class='preview-content'><h2>{0}</h2>" +
                 "<p>This is a nested deployment which is part of the selected deployment." +
@@ -176,26 +175,6 @@ final class Templates {
             PreviewState.paused(enabledDisabledBuilder, "Deployment is disabled");
         }
 
-        SafeHtmlBuilder statusBuilder = new SafeHtmlBuilder();
-        if (deployment.isEnabled()) {
-            switch (deployment.getStatus()) {
-                case OK:
-                    PreviewState.good(statusBuilder, "Status is OK");
-                    break;
-                case FAILED:
-                    PreviewState.error(statusBuilder, "Status is FAILED");
-                    break;
-                case STOPPED:
-                    PreviewState.info(statusBuilder, "Status is FAILED");
-                    break;
-                case UNDEFINED:
-                    PreviewState.warn(statusBuilder, "Status is FAILED");
-                    break;
-            }
-        } else {
-            statusBuilder.append(SafeHtmlUtils.EMPTY_SAFE_HTML);
-        }
-
         SafeHtmlBuilder details = new SafeHtmlBuilder();
         details.appendHtmlConstant("<h3>").appendEscaped("Details").appendHtmlConstant("</h3>")
                 .appendHtmlConstant("<ul>");
@@ -227,10 +206,10 @@ final class Templates {
 
         return deployment.getReferenceServer().isStandalone() ?
                 PREVIEWS.standaloneDeployment(deployment.getName(), enabledDisabledBuilder.toSafeHtml(),
-                        statusBuilder.toSafeHtml(), details.toSafeHtml()) :
+                        details.toSafeHtml()) :
                 PREVIEWS.domainDeployment(deployment.getName(), deployment.getReferenceServer().getHost(),
                         deployment.getReferenceServer().getServer(), enabledDisabledBuilder.toSafeHtml(),
-                        statusBuilder.toSafeHtml(), details.toSafeHtml());
+                        details.toSafeHtml());
     }
 
     static SafeHtml subdeploymentPreview(final Subdeployment subdeployment) {

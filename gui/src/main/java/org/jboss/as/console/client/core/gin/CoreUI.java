@@ -148,6 +148,7 @@ import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
+import org.jboss.as.console.client.v3.deployment.DeploymentDetailsPresenter;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.as.console.client.v3.deployment.StandaloneDeploymentFinder;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -371,6 +372,7 @@ public interface CoreUI {
     AsyncProvider<IiopOpenJdkPresenter> getIiopOpenJdkPresenter();
     AsyncProvider<DomainDeploymentFinder> getDomainDeploymentFinder();
     AsyncProvider<StandaloneDeploymentFinder> getStandaloneDeploymentFinder();
+    AsyncProvider<DeploymentDetailsPresenter> getDeplymentDetailsPresenter();
     AsyncProvider<DeploymentScannerPresenter> getDeploymentScannerPresenter();
 
     Dispatcher getCircuitDispatcher();

@@ -98,6 +98,7 @@ public class StandaloneDeploymentFinder
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<>();
 
+    private final PlaceManager placeManager;
     private final DispatchAsync dispatcher;
     private final AddStandaloneDeploymentWizard addWizard;
     private final ReplaceStandaloneDeploymentWizard replaceWizard;
@@ -110,6 +111,7 @@ public class StandaloneDeploymentFinder
             final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
             final BootstrapContext bootstrapContext, final Header header) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder, TYPE_MainContent);
+        this.placeManager = placeManager;
         this.dispatcher = dispatcher;
 
         this.addWizard = new AddStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
@@ -230,6 +232,10 @@ public class StandaloneDeploymentFinder
                         modifyDeployment(deployment, REMOVE, deployment.getName() + " successfully removed.");
                     }
                 });
+    }
+
+    public void showDetails() {
+        placeManager.revealRelativePlace(new PlaceRequest.Builder().nameToken(NameTokens.DeploymentDetails).build());
     }
 
     private void modifyDeployment(final Deployment deployment, final String operation, final String successMessage) {

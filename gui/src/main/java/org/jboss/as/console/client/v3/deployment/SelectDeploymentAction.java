@@ -21,45 +21,34 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import org.jboss.dmr.client.ModelNode;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class Subdeployment extends ModelNode {
+public class SelectDeploymentAction implements Action {
 
-    private final Deployment parent;
-    private final String name;
-    private final List<Subsystem> subsystems;
+    private final Deployment deployment;
+    private final Subdeployment subdeployment;
 
-    public Subdeployment(final Deployment parent, final String name, final ModelNode node) {
-        this.parent = parent;
-        this.name = name;
-        this.subsystems = new ArrayList<>();
-        set(node);
-
-        if (node.hasDefined("subsystem")) {
-            Deployment.parseSubsystems(node, subsystems);
-        }
+    public SelectDeploymentAction(final Deployment deployment) {
+        this(deployment, null);
     }
 
-    @Override
-    public String toString() {
-        return "Subdeployment{" + name + "}";
+    public SelectDeploymentAction(final Subdeployment subdeployment) {
+        this(null, subdeployment);
     }
 
-    public String getName() {
-        return name;
+    private SelectDeploymentAction(final Deployment deployment, final Subdeployment subdeployment) {
+        this.deployment = deployment;
+        this.subdeployment = subdeployment;
     }
 
-    public Deployment getParent() {
-        return parent;
+    public Deployment getDeployment() {
+        return deployment;
     }
 
-    public List<Subsystem> getSubsystems() {
-        return subsystems;
+    public Subdeployment getSubdeployment() {
+        return subdeployment;
     }
 }

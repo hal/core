@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.debugpanel.client.DebugPanel;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -14,10 +15,9 @@ import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
@@ -25,6 +25,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -49,6 +50,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     private final PlaceManager placeManager;
     private final DispatchAsync dispatcher;
     private final BootstrapContext context;
+    private final CoreGUIContext statementContext;
     private BrowserPresenter browser;
 
     private String requestedTool;
@@ -69,17 +71,20 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
+    private ModelBrowser modelBrowser;
 
     @Inject
     public ToolsPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher, BootstrapContext context) {
+            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher, BootstrapContext context,
+            CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         //this.debug = debug;
         this.browser = browser;
         this.dispatcher = dispatcher;
         this.context = context;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -96,7 +101,15 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         }
         else if("browser".equals(requestedTool))
         {
-            RevealRootPopupContentEvent.fire(this, browser);
+            if (modelBrowser == null) {
+                modelBrowser = new ModelBrowser(dispatcher, statementContext);
+            }
+            window = new DefaultWindow("Management Model");
+            window.addStyleName("model-browser-window");
+            window.setWidget(modelBrowser.asWidget());
+            window.center();
+            Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
+            window.addCloseHandler(closeEvent -> placeManager.navigateBack());
         }
         else if("debug-panel".equals(requestedTool))
         {

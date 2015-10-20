@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -40,7 +41,9 @@ import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Navigation;
 import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Operation;
 
 /**
@@ -61,7 +64,8 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
     @Inject
     @SuppressWarnings("unchecked")
-    public StandaloneDeploymentFinderView(final PreviewContentFactory contentFactory) {
+    public StandaloneDeploymentFinderView(final PlaceManager placeManager, final Dispatcher circuit,
+            final PreviewContentFactory contentFactory) {
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
@@ -118,6 +122,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
         };
         //noinspection Convert2MethodRef
         deploymentColumn.setMenuItems(
+                new MenuDelegate<>("View", item -> presenter.showDetails(), Navigation),
                 enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceDeploymentWizard(item), Operation),
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item), Operation)
@@ -135,6 +140,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     columnManager.appendColumn(subdeploymentColumnWidget);
                     subdeploymentColumn.updateFrom(deployment.getSubdeployments());
                 }
+                circuit.dispatch(new SelectDeploymentAction(deployment));
             } else {
                 startupContent(contentFactory);
             }
@@ -143,7 +149,8 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
         // ------------------------------------------------------ subdeployments
 
-        subdeploymentColumn = new SubdeploymentColumn(columnManager, 2, NameTokens.StandaloneDeploymentFinder);
+        subdeploymentColumn = new SubdeploymentColumn(placeManager, circuit, columnManager, 2,
+                NameTokens.StandaloneDeploymentFinder);
 
 
         // ------------------------------------------------------ setup UI

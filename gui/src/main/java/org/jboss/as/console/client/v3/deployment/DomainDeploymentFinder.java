@@ -129,6 +129,7 @@ public class DomainDeploymentFinder
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<>();
 
+    private final PlaceManager placeManager;
     private final BeanFactory beanFactory;
     private final DispatchAsync dispatcher;
     private final Dispatcher circuit;
@@ -139,17 +140,18 @@ public class DomainDeploymentFinder
     private final UnassignContentDialog unassignContentDialog;
     private final AddDomainDeploymentWizard addDeploymentWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
-    private String selectedGroup;
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public DomainDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-                                  final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
-                                  final Dispatcher circuit, final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext,
-                                  final Header header, CoreGUIContext statementContext) {
+            final PlaceManager placeManager, final BeanFactory beanFactory,
+            final DispatchAsync dispatcher, final Dispatcher circuit,
+            final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext,
+            final Header header, CoreGUIContext statementContext) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainDeploymentFinder,
                 TYPE_MainContent);
+        this.placeManager = placeManager;
         this.beanFactory = beanFactory;
         this.dispatcher = dispatcher;
         this.circuit = circuit;
@@ -182,22 +184,6 @@ public class DomainDeploymentFinder
                 });
 
         this.statementContext = statementContext;
-
-       /* this.statementContext = new FilteringStatementContext(statementContext, new FilteringStatementContext.Filter() {
-
-
-            @Override
-            public String filter(String key) {
-                if("selected.group".equals(key))
-                    return DomainDeploymentFinder.this.selectedGroup;
-                return null;
-            }
-
-            @Override
-            public String[] filterTuple(String key) {
-                return null;
-            }
-        });*/
     }
 
     @Override
@@ -214,7 +200,7 @@ public class DomainDeploymentFinder
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
-                                 final boolean revealDefault) {
+            final boolean revealDefault) {
         circuit.dispatch(new RefreshServerGroups());
     }
 
@@ -251,15 +237,11 @@ public class DomainDeploymentFinder
     // ------------------------------------------------------ deployment methods
 
     private void resetContext() {
-
         // RBAC: context change propagation
-        SecurityContextChangedEvent.fire(
-                DomainDeploymentFinder.this
-        );
-
+        SecurityContextChangedEvent.fire(DomainDeploymentFinder.this);
     }
-    public void loadContentRepository() {
 
+    public void loadContentRepository() {
         resetContext();
 
         Scheduler.get().scheduleDeferred(() -> new Async<FunctionContext>().single(new FunctionContext(),
@@ -282,7 +264,6 @@ public class DomainDeploymentFinder
     }
 
     public void loadUnassignedContent() {
-
         resetContext();
 
         Scheduler.get().scheduleDeferred(() -> new Async<FunctionContext>().single(new FunctionContext(),
@@ -315,7 +296,8 @@ public class DomainDeploymentFinder
 
     public void launchAddContentWizard() {
         if (!UploadHandler.verifySupport()) {
-            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            Console.warning("Uploads not supported",
+                    "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
         } else {
             addContentWizard.open("Add Content");
         }
@@ -505,17 +487,8 @@ public class DomainDeploymentFinder
     }
 
     public void loadAssignments(final String serverGroup) {
-
-        this.selectedGroup = serverGroup;
         switchContext(serverGroup);
-
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                _loadAssignmments(serverGroup);
-            }
-        });
-
+        Scheduler.get().scheduleDeferred(() -> _loadAssignmments(serverGroup));
     }
 
     private void _loadAssignmments(String serverGroup) {
@@ -557,16 +530,22 @@ public class DomainDeploymentFinder
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
-                String resolved = template.resolveAsKey(statementContext, serverGroup);
-                return resolved;
+                return template.resolveAsKey(statementContext, serverGroup);
             }
         };
-
 
         // RBAC: context change propagation
         SecurityContextChangedEvent.fire(
                 DomainDeploymentFinder.this,
                 resolver
         );
+    }
+
+    public void showDetails(final Assignment assignment) {
+        if (assignment.isEnabled() && assignment.hasDeployment() && assignment.getDeployment()
+                .getReferenceServer() != null) {
+            placeManager.revealRelativePlace(
+                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentDetails).build());
+        }
     }
 }

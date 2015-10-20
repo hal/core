@@ -24,8 +24,15 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.gwt.circuit.Dispatcher;
+
+import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Navigation;
 
 /**
  * @author Harald Pehl
@@ -34,7 +41,9 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
     private Widget widget;
 
-    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo, final String token) {
+    @SuppressWarnings("unchecked")
+    public SubdeploymentColumn(final PlaceManager placeManager, Dispatcher circuit,
+            final ColumnManager columnManager, final int reduceTo, final String token) {
 
         super(FinderColumn.FinderId.DEPLOYMENT, "Nested Deployment",
                 new FinderColumn.Display<Subdeployment>() {
@@ -64,10 +73,16 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.subdeploymentPreview(data)));
 
+        setMenuItems(new MenuDelegate<>("View",
+                item -> placeManager.revealRelativePlace(
+                        new PlaceRequest.Builder().nameToken(NameTokens.DeploymentDetails).build()),
+                Navigation));
+
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(reduceTo);
             if (hasSelectedItem()) {
                 columnManager.updateActiveSelection(asWidget());
+                circuit.dispatch(new SelectDeploymentAction(getSelectedItem()));
             }
         });
     }

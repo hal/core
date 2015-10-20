@@ -4,10 +4,8 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.apache.html.dom.HTMLBuilder;
 import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
-import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -23,7 +21,7 @@ import java.util.Map;
  */
 public class FormView {
 
-    private BrowserPresenter presenter;
+    private ModelBrowser presenter;
     private ModelNode currentAddress;
     private VerticalPanel formContainer;
     private LRUCache<String, ModelNodeFormBuilder.FormAssets> widgetCache = new LRUCache<String, ModelNodeFormBuilder.FormAssets>(10);
@@ -110,7 +108,7 @@ public class FormView {
         formContainer.clear();
     }
 
-    public void setPresenter(BrowserPresenter presenter) {
+    public void setPresenter(ModelBrowser presenter) {
         this.presenter = presenter;
     }
 

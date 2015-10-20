@@ -268,6 +268,8 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.deployment.DeploymentDetailsPresenter;
+import org.jboss.as.console.client.v3.deployment.DeploymentDetailsView;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinderView;
 import org.jboss.as.console.client.v3.deployment.StandaloneDeploymentFinder;
@@ -400,6 +402,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 StandaloneDeploymentFinder.MyView.class,
                 StandaloneDeploymentFinderView.class,
                 StandaloneDeploymentFinder.MyProxy.class);
+        bindPresenter(DeploymentDetailsPresenter.class,
+                DeploymentDetailsPresenter.MyView.class,
+                DeploymentDetailsView.class,
+                DeploymentDetailsPresenter.MyProxy.class);
 
         bindPresenter(DeploymentScannerPresenter.class,
                 DeploymentScannerPresenter.MyView.class,

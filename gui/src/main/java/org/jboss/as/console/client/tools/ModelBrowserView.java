@@ -11,11 +11,11 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -24,18 +24,14 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,17 +46,15 @@ import java.util.Set;
  * @author Heiko Braun
  * @date 6/15/12
  */
-public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyView,
-        BrowserNavigation {
+public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
     public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
 
     private static final String DEFAULT_ROOT = "Management Model";
     private static final String WILDCARD = "*";
-    private BrowserPresenter presenter;
+    private ModelBrowser presenter;
     private SplitLayoutPanel layout;
 
-    private DefaultWindow window;
     private VerticalPanel treeContainer;
     private Tree tree;
 
@@ -78,43 +72,21 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     private VerticalPanel offsetDisplay;
     private TabPanel tabs;
 
-    @Inject
-    public BrowserView(EventBus eventBus) {
-        super(eventBus);
-        createWidget();
-    }
-
-    @Override
-    public void setPresenter(BrowserPresenter presenter) {
+    public ModelBrowserView(ModelBrowser presenter) {
         this.presenter = presenter;
-//        this.formView.setPresenter(presenter);
+        createWidget();
+        this.formView.setPresenter(presenter);
         this.childView.setPresenter(this);
         this.nodeHeader.setPresenter(this);
     }
 
     @Override
-    public void center() {
-
-        int width = Window.getClientWidth() - 50;
-        int height = Window.getClientHeight() - 50;
-        window.hide();
-        window.setPopupPosition(25, 25);
-        window.setWidth(width+"px");
-        window.setHeight(height+"px");
-    }
-
-    @Override
     public Widget asWidget() {
-        return window;
+        return layout;
     }
 
     private void createWidget() {
-        window = new DefaultWindow("Management Model View");
-        window.addStyleName("model-browser-window");
         PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
-        window.getFooter().add(PROGRESS_ELEMENT);
-
-        window.setGlassEnabled(true);
 
         tree = new Tree(ModelBrowserResources.INSTANCE);
 
@@ -204,8 +176,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         tabs.addStyleName("browser-view");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
 
-        tabs.add(descView.asWidget(), "Description");
         tabs.add(formView.asWidget(), "Data");
+        tabs.add(descView.asWidget(), "Description");
         if(!GWT.isScript())
         {
             tabs.add(securityView.asWidget(), "Access Control");
@@ -240,7 +212,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             }
         });
 
-        window.setWidget(layout);
+
 
     }
 
@@ -399,7 +371,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             ChildInformation childInformation = treeItem.getParentItem()!=null ?
                     ((ModelTreeItem) treeItem.getParentItem()).getChildInformation() : treeItem.getChildInformation();
 
-//            childView.setChildren(address, model, childInformation);
+            childView.setChildren(address, model, childInformation);
         }
     }
 
@@ -439,10 +411,10 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         descView.clearDisplay();
         formView.clearDisplay();
         offsetDisplay.clear();
-        nodeHeader.updateDescription(address);
 
         // IMPORTANT: when pin down is active, we need to consider the offset to calculate the real address
         addressOffset = address;
+        nodeHeader.updateDescription(address);
 
         List<Property> offset = addressOffset.asPropertyList();
         if(offset.size()>0)
@@ -491,7 +463,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
      * @param address
      * @param modelNodes
      */
-    @Override
+
     public void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem  rootItem = findTreeItem(tree, address);
@@ -499,7 +471,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
     }
 
-    @Override
+
     public void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem rootItem = findTreeItem(tree, address);
@@ -512,10 +484,10 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         // update the append child panel
         // the parent of the current node contains the child info
         ChildInformation childInformation = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation();
-//        childView.setChildren(address, modelNodes, childInformation);
+        childView.setChildren(address, modelNodes, childInformation);
     }
 
-    @Override
+
     public void updateResource(ModelNode address, SecurityContext securityContext, ModelNode description, ModelNode resource) {
 
         // description
@@ -856,7 +828,6 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         return (a.getName().equals(b.getName())) && (a.getValue().asString().equals(b.getValue().asString()));
     }
 
-    @Override
     public void showAddDialog(ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode desc) {
         childView.showAddDialog(address, isSingleton, securityContext, desc);
     }

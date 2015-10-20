@@ -56,7 +56,7 @@ public class ChildView {
     private SingleSelectionModel<ModelNode> selectionModel;
     private HTML header;
     private ToolStrip tools;
-    private BrowserView.ChildInformation childInformation;
+    private ModelBrowserView.ChildInformation childInformation;
 
     Widget asWidget() {
 
@@ -201,7 +201,7 @@ public class ChildView {
         this.presenter = presenter;
     }
 
-    public void setChildren(ModelNode address, List<ModelNode> modelNodes, BrowserView.ChildInformation childInformation) {
+    public void setChildren(ModelNode address, List<ModelNode> modelNodes, ModelBrowserView.ChildInformation childInformation) {
 
         this.currentAddress = address;
         this.childInformation = childInformation;
