@@ -237,7 +237,8 @@ public class BasicMetrics {
 
     public void setContextName(String[] tokens) {
         this.tokens = tokens;
-        title.setText("Persistence Unit Metrics: "+tokens[0]+"#"+tokens[1]);
+        String persistenceUnit =  Boolean.valueOf(tokens[2]) ? tokens[1] : tokens[0]+"#"+tokens[1];
+        title.setText("Persistence Unit Metrics: " + persistenceUnit);
     }
 
 

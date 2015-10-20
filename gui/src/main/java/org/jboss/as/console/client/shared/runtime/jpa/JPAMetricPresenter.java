@@ -113,7 +113,8 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
         if(dpl!=null) {
             this.selectedUnit = new String[] {
                     dpl,
-                    request.getParameter("unit", null)
+                    request.getParameter("unit", null),
+                    request.getParameter("custom", null)
             };
         }
         else
@@ -210,6 +211,7 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
 
         for(ModelNode deployment : deployments)
         {
+            String deploymentName = deployment.get(ADDRESS).asObject().get(DEPLOYMENT).asString();
             ModelNode deploymentValue = deployment.get(RESULT).asObject();
 
             if(deploymentValue.hasDefined("hibernate-persistence-unit"))
@@ -224,8 +226,16 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
                     ModelNode unitValue = unit.getValue();
                     String tokenString = unit.getName();
                     String[] tokens = tokenString.split("#");
-                    jpaDeployment.setDeploymentName(tokens[0]);
-                    jpaDeployment.setPersistenceUnit(tokens[1]);
+                    boolean scopedName = !tokenString.contains(deploymentName);
+
+                    if (tokens.length > 1 && !scopedName) {
+                        jpaDeployment.setDeploymentName(tokens[0]);
+                        jpaDeployment.setPersistenceUnit(tokens[1]);
+                    } else {
+                        jpaDeployment.setCustomDeployment(true);
+                        jpaDeployment.setDeploymentName(deploymentName);
+                        jpaDeployment.setPersistenceUnit(tokenString);
+                    }
 
                     // https://issues.jboss.org/browse/AS7-5157
                     boolean enabled = unitValue.hasDefined("enabled") ? unitValue.get("enabled").asBoolean() : false;
@@ -256,7 +266,8 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
         }
 
         operation.get(ADDRESS).add("subsystem", "jpa");
-        operation.get(ADDRESS).add("hibernate-persistence-unit", tokens[0]+"#"+tokens[1]);
+        String persistenceUnit = Boolean.valueOf(tokens[2]) ? tokens[1] : tokens[0]+"#"+tokens[1];
+        operation.get(ADDRESS).add("hibernate-persistence-unit", persistenceUnit);
 
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
@@ -353,21 +364,25 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
         ModelNode address = new ModelNode();
         address.get(ADDRESS).set(RuntimeBaseAddress.get());
 
-        // parent deployment names
-        if(editedEntity.getDeploymentName().indexOf("/")!=-1)
-        {
-            String[] parent = editedEntity.getDeploymentName().split("/");
-            address.get(ADDRESS).add("deployment", parent[0]);
-            address.get(ADDRESS).add("subdeployment", parent[1]);
-        }
-        else
-        {
+        String deploymentName = editedEntity.getDeploymentName();
+        String persistenceUnit;
+        if (editedEntity.isCustomDeployment()) {
+            persistenceUnit = editedEntity.getPersistenceUnit();
             address.get(ADDRESS).add("deployment", editedEntity.getDeploymentName());
+        } else {
+            // parent deployment names
+            if (deploymentName.indexOf("/") != -1) {
+                String[] parent = deploymentName.split("/");
+                address.get(ADDRESS).add("deployment", parent[0]);
+                address.get(ADDRESS).add("subdeployment", parent[1]);
+            } else {
+                address.get(ADDRESS).add("deployment", deploymentName);
+            }
+            persistenceUnit = deploymentName+"#"+editedEntity.getPersistenceUnit();
         }
-
 
         address.get(ADDRESS).add("subsystem", "jpa");
-        address.get(ADDRESS).add("hibernate-persistence-unit", editedEntity.getDeploymentName()+"#"+editedEntity.getPersistenceUnit());
+        address.get(ADDRESS).add("hibernate-persistence-unit", persistenceUnit);
 
         ModelNode operation = adapter.fromChangeset(changeset, address);
 

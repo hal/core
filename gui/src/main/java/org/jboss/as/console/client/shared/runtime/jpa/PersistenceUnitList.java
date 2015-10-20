@@ -94,6 +94,7 @@ public class PersistenceUnitList {
                                 new PlaceRequest(NameTokens.JPAMetricPresenter)
                                         .with("dpl", selection.getDeploymentName())
                                         .with("unit", selection.getPersistenceUnit())
+                                        .with("custom", String.valueOf(selection.isCustomDeployment()))
                         );
                     }
                 })
