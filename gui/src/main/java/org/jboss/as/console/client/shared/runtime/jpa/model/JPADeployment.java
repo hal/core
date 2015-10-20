@@ -9,6 +9,10 @@ import org.jboss.as.console.client.widgets.forms.Binding;
 public interface JPADeployment {
 
     @Binding(skip = true)
+    boolean isCustomDeployment();
+    void setCustomDeployment(boolean custom);
+
+    @Binding(skip = true)
     String getDeploymentName();
     void setDeploymentName(String name);
 
