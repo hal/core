@@ -33,14 +33,15 @@ public class BroadcastGroupList {
 
     private final DefaultCellTable<Property> table;
     private final ListDataProvider<Property> dataProvider;
-    private SingleSelectionModel<Property> selectionModel;
+    private final SingleSelectionModel<Property> selectionModel;
 
     public BroadcastGroupList(MsgClusteringPresenter presenter) {
         this.presenter = presenter;
         this.table = new DefaultCellTable<Property>(8);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
-        this.table.setSelectionModel(new SingleSelectionModel<Property>());
+        selectionModel = new SingleSelectionModel<>();
+        this.table.setSelectionModel(selectionModel);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +85,17 @@ public class BroadcastGroupList {
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());
 
-        defaultAttributes.getForm().bind(table);
+        table.getSelectionModel().addSelectionChangeHandler(selectionChangeEvent -> {
+            Property selection = selectionModel.getSelectedObject();
+            if(selection!=null)
+            {
+                defaultAttributes.setData(selection);
+            }
+            else
+            {
+                defaultAttributes.getForm().clearValues();
+            }
+        });
         defaultAttributes.getForm().setEnabled(false);
 
         return layout.build();

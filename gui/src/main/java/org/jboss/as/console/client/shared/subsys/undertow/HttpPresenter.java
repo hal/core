@@ -61,6 +61,9 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
+
+            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+
             if(address.getResourceType().equals("server"))
                 loadServer();
             else {

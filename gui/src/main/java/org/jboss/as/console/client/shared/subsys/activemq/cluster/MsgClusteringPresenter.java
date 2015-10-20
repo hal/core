@@ -23,6 +23,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcas
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -56,17 +57,20 @@ public class MsgClusteringPresenter
         extends Presenter<MsgClusteringPresenter.MyView, MsgClusteringPresenter.MyProxy>
         implements CommonMsgPresenter {
 
-    public void onLaunchAddResourceDialog(AddressTemplate baseAddress) {
+    private final CrudOperationDelegate operationDelegate;
 
-    }
+    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+        @Override
+        public void onSuccess(AddressTemplate address, String name) {
+            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+            onReset();
+        }
 
-    public void onRemoveResource(AddressTemplate baseAddress, String name) {
-
-    }
-
-    public void onSaveResource(AddressTemplate baseAddress, String name, Map changeset) {
-
-    }
+        @Override
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
+        }
+    };
 
     // ------------------------------------------------------ proxy & view
     // @formatter:off
@@ -136,6 +140,8 @@ public class MsgClusteringPresenter
                 return new String[0];
             }
         });
+
+        this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
 
     public StatementContext getStatementContext() {
@@ -709,5 +715,46 @@ public class MsgClusteringPresenter
     @Override
     public String getNameToken() {
         return getProxy().getNameToken();
+    }
+
+    public void onLaunchAddResourceDialog(AddressTemplate address) {
+        String type = address.getResourceType();
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.setWidget(
+                new org.jboss.as.console.client.v3.widgets.AddResourceDialog(
+                        Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                        descriptionRegistry.lookup(address),
+                        new org.jboss.as.console.client.v3.widgets.AddResourceDialog.Callback() {
+                            @Override
+                            public void onAdd(ModelNode payload) {
+                                window.hide();
+                                operationDelegate.onCreateResource(
+                                        address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                window.hide();
+                            }
+                        }
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void onRemoveResource(final AddressTemplate address, final String name) {
+
+        operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
+    }
+
+    public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
+
+        operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 }
