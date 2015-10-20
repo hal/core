@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -10,6 +13,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.subsys.jca.model.CapacityPolicy;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddPropertyDialog;
@@ -18,18 +22,23 @@ import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
+import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -111,10 +120,10 @@ public class ConnectionDefList {
         };
 
         String[] secAttributes = new String[] {
-                        "security-application",
-                        "security-domain",
-                        "security-domain-and-application"
-                };
+                "security-application",
+                "security-domain",
+                "security-domain-and-application"
+        };
 
 
         String[] validationAttributes = new String[] {
@@ -136,8 +145,7 @@ public class ConnectionDefList {
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
-                .exclude(poolAttributes);
-
+                .exclude(poolAttributes, secAttributes, validationAttributes, recoveryAttributes);
 
         final FormCallback callback = new FormCallback() {
             @Override
@@ -165,6 +173,35 @@ public class ConnectionDefList {
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .include(poolAttributes);
+
+         // decrementer
+        Set<CapacityPolicy> decs = Sets.filter(EnumSet.allOf(CapacityPolicy.class),
+                (capacityPolicy) -> !capacityPolicy.isIncrement());
+        Collection<String> decNames = Collections2.transform(decs, CapacityPolicy::className);
+        ComboBoxItem decrementerClass = new ComboBoxItem("capacity-decrementer-class", "Decrementer Class");
+        decrementerClass.setRequired(false);
+        decrementerClass.setValueMap(Ordering.natural().immutableSortedCopy(decNames));
+
+        // incrementer
+        Set<CapacityPolicy> incs = Sets.filter(EnumSet.allOf(CapacityPolicy.class), CapacityPolicy::isIncrement);
+        Collection<String> incNames = Collections2.transform(incs, CapacityPolicy::className);
+        ComboBoxItem incrementerClass = new ComboBoxItem("capacity-incrementer-class", "Incrementer Class");
+        incrementerClass.setRequired(false);
+        incrementerClass.setValueMap(Ordering.natural().immutableSortedCopy(incNames));
+
+        poolBuilder.addFactory("capacity-incrementer-class", new ModelNodeFormBuilder.FormItemFactory() {
+            @Override
+            public FormItem create(Property attributeDescription) {
+                return incrementerClass;
+            }
+        });
+
+        poolBuilder.addFactory("capacity-decrementer-class", new ModelNodeFormBuilder.FormItemFactory() {
+            @Override
+            public FormItem create(Property attributeDescription) {
+                return decrementerClass;
+            }
+        });
 
         poolAssets = poolBuilder.build();
         poolAssets.getForm().setToolsCallback(callback);
@@ -195,10 +232,10 @@ public class ConnectionDefList {
         // ----
 
         ModelNodeFormBuilder recoveryBuilder = new ModelNodeFormBuilder()
-                        .setConfigOnly()
-                        .setResourceDescription(definition)
-                        .setSecurityContext(securityContext)
-                        .include(recoveryAttributes)
+                .setConfigOnly()
+                .setResourceDescription(definition)
+                .setSecurityContext(securityContext)
+                .include(recoveryAttributes)
                 .addFactory("recovery-password", new ModelNodeFormBuilder.FormItemFactory() {
                     @Override
                     public FormItem create(Property attributeDescription) {
