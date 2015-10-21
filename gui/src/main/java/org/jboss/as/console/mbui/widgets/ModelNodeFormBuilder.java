@@ -51,6 +51,7 @@ public class ModelNodeFormBuilder {
     private boolean configAttributes = true;
     private boolean requiredOnly;
     private boolean createMode;
+    private boolean unsorted = false;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -85,6 +86,11 @@ public class ModelNodeFormBuilder {
     public ModelNodeFormBuilder setConfigOnly() {
         this.configAttributes = true;
         this.runtimeAttributes = false;
+        return this;
+    }
+
+    public ModelNodeFormBuilder unsorted() {
+        this.unsorted = true;
         return this;
     }
 
@@ -153,12 +159,14 @@ public class ModelNodeFormBuilder {
         }
 
         // sort fields
-        Collections.sort(attributeDescriptions, new Comparator<Property>() {
-            @Override
-            public int compare(Property property, Property property1) {
-                return property.getName().compareTo(property1.getName());
-            }
-        });
+        if (!unsorted) {
+            Collections.sort(attributeDescriptions, new Comparator<Property>() {
+                @Override
+                public int compare(Property property, Property property1) {
+                    return property.getName().compareTo(property1.getName());
+                }
+            });
+        }
 
         // catch-all directive, if no explicit attributes given
         if (includes.isEmpty()) {

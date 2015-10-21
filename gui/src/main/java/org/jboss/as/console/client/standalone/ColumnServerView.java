@@ -60,6 +60,7 @@ public class ColumnServerView extends SuspendableViewImpl
             NameTokens.CacheFinderPresenter,
             NameTokens.ActivemqFinder,
             NameTokens.SecDomains,
+            NameTokens.PicketLinkFinder,
             NameTokens.UndertowFinder,
             NameTokens.DataSourceFinder,
             NameTokens.ResourceAdapterFinder

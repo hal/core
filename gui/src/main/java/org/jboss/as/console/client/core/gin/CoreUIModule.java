@@ -229,6 +229,12 @@ import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinderView;
+import org.jboss.as.console.client.shared.subsys.picketlink.FederationPresenter;
+import org.jboss.as.console.client.shared.subsys.picketlink.FederationView;
+import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPresenter;
+import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderView;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.ui.RemotingView;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
@@ -644,6 +650,21 @@ public class CoreUIModule extends AbstractPresenterModule {
                 IiopOpenJdkPresenter.MyView.class,
                 IiopOpenJdkView.class,
                 IiopOpenJdkPresenter.MyProxy.class);
+
+        bindPresenter(PicketLinkFinder.class,
+                PicketLinkFinder.MyView.class,
+                PicketLinkFinderView.class,
+                PicketLinkFinder.MyProxy.class);
+
+        bindPresenter(FederationPresenter.class,
+                FederationPresenter.MyView.class,
+                FederationView.class,
+                FederationPresenter.MyProxy.class);
+
+        bindPresenter(ServiceProviderPresenter.class,
+                ServiceProviderPresenter.MyView.class,
+                ServiceProviderView.class,
+                ServiceProviderPresenter.MyProxy.class);
 
         // Administration
         bindPresenter(AccessControlFinder.class,

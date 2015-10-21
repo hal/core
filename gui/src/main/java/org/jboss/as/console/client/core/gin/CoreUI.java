@@ -128,6 +128,9 @@ import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
+import org.jboss.as.console.client.shared.subsys.picketlink.FederationPresenter;
+import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
@@ -347,6 +350,10 @@ public interface CoreUI {
     AsyncProvider<JberetMetricsPresenter> getJberetMetricsPresenter();
 
     AsyncProvider<IOPresenter> getIOPresenter();
+
+    AsyncProvider<PicketLinkFinder> getPicketLinkFinder();
+    AsyncProvider<FederationPresenter> getFederationPresenter();
+    AsyncProvider<ServiceProviderPresenter> getServiceProviderPresenter();
 
     // Administration
     AsyncProvider<AccessControlFinder> getRbacFinder();

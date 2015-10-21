@@ -1,0 +1,26 @@
+{
+    "comment" => "This file is not used! It's just here to generate the base64 encoded version using https://github.com/hal/dmr.cmd",
+    "description" => "Create a new Federation and Identity Provider.",
+    "attributes" => {
+        "name" => {
+            "type" => STRING,
+            "description" => "The name of the Federation.",
+            "nillable" => false
+        },
+        "identity-provider" => {
+            "type" => STRING,
+            "description" => "The name of Identity Provider.",
+            "nillable" => false
+        },
+        "security-domain" => {
+            "type" => STRING,
+            "description" => "Security Domain for the Identity Provider.",
+            "nillable" => false
+        },
+        "url" => {
+            "type" => STRING,
+            "description" => "The URL of the Identity Provider.",
+            "nillable" => false
+        }
+    }
+}

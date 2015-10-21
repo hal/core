@@ -107,6 +107,7 @@ public class SubsystemMetaData {
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batch", "batch-jberet", NameTokens.BatchJberet));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security", "security", NameTokens.SecDomains));
+        groups.get(SECURITY).getItems().add(new SubsystemGroupItem("PicketLink", "picketlink-federation", NameTokens.PicketLinkFinder));
 
         groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging (HornetQ)", "messaging", NameTokens.HornetqFinder));

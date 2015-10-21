@@ -150,6 +150,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/mod_cluster.html")
     ExternalTextResource modcluster();
 
+    @Source("content/picketlink_federations.html")
+    ExternalTextResource picketlink_federations();
+
     @Source("content/resource_adapters.html")
     ExternalTextResource ra_finder();
 
