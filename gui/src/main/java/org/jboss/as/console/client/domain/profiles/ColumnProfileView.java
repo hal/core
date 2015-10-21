@@ -696,8 +696,10 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     @Override
     public void setPreview(final SafeHtml html) {
-        if (contentCanvas.getWidgetCount()>0
-                        && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view")) {
+        if (
+                (contentCanvas.getWidgetCount()>0  && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view"))
+                        || (contentCanvas.getWidgetCount() ==0)
+                ) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));

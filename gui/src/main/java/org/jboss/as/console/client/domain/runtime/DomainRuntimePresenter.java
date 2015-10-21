@@ -160,7 +160,6 @@ public class DomainRuntimePresenter
             @Override
             public void onChange(Action action) {
 
-                System.out.println(">> " + action);
                 if(action instanceof SelectServer)
                 {
                     // changing the server selection: update subsystems on server
@@ -250,7 +249,6 @@ public class DomainRuntimePresenter
 
     @Override
     public void onPreview(PreviewEvent event) {
-        System.out.println(">> preview event "+event);
         getView().setPreview(event.getHtml());
     }
 
