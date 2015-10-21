@@ -186,7 +186,13 @@ public class HostInfoStoreImpl implements HostInformationStore {
         });
     }
 
+    /**
+     * Deprecated: Use topology functions instead. See {@link org.jboss.as.console.client.domain.topology.TopologyFunctions}
+     * @param serverGroup
+     * @param callback
+     */
     @Override
+    @Deprecated
     public void loadServerInstances(final String serverGroup, final AsyncCallback<List<ServerInstance>> callback)
     {
         final List<ServerInstance> instancesOfGroup = new LinkedList<ServerInstance>();

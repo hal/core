@@ -5,6 +5,7 @@ import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerFlag;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
@@ -221,7 +222,9 @@ public final class TopologyFunctions {
             List<Operation> steps = new LinkedList<>();
             Map<String, ServerInstance> stepToServer = new HashMap<>();
             List<HostInfo> hosts = control.getContext().get(HOSTS_KEY);
+
             for (HostInfo hostInfo : hosts) {
+
                 for (ServerInstance serverInstance : hostInfo.getServerInstances()) {
                     if (serverInstance.isRunning()) {
 
@@ -236,6 +239,13 @@ public final class TopologyFunctions {
                         stepToServer.put("step-" + step, serverInstance);
                         step++;
 
+                        Operation suspendState = new Operation.Builder(READ_ATTRIBUTE_OPERATION, address)
+                                .param(NAME, "suspend-state")
+                                .build();
+                        steps.add(suspendState);
+                        stepToServer.put("step-" + step, serverInstance);
+                        step++;
+
                         Operation socketBindingOp = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
                                 .param(INCLUDE_RUNTIME, true)
                                 .param(CHILD_TYPE, "socket-binding-group")
@@ -245,46 +255,70 @@ public final class TopologyFunctions {
                         step++;
                     }
                 }
+
             }
 
-            dispatcher.execute(new DMRAction(new Composite(steps)), new FunctionCallback(control) {
-                @Override
-                public void onSuccess(final ModelNode result) {
-                    ModelNode stepsResult = result.get(RESULT);
-                    if (stepsResult.isDefined()) {
-                        List<Property> properties = stepsResult.asPropertyList();
-                        for (Iterator<Property> iterator = properties.iterator(); iterator.hasNext(); ) {
-                            Property property = iterator.next();
-                            String step = property.getName();
-                            ModelNode node = property.getValue();
-                            ServerInstance serverInstance = stepToServer.get(step);
-                            if (serverInstance != null) {
-                                // step-n: server state
-                                if (node.get(RESULT).isDefined()) {
-                                    String state = node.get(RESULT).asString();
-                                    if (state.equals("reload-required")) {
-                                        serverInstance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                                    } else if (state.equals("restart-required")) {
-                                        serverInstance.setFlag(ServerFlag.RESTART_REQUIRED);
-                                    }
-                                }
+            // HAL-921: no running server instances
+            if(!steps.isEmpty()) {
+                dispatcher.execute(new DMRAction(new Composite(steps)), new FunctionCallback(control) {
+                    @Override
+                    public void onSuccess(final ModelNode result) {
+                        ModelNode stepsResult = result.get(RESULT);
+                        if (stepsResult.isDefined()) {
+                            List<Property> properties = stepsResult.asPropertyList();
+                            for (Iterator<Property> iterator = properties.iterator(); iterator.hasNext(); ) {
+                                Property property = iterator.next();
+                                String step = property.getName();
+                                ModelNode node = property.getValue();
+                                ServerInstance serverInstance = stepToServer.get(step);
+                                if (serverInstance != null) {
 
-                                // step-n + 1: socket binding groups
-                                property = iterator.next();
-                                node = property.getValue();
-                                if (node.get(RESULT).isDefined()) {
-                                    List<Property> sockets = node.get(RESULT).asPropertyList();
-                                    for (Property socket : sockets) {
-                                        serverInstance.getSocketBindings()
-                                                .put(socket.getName(), socket.getValue().get("port-offset").asString());
+                                    // step-n: server state
+                                    if (node.get(RESULT).isDefined()) {
+                                        String state = node.get(RESULT).asString();
+
+                                        serverInstance.setServerState(
+                                                SrvState.valueOf(state.replace("-", "_").toUpperCase())
+                                        );
+
+                                        if (state.equals("reload-required")) {
+                                            serverInstance.setFlag(ServerFlag.RELOAD_REQUIRED);
+                                        } else if (state.equals("restart-required")) {
+                                            serverInstance.setFlag(ServerFlag.RESTART_REQUIRED);
+                                        }
+                                    }
+
+                                    // step-n + 1: socket binding groups
+                                    property = iterator.next();
+                                    node = property.getValue();
+                                    if (node.get(RESULT).isDefined()) {
+                                        String state = node.get(RESULT).asString();
+                                        serverInstance.setSuspendState(SuspendState.valueOf(state));
+                                    }
+
+                                    // step-n + 1: socket binding groups
+                                    property = iterator.next();
+                                    node = property.getValue();
+                                    if (node.get(RESULT).isDefined()) {
+                                        List<Property> sockets = node.get(RESULT).asPropertyList();
+                                        for (Property socket : sockets) {
+                                            serverInstance.getSocketBindings()
+                                                    .put(socket.getName(), socket.getValue().get("port-offset").asString());
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } // else no running servers!
-                    context.push(hosts);
-                }
-            });
+                        } // else no running servers!
+                        context.push(hosts);
+                    }
+
+
+                });
+            }
+            else {
+                control.getContext().push(hosts);
+                control.proceed();
+            }
         }
     }
 }
