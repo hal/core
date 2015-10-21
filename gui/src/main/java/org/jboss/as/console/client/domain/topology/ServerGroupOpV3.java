@@ -74,8 +74,10 @@ public class ServerGroupOpV3 extends TopologyOp {
             case RESUME:
                 serverGroupDAO.resumeServerGroup(group, bc);
                 break;
-            case KILL:
             case RELOAD:
+                serverGroupDAO.reloadGroup(group, bc);
+                break;
+            case KILL:
                 // not supported for server groups
                 break;
         }

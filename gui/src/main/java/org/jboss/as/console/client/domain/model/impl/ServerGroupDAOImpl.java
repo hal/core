@@ -100,6 +100,12 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
         lifecycle("resume-servers", name, callback);
     }
 
+    @Override
+    public void reloadGroup(final String name, final AsyncCallback<Boolean> callback)
+    {
+        lifecycle("reload-servers", name, callback);
+    }
+
     private void lifecycle(final String op, final String name, final AsyncCallback<Boolean> callback) {
         lifecycle(op, name, Collections.EMPTY_MAP, callback);
     }
