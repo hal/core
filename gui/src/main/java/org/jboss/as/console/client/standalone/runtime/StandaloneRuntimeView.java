@@ -220,19 +220,19 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
                     @Override
                     public String rowCss(StandaloneServer server) {
-                        String css = "";
 
+                        String css = "";
                         if(server.isRequiresReload())
                         {
-                            css = "inactive";
+                            css = "warn";
                         }
-                        else if(server.getSuspendState()== SuspendState.SUSPENDED)
+                        else if(server.getSuspendState()==SuspendState.SUSPENDED)
                         {
-                            css = "passive";
+                            css = "info";
                         }
                         else
                         {
-                            css = "active-row";
+                            css = "good";
                         }
 
                         return css;
@@ -243,7 +243,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public Object getKey(StandaloneServer item) {
                         return item.getTitle();
                     }
-                }, presenter.getProxy().getNameToken());
+                }, presenter.getProxy().getNameToken()
+        );
 
         serverColumn.setMenuItems(
                 new MenuDelegate<StandaloneServer>("Reload", new ContextualCommand<StandaloneServer>() {

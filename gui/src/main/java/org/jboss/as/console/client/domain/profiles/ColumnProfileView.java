@@ -544,8 +544,11 @@ public class ColumnProfileView extends SuspendableViewImpl
     public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == ProfileMgmtPresenter.TYPE_MainContent) {
-            if(content!=null)
-                setContent(content);
+            if(content!=null) {
+                Widget w = content.asWidget();
+                w.getElement().setAttribute("presenter-view", "true");
+                setContent(w);
+            }
             else
                 contentCanvas.clear();
         }
@@ -693,7 +696,8 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     @Override
     public void setPreview(final SafeHtml html) {
-        if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(config.getToken())) {
+        if (contentCanvas.getWidgetCount()>0
+                        && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view")) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));

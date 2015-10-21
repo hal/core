@@ -55,6 +55,7 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     private static final String RBAC_SUPPRESSED = "rbac-suppressed";
     private ColumnFilter filter;
+    private Object previousSelectedKey = null;
 
     public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, UNKNOWN}
 
@@ -254,8 +255,6 @@ public class FinderColumn<T> implements SecurityContextAware {
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 triggerBreadcrumbEvent(false);
-                triggerPreviewEvent();
-
 
                 // skip empty menus
                 if(accessibleMenuItems.size()==0) return;
@@ -319,7 +318,7 @@ public class FinderColumn<T> implements SecurityContextAware {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        toggleRowLevelTools( () -> selectionModel.getSelectedObject()==null); // show when selected
+                        toggleRowLevelTools(() -> selectionModel.getSelectedObject() == null); // show when selected
                     }
                 });
             }
@@ -360,15 +359,26 @@ public class FinderColumn<T> implements SecurityContextAware {
     private void triggerPreviewEvent() {
 
         // preview and place management sometimes compete, hence the timed event
+        final T selectedObject = selectionModel.getSelectedObject();
+       /*
+        if(selectedObject!=null)
+        {
+            if(previousSelectedKey!=null && previousSelectedKey.equals(keyProvider.getKey(selectedObject)))
+            {
+                // no preview for the same selected object
+                return;
+            }
+        }*/
+
+        // differetn selected object trigger preview
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
 
                 // preview events
                 PlaceManager placeManager = Console.MODULES.getPlaceManager();
-                final T selectedObject = selectionModel.getSelectedObject();
-
                 if(selectedObject!=null) {
+                    //previousSelectedKey = keyProvider.getKey(selectedObject);
                     previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
                         @Override
                         public void onSuccess(SafeHtml content) {
@@ -376,6 +386,7 @@ public class FinderColumn<T> implements SecurityContextAware {
                         }
                     });
                 }
+
 
                 return false;
             }
@@ -387,7 +398,7 @@ public class FinderColumn<T> implements SecurityContextAware {
 
         PlaceManager placeManager = Console.MODULES.getPlaceManager();
         final T selectedObject = selectionModel.getSelectedObject();
-        String typeIdentifier = title; // not used naymore;
+        String typeIdentifier = title; // not used anymore;
         if(selectedObject!=null) {
 
             // delegate to value provider if given, otherwise the keyprovider will do fine
@@ -820,7 +831,7 @@ public class FinderColumn<T> implements SecurityContextAware {
     public void onSecurityContextChanged() {
 
         SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(token);
-        System.out.println("<< Process SecurityContext on finder column "+id+": "+securityContext+">>");
+        //System.out.println("<< Process SecurityContext on finder column "+id+": "+securityContext+">>");
         applySecurity(securityContext, true);
     }
 

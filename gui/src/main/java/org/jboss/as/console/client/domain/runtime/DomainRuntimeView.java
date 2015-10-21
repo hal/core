@@ -57,7 +57,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
 
-    private final LayoutPanel previewCanvas;
     private Widget subsysColWidget;
     private Widget statusColWidget;
     private Widget serverColWidget;
@@ -104,9 +103,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         super();
 
         this.placeManager = placeManager;
-        contentCanvas = new LayoutPanel(); // TODO remove, including the widget slot in presenter
-        previewCanvas = new LayoutPanel();
-
+        contentCanvas = new LayoutPanel();
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
 
@@ -583,7 +580,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         columnManager.addWest(serverColWidget);
         columnManager.addWest(statusColWidget);
         columnManager.addWest(subsysColWidget);
-        columnManager.add(previewCanvas);
+        columnManager.add(contentCanvas);
 
         columnManager.setInitialVisible(1);
 
@@ -607,14 +604,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         columnManager.appendColumn(statusColWidget);
                     }
 
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        public void execute() {
-
-                            Console.getCircuit().dispatch(
-                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
-                            );
-                        }
-                    });
+                    Console.getCircuit().dispatch(
+                            new SelectServer(selectedServer.getHostName(), selectedServer.getName())
+                    );
                 }
             }
         });
@@ -668,11 +660,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
+            else
+                contentCanvas.clear();
 
-        } else {
-            Console.MODULES.getMessageCenter().notify(
-                    new Message("Unknown slot requested:" + slot)
-            );
         }
     }
 
@@ -684,13 +674,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     @Override
     public void setPreview(final SafeHtml html) {
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                previewCanvas.clear();
-                previewCanvas.add(new HTML(html));
-            }
-        });
+        if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(serverColumn.getToken())) {
+            Scheduler.get().scheduleDeferred(() -> {
+                contentCanvas.clear();
+                contentCanvas.add(new HTML(html));
+            });
+        }
 
     }
 

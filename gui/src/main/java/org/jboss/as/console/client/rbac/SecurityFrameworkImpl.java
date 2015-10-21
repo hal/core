@@ -133,7 +133,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
             AddressTemplate probeTemplate =  ((SecurityContextImpl)securityContext).getResourceAddresses().iterator().next();
             String probeKey = event.getResolver().resolve(probeTemplate);
 
-            System.out.println("Context changed: " + probeKey + " at #" + token + ": " + token);
+            //System.out.println("Context changed: " + probeKey + " at #" + token + ": " + token);
 
             SecurityContext context = contextMapping.get(token);
 

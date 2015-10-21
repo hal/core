@@ -32,6 +32,7 @@ import java.util.Set;
 
 
 /**
+ * @deprecated to be removed
  * @author Heiko Braun
  * @date 6/7/11
  */

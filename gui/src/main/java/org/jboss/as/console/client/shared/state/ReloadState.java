@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.state;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -47,6 +48,15 @@ public class ReloadState {
 
             // state update, log warning
             Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
+
+            if(Console.MODULES.getBootstrapContext().isStandalone())
+            {
+                Console.MODULES.getEventBus().fireEvent(new StandaloneRuntimeRefresh());
+            }
+            else
+            {
+                Console.MODULES.getCircuitDispatcher().dispatch(new RefreshServer());
+            }
         }
     }
 

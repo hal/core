@@ -87,6 +87,10 @@ public class DomainRuntimePresenter
 
     private DefaultWindow window;
 
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
+
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     @RequiredResources(
@@ -144,6 +148,7 @@ public class DomainRuntimePresenter
         this.statementContext = statementContext;
     }
 
+
     @Override
     protected void onBind() {
         super.onBind();
@@ -155,8 +160,7 @@ public class DomainRuntimePresenter
             @Override
             public void onChange(Action action) {
 
-                if(!isVisible()) return; // don't process anything when not visible
-
+                System.out.println(">> " + action);
                 if(action instanceof SelectServer)
                 {
                     // changing the server selection: update subsystems on server
@@ -222,6 +226,7 @@ public class DomainRuntimePresenter
     }
 
     private void refreshServerList() {
+
         if(FilterType.HOST.equals(serverStore.getFilter()))
         {
             String selectedHost = hostStore.getSelectedHost();
@@ -245,6 +250,7 @@ public class DomainRuntimePresenter
 
     @Override
     public void onPreview(PreviewEvent event) {
+        System.out.println(">> preview event "+event);
         getView().setPreview(event.getHtml());
     }
 
@@ -258,7 +264,7 @@ public class DomainRuntimePresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-
+        refreshServerList();
     }
 
     @Override
@@ -310,12 +316,12 @@ public class DomainRuntimePresenter
 
     }
 
-    @Override
+   /* @Override
     protected void onReset() {
         super.onReset();
         if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
             refreshServerList();
-    }
+    }*/
 
     public String getFilter() {
         return serverStore.getFilter();

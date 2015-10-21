@@ -355,8 +355,11 @@ public class ColumnServerView extends SuspendableViewImpl
     public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == ServerMgmtApplicationPresenter.TYPE_MainContent) {
-            if(content!=null)
-                setContent(content);
+            if(content!=null) {
+                Widget w = content.asWidget();
+                w.getElement().setAttribute("presenter-view", "true");
+                setContent(w);
+            }
             else
                 contentCanvas.clear();
         }
@@ -474,7 +477,8 @@ public class ColumnServerView extends SuspendableViewImpl
     @Override
     public void setPreview(final SafeHtml html) {
 
-        if(contentCanvas.getWidgetCount()==0) { // nested presenter shows preview
+        if (contentCanvas.getWidgetCount()>0
+                && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view")) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {

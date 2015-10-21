@@ -553,8 +553,11 @@ public class ColumnHostView extends SuspendableViewImpl
     @Override
     public void setInSlot(Object slot, IsWidget content) {
         if (slot == HostMgmtPresenter.TYPE_MainContent) {
-            if(content!=null)
-                setContent(content);
+            if(content!=null) {
+                Widget w = content.asWidget();
+                w.getElement().setAttribute("presenter-view", "true");
+                setContent(w);
+            }
             else
                 contentCanvas.clear();
         }
@@ -592,7 +595,9 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void preview(SafeHtml html) {
-        if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(browseColumn.getToken())) {
+
+        if (contentCanvas.getWidgetCount()>0
+                && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view")) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));

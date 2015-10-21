@@ -39,4 +39,8 @@ public class PreviewEvent extends GwtEvent<PreviewEvent.Handler> {
     public interface Handler extends EventHandler {
         void onPreview(PreviewEvent event);
     }
+
+    public String toString() {
+        return getClass().getName() + "@" + Integer.toHexString(hashCode());
+    }
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * @deprecated to be removed
  * @author Heiko Braun
  * @date 6/7/11
  */

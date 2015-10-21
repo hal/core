@@ -20,7 +20,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
@@ -28,6 +27,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.schedule.LongRunningTask;
 import org.jboss.as.console.client.shared.state.ReloadEvent;
 import org.jboss.as.console.client.shared.state.ReloadState;
+import org.jboss.as.console.client.shared.state.StandaloneRuntimeRefresh;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
@@ -47,7 +47,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class StandaloneRuntimePresenter
         extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
+        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, StandaloneRuntimeRefresh.Handler{
 
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
@@ -103,6 +103,11 @@ public class StandaloneRuntimePresenter
     }
 
     @Override
+    public void onStaleModel() {
+        loadServer();
+    }
+
+    @Override
     public void onPreview(PreviewEvent event) {
         if(isVisible())
             getView().setPreview(event.getHtml());
@@ -114,6 +119,7 @@ public class StandaloneRuntimePresenter
         getView().setPresenter(this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
         getEventBus().addHandler(FinderScrollEvent.TYPE, this);
+        getEventBus().addHandler(StandaloneRuntimeRefresh.TYPE, this);
     }
 
     @Override
@@ -121,11 +127,13 @@ public class StandaloneRuntimePresenter
 
         header.highlight(getProxy().getNameToken());
 
-        if(getProxy().getNameToken().equals(placeManager.getCurrentPlaceRequest().getNameToken()))
-            loadServer();
 
-        if(!hasBeenLoaded)
+        if(!hasBeenLoaded) {
+            if(getProxy().getNameToken().equals(placeManager.getCurrentPlaceRequest().getNameToken()))
+                loadServer();
+
             hasBeenLoaded = true;
+        }
 
     }
 
