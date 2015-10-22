@@ -23,9 +23,10 @@ package org.jboss.as.console.client.shared.subsys.io.worker;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -39,7 +40,6 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -49,13 +49,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 @Store
 public class WorkerStore extends ChangeSupport {
 
-    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=io/worker=*";
+    private static final AddressTemplate RESOURCE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=io/worker=*");
 
     private final DispatchAsync dispatcher;
     private final CoreGUIContext statementContext;
     private final CrudOperationDelegate operationDelegate;
     private final List<Property> workers;
-    private String lastModifiedWorker;
 
     @Inject
     public WorkerStore(DispatchAsync dispatcher, CoreGUIContext statementContext) {
@@ -70,20 +69,21 @@ public class WorkerStore extends ChangeSupport {
 
     @Process(actionType = AddWorker.class)
     public void add(final AddWorker action, final Dispatcher.Channel channel) {
-        lastModifiedWorker = action.getWorker().get(NAME).asString();
-        operationDelegate.onCreateResource(RESOURCE_ADDRESS, action.getWorker(), new RefreshCallback(channel));
+        String name = action.getWorker().get(NAME).asString();
+        operationDelegate.onCreateResource(RESOURCE_ADDRESS, name, action.getWorker(), new RefreshCallback(channel));
     }
 
     @Process(actionType = ModifyWorker.class)
     public void modify(final ModifyWorker action, final Dispatcher.Channel channel) {
-        lastModifiedWorker = action.getName();
-        operationDelegate.onSaveResource(RESOURCE_ADDRESS, lastModifiedWorker, action.getChangedValues(),
+        operationDelegate.onSaveResource(RESOURCE_ADDRESS, action.getName(), action.getChangedValues(),
                 new RefreshCallback(channel));
     }
 
     @Process(actionType = RefreshWorkers.class)
     public void refresh(final Dispatcher.Channel channel) {
-        final ResourceAddress op = new ResourceAddress("{selected.profile}/subsystem=io/", statementContext);
+        final AddressTemplate address = AddressTemplate.of("{selected.profile}/subsystem=io/");
+        ModelNode op = new ModelNode();
+        op.get(ADDRESS).set(address.resolve(statementContext));
         op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         op.get(CHILD_TYPE).set("worker");
         op.get(INCLUDE_RUNTIME).set(true);
@@ -111,7 +111,6 @@ public class WorkerStore extends ChangeSupport {
 
     @Process(actionType = RemoveWorker.class)
     public void remove(final RemoveWorker action, final Dispatcher.Channel channel) {
-        lastModifiedWorker = null;
         operationDelegate.onRemoveResource(RESOURCE_ADDRESS, action.getName(), new RefreshCallback(channel));
     }
 
@@ -120,10 +119,6 @@ public class WorkerStore extends ChangeSupport {
 
     public List<Property> getWorkers() {
         return workers;
-    }
-
-    public String getLastModifiedWorker() {
-        return lastModifiedWorker;
     }
 
     public StatementContext getStatementContext() {
@@ -141,13 +136,16 @@ public class WorkerStore extends ChangeSupport {
         }
 
         @Override
-        public void onSuccess(ResourceAddress address, String name) {
+        public void onSuccess(AddressTemplate addressTemplate, String name) {
+            Console.info("Successfully modified resource "+ addressTemplate.resolve(statementContext, name));
             refresh(channel);
         }
 
         @Override
-        public void onFailure(ResourceAddress address, String name, Throwable t) {
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            Console.error("Failed to load resource "+addressTemplate.resolve(statementContext,name), t.getMessage());
             channel.nack(t);
         }
+
     }
 }

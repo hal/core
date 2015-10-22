@@ -33,17 +33,27 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
-import org.jboss.as.console.client.shared.subsys.io.worker.*;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.mbui.widgets.AddressableResourceView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.AddBufferPool;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStore;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.ModifyBufferPool;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.RefreshBufferPools;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.RemoveBufferPool;
+import org.jboss.as.console.client.shared.subsys.io.worker.AddWorker;
+import org.jboss.as.console.client.shared.subsys.io.worker.ModifyWorker;
+import org.jboss.as.console.client.shared.subsys.io.worker.RefreshWorkers;
+import org.jboss.as.console.client.shared.subsys.io.worker.RemoveWorker;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStore;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,12 +61,21 @@ import java.util.Map;
  */
 public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresenter.MyProxy> {
 
-    public interface MyView extends View, AddressableResourceView, HasPresenter<IOPresenter> {
+
+
+    public interface MyView extends View, HasPresenter<IOPresenter> {
+        void update(AddressTemplate addressTemplate, List<Property> data);
     }
 
     @ProxyCodeSplit
     @NameToken(NameTokens.IO)
-    @AccessControl(resources = "{selected.profile}/subsystem=io")
+    @RequiredResources(
+            resources = {
+                    "{selected.profile}/subsystem=io",
+                    "{selected.profile}/subsystem=io/worker=*",
+                    "{selected.profile}/subsystem=io/buffer-pool=*"
+            }
+    )
     public interface MyProxy extends Proxy<IOPresenter>, Place {
     }
 
@@ -66,8 +85,11 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     private final SecurityFramework securityFramework;
     private final BufferPoolStore bufferPoolStore;
     private final WorkerStore workerStore;
-    private final ResourceAddress bufferPoolAddressTemplate;
-    private final ResourceAddress workerAddressTemplate;
+    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private final AddressTemplate bufferPoolAddressTemplate =
+            AddressTemplate.of("{selected.profile}/subsystem=io/buffer-pool=*");
+    private final AddressTemplate workerAddressTemplate =
+            AddressTemplate.of("{selected.profile}/subsystem=io/worker=*");
 
     private DefaultWindow window;
     private AddResourceDialog addWorkerDialog;
@@ -76,7 +98,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     @Inject
     public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
                        RevealStrategy revealStrategy, SecurityFramework securityFramework,
-                       BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
+                       BufferPoolStore bufferPoolStore, WorkerStore workerStore, ResourceDescriptionRegistry resourceDescriptionRegistry) {
         super(eventBus, view, proxy, circuit);
 
         this.circuit = circuit;
@@ -84,11 +106,8 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
         this.securityFramework = securityFramework;
         this.bufferPoolStore = bufferPoolStore;
         this.workerStore = workerStore;
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
 
-        this.bufferPoolAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/buffer-pool=*",
-                bufferPoolStore.getStatementContext());
-        this.workerAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/worker=*",
-                workerStore.getStatementContext());
     }
 
 
@@ -106,14 +125,12 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     protected void onAction(Action action) {
         if (action instanceof AddBufferPool || action instanceof ModifyBufferPool) {
             getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
-            getView().select(bufferPoolAddressTemplate, bufferPoolStore.getLastModifiedBufferPool());
 
         } else if (action instanceof RefreshBufferPools || action instanceof RemoveBufferPool) {
             getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
 
         } else if (action instanceof AddWorker || action instanceof ModifyWorker) {
             getView().update(workerAddressTemplate, workerStore.getWorkers());
-            getView().select(workerAddressTemplate, workerStore.getLastModifiedWorker());
 
         } else if (action instanceof RefreshWorkers || action instanceof RemoveWorker) {
             getView().update(workerAddressTemplate, workerStore.getWorkers());
@@ -137,19 +154,21 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     public void launchAddWorkerDialog() {
         if (addWorkerDialog == null) {
-            addWorkerDialog = new AddResourceDialog("{selected.profile}/subsystem=io/worker=*",
-                    workerStore.getStatementContext(), securityFramework.getSecurityContext(getProxy().getNameToken()),
+            addWorkerDialog = new AddResourceDialog(
+                    securityFramework.getSecurityContext(getProxy().getNameToken()),
+                    resourceDescriptionRegistry.lookup(workerAddressTemplate),
                     new AddResourceDialog.Callback() {
                         @Override
-                        public void onAddResource(ResourceAddress address, ModelNode payload) {
+                        public void onAdd(ModelNode payload) {
                             window.hide();
                             circuit.dispatch(new AddWorker(payload));
                         }
 
                         @Override
-                        public void closeDialogue() {
-                            window.hide();
+                        public void onCancel() {
+                           window.hide();
                         }
+
                     }
             );
         } else {
@@ -177,19 +196,21 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     public void launchAddBufferPoolDialog() {
         if (addBufferPoolDialog == null) {
-            addBufferPoolDialog = new AddResourceDialog("{selected.profile}/subsystem=io/buffer-pool=*",
-                    bufferPoolStore.getStatementContext(), securityFramework.getSecurityContext(getProxy().getNameToken()),
+            addBufferPoolDialog = new AddResourceDialog(
+                    securityFramework.getSecurityContext(getProxy().getNameToken()),
+                    resourceDescriptionRegistry.lookup(bufferPoolAddressTemplate),
                     new AddResourceDialog.Callback() {
                         @Override
-                        public void onAddResource(ResourceAddress address, ModelNode payload) {
+                        public void onAdd(ModelNode payload) {
                             window.hide();
                             circuit.dispatch(new AddBufferPool(payload));
                         }
 
                         @Override
-                        public void closeDialogue() {
+                        public void onCancel() {
                             window.hide();
                         }
+
                     }
             );
         } else {
@@ -211,4 +232,13 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     public void removeBufferPool(String name) {
         circuit.dispatch(new RemoveBufferPool(name));
     }
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return resourceDescriptionRegistry;
+    }
+
 }

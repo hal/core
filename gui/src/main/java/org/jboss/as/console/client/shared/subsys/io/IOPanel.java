@@ -31,7 +31,10 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -48,19 +51,18 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public abstract class IOPanel extends ModelDrivenWidget {
+public abstract class IOPanel extends SuspendableViewImpl {
 
     protected final IOPresenter presenter;
-    protected final SecurityContext securityContext;
     protected final DefaultCellTable<Property> table;
     protected final ProvidesKey<Property> providesKey;
     protected final ListDataProvider<Property> dataProvider;
     protected final SingleSelectionModel<Property> selectionModel;
+    protected final AddressTemplate address;
 
     @SuppressWarnings("unchecked")
-    public IOPanel(String address, IOPresenter presenter, SecurityFramework securityFramework) {
-        super(address);
-
+    public IOPanel(AddressTemplate address, IOPresenter presenter) {
+        this.address = address;
         this.presenter = presenter;
         this.providesKey = new ProvidesKey<Property>() {
             @Override
@@ -71,7 +73,6 @@ public abstract class IOPanel extends ModelDrivenWidget {
         this.table = new DefaultCellTable<>(5, providesKey);
         this.dataProvider = new ListDataProvider<Property>(providesKey);
         this.selectionModel = new SingleSelectionModel<Property>(providesKey);
-        this.securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
         dataProvider.addDataDisplay(table);
         table.setSelectionModel(selectionModel);
@@ -109,7 +110,7 @@ public abstract class IOPanel extends ModelDrivenWidget {
         return table;
     }
 
-    protected Widget buildFormPanel(final ResourceDefinition definition) {
+    protected Widget buildFormPanel(final ResourceDescription definition, SecurityContext securityContext) {
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)

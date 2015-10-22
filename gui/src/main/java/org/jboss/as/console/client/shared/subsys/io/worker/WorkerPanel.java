@@ -28,8 +28,11 @@ import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.io.IOPanel;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -42,15 +45,19 @@ import java.util.Map;
  */
 public class WorkerPanel extends IOPanel {
 
-    public WorkerPanel(IOPresenter presenter, SecurityFramework securityFramework) {
-        super("{selected.profile}/subsystem=io/worker=*", presenter, securityFramework);
+    public WorkerPanel(IOPresenter presenter) {
+        super(AddressTemplate.of("{selected.profile}/subsystem=io/worker=*"), presenter);
     }
 
     @Override
-    public Widget buildWidget(final ResourceAddress address, final ResourceDefinition definition) {
+    public Widget createWidget() {
+
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(address);
+
         ToolStrip tools = buildTools();
         DefaultCellTable<Property> table = setupTable();
-        Widget formPanel = buildFormPanel(definition);
+        Widget formPanel = buildFormPanel(definition, securityContext);
 
         // putting everything together
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()

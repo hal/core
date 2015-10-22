@@ -25,12 +25,10 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolPanel;
 import org.jboss.as.console.client.shared.subsys.io.worker.WorkerPanel;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -40,15 +38,12 @@ import java.util.List;
  */
 public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
-    private final SecurityFramework securityFramework;
-
     private IOPresenter presenter;
     private WorkerPanel workerPanel;
     private BufferPoolPanel bufferPoolPanel;
 
     @Inject
-    public IOView(SecurityFramework securityFramework) {
-        this.securityFramework = securityFramework;
+    public IOView(){
     }
 
     @Override
@@ -58,8 +53,8 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
     @Override
     public Widget createWidget() {
-        workerPanel = new WorkerPanel(presenter, securityFramework);
-        bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
+        workerPanel = new WorkerPanel(presenter);
+        bufferPoolPanel = new BufferPoolPanel(presenter);
 
         DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabs.addStyleName("default-tabpanel");
@@ -71,25 +66,12 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     }
 
     @Override
-    public void select(ResourceAddress resourceAddress, String key) {
-        if (resourceAddress.getResourceType().equals("buffer-pool")) {
-            bufferPoolPanel.select(key);
-        } else if (resourceAddress.getResourceType().equals("worker")) {
-            workerPanel.select(key);
-        }
-    }
-
-    @Override
-    public void update(ResourceAddress resourceAddress, ModelNode model) {
-        throw new UnsupportedOperationException("Update of single property not supported by " + IOView.class.getName());
-    }
-
-    @Override
-    public void update(ResourceAddress resourceAddress, List<Property> model) {
+    public void update(AddressTemplate resourceAddress, List<Property> model) {
         if (resourceAddress.getResourceType().equals("buffer-pool")) {
             bufferPoolPanel.update(model);
         } else if (resourceAddress.getResourceType().equals("worker")) {
             workerPanel.update(model);
         }
     }
+
 }
