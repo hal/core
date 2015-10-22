@@ -33,6 +33,7 @@ import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -67,6 +68,7 @@ public class ModelBrowser implements IsWidget {
     private boolean hasBeenRevealed;
     private ModelNode pinToAddress = null;
     private ModelBrowserView view;
+    private final ProgressElement progressElement;
 
     private LRUCache<AddressTemplate, SecurityContext> contextCache = new LRUCache<AddressTemplate, SecurityContext>(25);
     final ResourceDescriptionRegistry resourceDescriptionRegistry = new ResourceDescriptionRegistry();
@@ -77,6 +79,15 @@ public class ModelBrowser implements IsWidget {
         this.statementContext = statementContext;
         this.rootAddress = ROOT;
         this.view = new ModelBrowserView(this);
+        this.progressElement = new ProgressElement();
+    }
+
+    public ModelBrowser(DispatchAsync dispatcher, StatementContext statementContext, ProgressElement progress) {
+        this.dispatcher = dispatcher;
+        this.statementContext = statementContext;
+        this.rootAddress = ROOT;
+        this.view = new ModelBrowserView(this);
+        this.progressElement = progress;
     }
 
 
@@ -99,6 +110,10 @@ public class ModelBrowser implements IsWidget {
 
     public void clearPinTo() {
         this.pinToAddress = null;
+    }
+
+    public ProgressElement getProgressElement() {
+        return this.progressElement;
     }
 
     class DMRContext {
@@ -139,7 +154,7 @@ public class ModelBrowser implements IsWidget {
             }
         };
 
-        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(progressElement).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed ot load children types: "+context.response.getFailureDescription());
@@ -211,7 +226,7 @@ public class ModelBrowser implements IsWidget {
             }
         };
 
-        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(progressElement).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed to load children names: "+ context.response.getFailureDescription());
@@ -350,7 +365,7 @@ public class ModelBrowser implements IsWidget {
         };
 
 
-        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(resourceData, delegate, metaFn, dataFn);
+        new Async(progressElement).waterfall(resourceData, delegate, metaFn, dataFn);
 
     }
 

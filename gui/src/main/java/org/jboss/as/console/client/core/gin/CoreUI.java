@@ -103,6 +103,7 @@ import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
+import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
@@ -407,4 +408,5 @@ public interface CoreUI {
     AsyncProvider<UndertowFinder> getUndertowFinder();
 
     AsyncProvider<DataSourceFinder> getDataSourceFinder();
+    AsyncProvider<GenericSubsystemPresenter> getGenericSubsystemPresenter();
 }

@@ -7,7 +7,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -28,7 +27,6 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -40,9 +38,12 @@ import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static com.google.common.base.CaseFormat.*;
 
 /**
  * @author Heiko Braun
@@ -227,7 +228,7 @@ public class ColumnServerView extends SuspendableViewImpl
                 new ProvidesKey<SubsystemLink>() {
                     @Override
                     public Object getKey(SubsystemLink item) {
-                        return item.getToken();
+                        return item.getToken()+"_"+item.getKey();
                     }
                 },NameTokens.ServerProfile);
 
@@ -246,7 +247,11 @@ public class ColumnServerView extends SuspendableViewImpl
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
+                        PlaceRequest placeRequest = new PlaceRequest(link.getToken());
+                        if(link.getKey()!=null)
+                            placeRequest = placeRequest.with("key", link.getKey());
+
+                        placeManager.revealRelativePlace(placeRequest);
                     }
                 });
             }
@@ -372,7 +377,9 @@ public class ColumnServerView extends SuspendableViewImpl
 
     @Override
     public void updateFrom(List<SubsystemRecord> subsystemRecords) {
+
         subsystems.updateFrom(matchSubsystems(subsystemRecords), false);
+
     }
 
     @Override
@@ -398,12 +405,25 @@ public class ColumnServerView extends SuspendableViewImpl
     {
         String title;
         String token;
+        private final String key;
         private final boolean isFolder;
 
         public SubsystemLink(String title, String token, boolean isFolder) {
             this.title = title;
             this.token = token;
             this.isFolder = isFolder;
+            this.key = null;
+        }
+
+        public SubsystemLink(String title, String token, String key) {
+            this.title = title;
+            this.token = token;
+            this.key = key;
+            this.isFolder = false;
+        }
+
+        public String getKey() {
+            return key;
         }
 
         public String getTitle() {
@@ -421,7 +441,7 @@ public class ColumnServerView extends SuspendableViewImpl
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
     {
-
+        Set<String> explicitSubsystems = new HashSet<>();
         List<SubsystemLink> matches = new ArrayList<>();
 
         SubsystemRegistry registry = Console.getSubsystemRegistry();
@@ -465,10 +485,20 @@ public class ColumnServerView extends SuspendableViewImpl
                                 new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder)
                         );
 
+                        explicitSubsystems.add(actual.getKey());
                     }
                 }
             }
 
+        }
+
+        for (SubsystemRecord subsystem : subsystems) {
+            if (!explicitSubsystems.contains(subsystem.getKey())) {
+                String title = LOWER_HYPHEN.to(UPPER_CAMEL, subsystem.getKey());
+                matches.add(
+                        new SubsystemLink(title, NameTokens.GenericSubsystem, subsystem.getKey())
+                );
+            }
         }
 
         return matches;

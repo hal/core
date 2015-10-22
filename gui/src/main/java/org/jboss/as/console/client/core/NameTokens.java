@@ -151,6 +151,7 @@ public class NameTokens {
     public static final String DataSourceFinder = "ds-finder";
     public static final String XADataSourcePresenter = "xads";
     public static final String ResourceAdapterFinder = "ra-finder";
+    public static final String GenericSubsystem = "generic-subsystem";
 }
 
 

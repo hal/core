@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
-import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
@@ -48,10 +47,10 @@ import java.util.Set;
  */
 public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
-    public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
 
     private static final String DEFAULT_ROOT = "Management Model";
     private static final String WILDCARD = "*";
+
     private ModelBrowser presenter;
     private SplitLayoutPanel layout;
 
@@ -89,8 +88,6 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
     }
 
     private void createWidget() {
-        PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
-
         tree = new Tree(ModelBrowserResources.INSTANCE);
 
         tree.getElement().addClassName("browser-tree");
@@ -289,7 +286,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
      */
     private void onItemOpenend(TreeItem treeItem) {
 
-        loadChildren((ModelTreeItem)treeItem, true);
+        loadChildren((ModelTreeItem) treeItem, true);
     }
 
     /**
@@ -472,7 +469,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
     public void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem  rootItem = findTreeItem(tree, address);
-        addChildrenTypes((ModelTreeItem)rootItem, modelNodes);
+        addChildrenTypes((ModelTreeItem) rootItem, modelNodes);
 
     }
 
@@ -484,7 +481,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         assert rootItem!=null : "unable to find matching tree item: "+address;
 
         // update the tree
-        addChildrenNames((ModelTreeItem)rootItem, modelNodes);
+        addChildrenNames((ModelTreeItem) rootItem, modelNodes);
 
         // update the append child panel
         // the parent of the current node contains the child info
@@ -598,7 +595,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
             SafeHtmlBuilder html = new SafeHtmlBuilder();
 
             String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
-            html.appendHtmlConstant("<i class='"+icon+"'></i>&nbsp;");
+            html.appendHtmlConstant("<i class='" + icon + "'></i>&nbsp;");
             html.appendHtmlConstant(childName);
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());

@@ -42,8 +42,13 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.CaseFormat.LOWER_HYPHEN;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 
 /**
  * @author Heiko Braun
@@ -364,7 +369,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                 new ProvidesKey<SubsystemLink>() {
                     @Override
                     public Object getKey(SubsystemLink item) {
-                        return item.getToken();
+                        return item.getToken()+"_"+item.getKey();
                     }
                 }, NameTokens.ProfileMgmtPresenter).setShowSize(true);
 
@@ -381,7 +386,10 @@ public class ColumnProfileView extends SuspendableViewImpl
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
+                        PlaceRequest placeRequest = new PlaceRequest(link.getToken());
+                        if(link.getKey()!=null)
+                            placeRequest = placeRequest.with("key", link.getKey());
+                        placeManager.revealRelativePlace(placeRequest);
                     }
                 });
             }
@@ -594,6 +602,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     {
         String title;
         String token;
+        private final String key;
         private final boolean isFolder;
         private final String groupName;
         private final SubsystemReference ref;
@@ -604,6 +613,20 @@ public class ColumnProfileView extends SuspendableViewImpl
             this.isFolder = isFolder;
             this.groupName = groupName;
             this.ref = ref;
+            this.key = null;
+        }
+
+        public SubsystemLink(String title, String token, String key, String groupName, SubsystemReference ref) {
+            this.title = title;
+            this.token = token;
+            this.key = key;
+            this.isFolder = false;
+            this.groupName = groupName;
+            this.ref = ref;
+        }
+
+        public String getKey() {
+            return key;
         }
 
         public String getTitle() {
@@ -631,7 +654,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemReference> subsystems)
     {
-
+        Set<String> explicitSubsystems = new HashSet<>();
         List<SubsystemLink> matches = new ArrayList<>();
 
         SubsystemRegistry registry = Console.getSubsystemRegistry();
@@ -677,6 +700,8 @@ public class ColumnProfileView extends SuspendableViewImpl
                                 new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder, groupName, ref)
                         );
                         match = true;
+
+                        explicitSubsystems.add(actual.getKey());
                     }
                 }
                 /*if (!match) {
@@ -684,6 +709,15 @@ public class ColumnProfileView extends SuspendableViewImpl
                 }*/
             }
 
+        }
+
+        for(SubsystemReference ref: subsystems) {
+            if (!explicitSubsystems.contains(ref.getDelegate().getKey())) {
+                String title = LOWER_HYPHEN.to(UPPER_CAMEL, ref.getDelegate().getKey());
+                matches.add(
+                        new SubsystemLink(title, NameTokens.GenericSubsystem, ref.getDelegate().getKey(), "", ref)
+                );
+            }
         }
 
         return matches;

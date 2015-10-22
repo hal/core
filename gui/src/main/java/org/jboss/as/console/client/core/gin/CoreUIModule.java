@@ -182,6 +182,8 @@ import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EESubsystemView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJBView;
+import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemPresenter;
+import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemView;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkView;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinder;
@@ -753,6 +755,12 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DataSourceFinder.MyView.class,
                 DataSourceFinderView.class,
                 DataSourceFinder.MyProxy.class);
+
+        bindPresenter(GenericSubsystemPresenter.class,
+                GenericSubsystemPresenter.MyView.class,
+                GenericSubsystemView.class,
+                GenericSubsystemPresenter.MyProxy.class);
+
 
         // ------------------------------------------------------ circuit
 

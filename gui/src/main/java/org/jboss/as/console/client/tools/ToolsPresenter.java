@@ -25,6 +25,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -103,8 +104,9 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
                 modelBrowser = new ModelBrowser(dispatcher, statementContext);
                 browserWindow = new DefaultWindow("Management Model");
                 browserWindow.addStyleName("model-browser-window");
-                ModelBrowserView.PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
-                browserWindow.getFooter().add(ModelBrowserView.PROGRESS_ELEMENT);
+                ProgressElement progressElement = modelBrowser.getProgressElement();
+                progressElement.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
+                browserWindow.getFooter().add(progressElement);
 
                 browserWindow.setWidget(modelBrowser.asWidget());
                 Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
