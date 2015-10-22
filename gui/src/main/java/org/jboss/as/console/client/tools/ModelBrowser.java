@@ -97,6 +97,10 @@ public class ModelBrowser implements IsWidget {
         readResource(target, false);
     }
 
+    public void clearPinTo() {
+        this.pinToAddress = null;
+    }
+
     class DMRContext {
         ModelNode response;
         boolean flagSquatting;

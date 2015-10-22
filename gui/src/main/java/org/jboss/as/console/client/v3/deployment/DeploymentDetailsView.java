@@ -52,6 +52,7 @@ public class DeploymentDetailsView extends SuspendableViewImpl implements Deploy
 
     @Override
     public void showDetails(final ResourceAddress resourceAddress) {
+        modelBrowser.clearPinTo();
         modelBrowser.onReset(resourceAddress);
     }
 }
