@@ -50,6 +50,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.CloneProfile;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshProfiles;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveProfile;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.RequiredResources;
@@ -118,6 +119,11 @@ public class ProfileMgmtPresenter
         this.circuit = circuit;
         this.header = header;
         this.serverGroupStore = serverGroupStore;
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.CONFIGURATION;
     }
 
     @Override

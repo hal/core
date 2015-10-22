@@ -13,15 +13,13 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
     public static final Type TYPE = new Type<Handler>();
     private final String value;
     private final boolean isMenuEvent;
-    private final String type;
-    private final String title;
-    private final FinderColumn.FinderId key;
+    private final String key;
+    private final FinderColumn.FinderId finder;
     private final boolean isSelected;
 
-    private BreadcrumbEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value, boolean isMenuEvent) {
-        this.key = correlationId;
-        this.type = type;
-        this.title = title;
+    private BreadcrumbEvent(FinderColumn.FinderId finder, String key, boolean isSelected, String value, boolean isMenuEvent) {
+        this.finder = finder;
+        this.key = key;
         this.isSelected = isSelected;
         this.value = value;
         this.isMenuEvent = isMenuEvent;
@@ -30,24 +28,20 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
     public static void fire(
             final HasHandlers source,
             FinderColumn.FinderId id,
-            String type, String title,
+            String title,
             boolean isSelected,
             String value,
             boolean isMenuEvent) {
 
-        source.fireEvent(new BreadcrumbEvent(id, type, title, isSelected, value, isMenuEvent));
+        source.fireEvent(new BreadcrumbEvent(id, title, isSelected, value, isMenuEvent));
     }
 
-    public FinderColumn.FinderId getCorrelationId() {
-        return key;
-    }
-
-    public String getType() {
-        return type;
+    public FinderColumn.FinderId getFinderId() {
+        return finder;
     }
 
     public String getKey() {
-        return title;
+        return key;
     }
 
     public boolean isSelected() {
@@ -76,19 +70,6 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
         void onBreadcrumbEvent(BreadcrumbEvent event);
     }
 
-
-    public boolean typeEquals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BreadcrumbEvent that = (BreadcrumbEvent) o;
-
-        if (key != that.key) return false;
-        if (!type.equals(that.type)) return false;
-
-        return true;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -96,27 +77,26 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
 
         BreadcrumbEvent that = (BreadcrumbEvent) o;
 
-        if (key != that.key) return false;
-        if (!type.equals(that.type)) return false;
         if (!value.equals(that.value)) return false;
+        if (!key.equals(that.key)) return false;
+        return finder == that.finder;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
         int result = value.hashCode();
         result = 31 * result + key.hashCode();
-        result = 31 * result + title.hashCode();
+        result = 31 * result + finder.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         return "BreadcrumbEvent{" +
-                "key=" + key +
-                ", type='" + type + '\'' +
-                ", selected='" + isSelected()+ '\'' +
+                "finderId=" + finder +
+                " ,key=" + key +
+                " ,value=" + value +
                 '}';
     }
 }

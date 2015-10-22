@@ -74,6 +74,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -174,6 +175,11 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.serverGroupStore = serverGroupStore;
         this.socketBindingStore = socketBindingStore;
         this.statementContext = statementContext;
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.RUNTIME;
     }
 
     @Override

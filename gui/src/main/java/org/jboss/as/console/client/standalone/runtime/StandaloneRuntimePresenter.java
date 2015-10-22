@@ -29,6 +29,7 @@ import org.jboss.as.console.client.shared.state.ReloadEvent;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.StandaloneRuntimeRefresh;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -100,6 +101,11 @@ public class StandaloneRuntimePresenter
         this.header = header;
         this.reloadState = reloadState;
         this.dispatcher = dispatcher;
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.RUNTIME;
     }
 
     @Override

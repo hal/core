@@ -40,7 +40,9 @@ import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackContext;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackWizard;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -62,7 +64,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Harald Pehl
  */
-public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPresenter.MyView, PatchManagementPresenter.MyProxy> {
+public class PatchManagementPresenter
+        extends CircuitPresenter<PatchManagementPresenter.MyView, PatchManagementPresenter.MyProxy>
+        implements Finder {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
@@ -129,6 +133,11 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
         this.bootstrapContext = bootstrapContext;
         this.dispatcher = dispatcher;
 
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.PATCHING;
     }
 
     @Override

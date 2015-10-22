@@ -23,6 +23,7 @@ import static org.jboss.as.console.client.StringUtils.ELLIPSIS;
 
 import com.google.common.base.CharMatcher;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
@@ -38,7 +39,6 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -62,6 +62,7 @@ import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.shared.model.PerspectiveStore;
 import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbEvent;
 import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbMgr;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -102,7 +103,8 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     private LayoutPanel alternateSubNav;
     private ArrayList<PlaceRequest> places = new ArrayList<>();
     private HTML breadcrumb;
-    private Map<String,BreadcrumbMgr> breadcrumbs = new HashMap<>();
+    private Map<FinderColumn.FinderId,BreadcrumbMgr> breadcrumbs = new HashMap<>();
+    private FinderColumn.FinderId activeFinder;
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -192,8 +194,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             }
         });
         alternateSubNav.add(backLink);
-
-
 
         alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 70, Style.Unit.PX);
         alternateSubNav.setWidgetLeftWidth(breadcrumb, 80, Style.Unit.PX, 100, Style.Unit.PCT);
@@ -398,6 +398,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         logo.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
+                toggleNavigation(false);
                 placeManager.revealPlace(new PlaceRequest(NameTokens.HomepagePresenter));
             }
         });
@@ -556,29 +557,25 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
     }
 
-    public void toggleNavigation(boolean supressed) {
-        if(supressed)
-        {
+    public void toggleNavigation(boolean enableApplicationView) {
 
-            // TODO: a workaround for pageview that are still in use
-            // the paged views break the place hierarchy
-            // hence we need to capture the actual place hierarchy so we can safely navigate back
+        if(enableApplicationView && activeFinder!=null) {
 
+            // persist places before entering the application view
             places = new ArrayList(placeManager.getCurrentPlaceHierarchy());
 
-            String nameToken = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
-            BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(nameToken);
+            BreadcrumbMgr breadcrumbMgr = getBreadcrumbMgr(activeFinder);
 
-            if(breadcrumbMgr!=null) {
+            if (breadcrumbMgr != null) {
                 // update the breadcrumb
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
 
                 for (int i = 0; i <= breadcrumbMgr.getBreadcrumbCursor(); i++) {
                     BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
 
-                    if(i>0 && i==breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("<b>");
-                        html.appendEscaped(item.getKey()).appendEscaped(":").appendHtmlConstant("&nbsp;").appendEscaped(item.getValue());
-                    if(i>0 && i==breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("</b>");
+                    if (i > 0 && i == breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("<b>");
+                    html.appendEscaped(item.getKey()).appendEscaped(":").appendHtmlConstant("&nbsp;").appendEscaped(item.getValue());
+                    if (i > 0 && i == breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("</b>");
 
                     if (i <= breadcrumbMgr.getBreadcrumbCursor() - 1) {
                         html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
@@ -590,8 +587,9 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 // swap sub-navigation
                 outerLayout.setWidgetVisible(bottom, false);
                 outerLayout.setWidgetVisible(alternateSubNav, true);
+            } else {
+                throw new IllegalStateException("no breadcrumb mgr for " + activeFinder);
             }
-
         }
         else
         {
@@ -607,89 +605,106 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     @Override
     public void onBreadcrumbEvent(BreadcrumbEvent event) {
 
-        final String token = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
+        FinderColumn.FinderId finderId = event.getFinderId();
 
-        // lazy init
-        if(!breadcrumbs.containsKey(token))
-            breadcrumbs.put(token, new BreadcrumbMgr());
-
-        BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(token);
+        BreadcrumbMgr breadcrumbMgr = getBreadcrumbMgr(finderId);
         Stack<BreadcrumbEvent> navigationStack = breadcrumbMgr.getNavigationStack();
 
-        if(event.getCorrelationId()!= breadcrumbMgr.getLastFinderType())
-        {
-            navigationStack.clear();
-        }
+        int columnIndex = isColumnPresent(navigationStack, event);
+        boolean isDuplicateEntry = isDuplicateColumnEntry(navigationStack, event)!=-1;
+        if(isDuplicateEntry) {
+            // if the entry exists, simple move the cursor the right position
+            breadcrumbMgr.setBreadcrumbCursor(columnIndex);
+            return;
+        };
 
         if(event.isSelected())
         {
 
-            int stackIndex = stackContains(navigationStack, event, true);
-            boolean isDuplicateType = !navigationStack.isEmpty() && stackIndex !=-1;
-
-
-            if(!isDuplicateType)
+            // column not present: append to stack
+            if(-1 == columnIndex)
             {
                 navigationStack.push(event);
             }
-            else if (stackIndex<=navigationStack.size()-1)
-            {
 
-                if(!event.isMenuEvent()) { // selection events reduce the stack
-                    int numElements = navigationStack.size() - stackIndex;
+            // column present: replace at index
+            else if (columnIndex<=navigationStack.size()-1)   // TODO: can this condition ever not be true?
+            {
+                navigationStack.insertElementAt(event, columnIndex);
+
+                // selection events modify the stack (remove the remainder)
+                if(!event.isMenuEvent()) {
+                    int numElements = navigationStack.size() - columnIndex;
                     for (int i = 0; i < numElements; i++)
                         navigationStack.pop();
 
-                    navigationStack.push(event);
+                    // move the cursor the end of stack
                     breadcrumbMgr.setBreadcrumbCursor(navigationStack.size()-1);
                 }
-                else  // menu events simply move the cursor
+
+                // menu events simply move the cursor, but the stack remains the same
+                else
                 {
-                    breadcrumbMgr.setBreadcrumbCursor(stackIndex);
+                    breadcrumbMgr.setBreadcrumbCursor(columnIndex);
                 }
             }
 
 
         }
-        else if(!navigationStack.isEmpty() && !event.isSelected())
-        {
-            BreadcrumbEvent peek = navigationStack.peek();
-            if(peek.equals(event)) {
-                navigationStack.pop();
-                // TODO cursor?
-            }
 
+        /*// dump stack
+        System.out.println("<< --");
+        for (BreadcrumbEvent breadCrumb : navigationStack) {
+            System.out.println(breadCrumb);
         }
 
-        breadcrumbMgr.setLastFinderType(event.getCorrelationId());
+        System.out.println(" -- >>");*/
+
     }
 
-    private int stackContains(Stack<BreadcrumbEvent> navigationStack, BreadcrumbEvent event, boolean typeComparison) {
+    private BreadcrumbMgr getBreadcrumbMgr(FinderColumn.FinderId finderId) {
+        if(!breadcrumbs.containsKey(finderId))
+            breadcrumbs.put(finderId, new BreadcrumbMgr());
+
+        return breadcrumbs.get(finderId);
+    }
+
+    private int isDuplicateColumnEntry(List<BreadcrumbEvent> navigationStack, BreadcrumbEvent event) {
+        return findMatchingIndex(navigationStack, event, (previous, next) -> {
+            return previous.getKey().equals(next.getKey())
+                    && previous.getValue().equals(next.getValue());
+        });
+    }
+
+    private int isColumnPresent(List<BreadcrumbEvent> navigationStack, BreadcrumbEvent event) {
+        return findMatchingIndex(navigationStack, event, (previous, next) -> {
+            return previous.getKey().equals(next.getKey());
+        });
+    }
+
+    public void activateFinder(FinderColumn.FinderId finderId) {
+        this.activeFinder = finderId;
+    }
+
+    @FunctionalInterface
+    public interface Condition {
+        boolean matches(BreadcrumbEvent previous, BreadcrumbEvent next);
+    }
+
+    private int findMatchingIndex(List<BreadcrumbEvent> navigationStack, BreadcrumbEvent event, Condition condition) {
         int index = -1;
 
-        for(int i=0; i<navigationStack.size(); i++)
-        {
-            boolean equals = typeComparison ?
-                    navigationStack.get(i).typeEquals(event) :
-                    navigationStack.get(i).equals(event);
+        for (int i = 0; i < navigationStack.size(); i++) {
+            BreadcrumbEvent previousEvent = navigationStack.get(i);
+            boolean equals = condition.matches(previousEvent, event);
 
-            if(equals)
-            {
+            if (equals) {
                 index = i;
                 break;
             }
         }
 
         return index;
-    }
-
-    public DeckPanel createSubnavigation() {
-
-        DeckPanel subnavigation = new DeckPanel();
-
-        // TODO: fill in contents
-
-        return subnavigation;
     }
 
     public SearchTool getSearchTool() {

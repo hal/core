@@ -7,17 +7,8 @@ import java.util.Stack;
  * @since 10/03/15
  */
 public class BreadcrumbMgr {
-    private FinderColumn.FinderId lastFinderType;
     private Stack<BreadcrumbEvent> navigationStack = new Stack<>();
     private int breadcrumbCursor = 0;
-
-    public FinderColumn.FinderId getLastFinderType() {
-        return lastFinderType;
-    }
-
-    public void setLastFinderType(FinderColumn.FinderId lastFinderType) {
-        this.lastFinderType = lastFinderType;
-    }
 
     public Stack<BreadcrumbEvent> getNavigationStack() {
         return navigationStack;
@@ -28,6 +19,8 @@ public class BreadcrumbMgr {
     }
 
     public void setBreadcrumbCursor(int breadcrumbCursor) {
+        if(breadcrumbCursor> navigationStack.size()-1)
+            throw new IllegalArgumentException("Cursor ("+breadcrumbCursor+") exceeds stack size ("+navigationStack.size()+")");
         this.breadcrumbCursor = breadcrumbCursor;
     }
 }

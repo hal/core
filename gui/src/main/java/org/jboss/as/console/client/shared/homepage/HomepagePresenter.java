@@ -31,11 +31,13 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
 /**
  * @author Harald Pehl
  */
-public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy> {
+public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy> implements Finder {
 
     // @formatter:off
     @NoGatekeeper
@@ -55,6 +57,11 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
         this.header = header;
         this.bootstrapContext = bootstrapContext;
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.HOME;
     }
 
     @Override

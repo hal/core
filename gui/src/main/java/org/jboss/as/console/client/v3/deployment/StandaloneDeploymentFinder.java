@@ -49,6 +49,7 @@ import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
@@ -108,8 +109,8 @@ public class StandaloneDeploymentFinder
 
     @Inject
     public StandaloneDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
-            final BootstrapContext bootstrapContext, final Header header) {
+                                      final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
+                                      final BootstrapContext bootstrapContext, final Header header) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder, TYPE_MainContent);
         this.placeManager = placeManager;
         this.dispatcher = dispatcher;
@@ -127,6 +128,11 @@ public class StandaloneDeploymentFinder
                     Console.info(context.upload.getName() + " successfully replaced.");
                     loadDeployments();
                 });
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.DEPLOYMENT;
     }
 
     @Override
@@ -148,7 +154,7 @@ public class StandaloneDeploymentFinder
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
-            final boolean revealDefault) {
+                                 final boolean revealDefault) {
         // noop
     }
 

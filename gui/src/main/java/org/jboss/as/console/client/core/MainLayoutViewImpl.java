@@ -23,20 +23,19 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.ViewImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 /**
@@ -112,7 +111,6 @@ public class MainLayoutViewImpl extends ViewImpl
                     @Override
                     public void execute() {
                         presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
-                        header.toggleNavigation(false);
                     }
                 });
 
@@ -153,6 +151,8 @@ public class MainLayoutViewImpl extends ViewImpl
             presenter.clearSlot(MainLayoutPresenter.TYPE_Hidden);
 
             if(content instanceof Finder) {
+                FinderColumn.FinderId finderId = ((Finder) content).getFinderId();
+                header.activateFinder(finderId);
                 header.toggleNavigation(false);
             }
             else {
@@ -172,7 +172,6 @@ public class MainLayoutViewImpl extends ViewImpl
                 window.addStyleName(ACTIVE_CSS);*/
                 window.center();
 
-                header.toggleNavigation(true);
             }
         }
         else if(slot == MainLayoutPresenter.TYPE_Hidden)

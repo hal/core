@@ -57,7 +57,7 @@ public class FinderColumn<T> implements SecurityContextAware {
     private ColumnFilter filter;
     private Object previousSelectedKey = null;
 
-    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, UNKNOWN}
+    public enum FinderId { HOME, DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, PATCHING }
 
     static Framework FRAMEWORK = GWT.create(Framework.class);
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
@@ -67,7 +67,7 @@ public class FinderColumn<T> implements SecurityContextAware {
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
     private final ListDataProvider<T> dataProvider;
-    private final FinderId correlationId;
+    private final FinderId finderId;
     private final String title;
     private final Display display;
     private TooltipDisplay tooltipDisplay = null;
@@ -115,7 +115,7 @@ public class FinderColumn<T> implements SecurityContextAware {
     }
 
     public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider, String token, int pageSize) {
-        this.correlationId = correlationId;
+        this.finderId = correlationId;
         this.title = title;
         this.display = display;
         this.keyProvider = keyProvider;
@@ -398,18 +398,18 @@ public class FinderColumn<T> implements SecurityContextAware {
 
         PlaceManager placeManager = Console.MODULES.getPlaceManager();
         final T selectedObject = selectionModel.getSelectedObject();
-        String typeIdentifier = title; // not used anymore;
+
         if(selectedObject!=null) {
 
             // delegate to value provider if given, otherwise the keyprovider will do fine
             String value = valueProvider!=null ? valueProvider.get(selectedObject) :
                     String.valueOf(keyProvider.getKey(selectedObject));
 
-            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, value, isMenuEvent);
+            BreadcrumbEvent.fire(placeManager, finderId, title, true, value, isMenuEvent);
         }
         else
         {
-            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, "", isMenuEvent);
+            BreadcrumbEvent.fire(placeManager, finderId, title, false, "", isMenuEvent);
         }
 
     }

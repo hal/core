@@ -53,6 +53,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
@@ -148,6 +149,10 @@ public class DomainRuntimePresenter
         this.statementContext = statementContext;
     }
 
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.RUNTIME;
+    }
 
     @Override
     protected void onBind() {
