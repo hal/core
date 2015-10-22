@@ -4,6 +4,7 @@ import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HasHandlers;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.gwtplatform.mvp.client.Presenter;
 
 /**
  * @author Heiko Braun
@@ -33,7 +34,15 @@ public class PreviewEvent extends GwtEvent<PreviewEvent.Handler> {
 
     @Override
     protected void dispatch(Handler listener) {
-        listener.onPreview(this);
+        if(listener instanceof Presenter)
+        {
+            Presenter target = (Presenter)listener;
+            if(target.isVisible())
+                listener.onPreview(this);
+        }
+        else {
+            listener.onPreview(this);
+        }
     }
 
     public interface Handler extends EventHandler {
