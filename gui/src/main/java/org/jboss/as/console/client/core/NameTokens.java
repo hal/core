@@ -50,7 +50,6 @@ public class NameTokens {
     public static final String MessagingPresenter = "messaging";
     public static final String ActivemqMessagingPresenter = "activemq-messaging";
     public static final String MetricsPresenter = "invocation-metrics";
-    public static final String ModelBrowserPresenter = "model-browser";
     public static final String PropertiesPresenter = "properties";
     public static final String ResourceAdapterPresenter ="resource-adapters";
     public static final String Remoting = "remoting";
@@ -87,7 +86,6 @@ public class NameTokens {
     public static final String ActivemqMsgConnectionsPresenter = "activemq-messaging-connections";
     public static final String MsgClusteringPresenter  =  "messaging-cluster";
     public static final String ActivemqMsgClusteringPresenter =  "activemq-messaging-cluster";
-    public static final String DMRBrowser = "browser";
     public static final String ToolsPresenter = "tools";
     public static final String PathManagementPresenter = "path" ;
 

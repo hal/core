@@ -260,8 +260,6 @@ import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimeView;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
-import org.jboss.as.console.client.tools.BrowserPresenter;
-import org.jboss.as.console.client.tools.BrowserView;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.ToolsView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
@@ -322,9 +320,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ToolsView.class,
                 ToolsPresenter.MyProxy.class);
 
-        bindPresenterWidget(BrowserPresenter.class,
-                BrowserPresenter.MyView.class,
-                BrowserView.class);
 
         /*bindPresenterWidget(DebugPresenter.class,
                 DebugPresenter.MyView.class,

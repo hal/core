@@ -135,7 +135,7 @@ public class ModelBrowser implements IsWidget {
             }
         };
 
-        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed ot load children types: "+context.response.getFailureDescription());
@@ -207,7 +207,7 @@ public class ModelBrowser implements IsWidget {
             }
         };
 
-        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed to load children names: "+ context.response.getFailureDescription());
@@ -346,7 +346,7 @@ public class ModelBrowser implements IsWidget {
         };
 
 
-        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(resourceData, delegate, metaFn, dataFn);
+        new Async(ModelBrowserView.PROGRESS_ELEMENT).waterfall(resourceData, delegate, metaFn, dataFn);
 
     }
 

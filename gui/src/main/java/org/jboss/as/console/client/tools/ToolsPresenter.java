@@ -51,12 +51,12 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     private final DispatchAsync dispatcher;
     private final BootstrapContext context;
     private final CoreGUIContext statementContext;
-    private BrowserPresenter browser;
 
     private String requestedTool;
     private DefaultWindow window;
     private RunAsRoleTool runAsRoleTool;
     private DefaultWindow indexWindow;
+    private DefaultWindow browserWindow;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ToolsPresenter)
@@ -76,12 +76,10 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     @Inject
     public ToolsPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher, BootstrapContext context,
+            PlaceManager placeManager, DispatchAsync dispatcher, BootstrapContext context,
             CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
-        //this.debug = debug;
-        this.browser = browser;
         this.dispatcher = dispatcher;
         this.context = context;
         this.statementContext = statementContext;
@@ -103,13 +101,23 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         {
             if (modelBrowser == null) {
                 modelBrowser = new ModelBrowser(dispatcher, statementContext);
+                browserWindow = new DefaultWindow("Management Model");
+                browserWindow.addStyleName("model-browser-window");
+                ModelBrowserView.PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
+                browserWindow.getFooter().add(ModelBrowserView.PROGRESS_ELEMENT);
+
+                browserWindow.setWidget(modelBrowser.asWidget());
+                Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
+                browserWindow.center();
+                browserWindow.addCloseHandler(closeEvent -> placeManager.navigateBack());
             }
-            window = new DefaultWindow("Management Model");
-            window.addStyleName("model-browser-window");
-            window.setWidget(modelBrowser.asWidget());
-            window.center();
-            Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
-            window.addCloseHandler(closeEvent -> placeManager.navigateBack());
+            else
+            {
+                browserWindow.show();
+            }
+
+
+
         }
         else if("debug-panel".equals(requestedTool))
         {

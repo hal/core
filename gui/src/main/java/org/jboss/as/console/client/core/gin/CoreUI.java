@@ -145,7 +145,6 @@ import org.jboss.as.console.client.standalone.StandaloneServerPresenter;
 import org.jboss.as.console.client.standalone.deploymentscanner.DeploymentScannerPresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
-import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
 import org.jboss.as.console.client.v3.deployment.DeploymentDetailsPresenter;
@@ -233,8 +232,6 @@ public interface CoreUI {
     AsyncProvider<MainLayoutPresenter> getMainLayoutPresenter();
     AsyncProvider<ToolsPresenter> getToolsPresenter();
 
-
-    AsyncProvider<BrowserPresenter> getBrowserPresenter();
     //AsyncProvider<DebugPresenter> getDebugPresenter();
 
     AsyncProvider<SettingsPresenter> getSettingsPresenter();

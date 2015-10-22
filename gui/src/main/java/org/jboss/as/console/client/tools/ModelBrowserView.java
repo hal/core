@@ -71,6 +71,9 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
     private VerticalPanel offsetDisplay;
     private TabPanel tabs;
+    private int CHILD_VIEW;
+    private int RESOURCE_VIEW;
+    private int BLANK;
 
     public ModelBrowserView(ModelBrowser presenter) {
         this.presenter = presenter;
@@ -190,10 +193,12 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         deck = new DeckPanel();
         deck.setStyleName("fill-layout");
         deck.add(childView.asWidget());
+        CHILD_VIEW = deck.getWidgetCount()-1;
         deck.add(tabs);
+        RESOURCE_VIEW = deck.getWidgetCount()-1;
         deck.add(new HTML("")); // loading page
-
-        deck.showWidget(2);
+        BLANK = deck.getWidgetCount()-1;
+        deck.showWidget(BLANK);
 
         VerticalPanel contentPanel = new VerticalPanel();
         contentPanel.setStyleName("rhs-content-panel");
@@ -324,7 +329,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                deck.showWidget( showEditor ? 1 : 0 );
+                deck.showWidget( showEditor ? RESOURCE_VIEW : CHILD_VIEW );
             }
         });
     }
@@ -406,7 +411,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
      */
     public void updateRootTypes(ModelNode address, List<ModelNode> modelNodes) {
 
-        deck.showWidget(0);
+        deck.showWidget(CHILD_VIEW);
         tree.clear();
         descView.clearDisplay();
         formView.clearDisplay();
@@ -450,7 +455,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         tree.addItem(rootItem);
 
 
-        deck.showWidget(1);
+        deck.showWidget(RESOURCE_VIEW);
         rootItem.setSelected(true);
 
         currentRootKey = key;
@@ -858,7 +863,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
         public boolean isSingleton(String key) {
             if(!names.contains(key))
-                throw new IllegalArgumentException("Invalid key "+key);
+                return false;//throw new IllegalArgumentException("Invalid key "+key);
             return singletons.containsKey(key);
         }
 
