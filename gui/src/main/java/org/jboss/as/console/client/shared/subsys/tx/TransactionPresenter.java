@@ -136,6 +136,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
                 new CrudOperationDelegate.Callback() {
                     @Override
                     public void onSuccess(final AddressTemplate addressTemplate, final String name) {
+                        loadModel();
                         Console.info(Console.MESSAGES.modified("Transaction Manager"));
                     }
 
