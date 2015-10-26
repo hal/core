@@ -811,7 +811,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             for (String con : values) { list.add(con); }
 
             operation.get("static-connectors").set(list);
-            operation.remove("discovery-group-name");
+            operation.remove("discovery-group");
         }
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
