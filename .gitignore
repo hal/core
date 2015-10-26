@@ -11,6 +11,7 @@ gwt-unitCache
 .classpath
 *.*~
 *.releaseBackup
+.wakatime-project
 release.properties
 
 build/app/overlays
