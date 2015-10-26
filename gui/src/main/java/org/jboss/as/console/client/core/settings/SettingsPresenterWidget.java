@@ -41,6 +41,7 @@ public class SettingsPresenterWidget extends PresenterWidget<SettingsPresenterWi
 
     public interface MyView extends PopupView {
         void setPresenter(SettingsPresenterWidget presenter);
+        void setFormValues(CommonSettings settings);
     }
 
 
@@ -86,5 +87,11 @@ public class SettingsPresenterWidget extends PresenterWidget<SettingsPresenterWi
         settings.setAnalytics(Boolean.valueOf(Preferences.get(Preferences.Key.ANALYTICS, analyticsDefault)));
         settings.setSecurityCache(Boolean.valueOf(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true")));
         return settings;
+    }
+
+    @Override
+    protected void onReveal() {
+        super.onReveal();
+        getView().setFormValues(getCommonSettings());
     }
 }

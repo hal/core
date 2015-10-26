@@ -207,9 +207,8 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     }
 
     @Override
-    public void show() {
-        super.show();
-        form.edit(presenter.getCommonSettings());
+    public void setFormValues(CommonSettings settings) {
+        form.edit(settings);
         if(clear!=null) {
             clear.setEnabled(true);
             clearDisabled = false;
