@@ -168,12 +168,6 @@ public class RequiredResourcesProcessor {
             switch (key) {
                 case "selected.entity":
                     return "*";
-                case "addressable.group":
-                    return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap
-                            .getAddressableGroups().iterator().next();
-                case "addressable.host":
-                    return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts()
-                            .iterator().next();
                 default:
                     return null;
             }

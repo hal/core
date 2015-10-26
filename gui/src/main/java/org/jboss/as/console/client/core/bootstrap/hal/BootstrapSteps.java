@@ -38,7 +38,7 @@ public class BootstrapSteps {
     private final EagerLoadProfiles eagerLoadProfiles;
     private final HostStoreInit hostStoreInit;
     private final ServerStoreInit serverStoreInit;
-    private final EagerLoadGroups eagerLoadGroups;
+
 
     @Inject
     public BootstrapSteps(LoadGoogleViz loadGoogleViz,
@@ -48,8 +48,7 @@ public class BootstrapSteps {
                           RegisterSubsystems registerSubsystems,
                           EagerLoadProfiles eagerLoadProfiles,
                           HostStoreInit hostStoreInit,
-                          ServerStoreInit serverStoreInit,
-                          EagerLoadGroups eagerLoadGroups) {
+                          ServerStoreInit serverStoreInit) {
 
         this.loadGoogleViz = loadGoogleViz;
         this.executionMode = executionMode;
@@ -59,7 +58,6 @@ public class BootstrapSteps {
         this.eagerLoadProfiles = eagerLoadProfiles;
         this.hostStoreInit = hostStoreInit;
         this.serverStoreInit = serverStoreInit;
-        this.eagerLoadGroups = eagerLoadGroups;
     }
 
     public BootstrapStep[] steps() {
@@ -71,8 +69,7 @@ public class BootstrapSteps {
                 registerSubsystems,
                 eagerLoadProfiles,
                 hostStoreInit,
-                serverStoreInit,
-                eagerLoadGroups
+                serverStoreInit
         };
     }
 }

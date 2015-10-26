@@ -36,7 +36,7 @@ public class EagerLoadGroups implements BootstrapStep {
                 public void onSuccess(List<ServerGroupRecord> result) {
                         Set<String> groups = new TreeSet<String>();
                         for (ServerGroupRecord group : result) { groups.add(group.getName()); }
-                        context.setAdressableGroups(groups);
+                        //context.setAdressableGroups(groups);
                         control.proceed();
                 }
             });

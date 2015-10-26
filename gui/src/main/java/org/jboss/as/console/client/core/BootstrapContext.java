@@ -202,21 +202,6 @@ public class BootstrapContext implements ApplicationProperties {
         return match;
     }
 
-    public void setAddressableHosts(Set<String> hosts) {
-        this.addressableHosts = hosts;
-    }
-
-    public Set<String> getAddressableHosts() {
-        return addressableHosts;
-    }
-
-    public void setAdressableGroups(Set<String> groups) {
-        this.addressableGroups = groups;
-    }
-
-    public Set<String> getAddressableGroups() {
-        return addressableGroups;
-    }
 
     public void setRunAs(final String runAs) {
         this.runAs = runAs;

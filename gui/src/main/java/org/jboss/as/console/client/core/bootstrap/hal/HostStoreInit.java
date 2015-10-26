@@ -48,8 +48,6 @@ public class HostStoreInit implements BootstrapStep {
                         context.setHostManagementDisabled(true);
                     }
 
-                    // TODO (hbraun): cleanup, should be part of HostStore
-                    control.getContext().setAddressableHosts(hosts);
                     control.proceed();
 
                 }

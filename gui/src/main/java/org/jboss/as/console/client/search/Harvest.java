@@ -48,12 +48,6 @@ public class Harvest {
                     public String filter(String key) {
                         if ("selected.entity".equals(key)) {
                             return "*";
-                        } else if ("addressable.group".equals(key)) {
-                            return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups()
-                                    .iterator().next();
-                        } else if ("addressable.host".equals(key)) {
-                            return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts()
-                                    .iterator().next();
                         } else {
                             return null;
                         }
