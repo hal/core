@@ -112,6 +112,14 @@ public class ExecutionMode implements BootstrapStep {
         step.get(ADDRESS).setEmptyList();
         steps.add(step);
 
+         // server name (to be used in browser's title - HAL-503)
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("management-major-version");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
+
         operation.get(STEPS).set(steps);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
@@ -182,6 +190,11 @@ public class ExecutionMode implements BootstrapStep {
                     ModelNode serverName = response.get(RESULT).get("step-7");
                     if (serverName.get(RESULT).isDefined()) {
                         context.setServerName(serverName.get(RESULT).asString());
+                    }
+
+                    ModelNode majorVersion = response.get(RESULT).get("step-8");
+                    if (majorVersion.get(RESULT).isDefined()) {
+                        context.setMajorVersion(majorVersion.get(RESULT).asLong());
                     }
 
                     control.proceed();

@@ -19,6 +19,7 @@ import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
@@ -87,6 +88,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     private final Widget configColWidget;
     private final PlaceManager placeManager;
     private final PreviewContentFactory contentFactory;
+    private final FeatureSet featureSet;
 
     private SplitLayoutPanel splitlayout;
     private LayoutPanel contentCanvas;
@@ -114,10 +116,11 @@ public class ColumnProfileView extends SuspendableViewImpl
 
 
     @Inject
-    public ColumnProfileView(final PlaceManager placeManager, PreviewContentFactory contentFactory) {
+    public ColumnProfileView(final PlaceManager placeManager, PreviewContentFactory contentFactory, FeatureSet featureSet) {
         super();
         this.placeManager = placeManager;
         this.contentFactory = contentFactory;
+        this.featureSet = featureSet;
 
         contentCanvas = new LayoutPanel();
 
@@ -304,30 +307,32 @@ public class ColumnProfileView extends SuspendableViewImpl
             }
         });
 
-        profiles.setMenuItems(
-                new MenuDelegate<ProfileRecord>("Clone", new ContextualCommand<ProfileRecord>() {
-                    @Override
-                    public void executeOn(ProfileRecord profileRecord) {
-                        presenter.onCloneProfile(profileRecord);
-                    }
-                }, MenuDelegate.Role.Operation)
+        if(featureSet.isProfileCloneEnabled()) {   // compat with WF 9.x
+            profiles.setMenuItems(
+                    new MenuDelegate<ProfileRecord>("Clone", new ContextualCommand<ProfileRecord>() {
+                        @Override
+                        public void executeOn(ProfileRecord profileRecord) {
+                            presenter.onCloneProfile(profileRecord);
+                        }
+                    }, MenuDelegate.Role.Operation)
 
-                , new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
-                    @Override
-                    public void executeOn(ProfileRecord profileRecord) {
+                    , new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
+                        @Override
+                        public void executeOn(ProfileRecord profileRecord) {
 
-                        Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName() + "?", new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    presenter.onRemoveProfile(profileRecord);
+                            Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName() + "?", new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed) {
+                                        presenter.onRemoveProfile(profileRecord);
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                    }
-                }, MenuDelegate.Role.Operation)
-        );
+                        }
+                    }, MenuDelegate.Role.Operation)
+            );
+        }
         profileColWidget = profiles.asWidget();
 
 

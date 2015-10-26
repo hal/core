@@ -30,12 +30,20 @@ import org.jboss.as.console.client.ProductConfig;
 public class FeatureSet {
 
     private final ProductConfig productConfig;
+    private final BootstrapContext bootstrapContext;
 
     @Inject
-    public FeatureSet(final ProductConfig productConfig) {this.productConfig = productConfig;}
+    public FeatureSet(final ProductConfig productConfig, BootstrapContext bootstrapContext) {this.productConfig = productConfig;
+        this.bootstrapContext = bootstrapContext;
+    }
 
     public boolean isSearchEnabled() {
         return false;//Storage.isLocalStorageSupported();
+    }
+
+    public boolean isProfileCloneEnabled() {
+
+        return bootstrapContext.getMajorVersion()>3;
     }
 
     public boolean isCSPEnabled() {

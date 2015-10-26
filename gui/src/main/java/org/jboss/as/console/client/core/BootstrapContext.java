@@ -56,6 +56,7 @@ public class BootstrapContext implements ApplicationProperties {
     private Set<String> addressableGroups = Collections.emptySet();
     private String runAs;
     private List<ProfileRecord> initialProfiles;
+    private long majorVersion;
 
     @Inject
     public BootstrapContext() {
@@ -247,5 +248,17 @@ public class BootstrapContext implements ApplicationProperties {
 
     public void setSameOrigin(boolean sameOrigin) {
         this.sameOrigin = sameOrigin;
+    }
+
+    public void setMajorVersion(long majorVersion) {
+        this.majorVersion = majorVersion;
+    }
+
+    /**
+     * management model major version
+     * @return
+     */
+    public long getMajorVersion() {
+        return majorVersion;
     }
 }
