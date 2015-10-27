@@ -141,8 +141,8 @@ public class Footer {
                         toolsLink.getAbsoluteLeft()-45,
                         toolsLink.getAbsoluteTop()-(listHeight-25)-50
                 );
-                toolsPopup.setWidth("165");
-                toolsPopup.setHeight(listHeight +"");
+                toolsPopup.setWidth("165px");
+                toolsPopup.setHeight(listHeight +"px");
                 toolsPopup.show();
             }
         });

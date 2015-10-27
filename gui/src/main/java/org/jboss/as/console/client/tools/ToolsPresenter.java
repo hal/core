@@ -2,7 +2,10 @@ package org.jboss.as.console.client.tools;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.debugpanel.client.DebugPanel;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -92,6 +95,16 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     }
 
     @Override
+    protected void onBind() {
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                Scheduler.get().scheduleDeferred(() -> browserWindow=null);
+            }
+        });
+    }
+
+    @Override
     protected void revealInParent() {
 
         if("expressions".equals(requestedTool))
@@ -100,7 +113,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         }
         else if("browser".equals(requestedTool))
         {
-            if (modelBrowser == null) {
+            if (modelBrowser == null || browserWindow==null) {
                 modelBrowser = new ModelBrowser(dispatcher, statementContext);
                 browserWindow = new DefaultWindow("Management Model");
                 browserWindow.addStyleName("model-browser-window");
@@ -110,13 +123,10 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
                 browserWindow.setWidget(modelBrowser.asWidget());
                 Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
-                browserWindow.center();
                 browserWindow.addCloseHandler(closeEvent -> placeManager.navigateBack());
             }
-            else
-            {
-                browserWindow.show();
-            }
+
+            browserWindow.center();
 
 
 
