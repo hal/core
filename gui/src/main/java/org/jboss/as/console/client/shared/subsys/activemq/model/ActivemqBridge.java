@@ -62,7 +62,7 @@ public interface ActivemqBridge {
     List<String> getStaticConnectors();
     void setStaticConnectors(List<String> connectors);
 
-    @Binding(detypedName = "discovery-group-name")
+    @Binding(detypedName = "discovery-group")
     String getDiscoveryGroup();
     void setDiscoveryGroup(String group);
 }
