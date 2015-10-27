@@ -113,16 +113,21 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         }
         else if("browser".equals(requestedTool))
         {
-            if (modelBrowser == null || browserWindow==null) {
+            if (modelBrowser == null) {
                 modelBrowser = new ModelBrowser(dispatcher, statementContext);
+                Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
+            }
+
+            if(browserWindow==null) { // resize handler nukes it
                 browserWindow = new DefaultWindow("Management Model");
                 browserWindow.addStyleName("model-browser-window");
                 ProgressElement progressElement = modelBrowser.getProgressElement();
                 progressElement.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
                 browserWindow.getFooter().add(progressElement);
+                progressElement.finish();
 
                 browserWindow.setWidget(modelBrowser.asWidget());
-                Scheduler.get().scheduleDeferred(() -> modelBrowser.onReset());
+
                 browserWindow.addCloseHandler(closeEvent -> placeManager.navigateBack());
             }
 
