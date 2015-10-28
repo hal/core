@@ -21,12 +21,15 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -77,6 +80,7 @@ public class FederationView extends SuspendableViewImpl implements FederationPre
         trustedDomainEditor = new IdentityProviderTrustedDomainEditor(presenter, securityContext, statementContext,
                 descriptionRegistry.lookup(IDENTITY_PROVIDER_TRUST_DOMAIN_TEMPLATE));
 
+
         PagedView pagedView = new PagedView(true);
         pagedView.addPage("Identity Provider", identityProviderEditor.asWidget());
         pagedView.addPage("SAML Configuration", samlConfigurationEditor.asWidget());
@@ -85,7 +89,13 @@ public class FederationView extends SuspendableViewImpl implements FederationPre
         pagedView.addPage("Trusted Domains", trustedDomainEditor.asWidget());
 
         pagedView.showPage(0);
-        return pagedView.asWidget();
+
+        DefaultTabLayoutPanel root = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        root.addStyleName("default-tabpanel");
+        root.add(pagedView.asWidget(), "Federation");
+        root.selectTab(0);
+
+        return root.asWidget();
     }
 
     @Override

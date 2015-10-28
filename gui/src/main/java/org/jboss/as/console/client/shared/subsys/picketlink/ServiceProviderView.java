@@ -21,12 +21,14 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -75,7 +77,13 @@ public class ServiceProviderView extends SuspendableViewImpl implements ServiceP
         pagedView.addPage("SAML Handlers", handlerEditor.asWidget());
 
         pagedView.showPage(0);
-        return pagedView.asWidget();
+
+        DefaultTabLayoutPanel root = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        root.addStyleName("default-tabpanel");
+        root.add(pagedView.asWidget(), "Service Provider");
+        root.selectTab(0);
+
+        return root.asWidget();
     }
 
     @Override
