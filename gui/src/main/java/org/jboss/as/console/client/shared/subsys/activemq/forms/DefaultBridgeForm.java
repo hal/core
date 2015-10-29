@@ -8,6 +8,9 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -52,19 +55,7 @@ public class DefaultBridgeForm {
     }
 
     public Widget asWidget() {
-        form.addFormValidator((formItems, outcome) -> {
-            if (!discoveryGroup.getValue().equals("") && connectors.getValue().size() > 0) {
-                discoveryGroup.setErroneous(true);
-                connectors.setErroneous(true);
-
-                String errMessage = "Discovery group or connectors can be defined, not both";
-                discoveryGroup.setErrMessage(errMessage);
-                connectors.setErrMessage(errMessage);
-
-                outcome.addError("discoveryGroup");
-                outcome.addError("connectors");
-            }
-        });
+        form.addFormValidator(new ExclusiveFieldsValidator());
 
         SuggestBoxItem queueName = new SuggestBoxItem("queueName", "Queue Name");
         SuggestBoxItem forward = new SuggestBoxItem("forwardingAddress", "Forward Address");
@@ -123,5 +114,39 @@ public class DefaultBridgeForm {
 
     public void setQueueNames(List<String> queueNames) {
         oracle.addAll(queueNames);
+    }
+
+
+    /**
+     * Validates that exactly one of `discoveryGroup` and `connectors` is set.
+     */
+    private class ExclusiveFieldsValidator implements FormValidator {
+
+        @Override
+        public void validate(List<FormItem> formItems, FormValidation outcome) {
+            if (!discoveryGroup.getValue().equals("") && connectors.getValue().size() > 0) {
+                setError(outcome, "Discovery group or connectors can be defined, not both");
+            } else if (discoveryGroup.getValue().equals("") && connectors.getValue().size() == 0) {
+                setError(outcome, "Discovery group or connectors must be defined");
+            }
+        }
+
+        private void setError(FormValidation outcome, String message) {
+            String dgOrigMessage = discoveryGroup.getErrMessage();
+            String connsOrigMessage = connectors.getErrMessage();
+
+            discoveryGroup.setErrMessage(message);
+            connectors.setErrMessage(message);
+
+            discoveryGroup.setErroneous(true);
+            connectors.setErroneous(true);
+
+            outcome.addError("discoveryGroup");
+            outcome.addError("connectors");
+
+            // set original error messages, else the inputs will show modified message for all validations from now on
+            discoveryGroup.setErrMessage(dgOrigMessage);
+            connectors.setErrMessage(connsOrigMessage);
+        }
     }
 }
