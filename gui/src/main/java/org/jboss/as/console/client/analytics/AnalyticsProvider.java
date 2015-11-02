@@ -28,17 +28,31 @@ public class AnalyticsProvider implements Provider<GoogleAnalytics> {
 
         GoogleAnalytics analytics;
 
-        boolean isWebMode = GWT.isScript();
-        boolean isEAP = ProductConfig.Profile.PRODUCT.equals(prodConfig.getProfile());
-        boolean enabledInPreferences = Preferences.has(Preferences.Key.ANALYTICS) && Preferences
+
+        if(!Preferences.has(Preferences.Key.ANALYTICS)) // inital setup
+        {
+            // in Community we enable analytics by default
+            boolean isCommunity = ProductConfig.Profile.COMMUNITY.equals(prodConfig.getProfile());
+
+            if (isCommunity)
+                Preferences.set(Preferences.Key.ANALYTICS, "true");
+            else
+                Preferences.set(Preferences.Key.ANALYTICS, "false");
+        }
+
+        // check settings if enabled
+        boolean isEnabledInPreferences = Preferences.has(Preferences.Key.ANALYTICS) && Preferences
                 .get(Preferences.Key.ANALYTICS).equals("true");
 
-        if (isWebMode && !enabledInPreferences) {
-            // Google Analytics is an opt-in for the product and an opt-out for the community version
-            analytics = isEAP ? NOOP : new CustomAnalyticsImpl();
+        // Google Analytics is an opt-in for the product and an opt-out for the community version
+        // in web mode it's always enabled (disabled during development)
+        boolean isWebMode = GWT.isScript();
+        if (isWebMode) {
+            analytics = isEnabledInPreferences ? new CustomAnalyticsImpl() : NOOP;
         } else {
             analytics = NOOP;
         }
+
         System.out.println("Google analytics: Using " + (analytics == NOOP ? "stub" : "real") + " implementation");
 
         return analytics;

@@ -64,6 +64,7 @@ public class SettingsPresenterWidget extends PresenterWidget<SettingsPresenterWi
 
     public void onSaveDialogue(CommonSettings settings) {
         Map<String, Object> properties = AutoBeanUtils.getAllProperties(AutoBeanUtils.getAutoBean(settings));
+        StringBuffer sb = new StringBuffer();
         for (String token : properties.keySet()) {
             Preferences.Key key = Preferences.Key.match(token);
             assert key != null : "invalid token " + token;
@@ -71,9 +72,12 @@ public class SettingsPresenterWidget extends PresenterWidget<SettingsPresenterWi
             if (null == value || value.equals("")) {
                 value = key.getDefaultValue();
             }
-            Preferences.set(key, String.valueOf(value));
+
+            String s = String.valueOf(value);
+            sb.append(key+": "+s).append("\n");
+            Preferences.set(key, s);
         }
-        Console.info(Console.MESSAGES.savedSettings());
+        Console.info(Console.MESSAGES.savedSettings(), sb.toString());
     }
 
     public void onCancelDialogue() {

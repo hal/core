@@ -72,7 +72,6 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     public final static UITokens TOKENS = GWT.create(UITokens.class);
     public final static CompositeGinjector MODULES = CompositeGinjector.INSTANCE;
 
-
     public void onModuleLoad() {
         LoadingPanel.get().on();
         Log.setUncaughtExceptionHandler();
@@ -127,12 +126,13 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
             // DMR notifications
             Notifications.addReloadHandler(Console.this);
 
-            StringBuilder title = new StringBuilder();
+           /* StringBuilder title = new StringBuilder();
             title.append(context.getProductName()).append(" Management");
             if (context.getServerName() != null) {
                 title.append(" | ").append(context.getServerName());
             }
-            Window.setTitle(title.toString());
+            Window.setTitle(title.toString());*/
+
             new LoadMainApp(context, MODULES.getPlaceManager(), MODULES.getTokenFormatter()).execute();
         }
     }
@@ -156,6 +156,10 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
     public static void info(String message) {
         getMessageCenter().notify(new Message(message, Message.Severity.Confirmation));
+    }
+
+    public static void info(String message, String detail) {
+        getMessageCenter().notify(new Message(message, detail, Message.Severity.Confirmation));
     }
 
     public static void error(String message) {
