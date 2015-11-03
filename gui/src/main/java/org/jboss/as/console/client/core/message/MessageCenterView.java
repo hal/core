@@ -375,8 +375,10 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
             }
         };
 
+        displayPopup.addStyleName("back");
         return displayPopup;
     }
+
     private void displayNotification(final PopupPanel display, final Message message) {
 
 
@@ -384,6 +386,15 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         String actualMessage = message.getConciseMessage().length()> MAX ?
                 message.getConciseMessage().substring(0, MAX)+" ..." :
                 message.getConciseMessage();
+
+        if(message.isSticky())
+        {
+            display.addStyleName("front");
+        }
+        else
+        {
+            display.removeStyleName("front");
+        }
 
         // display structure
 

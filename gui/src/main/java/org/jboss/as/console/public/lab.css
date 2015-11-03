@@ -994,4 +994,10 @@ h3,
     padding-left:15px;
 }
 
+.front {
+    z-index: 1000!important;
+}
 
+.back {
+    z-index: 500;
+}
