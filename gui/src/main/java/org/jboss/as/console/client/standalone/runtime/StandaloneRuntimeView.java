@@ -283,7 +283,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             public void createPreview(StandaloneServer server, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
                 html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
-                html.appendEscaped("The server ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
+                html.appendEscaped("Server name: ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
+                html.appendHtmlConstant("<p/>");
                 if (server.isRequiresReload()) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
                 }
