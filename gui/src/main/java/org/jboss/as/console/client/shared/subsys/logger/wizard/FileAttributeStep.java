@@ -1,12 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.logger.wizard;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.subsys.logger.ComplexAttributeForm;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
