@@ -1,7 +1,21 @@
 package org.jboss.as.console.client.shared.state;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.DialogueOptions;
+import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
+import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -47,7 +61,11 @@ public class ReloadState {
             }
 
             // state update, log warning
-            Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
+            //Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
+
+
+            Message msg = new Message("Server configuration changed", sb.toString(), Message.Severity.Warning);
+            showDetail(msg);
 
             if(Console.MODULES.getBootstrapContext().isStandalone())
             {
@@ -60,10 +78,93 @@ public class ReloadState {
         }
     }
 
-    /*public void resetServer(String name) {
-        serverStates.remove(name);
-        lastFiredSize--;
-    } */
+    private void showDetail(final Message msg) {
+
+        msg.setNew(false);
+
+        final DefaultWindow window = new DefaultWindow(Console.CONSTANTS.common_label_messageDetailTitle());
+
+        window.setWidth(480);
+        window.setHeight(360);
+        window.setGlassEnabled(true);
+
+        SafeHtmlBuilder html = new SafeHtmlBuilder();
+
+        String style = "list-"+msg.getSeverity().getStyle();
+
+        // TODO: XSS prevention?
+        html.appendHtmlConstant(msg.getSeverity().getTag());
+        html.appendHtmlConstant("&nbsp;");
+        html.appendHtmlConstant(msg.getFired().toString());
+        html.appendHtmlConstant("<h3 id='consise-message' class='"+style+"' style='padding:10px;box-shadow:none!important;border-width:5px'>");
+        html.appendHtmlConstant(msg.getConciseMessage());
+        html.appendHtmlConstant("</h3>");
+        html.appendHtmlConstant("<p/>");
+
+        String detail = msg.getDetailedMessage() != null ? msg.getDetailedMessage() : "";
+
+        html.appendHtmlConstant("<pre style='font-family:tahoma, verdana, sans-serif;' id='detail-message'>");
+        html.appendEscaped(detail);
+        html.appendHtmlConstant("</pre>");
+
+        final HTML widget = new HTML(html.toSafeHtml());
+        widget.getElement().setAttribute("style", "margin:5px");
+
+        DialogueOptions options = new DialogueOptions(
+                "Reload server(s) now!",
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent clickEvent) {
+                        if(Console.MODULES.getBootstrapContext().isStandalone())
+                        {
+                            window.hide();
+                            Scheduler.get().scheduleDeferred(() -> {
+                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.StandaloneRuntimePresenter));
+                            });
+
+                        }
+                        else
+                        {
+                            window.hide();
+                            Scheduler.get().scheduleDeferred(() -> {
+                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.DomainRuntimePresenter));
+                            });
+
+                        }
+                    }
+                },
+                "Dismiss",
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent clickEvent) {
+                        window.hide();
+                    }
+                }
+        );
+
+        options.getSubmit().setAttribute("aria-describedby", "consise-message detail-message");
+
+        Widget windowContent = new WindowContentBuilder(widget, options).build();
+
+        TrappedFocusPanel trap = new TrappedFocusPanel(windowContent)
+        {
+            @Override
+            protected void onAttach() {
+                super.onAttach();
+
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        getFocus().onFirstButton();
+                    }
+                });
+            }
+        };
+
+        window.setWidget(trap);
+
+        window.center();
+    }
 
     public void updateFrom(Map<String, ServerState> states) {
         this.serverStates = states;
