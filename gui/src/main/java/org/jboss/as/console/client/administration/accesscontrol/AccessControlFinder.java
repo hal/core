@@ -245,8 +245,8 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
     public void openWindow(final String title, final int width, final int height, final IsWidget content) {
         closeWindow();
         window = new DefaultWindow(title);
-        window.setWidth(width);
-        window.setHeight(height);
+        window.setWidth(480);
+        window.setHeight(360);
         window.trapWidget(content.asWidget());
         window.setGlassEnabled(true);
         window.center();

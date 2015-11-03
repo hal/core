@@ -18,8 +18,10 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
@@ -427,7 +429,9 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                         );
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*", "start-servers"),
+
                 new MenuDelegate<ServerGroupRecord>(
                         "Stop", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -435,7 +439,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                         Feedback.confirm(
                                 "Stop Server Group",
-                                "Do you want to stop group "+group.getName()+"?",
+                                "Do you want to stop group " + group.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -446,16 +450,20 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*", "stop-servers"),
+
                 new MenuDelegate<ServerGroupRecord>(
                         "Suspend", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
-                     presenter.onLaunchSuspendDialogue(group);
+                        presenter.onLaunchSuspendDialogue(group);
 
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*", "suspend-servers"),
+
                 new MenuDelegate<ServerGroupRecord>(
                         "Resume", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -463,7 +471,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                         Feedback.confirm(
                                 "Resume Server Group",
-                                "Do you want to resume group "+group.getName()+"?",
+                                "Do you want to resume group " + group.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -474,7 +482,9 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*","resume-servers"),
+
                 new MenuDelegate<ServerGroupRecord>(
                         "Restart", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -482,7 +492,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                         Feedback.confirm(
                                 "Restart Server Group",
-                                "Do you want to restart group "+group.getName()+"?",
+                                "Do you want to restart group " + group.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -493,7 +503,9 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                }, MenuDelegate.Role.Operation) ,
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*","restart-servers"),
+
                 new MenuDelegate<ServerGroupRecord>(
                         "Reload", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -501,7 +513,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                         Feedback.confirm(
                                 "Reload Server Group",
-                                "Do you want to reload group "+group.getName()+"?",
+                                "Do you want to reload group " + group.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -513,6 +525,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     }
                 }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/server-group=*","reload-servers")
         );
 
     }

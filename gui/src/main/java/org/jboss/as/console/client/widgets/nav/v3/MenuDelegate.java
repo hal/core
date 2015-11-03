@@ -10,7 +10,6 @@ public class MenuDelegate<T>{
 
     private String title;
     private ContextualCommand<T> command;
-    private String[] operationContext;
     private String resource;
     private String op;
     private Role actualRole = Role.Navigation;
@@ -42,11 +41,6 @@ public class MenuDelegate<T>{
         return command;
     }
 
-    public MenuDelegate<T> setOperationContext(String resource, String op) {
-        this.operationContext = new String[] {resource, op};
-        return this;
-    }
-
     public String getResource() {
         return resource;
     }
@@ -59,10 +53,6 @@ public class MenuDelegate<T>{
         this.resource = resource;
         this.op = op;
         return this;
-    }
-
-    public String[] getOperationAddress() {
-        return new String[] {resource, op};
     }
 
     public boolean hasOperationAddress() {

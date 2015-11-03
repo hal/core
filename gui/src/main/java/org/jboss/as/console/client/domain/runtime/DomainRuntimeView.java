@@ -384,7 +384,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public String render(Server server) {
                         return server.isStarted() ? "Stop" : "Start";
                     }
-                },
+                }.setOperationAddress("/{implicit.host}/server-config=*", "start"),
 
                 new MenuDelegate<Server>(
                         "Suspend or not", new ContextualCommand<Server>() {
@@ -409,7 +409,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public String render(Server server) {
                         return server.getSuspendState() == SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                },
+                }.setOperationAddress("/{implicit.host}/server-config=*","resume"),
 
                 new MenuDelegate<Server>(
                         "Reload", new ContextualCommand<Server>() {
@@ -430,7 +430,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     }
                 }, MenuDelegate.Role.Operation)
-                , new MenuDelegate<Server>(
+                        .setOperationAddress("/{implicit.host}/server-config=*","reload"),
+
+                new MenuDelegate<Server>(
                         "Restart", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
@@ -449,6 +451,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     }
                 }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/{implicit.host}/server-config=*","restart")
         );
 
         serverColumn.setFilter(new ColumnFilter.Predicate<Server>() {

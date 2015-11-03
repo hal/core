@@ -32,6 +32,7 @@ import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
@@ -76,6 +77,7 @@ public class StandaloneRuntimePresenter
     @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.StandaloneRuntimePresenter)
+    @RequiredResources(resources = {"/"}, recursive = false)
     public interface MyProxy extends Proxy<StandaloneRuntimePresenter>, Place {}
 
     public interface MyView extends View {
