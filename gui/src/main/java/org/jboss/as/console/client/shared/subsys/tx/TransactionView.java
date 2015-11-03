@@ -206,6 +206,18 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                 jdbcAssets.getForm().cancel();
             }
         });
+        jdbcAssets.getForm().addFormValidator((formItems, outcome) -> {
+            final FormItem<Boolean> useJdbc = formItem(formItems, "use-jdbc-store");
+            final FormItem<String> datasource = formItem(formItems, "jdbc-store-datasource");
+
+            if (useJdbc != null && useJdbc.getValue() == true) {
+                if (datasource == null || datasource.getValue() == null || datasource.getValue().isEmpty()) {
+                    datasource.setErrMessage("Please provide datasource JNDI name if using jdbc store.");
+                    datasource.setErroneous(true);
+                    outcome.addError("jdbc-store-datasource");
+                }
+            }
+        });
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
