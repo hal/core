@@ -24,6 +24,8 @@ public class Constraints {
 
     private boolean address = true;
 
+    private AddressTemplate parent;
+
     public Constraints(AddressTemplate resourceAddress) {
         this.resourceAddress = resourceAddress;
     }
@@ -99,12 +101,40 @@ public class Constraints {
 
     public boolean isOperationExec(AddressTemplate address, String name) {
 
-        return execPermission.containsKey(address) ? execPermission.get(address).contains(name) : false;
+
+        boolean matched = false;
+
+        if(parent!=null){
+            // NOTE: see also SecurityContextImpl#getOperationPriviledge() on how the resolution works
+            for (AddressTemplate candiate : execPermission.keySet()) {
+                if(candiate.getResourceType().equals(address.getResourceType()))
+                {
+                    matched =  execPermission.get(candiate).contains(name);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // constraints that describe multiple resources
+            // TODO: does this actually exists anymore?
+            matched = execPermission.containsKey(address) && execPermission.get(address).contains(name);
+
+        }
+
+        return matched;
     }
 
-    public boolean isOperationExec(String resourceAddress , String name) {
+    public boolean isChildContext() {
+        return parent!=null;
+    }
 
-        return isOperationExec(AddressTemplate.of(resourceAddress), name);
+    void setParent(AddressTemplate parent) {
+        this.parent = parent;
+    }
+
+    public AddressTemplate getParent() {
+        return parent;
     }
 
     class AttributePerm

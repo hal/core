@@ -209,7 +209,7 @@ public class SecurityContextImpl implements SecurityContext {
 
         Constraints constraints = getActiveConstraints(resourceAddress);
 
-        // at least here must have found something!
+        // at least here we must have found something!
         if (null == constraints) {
             throw new RuntimeException(
                     "Missing constraints for " + resourceAddress + ". Make sure the resource address matches the @AccessControl annotation");
@@ -237,6 +237,9 @@ public class SecurityContextImpl implements SecurityContext {
 
         if(!accessConstraints.containsKey(resourceAddress))
             throw new IllegalStateException("Missing parent context for address "+ resourceAddress);
+
+        // link parent
+        constraints.setParent(resourceAddress);
 
         Map<String, Constraints> scope = accessConstraints.get(resourceAddress);
 
@@ -269,10 +272,17 @@ public class SecurityContextImpl implements SecurityContext {
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
         AddressTemplate addr = AddressTemplate.of(resourceAddress);
         Constraints constraints = getConstraints(addr, true);
-        boolean execPerm = constraints.isOperationExec(resourceAddress, operationName);
-        AuthorisationDecision descision = new AuthorisationDecision(true);
-        descision.setGranted(execPerm);
-        return descision;
+
+        // the constraints resolved at this point can be child constraints,
+        // i.e. a specific server or server-group
+        // the provided operation address however points to a parent resource (unspecific)
+        // but since we can assume that the resolved constraints are correct, we simply match the operation perms
+        // by the resource type, opposed to the full resource address.
+
+        boolean execPerm = constraints.isOperationExec(addr, operationName);
+        AuthorisationDecision decision = new AuthorisationDecision(true);
+        decision.setGranted(execPerm);
+        return decision;
     }
 
 }

@@ -259,7 +259,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                         });
 
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/", "reload"),
 
                 new MenuDelegate<StandaloneServer>("Suspend", new ContextualCommand<StandaloneServer>() {
                     @Override
@@ -275,7 +276,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public String render(StandaloneServer data) {
                         return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                }
+                }.setOperationAddress("/", "suspend")
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<StandaloneServer>() {
