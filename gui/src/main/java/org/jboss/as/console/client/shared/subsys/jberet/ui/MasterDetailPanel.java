@@ -30,6 +30,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -66,10 +67,11 @@ public abstract class MasterDetailPanel implements IsWidget {
     private ListDataProvider<Property> dataProvider;
     private SingleSelectionModel<Property> selectionModel;
     private ModelNodeFormBuilder.FormAssets formAssets;
+    private ModelNodeFormBuilder.FormAssets timeFormAssets;
 
     public MasterDetailPanel(final String title, final Dispatcher circuit,
-            final ResourceDescription resourceDescription, final SecurityContext securityContext,
-            final String... excludes) {
+                             final ResourceDescription resourceDescription, final SecurityContext securityContext,
+                             final String... excludes) {
         this.title = title;
         this.circuit = circuit;
         this.resourceDescription = resourceDescription;
@@ -145,8 +147,12 @@ public abstract class MasterDetailPanel implements IsWidget {
                 Property property = selectionModel.getSelectedObject();
                 if (property != null) {
                     formAssets.getForm().edit(property.getValue());
+                    if(timeFormAssets!=null)
+                        timeFormAssets.getForm().edit(property.getValue().get("keepalive-time"));
                 } else {
                     formAssets.getForm().clearValues();
+                    if(timeFormAssets!=null)
+                        timeFormAssets.getForm().clearValues();
                 }
             });
         }
@@ -157,9 +163,44 @@ public abstract class MasterDetailPanel implements IsWidget {
                 .setDescription(resourceDescription.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(null, tableAndPager);
+
+
         if (hasAttributes()) {
             layoutBuilder.addDetail("Attributes", formAssets.asWidget());
         }
+
+        if(resourceDescription.get("attributes").hasDefined("keepalive-time"))
+        {
+            // complex attribute 'file'
+            ComplexAttributeForm timeForm = new ComplexAttributeForm("keepalive-time", securityContext, resourceDescription);
+            timeFormAssets = timeForm.build();
+
+            // order matters
+            timeFormAssets.getForm().setToolsCallback(new FormCallback() {
+                @Override
+                public void onSave(Map changeset) {
+
+                    // ignore the changeset: complex attributes are written atomically, including all attributes
+
+                    dispatchWriteAttribute(
+                            circuit,
+                            selectionModel.getSelectedObject().getName(),
+                            "keepalive-time",
+                            timeFormAssets.getForm().getUpdatedEntity()
+                    );
+
+                }
+
+                @Override
+                public void onCancel(Object o) {
+                    timeFormAssets.getForm().cancel();
+                }
+            });
+
+            layoutBuilder.addDetail("Keepalive", timeFormAssets.asWidget());
+        }
+
+
         return layoutBuilder.build();
     }
 
@@ -202,4 +243,6 @@ public abstract class MasterDetailPanel implements IsWidget {
     protected abstract void dispatchModify(final Dispatcher circuit, final String name, final Map<String, Object> changedValues);
 
     protected abstract void dispatchRemove(final Dispatcher circuit, final String name);
+
+    protected void dispatchWriteAttribute(final Dispatcher circuit, String parentName, final String attributeName, ModelNode payload) {};
 }

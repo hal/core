@@ -32,6 +32,7 @@ import org.jboss.as.console.client.shared.subsys.jberet.store.AddThreadFactory;
 import org.jboss.as.console.client.shared.subsys.jberet.store.AddThreadPool;
 import org.jboss.as.console.client.shared.subsys.jberet.store.JberetStore;
 import org.jboss.as.console.client.shared.subsys.jberet.store.ModifyJdbcRepository;
+import org.jboss.as.console.client.shared.subsys.jberet.store.ModifyComplexAttribute;
 import org.jboss.as.console.client.shared.subsys.jberet.store.ModifyThreadFactory;
 import org.jboss.as.console.client.shared.subsys.jberet.store.ModifyThreadPool;
 import org.jboss.as.console.client.shared.subsys.jberet.store.RemoveInMemoryRepository;
@@ -154,6 +155,11 @@ public class JberetView extends SuspendableViewImpl implements JberetPresenter.M
             @Override
             protected void dispatchRemove(final Dispatcher circuit, final String name) {
                 circuit.dispatch(new RemoveThreadPool(name));
+            }
+
+            @Override
+            protected void dispatchWriteAttribute(Dispatcher circuit, String parentName, String attributeName, ModelNode payload) {
+                circuit.dispatch(new ModifyComplexAttribute(parentName, attributeName, payload));
             }
         };
 

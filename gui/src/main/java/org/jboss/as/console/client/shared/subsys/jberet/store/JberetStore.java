@@ -23,6 +23,7 @@ package org.jboss.as.console.client.shared.subsys.jberet.store;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Composite;
@@ -52,17 +53,22 @@ public class JberetStore extends ChangeSupport {
 
     class ChannelCallback implements CrudOperationDelegate.Callback {
 
+        private final StatementContext context;
         private final Channel channel;
 
-        ChannelCallback(final Channel channel) {this.channel = channel;}
+        ChannelCallback(StatementContext context, final Channel channel) {
+            this.context = context;
+            this.channel = channel;}
 
         @Override
-        public void onSuccess(final AddressTemplate addressTemplate, final String name) {
+        public void onSuccess(final AddressTemplate address, final String name) {
+            Console.info("Successfully modified resource " + address.resolve(statementContext, name));
             init(channel);
         }
 
         @Override
-        public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
+        public void onFailure(final AddressTemplate address, final String name, final Throwable t) {
+            Console.info("Failed to modify resource " + address.resolve(statementContext, name));
             channel.nack(t);
         }
     }
@@ -174,7 +180,7 @@ public class JberetStore extends ChangeSupport {
 
     @Process(actionType = ModifyDefaults.class)
     public void modifyDefaults(final ModifyDefaults action, final Channel channel) {
-        operationDelegate.onSaveResource(ROOT_ADDRESS, null, action.getChangedValues(), new ChannelCallback(channel));
+        operationDelegate.onSaveResource(ROOT_ADDRESS, null, action.getChangedValues(), new ChannelCallback(statementContext, channel));
     }
 
 
@@ -183,13 +189,13 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddInMemoryRepository.class)
     public void addInMemoryRepository(final AddInMemoryRepository action, final Channel channel) {
         operationDelegate.onCreateResource(IN_MEMORY_REPOSITORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(channel));
+                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = RemoveInMemoryRepository.class)
     public void removeInMemoryRepository(final RemoveInMemoryRepository action, final Channel channel) {
         operationDelegate.onRemoveResource(IN_MEMORY_REPOSITORY_ADDRESS, action.getName(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
 
@@ -198,19 +204,19 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddJdbcRepository.class)
     public void addJdbcRepository(final AddJdbcRepository action, final Channel channel) {
         operationDelegate.onCreateResource(JDBC_REPOSITORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(channel));
+                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyJdbcRepository.class)
     public void modifyJdbcRepository(final ModifyJdbcRepository action, final Channel channel) {
         operationDelegate.onSaveResource(JDBC_REPOSITORY_ADDRESS, action.getName(), action.getChangedValues(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = RemoveJdbcRepository.class)
     public void removeJdbcRepository(final RemoveJdbcRepository action, final Channel channel) {
         operationDelegate.onRemoveResource(JDBC_REPOSITORY_ADDRESS, action.getName(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
 
@@ -219,19 +225,19 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddThreadFactory.class)
     public void addThreadFactory(final AddThreadFactory action, final Channel channel) {
         operationDelegate.onCreateResource(THREAD_FACTORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(channel));
+                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyThreadFactory.class)
     public void modifyThreadFactory(final ModifyThreadFactory action, final Channel channel) {
         operationDelegate.onSaveResource(THREAD_FACTORY_ADDRESS, action.getName(), action.getChangedValues(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = RemoveThreadFactory.class)
     public void removeThreadFactory(final RemoveThreadFactory action, final Channel channel) {
         operationDelegate.onRemoveResource(THREAD_FACTORY_ADDRESS, action.getName(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
 
@@ -240,19 +246,19 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddThreadPool.class)
     public void addThreadPool(final AddThreadPool action, final Channel channel) {
         operationDelegate.onCreateResource(THREAD_POOL_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(channel));
+                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyThreadPool.class)
     public void modifyThreadPool(final ModifyThreadPool action, final Channel channel) {
         operationDelegate.onSaveResource(THREAD_POOL_ADDRESS, action.getName(), action.getChangedValues(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = RemoveThreadPool.class)
     public void removeThreadPool(final RemoveThreadPool action, final Channel channel) {
         operationDelegate.onRemoveResource(THREAD_POOL_ADDRESS, action.getName(),
-                new ChannelCallback(channel));
+                new ChannelCallback(statementContext, channel));
 
     }
 
@@ -307,6 +313,26 @@ public class JberetStore extends ChangeSupport {
                     currentThreadPoolMetric = result.get(RESULT);
                     channel.ack();
                 }
+            }
+        });
+    }
+
+    @Process(actionType = ModifyComplexAttribute.class)
+    public void onModifyComplexAttribute(ModifyComplexAttribute action, Channel channel) {
+        ResourceAddress address = THREAD_POOL_ADDRESS.resolve(statementContext, action.getParentName());
+        Operation operation = new Operation.Builder(WRITE_ATTRIBUTE_OPERATION, address)
+                .param(NAME, action.getName())
+                .param(VALUE, action.getPayload())
+                .build();
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                new ChannelCallback(statementContext, channel).onFailure(THREAD_POOL_ADDRESS, action.getParentName(), caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                new ChannelCallback(statementContext, channel).onSuccess(THREAD_POOL_ADDRESS, action.getParentName());
             }
         });
     }

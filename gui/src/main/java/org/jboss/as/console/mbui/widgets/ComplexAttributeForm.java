@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.shared.subsys.logger;
+package org.jboss.as.console.mbui.widgets;
 
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
