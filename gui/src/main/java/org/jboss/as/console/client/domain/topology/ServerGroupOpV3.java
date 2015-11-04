@@ -47,9 +47,9 @@ public class ServerGroupOpV3 extends TopologyOp {
         for (Server serverRef : server) {
             ModelNode serverStateOp = new ModelNode();
             serverStateOp.get(OP).set(READ_ATTRIBUTE_OPERATION);
-            serverStateOp.get(NAME).set("status");
             serverStateOp.get(ADDRESS).add("host", serverRef.getHostName());
             serverStateOp.get(ADDRESS).add("server-config", serverRef.getName());
+            serverStateOp.get(NAME).set("status");
             steps.add(serverStateOp);
         }
 
@@ -115,8 +115,10 @@ public class ServerGroupOpV3 extends TopologyOp {
                                     case RESUME:
                                         lifecycleReached = true;
                                         break;
-                                    case KILL:
                                     case RELOAD:
+                                        lifecycleReached = "started".equalsIgnoreCase(status);
+                                        break;
+                                    case KILL:
                                         // not supported for server groups
                                         break;
                                 }
