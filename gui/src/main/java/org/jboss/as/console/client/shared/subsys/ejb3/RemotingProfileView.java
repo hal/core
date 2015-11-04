@@ -6,6 +6,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
@@ -41,8 +42,9 @@ public class RemotingProfileView {
 
     public RemotingProfileView(EJB3Presenter presenter) {
         this.presenter = presenter;
-        this.table = new DefaultCellTable(5);
-        this.dataProvider = new ListDataProvider<Property>();
+        ProvidesKey<Property> providesKey = Property::getName;
+        this.table = new DefaultCellTable<>(5, providesKey);
+        this.dataProvider = new ListDataProvider<>(providesKey);
         this.dataProvider.addDataDisplay(table);
     }
 
@@ -142,8 +144,8 @@ public class RemotingProfileView {
     }
 
     public void setData(List<Property> data) {
-        selectionModel.clear();
         dataProvider.setList(data);
         table.selectDefaultEntity();
+        SelectionChangeEvent.fire(selectionModel); // updates ModelNodeForm's editedEntity with current value
     }
 }

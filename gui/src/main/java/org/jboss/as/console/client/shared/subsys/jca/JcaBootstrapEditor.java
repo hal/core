@@ -7,6 +7,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -47,8 +48,9 @@ public class JcaBootstrapEditor {
         final Form<JcaBootstrapContext> form = new Form<JcaBootstrapContext>(JcaBootstrapContext.class);
         form.setEnabled(false);
 
-        table = new DefaultCellTable<JcaBootstrapContext>(10);
-        dataProvider = new ListDataProvider<JcaBootstrapContext>();
+        ProvidesKey<JcaBootstrapContext> providesKey = JcaBootstrapContext::getName;
+        table = new DefaultCellTable<>(10, providesKey);
+        dataProvider = new ListDataProvider<>(providesKey);
         dataProvider.addDataDisplay(table);
 
         TextColumn<JcaBootstrapContext> name = new TextColumn<JcaBootstrapContext>() {
