@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
@@ -233,9 +234,9 @@ public abstract class MasterDetailPanel implements IsWidget {
     }
 
     protected void update(final List<Property> models) {
-        selectionModel.clear();
         dataProvider.setList(models);
         table.selectDefaultEntity();
+        SelectionChangeEvent.fire(selectionModel); // updates ModelNodeForm's editedEntity with current value
     }
 
     protected abstract void dispatchAdd(final Dispatcher circuit, final Property property);

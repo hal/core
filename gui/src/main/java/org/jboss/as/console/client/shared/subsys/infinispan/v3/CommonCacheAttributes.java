@@ -251,14 +251,9 @@ public class CommonCacheAttributes {
     }
 
     public void updateFrom(List<Property> properties) {
-
-        resetForms();
-        selectionModel.clear();
-
         dataProvider.setList(properties);
-
         table.selectDefaultEntity();
-
+        updateForms(selectionModel.getSelectedObject());
     }
 
     class AddressableFormCallback implements FormCallback<ModelNode> {
