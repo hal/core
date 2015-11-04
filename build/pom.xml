@@ -342,6 +342,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
+                            <extraJvmArgs>-Xmx3072m</extraJvmArgs>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
@@ -382,6 +383,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
+                            <extraJvmArgs>-Xmx3072m</extraJvmArgs>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
@@ -406,6 +408,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
+                            <extraJvmArgs>-Xmx3072m</extraJvmArgs>
                             <style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler>
                             <module>${gwt.module}</module>
@@ -464,7 +467,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xmx1024m -XX:MaxPermSize=256M</extraJvmArgs>
+                            <extraJvmArgs>-Xmx3072m -XX:MaxPermSize=512M</extraJvmArgs>
                             <localWorkers>6</localWorkers>
                         </configuration>
                         <executions>
