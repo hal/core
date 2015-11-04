@@ -20,7 +20,7 @@ public class Constraints {
     private boolean readResource, writeResource;
 
     Map<String, AttributePerm> attributePermissions = new HashMap<String,AttributePerm>();
-    Map<AddressTemplate, Set<String>> execPermission = new HashMap<AddressTemplate, Set<String>>();
+    Set<String> execPermission = new HashSet<>();
 
     private boolean address = true;
 
@@ -87,42 +87,17 @@ public class Constraints {
                 attributePermissions.get(name).isWrite() : true;
     }
 
-    public void setOperationExec(AddressTemplate resourceAddress, String operationName, boolean exec) {
+    public void setOperationExec(String operationName, boolean exec) {
 
         if(exec)
         {
-            if(!execPermission.containsKey(resourceAddress))
-                execPermission.put(resourceAddress, new HashSet<String>());
-
-            execPermission.get(resourceAddress).add(operationName);
+            execPermission.add(operationName);
         }
 
     }
 
-    public boolean isOperationExec(AddressTemplate address, String name) {
-
-
-        boolean matched = false;
-
-        if(parent!=null){
-            // NOTE: see also SecurityContextImpl#getOperationPriviledge() on how the resolution works
-            for (AddressTemplate candiate : execPermission.keySet()) {
-                if(candiate.getResourceType().equals(address.getResourceType()))
-                {
-                    matched =  execPermission.get(candiate).contains(name);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            // constraints that describe multiple resources
-            // TODO: does this actually exists anymore?
-            matched = execPermission.containsKey(address) && execPermission.get(address).contains(name);
-
-        }
-
-        return matched;
+    public boolean isOperationExec(String operationName) {
+        return execPermission.contains(operationName);
     }
 
     public boolean isChildContext() {

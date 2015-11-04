@@ -217,7 +217,7 @@ public class SecurityContextImpl implements SecurityContext {
         return constraints;
     }
 
-    public void addConstraints(AddressTemplate resourceAddress, Constraints model) {
+    public void addConstraints(AddressTemplate resourceAddress, Constraints constraints) {
 
         if(!accessConstraints.containsKey(resourceAddress))
             accessConstraints.put(resourceAddress, new HashMap<>());
@@ -230,7 +230,7 @@ public class SecurityContextImpl implements SecurityContext {
         if(scope.containsKey(resolvedKey))
             throw new IllegalStateException("Constraints already registered: "+resolvedKey);
 
-        scope.put(resolvedKey, model);
+        scope.put(resolvedKey, constraints);
     }
 
     public void addChildContext(AddressTemplate resourceAddress, String resolvedKey, Constraints constraints) {
@@ -272,14 +272,7 @@ public class SecurityContextImpl implements SecurityContext {
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
         AddressTemplate addr = AddressTemplate.of(resourceAddress);
         Constraints constraints = getConstraints(addr, true);
-
-        // the constraints resolved at this point can be child constraints,
-        // i.e. a specific server or server-group
-        // the provided operation address however points to a parent resource (unspecific)
-        // but since we can assume that the resolved constraints are correct, we simply match the operation perms
-        // by the resource type, opposed to the full resource address.
-
-        boolean execPerm = constraints.isOperationExec(addr, operationName);
+        boolean execPerm = constraints.isOperationExec(operationName);
         AuthorisationDecision decision = new AuthorisationDecision(true);
         decision.setGranted(execPerm);
         return decision;

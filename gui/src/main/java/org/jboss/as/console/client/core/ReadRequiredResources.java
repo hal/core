@@ -283,7 +283,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
         }
 
         private Constraints parseConstraints(final AddressTemplate ref, ModelNode policyModel) {
-            Constraints constraints = new Constraints(ref);
+            final Constraints constraints = new Constraints(ref);
 
             // resource constraints
             if (policyModel.hasDefined(ADDRESS) && !policyModel.get(ADDRESS).asBoolean()) {
@@ -298,7 +298,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                 List<Property> operations = policyModel.get(OPERATIONS).asPropertyList();
                 for (Property op : operations) {
                     ModelNode opConstraintModel = op.getValue();
-                    constraints.setOperationExec(ref, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
+                    constraints.setOperationExec(op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
                 }
             }
 

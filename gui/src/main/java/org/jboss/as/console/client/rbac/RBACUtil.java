@@ -73,7 +73,7 @@ public class RBACUtil {
         for(AddressTemplate resource : securityContext.requiredResources)
         {
             html.appendHtmlConstant("<h3>").appendEscaped(resource.toString()).appendHtmlConstant("</h3>");
-
+            html.appendHtmlConstant("<hr noshade/>");
             Constraints constraints = securityContext.getActiveConstraints(resource); // default constraints
             html.appendHtmlConstant("<ul>");
             html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadResource()).appendHtmlConstant("</li>");
@@ -129,20 +129,20 @@ public class RBACUtil {
             html.appendHtmlConstant("</th>");
             html.appendHtmlConstant("</tr>");
 
-           /*TODO if(!constraints.execPermission.isEmpty())
+           if(!constraints.execPermission.isEmpty())
             {
-                for(String op : constraints.execPermission.get(resource))
+                for(String op : constraints.execPermission)
                 {
                     html.appendHtmlConstant("<tr>");
                     html.appendHtmlConstant("<td>");
                     html.appendEscaped(op);
                     html.appendHtmlConstant("</td>");
                     html.appendHtmlConstant("<td>");
-                    html.appendEscaped(String.valueOf(constraints.isOperationExec(resource, op)));
+                    html.appendEscaped("true");
                     html.appendHtmlConstant("</td>");
                     html.appendHtmlConstant("</tr>");
                 }
-            }*/
+            }
 
             html.appendHtmlConstant("</table>");
         }
