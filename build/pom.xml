@@ -245,12 +245,12 @@
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
                     <jsInteropMode>JS</jsInteropMode>
-                    <extraJvmArgs>-Xmx1024m -DDEBUG</extraJvmArgs>
+                    <extraJvmArgs>-Xms768m -Xmx1024m -Xss1024k -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
                     <bindAddress>${gwt.bindAddress}</bindAddress>
                     <hostedWebapp>war</hostedWebapp>
                     <sourceLevel>1.8</sourceLevel>
-                    <localWorkers>4</localWorkers>
+                    <localWorkers>2</localWorkers>
                     <compileReport>false</compileReport>
                     <module>${gwt.module}</module>
                     <disableCastChecking>true</disableCastChecking>
@@ -383,7 +383,8 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xmx3072m</extraJvmArgs>
+                            <extraJvmArgs>-Xms1024m -Xmx1536m -Xss1024k</extraJvmArgs>
+                            <localWorkers>2</localWorkers>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
@@ -408,7 +409,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xmx3072m</extraJvmArgs>
+                            <extraJvmArgs>-Xms768m -Xmx768m</extraJvmArgs>
                             <style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler>
                             <module>${gwt.module}</module>
@@ -467,7 +468,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xmx3072m -XX:MaxPermSize=512M</extraJvmArgs>
+                            <extraJvmArgs>-Xms768m -Xmx768m -XX:MaxPermSize=256M</extraJvmArgs>
                             <localWorkers>6</localWorkers>
                         </configuration>
                         <executions>
