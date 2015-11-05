@@ -245,7 +245,7 @@
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
                     <jsInteropMode>JS</jsInteropMode>
-                    <extraJvmArgs>-Xms768m -Xmx1024m -Xss1024k -DDEBUG</extraJvmArgs>
+                    <extraJvmArgs>-Xms768m -Xmx1024m -Xss1024k -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
                     <bindAddress>${gwt.bindAddress}</bindAddress>
                     <hostedWebapp>war</hostedWebapp>
@@ -383,8 +383,8 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xms1024m -Xmx1536m -Xss1024k</extraJvmArgs>
-                            <localWorkers>2</localWorkers>
+                            <extraJvmArgs>-Xms1024m -Xmx1536m -Xss1024k -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory</extraJvmArgs>
+                            <localWorkers>1</localWorkers>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>false</disableClassMetadata>
                             <module>${gwt.module}</module>
