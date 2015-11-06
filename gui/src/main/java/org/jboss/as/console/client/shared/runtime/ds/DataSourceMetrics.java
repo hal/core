@@ -167,6 +167,11 @@ public class DataSourceMetrics {
 
         verifyBtn.setVisible(true);
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
+        if (isXA) {
+            verifyBtn.setOperationAddress("/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*", "test-connection-in-pool");
+        } else {
+            verifyBtn.setOperationAddress("/{selected.host}/{selected.server}/subsystem=datasources/data-source=*", "test-connection-in-pool");
+        }
         tools.addToolButtonRight(verifyBtn);
         tools.addToolWidgetRight(flushDropdown);
         tools.setVisible(true);
