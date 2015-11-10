@@ -256,6 +256,18 @@ public interface DistributedCache extends ReplicatedCache {
     @Override
     public void setHasEviction(boolean hasEviction);
 
+    @Override
+    @Binding(detypedName="eviction/EVICTION/max-entries")
+    @FormItem(defaultValue="10000",
+            label="Max Entries",
+            required=true,
+            formItemTypeForEdit="NUMBER_BOX_ALLOW_NEGATIVE",
+            formItemTypeForAdd="NUMBER_BOX_ALLOW_NEGATIVE",
+            localTabName ="subsys_infinispan_eviction")
+    public Integer getMaxEntries();
+    @Override
+    public void setMaxEntries(Integer maxEntries);
+
     // eviction attributes
     @Override
     @Binding(detypedName="eviction/EVICTION/strategy")
@@ -269,18 +281,6 @@ public interface DistributedCache extends ReplicatedCache {
     public String getEvictionStrategy();
     @Override
     public void setEvictionStrategy(String evictionStrategy);
-
-    @Override
-    @Binding(detypedName="eviction/EVICTION/max-entries")
-    @FormItem(defaultValue="10000",
-            label="Max Entries",
-            required=true,
-            formItemTypeForEdit="NUMBER_BOX",
-            formItemTypeForAdd="NUMBER_BOX",
-            localTabName ="subsys_infinispan_eviction")
-    public Integer getMaxEntries();
-    @Override
-    public void setMaxEntries(Integer maxEntries);
 
     // Not part of detyped model.  This is a flag to tell us if expiration
     // singleton needs to be added to or removed from the model.
