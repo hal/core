@@ -313,7 +313,11 @@ public class ModelNodeFormBuilder {
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case LONG:
-                            formItem = new NumberBoxItem(attr.getName(), label);
+                            boolean allowNegativeValues = false;
+                            if (attrDesc.hasDefined("default"))
+                                allowNegativeValues = attrDesc.get("default").asLong() < 0;
+
+                            formItem = new NumberBoxItem(attr.getName(), label, allowNegativeValues);
                             formItem.setRequired(isRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
