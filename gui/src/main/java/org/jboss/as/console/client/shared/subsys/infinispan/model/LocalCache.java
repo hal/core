@@ -218,6 +218,16 @@ public interface LocalCache extends NamedEntity {
     public boolean isHasEviction();
     public void setHasEviction(boolean hasEviction);
 
+    @Binding(detypedName="eviction/EVICTION/max-entries")
+    @FormItem(defaultValue="10000",
+            label="Max Entries",
+            required=true,
+            formItemTypeForEdit="NUMBER_BOX_ALLOW_NEGATIVE",
+            formItemTypeForAdd="NUMBER_BOX_ALLOW_NEGATIVE",
+            localTabName ="subsys_infinispan_eviction")
+    public Integer getMaxEntries();
+    public void setMaxEntries(Integer maxEntries);
+
     // eviction attributes
     @Binding(detypedName="eviction/EVICTION/strategy")
     @FormItem(defaultValue="NONE",
@@ -229,16 +239,6 @@ public interface LocalCache extends NamedEntity {
             localTabName ="subsys_infinispan_eviction")
     public String getEvictionStrategy();
     public void setEvictionStrategy(String evictionStrategy);
-
-    @Binding(detypedName="eviction/EVICTION/max-entries")
-    @FormItem(defaultValue="10000",
-            label="Max Entries",
-            required=true,
-            formItemTypeForEdit="NUMBER_BOX",
-            formItemTypeForAdd="NUMBER_BOX",
-            localTabName ="subsys_infinispan_eviction")
-    public Integer getMaxEntries();
-    public void setMaxEntries(Integer maxEntries);
 
 
     // Not part of detyped model.  This is a flag to tell us if expiration
