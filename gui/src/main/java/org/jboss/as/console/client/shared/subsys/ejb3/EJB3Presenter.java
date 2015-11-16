@@ -60,7 +60,7 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
 
         @Override
         public void onFailure(AddressTemplate address, String name, Throwable t) {
-            Console.info("Failed to save resource "+address.resolve(statementContext, name)+": "+t.getMessage());
+            Console.error("Failed to save resource "+address.resolve(statementContext, name)+": "+t.getMessage());
         }
     };
 

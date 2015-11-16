@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
@@ -167,6 +168,7 @@ public class DeploymentScannerView extends SuspendableViewImpl implements Deploy
             selectionModel.clear();
         } else {
             table.selectDefaultEntity();
+            SelectionChangeEvent.fire(selectionModel); // updates ModelNodeForm's editedEntity with current value
         }
     }
 }

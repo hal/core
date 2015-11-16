@@ -175,5 +175,6 @@ public abstract class IOPanel extends SuspendableViewImpl {
         } else {
             table.selectDefaultEntity();
         }
+        SelectionChangeEvent.fire(selectionModel); // updates ModelNodeForm's editedEntity with current value
     }
 }

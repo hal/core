@@ -127,7 +127,7 @@ public class PassivationView {
                 .addDetail("Attributes", formPanel);
 
 
-        selectionModel = new SingleSelectionModel<Property>();
+        selectionModel = new SingleSelectionModel<>(keyprovider);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -152,8 +152,8 @@ public class PassivationView {
     }
 
     public void setData(List<Property> data) {
-        selectionModel.clear();
         dataProvider.setList(data);
         table.selectDefaultEntity();
+        SelectionChangeEvent.fire(selectionModel); // updates ModelNodeForm's editedEntity with current value
     }
 }
