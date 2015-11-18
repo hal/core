@@ -654,6 +654,14 @@
     padding:0 0!important;
 }
 
+.preview-content-scrollable-wrapper {
+    height:100%;
+    overflow:auto;
+}
+
+.preview-content-scrollable-wrapper .preview-content {
+    height:auto;
+}
 
 .preview-content h1 {
     font-size: 22px;

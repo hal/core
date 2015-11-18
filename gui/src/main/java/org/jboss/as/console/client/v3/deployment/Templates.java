@@ -57,8 +57,8 @@ final class Templates {
 
     interface Previews extends SafeHtmlTemplates {
 
-        @Template("<div class='preview-content'><h2>Content</h2>" +
-                "<p>The content '{0}' is assigned to the following server groups:</p>{1}</div>")
+        @Template("<div class='preview-content-scrollable-wrapper'><div class='preview-content'><h2>Content</h2>" +
+                "<p>The content '{0}' is assigned to the following server groups:</p>{1}</div></div>")
         SafeHtml content(String name, SafeHtml details);
 
         @Template("<div class='preview-content'><h2>Content</h2>" +
