@@ -124,6 +124,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
 
                 final WebServiceEndpoint selection = selectionModel.getSelectedObject();
                 if(selection!=null) {
+                    sampler.clearSamples();
                     sampler.addSample(
                             new Metric(
                                     selection.getRequestCount(),
