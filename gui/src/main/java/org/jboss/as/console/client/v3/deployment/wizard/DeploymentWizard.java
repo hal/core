@@ -21,10 +21,13 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.widgets.wizard.Wizard;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.flow.client.Outcome;
 
 /**
  * @author Harald Pehl
@@ -36,6 +39,31 @@ public abstract class DeploymentWizard extends Wizard<Context, State> {
 
         void onFinish(Context context);
     }
+
+    public class DeploymentWizardOutcome implements Outcome<FunctionContext> {
+
+        private final PopupPanel loading;
+        private final Context wizardContext;
+
+        public DeploymentWizardOutcome(final PopupPanel loading, final Context wizardContext) {
+            this.loading = loading;
+            this.wizardContext = wizardContext;
+        }
+
+        @Override
+        public void onFailure(final FunctionContext functionContext) {
+            loading.hide();
+            showError(functionContext.getErrorMessage());
+        }
+
+        @Override
+        public void onSuccess(final FunctionContext functionContext) {
+            loading.hide();
+            close();
+            onFinish.onFinish(wizardContext);
+        }
+    }
+
 
     protected final BootstrapContext bootstrapContext;
     protected final BeanFactory beanFactory;

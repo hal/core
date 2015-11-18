@@ -156,7 +156,6 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         assignmentColumn.setMenuItems(
                 new MenuDelegate<>("View", item -> presenter.showDetails(item), Navigation),
                 enableDisableDelegate,
-                new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
                 new MenuDelegate<>("Unassign", item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
                                 "Unassign " + item.getName(),
@@ -270,6 +269,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         .setOperationAddress("/deployment=*", "add"),
                 new MenuDelegate<Content>("Unassign", item -> presenter.launchUnassignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "remove"),
+                new MenuDelegate<>("Replace", item -> presenter.launchReplaceContentWizard(), Operation),
                 new MenuDelegate<Content>("Remove", item -> {
                     if (!item.getAssignments().isEmpty()) {
                         String serverGroups = "\t- " + Joiner.on("\n\t- ").join(

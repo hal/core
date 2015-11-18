@@ -86,13 +86,14 @@ public final class DeploymentFunctions {
             Operation.Builder builder;
             if (replace) {
                 builder = new Operation.Builder("full-replace-deployment", ResourceAddress.ROOT)
-                        .param(NAME, upload.getName());
+                        .param(NAME, upload.getName())
+                        .param("runtime-name", upload.getRuntimeName());
+                // leave "enabled" as undefined to indicate that the state of the existing deployment should be retained
             } else {
-                builder = new Operation.Builder(ADD, new ResourceAddress().add("deployment", upload.getName()));
+                builder = new Operation.Builder(ADD, new ResourceAddress().add("deployment", upload.getName()))
+                        .param("runtime-name", upload.getRuntimeName())
+                        .param("enabled", upload.isEnableAfterDeployment());
             }
-            builder = builder
-                    .param("runtime-name", upload.getRuntimeName())
-                    .param("enabled", upload.isEnableAfterDeployment());
             Operation operation = builder.build();
             operation.get("content").add().get("input-stream-index").set(0);
 
