@@ -22,34 +22,26 @@
 package org.jboss.as.console.client.v3.deployment;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddStandaloneDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceStandaloneDeploymentWizard;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
-import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
@@ -73,8 +65,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  */
 public class StandaloneDeploymentFinder
-        extends PerspectivePresenter<StandaloneDeploymentFinder.MyView, StandaloneDeploymentFinder.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
+        extends DeploymentFinder<StandaloneDeploymentFinder.MyView, StandaloneDeploymentFinder.MyProxy> {
 
     // @formatter:off --------------------------------------- proxy & view
 
@@ -85,16 +76,12 @@ public class StandaloneDeploymentFinder
     @RequiredResources(resources = "/deployment=*", recursive = false)
     public interface MyProxy extends ProxyPlace<StandaloneDeploymentFinder> {}
 
-    public interface MyView extends View, HasPresenter<StandaloneDeploymentFinder> {
+    public interface MyView extends DeploymentFinder.DeploymentView<StandaloneDeploymentFinder> {
         void updateDeployments(Iterable<Deployment> deployments);
-
-        void setPreview(SafeHtml html);
-        void clearActiveSelection(ClearFinderSelectionEvent event);
-        void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
 
-    // @formatter:on ---------------------------------------- instance data
 
+    // @formatter:on ---------------------------------------- instance data
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<>();
@@ -128,28 +115,6 @@ public class StandaloneDeploymentFinder
                     Console.info(context.upload.getName() + " successfully replaced.");
                     loadDeployments();
                 });
-    }
-
-    @Override
-    public FinderColumn.FinderId getFinderId() {
-        return FinderColumn.FinderId.DEPLOYMENT;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void onBind() {
-        super.onBind();
-        getView().setPresenter(this);
-
-        // GWT event handler
-        registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
-        registerHandler(getEventBus().addHandler(FinderScrollEvent.TYPE, this));
-        registerHandler(getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this));
-    }
-
-    @Override
-    protected void revealInParent() {
-        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override
@@ -206,14 +171,15 @@ public class StandaloneDeploymentFinder
         }
     }
 
-    public void launchReplaceDeploymentWizard(final Deployment deployment) {
-        replaceWizard.open(deployment);
+    public void launchReplaceDeploymentWizard() {
+        replaceWizard.open();
     }
 
     public void verifyEnableDisableDeployment(final Deployment deployment) {
         String question;
         String operation;
         String successMessage;
+        //noinspection Duplicates
         if (deployment.isEnabled()) {
             operation = "undeploy";
             question = "Disable " + deployment.getName();

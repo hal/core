@@ -26,32 +26,26 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddContentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AssignContentDialog;
@@ -61,13 +55,8 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
-import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
-import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
-import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
-import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
@@ -97,8 +86,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
  * @author Harald Pehl
  */
 public class DomainDeploymentFinder
-        extends PerspectivePresenter<DomainDeploymentFinder.MyView, DomainDeploymentFinder.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
+        extends DeploymentFinder<DomainDeploymentFinder.MyView, DomainDeploymentFinder.MyProxy> {
 
     // @formatter:off --------------------------------------- proxy & view
 
@@ -113,19 +101,48 @@ public class DomainDeploymentFinder
             recursive = false)
     public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {}
 
-    public interface MyView extends View, HasPresenter<DomainDeploymentFinder> {
+    public interface MyView extends DeploymentFinder.DeploymentView<DomainDeploymentFinder> {
         void updateContentRepository( Iterable<Content> content);
         void updateUnassigned( Iterable<Content> unassigned);
         void updateServerGroups(Iterable<ServerGroupRecord> serverGroups);
         void updateAssignments(Iterable<Assignment> assignments);
+    } // @formatter:on
 
-        void setPreview(SafeHtml html);
-        void clearActiveSelection(ClearFinderSelectionEvent event);
-        void toggleScrolling(boolean enforceScrolling, int requiredWidth);
+
+    // ------------------------------------------------------ inner classes
+
+
+    class ContentCallback implements AsyncCallback<DMRResponse> {
+
+        final Content content;
+        private final String success;
+        private final String error;
+
+        ContentCallback(final Content content, final String success, String error) {
+            this.content = content;
+            this.success = success;
+            this.error = error;
+        }
+
+        @Override
+        public void onFailure(final Throwable caught) {
+            Console.error(error, caught.getMessage());
+        }
+
+        @Override
+        public void onSuccess(final DMRResponse response) {
+            ModelNode result = response.get();
+            if (result.isFailure()) {
+                Console.error(error, result.getFailureDescription());
+            } else {
+                Console.info(success);
+                loadContentRepository();
+            }
+        }
     }
 
-    // @formatter:on ---------------------------------------- instance data
 
+    // ------------------------------------------------------ instance data
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<>();
@@ -188,23 +205,6 @@ public class DomainDeploymentFinder
     }
 
     @Override
-    public FinderColumn.FinderId getFinderId() {
-        return FinderColumn.FinderId.DEPLOYMENT;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void onBind() {
-        super.onBind();
-        getView().setPresenter(this);
-
-        // GWT event handler
-        registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
-        registerHandler(getEventBus().addHandler(FinderScrollEvent.TYPE, this));
-        registerHandler(getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this));
-    }
-
-    @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
             final boolean revealDefault) {
         circuit.dispatch(new RefreshServerGroups());
@@ -216,36 +216,8 @@ public class DomainDeploymentFinder
         Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
 
-    @Override
-    protected void revealInParent() {
-        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
-    }
 
-
-    // ------------------------------------------------------ finder related methods
-
-    @Override
-    public void onPreview(PreviewEvent event) {
-        if (isVisible()) { getView().setPreview(event.getHtml()); }
-    }
-
-    @Override
-    public void onToggleScrolling(final FinderScrollEvent event) {
-        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
-    }
-
-    @Override
-    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
-        if (isVisible()) { getView().clearActiveSelection(event); }
-    }
-
-
-    // ------------------------------------------------------ deployment methods
-
-    private void resetContext() {
-        // RBAC: context change propagation
-        SecurityContextChangedEvent.fire(DomainDeploymentFinder.this);
-    }
+    // ------------------------------------------------------ content methods
 
     public void loadContentRepository() {
         resetContext();
@@ -265,8 +237,6 @@ public class DomainDeploymentFinder
                 },
                 new DeploymentFunctions.LoadContentAssignments(dispatcher)
         ));
-
-
     }
 
     public void loadUnassignedContent() {
@@ -293,7 +263,6 @@ public class DomainDeploymentFinder
                 },
                 new DeploymentFunctions.LoadContentAssignments(dispatcher)
         ));
-
     }
 
     public void loadServerGroups() {
@@ -334,23 +303,9 @@ public class DomainDeploymentFinder
                     .build();
             operations.add(operation);
         }
-        dispatcher.execute(new DMRAction(new Composite(operations)), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                Console.error("Unable to assign " + content.getName() + ".", caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    Console.error("Unable to assign " + content.getName() + ".", result.getFailureDescription());
-                } else {
-                    Console.info(content.getName() + " successfully assigned to selected server groups.");
-                    loadContentRepository();
-                }
-            }
-        });
+        dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
+                content.getName() + " successfully assigned to selected server groups.",
+                "Unable to assign " + content.getName() + "."));
     }
 
     public void launchUnassignContentDialog(Content content) {
@@ -372,23 +327,13 @@ public class DomainDeploymentFinder
             Operation operation = new Operation.Builder(REMOVE, address).build();
             operations.add(operation);
         }
-        dispatcher.execute(new DMRAction(new Composite(operations)), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                Console.error("Unable to unassign " + content.getName() + ".", caught.getMessage());
-            }
+        dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
+                content.getName() + " successfully unassigned from selected server groups.",
+                "Unable to unassign " + content.getName() + "."));
+    }
 
-            @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    Console.error("Unable to unassign " + content.getName() + ".", result.getFailureDescription());
-                } else {
-                    Console.info(content.getName() + " successfully unassigned from selected server groups.");
-                    loadContentRepository();
-                }
-            }
-        });
+    public void launchReplaceContentWizard() {
+        replaceWizard.open();
     }
 
     public void removeContent(final Content content, boolean unmanaged) {
@@ -418,6 +363,9 @@ public class DomainDeploymentFinder
         });
     }
 
+
+    // ------------------------------------------------------ assignments methods
+
     public void launchAddAssignmentWizard(final String serverGroup) {
         new Async<FunctionContext>().single(new FunctionContext(),
                 new Outcome<FunctionContext>() {
@@ -442,14 +390,11 @@ public class DomainDeploymentFinder
         );
     }
 
-    public void launchReplaceAssignmentWizard(final Assignment assignment) {
-        replaceWizard.open(assignment);
-    }
-
     public void verifyEnableDisableAssignment(final Assignment assignment) {
         String question;
         String operation;
         String successMessage;
+        //noinspection Duplicates
         if (assignment.isEnabled()) {
             operation = "undeploy";
             question = "Disable " + assignment.getName();
@@ -532,6 +477,14 @@ public class DomainDeploymentFinder
                 functions.toArray(new Function[functions.size()]));
     }
 
+    public void showDetails(final Assignment assignment) {
+        if (assignment.isEnabled() && assignment.hasDeployment() && assignment.getDeployment()
+                .getReferenceServer() != null) {
+            placeManager.revealRelativePlace(
+                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentDetails).build());
+        }
+    }
+
     private void switchContext(String serverGroup) {
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
@@ -547,11 +500,8 @@ public class DomainDeploymentFinder
         );
     }
 
-    public void showDetails(final Assignment assignment) {
-        if (assignment.isEnabled() && assignment.hasDeployment() && assignment.getDeployment()
-                .getReferenceServer() != null) {
-            placeManager.revealRelativePlace(
-                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentDetails).build());
-        }
+    private void resetContext() {
+        // RBAC: context change propagation
+        SecurityContextChangedEvent.fire(DomainDeploymentFinder.this);
     }
 }
