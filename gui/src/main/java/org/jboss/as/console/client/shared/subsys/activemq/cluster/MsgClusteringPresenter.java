@@ -137,7 +137,7 @@ public class MsgClusteringPresenter
 
             @Override
             public String[] filterTuple(String key) {
-                return new String[0];
+                return coreGUIContext.resolveTuple(key);
             }
         });
 
