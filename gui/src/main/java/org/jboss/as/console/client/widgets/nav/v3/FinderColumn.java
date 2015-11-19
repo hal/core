@@ -223,14 +223,14 @@ public class FinderColumn<T> implements SecurityContextAware {
 
                     event.getNativeEvent().preventDefault();
                     final Element element = Element.as(event.getNativeEvent().getEventTarget());
-                    String action = element.getAttribute("action");
-                    if("default".equals(action))
+                    ButtonRef ref = resolveActionAttribute(element);
+                    if("default".equals(ref.action))
                     {
                         accessibleMenuItems.get(0).getCommand().executeOn(event.getValue());
                     }
-                    else if("menu".equals(action))
+                    else if("menu".equals(ref.action))
                     {
-                        openContextMenu(event.getNativeEvent(), event.getValue());
+                        openContextMenu(ref.element, event.getValue());
                     }
 
                 }
@@ -264,6 +264,28 @@ public class FinderColumn<T> implements SecurityContextAware {
             }
         });
 
+    }
+
+    private ButtonRef resolveActionAttribute(Element element) {
+        if(!element.hasAttribute("action"))
+        {
+            if(element.hasParentElement())
+                return resolveActionAttribute(element.getParentElement());
+            else
+                new ButtonRef("unresolved", element);
+        }
+        return new ButtonRef(element.getAttribute("action"), element);
+    }
+
+    class ButtonRef  {
+
+        public ButtonRef(String action, Element element) {
+            this.action = action;
+            this.element = element;
+        }
+
+        String action;
+        Element element;
     }
 
     @FunctionalInterface
@@ -460,9 +482,8 @@ public class FinderColumn<T> implements SecurityContextAware {
         popupPanel.show();
     }
 
-    private void openContextMenu(final NativeEvent event, final T object) {
+    private void openContextMenu(Element el, final T object) {
 
-        Element el = Element.as(event.getEventTarget());
         Element anchor = el.getParentElement();
 
         final PopupPanel popupPanel = new PopupPanel(true);
