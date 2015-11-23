@@ -97,7 +97,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                 new MenuDelegate<>("Add", mailSession -> presenter.launchNewProviderWizard(), Operation));
 
         mailSessionColumn.setMenuItems(
-                new MenuDelegate<>("Destinations", provider ->
+                new MenuDelegate<>("Queues/Topics", provider ->
                         placeManager.revealRelativePlace(
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMessagingPresenter)
                                         .with("name", provider.getName()).build())),
