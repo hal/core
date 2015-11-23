@@ -106,24 +106,41 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
             @SuppressWarnings("unchecked")
             public void onSave(Map changeSet) {
                 if (!changeSet.isEmpty()) {
-                    Boolean uuid = null;
-                    String socketBinding = null;
-                    Integer maxPorts = null;
-                    if (isDefined(PROCESS_ID_UUID, changeSet)) {
-                        uuid = (Boolean) changeSet.get(PROCESS_ID_UUID);
+                    Boolean uuid;
+                    String socketBinding;
+                    Integer maxPorts;
+
+                    if (changeSet.containsKey(PROCESS_ID_UUID)) {
+                        uuid = (Boolean) undefinedToNull(changeSet.get(PROCESS_ID_UUID));
+                    } else {
+                        // if not in changeSet, get current value from edited entity
+                        uuid = getCurrentValue(PROCESS_ID_UUID).asBoolean();
                     }
-                    if (isDefined(PROCESS_ID_SOCKET_BINDING, changeSet)) {
-                        socketBinding = (String) changeSet.get(PROCESS_ID_SOCKET_BINDING);
+
+                    if (changeSet.containsKey(PROCESS_ID_SOCKET_BINDING)) {
+                        socketBinding = (String) undefinedToNull(changeSet.get(PROCESS_ID_SOCKET_BINDING));
+                    } else {
+                        socketBinding = getCurrentValue(PROCESS_ID_SOCKET_BINDING).isDefined() ?
+                                getCurrentValue(PROCESS_ID_SOCKET_BINDING).asString() : null;
                     }
-                    if (isDefined(PROCESS_ID_SOCKET_MAX_PORTS, changeSet)) {
-                        maxPorts = (Integer) changeSet.get(PROCESS_ID_SOCKET_MAX_PORTS);
+
+                    if (changeSet.containsKey(PROCESS_ID_SOCKET_MAX_PORTS)) {
+                        maxPorts = (Integer) undefinedToNull(changeSet.get(PROCESS_ID_SOCKET_MAX_PORTS));
+                    } else {
+                        maxPorts = getCurrentValue(PROCESS_ID_SOCKET_MAX_PORTS).isDefined() ?
+                                getCurrentValue(PROCESS_ID_SOCKET_MAX_PORTS).asInt() : null;
                     }
+
                     presenter.saveProcessSettings(uuid, socketBinding, maxPorts);
                 }
             }
 
-            private boolean isDefined(String key, Map changeSet) {
-                return changeSet.containsKey(key) && !FormItem.VALUE_SEMANTICS.UNDEFINED.equals(changeSet.get(key));
+            private ModelNode getCurrentValue(String field) {
+                return processAssets.getForm().getEditedEntity().get(field);
+            }
+
+            private Object undefinedToNull(Object object) {
+                return FormItem.VALUE_SEMANTICS.UNDEFINED.equals(object) ? null : object;
             }
 
             @Override
@@ -134,6 +151,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         processAssets.getForm().addFormValidator((formItems, outcome) -> {
             FormItem<Boolean> uuidItem = formItem(formItems, PROCESS_ID_UUID);
             FormItem<String> socketBindingItem = formItem(formItems, PROCESS_ID_SOCKET_BINDING);
+            FormItem<Number> socketMaxPortsItem = formItem(formItems, PROCESS_ID_SOCKET_MAX_PORTS);
             if (uuidItem != null && socketBindingItem != null) {
                 boolean uuidGiven = uuidItem.getValue() != null && uuidItem.getValue();
                 String socketBinding = Strings.emptyToNull(socketBindingItem.getValue());
@@ -142,10 +160,24 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                     socketBindingItem.setErrMessage("Please set either UUID or socket binding");
                     socketBindingItem.setErroneous(true);
                     outcome.addError(PROCESS_ID_SOCKET_BINDING);
-                } else {
+
                     // TODO remove poor-api-workaround
                     // restore default
                     socketBindingItem.setErrMessage("No whitespace, no special chars allowed");
+                }
+            }
+            if (socketBindingItem != null && socketMaxPortsItem != null) {
+                String socketBinding = Strings.emptyToNull(socketBindingItem.getValue());
+                Number socketMaxPorts = socketMaxPortsItem.getValue();
+
+                if (socketBinding == null && socketMaxPorts != null && socketMaxPortsItem.isModified()) {
+                    socketMaxPortsItem.setErrMessage("Can't be set if socket binding is not set");
+                    socketMaxPortsItem.setErroneous(true);
+                    outcome.addError(PROCESS_ID_SOCKET_MAX_PORTS);
+
+                    // TODO remove poor-api-workaround
+                    // restore default
+                    socketMaxPortsItem.setErrMessage("Invalid numeric value");
                 }
             }
         });
