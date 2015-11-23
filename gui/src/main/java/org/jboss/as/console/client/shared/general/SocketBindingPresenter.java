@@ -321,7 +321,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
         window.setHeight(360);
 
         window.trapWidget(
-                new NewSocketWizard(this, bindingGroups).asWidget()
+                new NewSocketWizard(this, selectedSocketGroup).asWidget()
         );
 
         window.setGlassEnabled(true);
