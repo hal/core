@@ -247,8 +247,8 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
         String type = address.getResourceType();
 
         window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
-        window.setWidth(480);
-        window.setHeight(360);
+        window.setWidth(640);
+        window.setHeight(480);
 
         window.setWidget(
                 new AddResourceDialog(
@@ -267,7 +267,7 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
                                 window.hide();
                             }
                         }
-                )
+                ).include("handlers", "level", "use-parent-handlers")
         );
 
         window.setGlassEnabled(true);
