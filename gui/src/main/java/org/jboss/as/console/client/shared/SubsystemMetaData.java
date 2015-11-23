@@ -80,7 +80,7 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Web Services", "webservices"));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("ModCluster", "modcluster", NameTokens.ModclusterPresenter));
 
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow", "undertow", NameTokens.UndertowFinder));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Web/HTTP - Undertow", "undertow", NameTokens.UndertowFinder));
         /*groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.ServletPresenter));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.HttpPresenter));*/
         //groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowPresenter));
