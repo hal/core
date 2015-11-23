@@ -35,7 +35,6 @@ import org.jboss.gwt.flow.client.Async;
 import java.util.EnumSet;
 
 import static org.jboss.as.console.client.v3.deployment.wizard.State.UPLOAD;
-import static org.jboss.as.console.client.v3.deployment.wizard.State.VERIFY_UPLOAD;
 
 /**
  * @author Harald Pehl
@@ -47,7 +46,6 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
         super("replace_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(UPLOAD, new UploadStep(this));
-        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
     }
 
     public void open() {
@@ -61,17 +59,17 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
 
     @Override
     protected EnumSet<State> lastStates() {
-        return EnumSet.of(VERIFY_UPLOAD);
+        return EnumSet.of(UPLOAD);
     }
 
     @Override
     protected State back(final State state) {
-        return state == VERIFY_UPLOAD ? UPLOAD : null;
+        return null;
     }
 
     @Override
     protected State next(final State state) {
-        return state == UPLOAD ? VERIFY_UPLOAD : null;
+        return null;
     }
 
     @Override
