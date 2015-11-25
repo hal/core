@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -43,6 +44,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
@@ -139,7 +141,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(roleColumn.getSelectedItem(), true)))
         );
-        memberAggregationColumn = new AggregationColumn("Membership", contentFactory, PREVIEW_CONTENT.membership(),
+        memberAggregationColumn = new AggregationColumn(((UIMessages) GWT.create(UIMessages.class)).membership(), contentFactory, PREVIEW_CONTENT.membership(),
                 columnManager, memberColumn, memberColumnWidget, NameTokens.AccessControlFinder);
         memberAggregationColumnWidget = memberAggregationColumn.asWidget();
         memberAggregationColumn.updateFrom(memberAggregationItems);
@@ -163,7 +165,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(selectedPrincipal(), true)))
         );
-        assignmentAggregationColumn = new AggregationColumn("Assignment", contentFactory, PREVIEW_CONTENT.assignment(),
+        assignmentAggregationColumn = new AggregationColumn(((UIMessages) GWT.create(UIMessages.class)).assignment(), contentFactory, PREVIEW_CONTENT.assignment(),
                 columnManager, assignmentColumn, assignmentColumnWidget, NameTokens.AccessControlFinder);
         assignmentAggregationColumnWidget = assignmentAggregationColumn.asWidget();
         assignmentAggregationColumn.updateFrom(assignmentAggregationItems);

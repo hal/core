@@ -160,7 +160,7 @@ public class ServerList {
 
         if(!isRuntimeView)
         {
-            layoutBuilder.addDetail("Attributes", formPanel);
+            layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
         }
 
 

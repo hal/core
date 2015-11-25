@@ -21,8 +21,10 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
@@ -58,7 +60,8 @@ public final class DeploymentFunctions {
 
     public static final String ASSIGNMENTS = DeploymentFunctions.class.getName() + ".assignments";
     public static final String REFERENCE_SERVER = DeploymentFunctions.class.getName() + ".referenceServer";
-    public static final String NO_REFERENCE_SERVER_WARNING = "No Reference Server found"; // TODO i18n
+    public static final String NO_REFERENCE_SERVER_WARNING = ((UIConstants) GWT.create(UIConstants.class))
+            .noReferenceServerFound(); // TODO i18n
 
     private DeploymentFunctions() {}
 
@@ -110,7 +113,8 @@ public final class DeploymentFunctions {
                             ModelNode result = response.get();
                             if (!result.hasDefined(OUTCOME) || result.isFailure()) {
                                 control.getContext()
-                                        .setErrorMessage("Cannot upload deployment: " + result.getFailureDescription());
+                                        .setErrorMessage(
+                                                ((UIConstants) GWT.create(UIConstants.class)).cannotUploadDeployment() + ": " + result.getFailureDescription());
                                 control.abort();
                             } else {
                                 ModelNode node = new ModelNode();
@@ -161,7 +165,8 @@ public final class DeploymentFunctions {
             dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
                 @Override
                 protected void onFailedOutcome(final ModelNode result) {
-                    context.setErrorMessage("Unable to add unmanaged deployment: " + result.getFailureDescription());
+                    context.setErrorMessage(
+                            ((UIConstants) GWT.create(UIConstants.class)).unableToAddUnmanagedDeployment() + ": " + result.getFailureDescription());
                 }
 
                 @Override
@@ -267,7 +272,7 @@ public final class DeploymentFunctions {
                 @Override
                 protected void onFailedOutcome(final ModelNode result) {
                     control.getContext().setErrorMessage(
-                            "Unable to assign deployment: " + result.getFailureDescription());
+                            ((UIConstants) GWT.create(UIConstants.class)).unableToAssignDeployment() + ": " + result.getFailureDescription());
                 }
             });
         }

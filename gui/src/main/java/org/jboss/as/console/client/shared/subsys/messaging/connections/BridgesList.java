@@ -140,7 +140,7 @@ public class BridgesList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("The function of a bridge is to consume messages from a source queue, and forward them to a target address, typically on a different HornetQ server.")
+                .setDescription(Console.CONSTANTS.bridgeDescription())
                 .setMaster("Bridges", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

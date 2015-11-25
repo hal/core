@@ -270,4 +270,164 @@ public interface UIMessages extends Messages {
     String homepage_patching_sub_header(String name);
     String homepage_patching_standalone_step_intro(String name);
     String homepage_patching_domain_step_intro(String name);
+
+    String resource_already_exists(String name);
+
+    String role_is_used_in_assignments();
+
+    String addUser();
+
+    String addGroup();
+
+    String editRole();
+
+    String allPrincipalsAreAlreadyMembersOf(String name);
+
+    String addMember();
+
+    String excludeMember();
+
+    String allRolesAreAlreadyAssignedTo(String nameAndRealm);
+
+    String assignRole();
+
+    String excludeRole();
+
+    String membership();
+
+    String assignment();
+
+    String newMessagingProvider();
+
+    String successfullyAddedMessagingProvider(String name);
+
+    String failedToLoadMessagingServerNames();
+
+    String failedToModifyMessagingProvider(String name);
+
+    String successfullyModifiedMessagingProvider(String name);
+
+    String failedToRemoveMessagingProvider(String name);
+
+    String successfullyRemovedMessagingProvider(String name);
+
+    String providerSettings();
+
+    String messagingProvider();
+
+    String assignmentIncludeRoleToPrincipal(String role, String principal);
+
+    String assignmentExcludeRoleToPrincipal(String role, String principal);
+
+    String assignmentIncludePrincipalToRole(String userOrGroup, String principal, String role);
+
+    String assignmentExcludePrincipalToRole(String userOrGroup, String principal, String role);
+
+    String assignedTo();
+
+    String excludedFrom();
+
+    String addDeploymentToServerGroup(String serverGroup);
+
+    String principalSuccessfullyAdded(String userOrGroup);
+
+    String noConfigurableAttributesOnResources(String address);
+
+    String scopedRoleSuccessfullyAdded(String roleId);
+
+    String chooseServerGroupsForAssigning(String name);
+
+    String successfullyModifiedResource(String resource);
+
+    String failedToModifyResource(String resource);
+
+    String failedToCreateResource(String resource);
+
+    String successfullyCreated(String resource);
+
+    String failedToRemoveResource(String resource);
+
+    String successfullyRemoved(String resource);
+
+    String successfullyAdded(String resource);
+
+    String failedToLoadCacheContainer(String container);
+
+    String createResource(String type);
+
+    String noConfigurableAttributes(String resource);
+
+    String cloneProfile(String name);
+
+    String profileAlreadyExists(String name);
+
+    String wantToStartServerGroup(String name);
+
+    String wantToStopServerGroup(String name);
+
+    String wantToResumeServerGroup(String name);
+
+    String wantToRestartServerGroup(String name);
+
+    String wantToReloadServerGroup(String name);
+
+    String reallyRemoveProfile(String name);
+
+    String copyGroupDescription(String name);
+
+    String failedToDetectJdbcDriver(String reason);
+
+    String datasourceDescription();
+
+    String xaDatasourceDescription();
+
+    String flushConnectionsError(String dsName);
+
+    String flushConnectionsSuccess(String dsName);
+
+    String contentSuccessfullyUploaded(String name);
+
+    String deploymentSuccessfullyDeployed(String name);
+
+    String deploymentSuccessfullyReplaced(String name);
+
+    String contentAlreadyAssigned(String name);
+
+    String contentSuccessfullyAssignedToServerGroups(String name);
+
+    String contentFailedToAssignToServerGroups(String name);
+
+    String contentNotAssignedToServerGroup(String name);
+
+    String contentSuccessfullyUnassignedFromServerGroups(String name);
+
+    String contentFailedToUnassignFromServerGroups(String name);
+
+    String assignmentSuccessfullyDisabled(String name);
+
+    String assignmentSuccessfullyEnabled(String name);
+
+    String unassignAssignment(String name);
+
+    String AssignmentSuccessfullyUnassigned(String name);
+
+    String deploymentInUse(String name);
+
+    String assignedToServerGroups(String name, String serverGroups);
+
+    String securityDomainDescription(String name);
+
+    String newTitle(String resourceName);
+
+    String profileUsedBy(String name);
+
+    String roleSuccessfullyRemovedFrom(String role, String assignment);
+
+    String principalSuccessfullyRemovedFromAssignment(String principal, String assignment);
+
+    String successfullyAddedServer(String name);
+
+    String successfullyRemovedServer(String serverName);
+
+    String failedToLoadResource(String s);
 }

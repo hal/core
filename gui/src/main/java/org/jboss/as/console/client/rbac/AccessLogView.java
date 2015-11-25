@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
@@ -63,7 +64,7 @@ public class AccessLogView {
 
 
         ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton("Reset", new ClickHandler() {
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_reset(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 log.flush();

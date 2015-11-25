@@ -1,10 +1,12 @@
 package org.jboss.as.console.client.domain.groups;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -35,8 +37,8 @@ public class CopyGroupWizard {
         layout.setStyleName("window-content");
 
 
-        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy of server-goup <b>'"+orig.getName()+
-                "'</b>. The newly created group will inherit all properties of the original."));
+        layout.add(new ContentDescription(
+                ((UIMessages) GWT.create(UIMessages.class)).copyGroupDescription(orig.getName())));
 
         final Form<ServerGroupRecord> form = new Form<ServerGroupRecord>(ServerGroupRecord.class);
         form.setNumColumns(1);

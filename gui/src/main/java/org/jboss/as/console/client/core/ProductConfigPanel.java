@@ -43,7 +43,7 @@ public class ProductConfigPanel implements IsWidget {
         productVersion.setValue(productConfig.getProductVersion());
         TextItem profile = new TextItem("profile", "Profile");
         profile.setValue(productConfig.getProfile().name());
-        TextItem connectedTo = new TextItem("connectedTo", "Connected to");
+        TextItem connectedTo = new TextItem("connectedTo", ((UIConstants) GWT.create(UIConstants.class)).connectedTo());
         connectedTo.setValue(context.getProperty(DOMAIN_API));
 
         ArrayList<FormItem> items = new ArrayList<FormItem>(

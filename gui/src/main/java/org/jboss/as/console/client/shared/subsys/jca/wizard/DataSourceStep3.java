@@ -113,7 +113,7 @@ public class DataSourceStep3 {
             }
         };
         DialogueOptions options = new DialogueOptions(
-                "Done", submitHandler,
+                Console.CONSTANTS.common_label_done(), submitHandler,
                 Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
 

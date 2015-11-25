@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.standalone;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionView;
@@ -186,8 +188,8 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
             StringBuffer sb = new StringBuffer();
             ServerState serverState = serverStates.values().iterator().next();
             String message = serverState.isReloadRequired() ?
-                    "The server configuration needs to be reloaded!" :
-                    "The server needs to be restarted!";
+                    ((UIConstants) GWT.create(UIConstants.class)).serverConfigurationNeedsToBeReloaded() :
+                    ((UIConstants) GWT.create(UIConstants.class)).serverNeedsToBeRestarted();
 
             sb.append(message).append("\n\n");
 

@@ -84,7 +84,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
                 .setTitle("Server Configuration")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
-                .addDetail("Attributes", details.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
         // 1. Filter must be set *after* jvmEditor.asWidget()

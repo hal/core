@@ -21,9 +21,12 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -61,8 +64,8 @@ class ServiceProviderEditor implements IsWidget {
         OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Service Provider")
-                .setDescription("The Service Provider relies on the Identity Provider to assert information about a user via an electronic user credential, leaving the service provider to manage access control and dissemination based on a trusted set of user credential assertions.")
-                .setDetail("Attributes", formPanel());
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).serviceProviderDescription())
+                .setDetail(Console.CONSTANTS.common_label_attributes(), formPanel());
         return layoutBuilder.build();
     }
 

@@ -129,7 +129,7 @@ public class DivertList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("A messaging resource that allows you to transparently divert messages routed to one address to some other address, without making any changes to any client application logic.")
+                .setDescription(Console.CONSTANTS.divertDescription())
                 .setMaster("Diverts", table)
                 .setMasterTools(tools)
                 .setDetail("Details", divertForm.asWidget());

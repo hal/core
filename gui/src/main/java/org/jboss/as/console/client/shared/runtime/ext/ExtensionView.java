@@ -109,7 +109,7 @@ public class ExtensionView
                 .setHeadline("Subsystem Extensions")
                 .setDescription(Console.MESSAGES.extensions_description())
                 .setMaster(Console.MESSAGES.available("Extensions"), extensionTable)
-                .addDetail("Attributes", form.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), form.asWidget());
 
 
         // debug util only available in hosted mode

@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.gwt.circuit.Action;
 
 /**
@@ -39,6 +40,6 @@ public class ModifyScopedRole implements Action, ModifiesRole, HasSuccessMessage
 
     @Override
     public String getMessage() {
-        return "Scoped role " + role.getId() + " successfully modified.";
+        return Console.MESSAGES.successfullyModifiedResource(role.getId());
     }
 }

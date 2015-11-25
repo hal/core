@@ -123,7 +123,7 @@ public class BeanPoolView {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Bean Pools"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         selectionModel = new SingleSelectionModel<Property>();

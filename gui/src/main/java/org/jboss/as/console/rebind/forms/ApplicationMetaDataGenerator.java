@@ -38,13 +38,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Heiko Braun
  * @date 4/19/11
  */
+@SuppressWarnings("HardCodedStringLiteral")
 public class ApplicationMetaDataGenerator extends Generator{
 
     private static final String BEAN_FACTORY_NAME = "org.jboss.as.console.client.shared.BeanFactory";

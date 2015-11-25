@@ -1,7 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -125,9 +128,10 @@ public class DefaultBridgeForm {
         @Override
         public void validate(List<FormItem> formItems, FormValidation outcome) {
             if (!discoveryGroup.getValue().equals("") && connectors.getValue().size() > 0) {
-                setError(outcome, "Discovery group or connectors can be defined, not both");
+                setError(outcome, Console.CONSTANTS.discoveryGroupOrConnectorsCanBeDefined());
             } else if (discoveryGroup.getValue().equals("") && connectors.getValue().size() == 0) {
-                setError(outcome, "Discovery group or connectors must be defined");
+                setError(outcome,
+                        ((UIConstants) GWT.create(UIConstants.class)).discoveryGroupOrConnectorsMustBeDefined());
             }
         }
 

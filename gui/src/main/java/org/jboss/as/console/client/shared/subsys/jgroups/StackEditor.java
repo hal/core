@@ -153,7 +153,7 @@ public class StackEditor {
                 .setDescription(SafeHtmlUtils.fromTrustedString(Console.CONSTANTS.subsys_jgroups_protocol_desc()))
                 .setMaster(Console.MESSAGES.available("Protocols"), table)
                 .setMasterTools(toolstrip.asWidget())
-                .addDetail("Attributes", detail)
+                .addDetail(Console.CONSTANTS.common_label_attributes(), detail)
                 .addDetail("Properties", propertyEditor.asWidget())
                 .build();
 

@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -67,8 +69,8 @@ public class SubsystemView {
         SimpleLayout layoutBuilder = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("General Configuration")
-                .setDescription("The general configuration for the HTTP subsystem.")
-                .addContent("Attributes", formPanel);
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).undertowDescription())
+                .addContent(Console.CONSTANTS.common_label_attributes(), formPanel);
 
         return layoutBuilder.build();
 

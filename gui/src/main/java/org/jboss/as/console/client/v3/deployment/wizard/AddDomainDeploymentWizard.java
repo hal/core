@@ -21,10 +21,12 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.deployment.Content;
@@ -56,7 +58,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
     }
 
     public void open(List<Content> contentRepository, String serverGroup) {
-        super.open("Add deployment to server group '" + serverGroup + "'");
+        super.open(((UIMessages) GWT.create(UIMessages.class)).addDeploymentToServerGroup(serverGroup));
         context.contentRepository.clear();
         context.contentRepository.addAll(contentRepository);
         context.serverGroup = serverGroup;

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.widgets.tables;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -12,6 +13,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.core.UIConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +109,7 @@ public class DataProviderFilter<T> {
             }
         });
         HorizontalPanel panel = new HorizontalPanel();
-        Label label = new Label("Filter: ");
+        Label label = new Label(((UIConstants) GWT.create(UIConstants.class)).common_label_filter() + ": ");
         panel.add(label);
         panel.add(filter);
 

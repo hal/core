@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -109,23 +110,23 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
         deploymentColumn.setFilter((item, token) -> item.getName().contains(token)
                 || item.getRuntimeName().contains(token));
 
-        deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard(),
+        deploymentColumn.setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_add(), item -> presenter.launchAddDeploymentWizard(),
                 Operation));
 
         //noinspection Convert2MethodRef
-        MenuDelegate<Deployment> enableDisableDelegate = new MenuDelegate<Deployment>("(En/Dis)able",
+        MenuDelegate<Deployment> enableDisableDelegate = new MenuDelegate<Deployment>(Console.CONSTANTS.common_label_enOrDisable(),
                 item -> presenter.verifyEnableDisableDeployment(item), Operation) {
             @Override
             public String render(final Deployment data) {
-                return data.isEnabled() ? "Disable" : "Enable";
+                return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
             }
         };
         //noinspection Convert2MethodRef
         deploymentColumn.setMenuItems(
-                new MenuDelegate<>("View", item -> presenter.showDetails(), Navigation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_view(), item -> presenter.showDetails(), Navigation),
                 enableDisableDelegate,
-                new MenuDelegate<>("Replace", item -> presenter.launchReplaceDeploymentWizard(), Operation),
-                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item), Operation)
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceDeploymentWizard(), Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item -> presenter.verifyRemoveDeployment(item), Operation)
         );
 
         deploymentColumn.setTooltipDisplay(Templates::deploymentTooltip);

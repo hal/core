@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -9,6 +10,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
 import org.jboss.as.console.client.shared.subsys.activemq.model.AcceptorType;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -42,7 +44,7 @@ public class AcceptorOverview {
 
         layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
-        serverName = new HTML("Replace me");
+        serverName = new HTML(((UIConstants) GWT.create(UIConstants.class)).replace_me());
         serverName.setStyleName("content-header-label");
 
         HorizontalPanel header = new HorizontalPanel();
@@ -64,7 +66,7 @@ public class AcceptorOverview {
         selector.getElement().getParentElement().setAttribute("align", "right");
 
         panel.add(header);
-        panel.add(new ContentDescription("Defines a way in which connections can be made to the HornetQ server."));
+        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).hornetq_acceptor_type_desc()));
 
         genericAcceptors = new AcceptorList(presenter, AcceptorType.GENERIC);
         remoteAcceptors = new AcceptorList(presenter, AcceptorType.REMOTE);

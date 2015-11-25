@@ -19,11 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -111,7 +107,7 @@ public class MainLayoutPresenter
 
     @Override
     public void onUnauthorized(UnauthorizedEvent event) {
-        DefaultWindow window = new DefaultWindow("Insufficient Privileges");
+        DefaultWindow window = new DefaultWindow(Console.CONSTANTS.insufficientPrivileges());
         window.setWidget(unauthorisedPresenter);
         window.setWidth(320);
         window.setHeight(240);

@@ -135,12 +135,12 @@ public class PicketLinkFinderView extends SuspendableViewImpl implements PicketL
                 presenter.getProxy().getNameToken());
 
         serviceProviderColumn.setTopMenuItems(
-                new MenuDelegate<>("Add",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_add(),
                         (ContextualCommand<Property>) item ->
                                 presenter.launchAddServiceProviderDialog(federationsColumn.getSelectedItem().getName()),
                         Operation));
         serviceProviderColumn.setMenuItems(
-                new MenuDelegate<>("View",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_view(),
                         (ContextualCommand<Property>) item -> {
                             PlaceRequest placeRequest = new PlaceRequest.Builder()
                                     .nameToken(NameTokens.PicketLinkServiceProvider)
@@ -149,7 +149,7 @@ public class PicketLinkFinderView extends SuspendableViewImpl implements PicketL
                                     .build();
                             placeManager.revealRelativePlace(placeRequest);
                         }, Navigation),
-                new MenuDelegate<>("Remove",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(),
                         (ContextualCommand<Property>) item -> {
                             if (federationsColumn.hasSelectedItem()) {
                                 Property selectedItem = federationsColumn.getSelectedItem();
@@ -210,17 +210,17 @@ public class PicketLinkFinderView extends SuspendableViewImpl implements PicketL
                 presenter.getProxy().getNameToken());
 
         federationsColumn.setTopMenuItems(
-                new MenuDelegate<>("Add", (ContextualCommand<Property>) item -> presenter.launchAddFederationDialog(),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_add(), (ContextualCommand<Property>) item -> presenter.launchAddFederationDialog(),
                         Operation));
         federationsColumn.setMenuItems(
-                new MenuDelegate<>("View",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_view(),
                         (ContextualCommand<Property>) item -> {
                             PlaceRequest placeRequest = new PlaceRequest.Builder()
                                     .nameToken(NameTokens.PicketLinkFederation)
                                     .with(FEDERATION_REQUEST_PARAM, item.getName()).build();
                             placeManager.revealRelativePlace(placeRequest);
                         }, Navigation),
-                new MenuDelegate<>("Remove",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(),
                         (ContextualCommand<Property>) item -> {
                             if (federationsColumn.hasSelectedItem()) {
                                 Property selectedItem = federationsColumn.getSelectedItem();

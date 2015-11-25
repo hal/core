@@ -5,6 +5,7 @@ import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.AsyncCallFailEvent;
 import com.gwtplatform.mvp.client.proxy.AsyncCallFailHandler;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import org.jboss.as.console.client.Console;
 
 /**
  * Handler which is called in case an async call fails. This can happen when a presenter behind a split point should be
@@ -31,18 +32,20 @@ public class AsyncCallHandler implements AsyncCallFailHandler
     @Override
     public void onAsyncCallFail(final AsyncCallFailEvent asyncCallFailEvent)
     {
-        StringBuilder message = new StringBuilder().append("Async call failed.");
+        StringBuilder message = new StringBuilder().append(
+                Console.CONSTANTS.asyncCallFailed());
         Throwable caught = asyncCallFailEvent.getCaught();
+        message.append(" ");
         if (caught != null)
         {
-            message.append(" Reason: ").append(caught.getMessage());
+            message.append(Console.CONSTANTS.reason()).append(": ").append(caught.getMessage());
         }
         else
         {
-            message.append(" No reason was provided.");
+            message.append(Console.CONSTANTS.noReason());
         }
         Log.error(message.toString());
-        Window.alert("Lost connection to the server.");
+        Window.alert(Console.CONSTANTS.lostConnection());
 
         placeManager.unlock();
         placeManager.revealCurrentPlace();

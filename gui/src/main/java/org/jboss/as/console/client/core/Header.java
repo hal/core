@@ -19,11 +19,8 @@
 
 package org.jboss.as.console.client.core;
 
-import static org.jboss.as.console.client.StringUtils.ELLIPSIS;
-
 import com.google.common.base.CharMatcher;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
@@ -74,6 +71,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
+import static org.jboss.as.console.client.StringUtils.ELLIPSIS;
 
 /**
  * Top level header, gives access to main applications.
@@ -168,7 +166,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 if (places.isEmpty()) {
 
                     // should not happen
-                    Console.error("Unable to navigate back");
+                    Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToNavigateBack());
                 } else {
 
                     /*
@@ -320,7 +318,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         usermenu.setStyleName("fill-layout-width");
         usermenu.addStyleName("top-level-menu");
 
-        usermenu.add(new HTML("Roles:"));
+        usermenu.add(new HTML(Console.CONSTANTS.common_label_roles() + ":"));
         usermenu.add(new HTML(sb.toSafeHtml()));
 
 
@@ -331,7 +329,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             runAsBtn.addStyleName("menu-item");
 
             SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
-            runAsRole.appendEscaped("Run as");
+            runAsRole.appendEscaped(((UIConstants) GWT.create(UIConstants.class)).runAs());
             if (bootstrap.getRunAs()!=null) {
                 runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(bootstrap.getRunAs());
             } else {

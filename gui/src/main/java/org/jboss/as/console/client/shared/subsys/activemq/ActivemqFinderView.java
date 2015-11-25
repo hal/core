@@ -15,10 +15,10 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
@@ -66,7 +66,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
     public Widget createWidget() {
         mailSessionColumn = new FinderColumn<>(
                 FinderColumn.FinderId.CONFIGURATION,
-                "Messaging Provider",
+                ((UIMessages) GWT.create(UIMessages.class)).messagingProvider(),
                 new FinderColumn.Display<Property>() {
 
                     @Override
@@ -94,7 +94,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
         mailSessionColumnWidget = mailSessionColumn.asWidget();
 
         mailSessionColumn.setTopMenuItems(
-                new MenuDelegate<>("Add", mailSession -> presenter.launchNewProviderWizard(), Operation));
+                new MenuDelegate<>(Console.CONSTANTS.common_label_add(), mailSession -> presenter.launchNewProviderWizard(), Operation));
 
         mailSessionColumn.setMenuItems(
                 new MenuDelegate<>("Queues/Topics", provider ->
@@ -112,9 +112,9 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMsgClusteringPresenter)
                                         .with("name", provider.getName()).build())),
 
-                new MenuDelegate<>("Provider Settings", presenter::onLaunchProviderSettings),
+                new MenuDelegate<>(((UIMessages) GWT.create(UIMessages.class)).providerSettings(), presenter::onLaunchProviderSettings),
 
-                new MenuDelegate<>("Remove", provider ->
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), provider ->
                         Feedback.confirm(Console.MESSAGES.deleteTitle("Messaging Provider"),
                                 Console.MESSAGES.deleteConfirm("provider " + provider.getName()),
                                 isConfirmed -> {

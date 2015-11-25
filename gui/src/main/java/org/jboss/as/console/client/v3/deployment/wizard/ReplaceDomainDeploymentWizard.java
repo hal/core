@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.v3.deployment.Assignment;
@@ -37,7 +38,7 @@ public class ReplaceDomainDeploymentWizard extends ReplaceDeploymentWizard {
     }
 
     public void open(final Assignment assignment) {
-        super.open("Replace Deployment");
+        super.open(Console.CONSTANTS.replaceDeployment());
         context.serverGroup = assignment.getServerGroup();
     }
 }

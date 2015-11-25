@@ -107,7 +107,7 @@ class ServiceProviderHandlerEditor extends MasterDetailEditor {
                 .setDescription(SafeHtmlUtils.fromString(resourceDescription.get(DESCRIPTION).asString()))
                 .setMasterTools(tools())
                 .setMaster(Console.MESSAGES.available("SAML Handler"), table())
-                .addDetail("Attributes", formPanel())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel())
                 .addDetail("Handler Parameters", parameter.asWidget());
         return layoutBuilder.build();
     }

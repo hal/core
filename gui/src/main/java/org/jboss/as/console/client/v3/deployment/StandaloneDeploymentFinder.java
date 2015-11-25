@@ -107,12 +107,12 @@ public class StandaloneDeploymentFinder
                     String name = context.deployNew ?
                             context.upload.getName() :
                             context.unmanagedDeployment.getName();
-                    Console.info(name + " successfully deployed.");
+                    Console.info(Console.MESSAGES.deploymentSuccessfullyDeployed(name));
                     loadDeployments();
                 });
         this.replaceWizard = new ReplaceStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
-                    Console.info(context.upload.getName() + " successfully replaced.");
+                    Console.info(Console.MESSAGES.deploymentSuccessfullyReplaced(context.upload.getName()));
                     loadDeployments();
                 });
     }
@@ -142,14 +142,14 @@ public class StandaloneDeploymentFinder
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error("Unable to load deployments", caught.getMessage());
+                Console.error(Console.CONSTANTS.unableToLoadDeployments(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    Console.error("Unable to load deployments", result.getFailureDescription());
+                    Console.error(Console.CONSTANTS.unableToLoadDeployments(), result.getFailureDescription());
                 } else {
                     List<Deployment> deployments = new ArrayList<>();
                     ModelNode payload = result.get(RESULT);
@@ -165,9 +165,9 @@ public class StandaloneDeploymentFinder
 
     public void launchAddDeploymentWizard() {
         if (!UploadHandler.verifySupport()) {
-            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            Console.warning(Console.CONSTANTS.uploadsNotSupported(), Console.CONSTANTS.noUploadDueToSecurityReasons());
         } else {
-            addWizard.open("Add Deployment");
+            addWizard.open(Console.MESSAGES.newTitle("Deployment"));
         }
     }
 
@@ -182,12 +182,12 @@ public class StandaloneDeploymentFinder
         //noinspection Duplicates
         if (deployment.isEnabled()) {
             operation = "undeploy";
-            question = "Disable " + deployment.getName();
-            successMessage = deployment.getName() + " successfully disabled.";
+            question = Console.MESSAGES.disableConfirm(deployment.getName());
+            successMessage = Console.MESSAGES.successDisabled(deployment.getName());
         } else {
             operation = "deploy";
-            question = "Enable " + deployment.getName();
-            successMessage = deployment.getName() + " successfully enabled.";
+            question = Console.MESSAGES.enableConfirm(deployment.getName());
+            successMessage = Console.MESSAGES.successEnabled(deployment.getName());
         }
         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), question,
                 isConfirmed -> {
@@ -198,10 +198,10 @@ public class StandaloneDeploymentFinder
     }
 
     public void verifyRemoveDeployment(final Deployment deployment) {
-        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + deployment.getName(),
+        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(deployment.getName()),
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyDeployment(deployment, REMOVE, deployment.getName() + " successfully removed.");
+                        modifyDeployment(deployment, REMOVE, Console.MESSAGES.successfullyRemoved(deployment.getName()));
                     }
                 });
     }
@@ -216,14 +216,14 @@ public class StandaloneDeploymentFinder
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error("Unable to modify deployment.", caught.getMessage());
+                Console.error(Console.CONSTANTS.unableToModifyDeployment(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    Console.error("Unable to modify deployment.", result.getFailureDescription());
+                    Console.error(Console.CONSTANTS.unableToModifyDeployment(), result.getFailureDescription());
                 } else {
                     Console.info(successMessage);
                     loadDeployments();

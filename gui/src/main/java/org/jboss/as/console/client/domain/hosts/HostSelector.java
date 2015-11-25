@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -7,6 +8,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
 
@@ -24,7 +26,7 @@ public class HostSelector {
 
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setId("host_selection");
-        layout.getElement().setAttribute("title", "Please chose a host");
+        layout.getElement().setAttribute("title", ((UIConstants) GWT.create(UIConstants.class)).pleaseChoseHost());
         layout.setStyleName("fill-layout-width");
         layout.addStyleName("lhs-selector");
         layout.getElement().setAttribute("style", "padding:4px;");

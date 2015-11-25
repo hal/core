@@ -22,6 +22,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -198,7 +200,7 @@ public class ColumnProfileView extends SuspendableViewImpl
             }
         });
 
-        config.setMenuItems(new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
+        config.setMenuItems(new MenuDelegate<FinderItem>(Console.CONSTANTS.common_label_view(), new ContextualCommand<FinderItem>() {
             @Override
             public void executeOn(FinderItem item) {
                 item.getCmd().execute();
@@ -278,7 +280,8 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, ProfileRecord data) {
-                        String inclusions = data.getIncludes().isEmpty() ? "" : "Includes: "+ data.getIncludes().toString();
+                        String inclusions = data.getIncludes().isEmpty() ? "" : ((UIConstants) GWT
+                                .create(UIConstants.class)).common_label_includes() + ": "+ data.getIncludes().toString();
                         return TEMPLATE.profile(baseCss, data.getName(), inclusions);
                     }
 
@@ -310,18 +313,20 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         if(featureSet.isProfileCloneEnabled()) {   // compat with WF 9.x
             profiles.setMenuItems(
-                    new MenuDelegate<ProfileRecord>("Clone", new ContextualCommand<ProfileRecord>() {
+                    new MenuDelegate<ProfileRecord>(((UIConstants) GWT.create(UIConstants.class)).common_label_clone(), new ContextualCommand<ProfileRecord>() {
                         @Override
                         public void executeOn(ProfileRecord profileRecord) {
                             presenter.onCloneProfile(profileRecord);
                         }
                     }, MenuDelegate.Role.Operation)
 
-                    , new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
+                    , new MenuDelegate<ProfileRecord>(Console.CONSTANTS.common_label_delete(), new ContextualCommand<ProfileRecord>() {
                         @Override
                         public void executeOn(ProfileRecord profileRecord) {
 
-                            Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName() + "?", new Feedback.ConfirmationHandler() {
+                            Feedback.confirm(((UIConstants) GWT.create(UIConstants.class)).removeProfile(),
+                                    ((UIMessages) GWT.create(UIMessages.class))
+                                            .reallyRemoveProfile(profileRecord.getName()), new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
                                     if (isConfirmed) {
@@ -386,7 +391,7 @@ public class ColumnProfileView extends SuspendableViewImpl
             }
         });
 
-        subsystems.setMenuItems(new MenuDelegate<SubsystemLink>("View", new ContextualCommand<SubsystemLink>() {
+        subsystems.setMenuItems(new MenuDelegate<SubsystemLink>(Console.CONSTANTS.common_label_view(), new ContextualCommand<SubsystemLink>() {
             @Override
             public void executeOn(final SubsystemLink link) {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -415,7 +420,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                             if(data.isIncluded()) {
                                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
                                 builder.appendHtmlConstant("<div class='preview-content'><h3>");
-                                builder.appendEscaped("Included from profile: ").appendEscaped(data.getIncludedFrom());
+                                builder.appendEscaped(Console.CONSTANTS.includedFromProfile()).appendEscaped(": ").appendEscaped(data.getIncludedFrom());
                                 builder.appendHtmlConstant("</h3>");
                                 builder.append(safeHtml);
                                 builder.appendHtmlConstant("</div>");

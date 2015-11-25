@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.CFConnectionsForm;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultCFForm;
@@ -102,7 +104,7 @@ public class ConnectionFactoryList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "Connection factories for applications. Used to connect to the server using the JMS API.")
+                        ((UIConstants) GWT.create(UIConstants.class)).jmsConnectionFactoryDescription())
                 .setMaster("Connection Factories", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

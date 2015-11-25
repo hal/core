@@ -61,12 +61,12 @@ public class CrudOperationDelegate {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to add resource " + name, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.addingFailed(name), response.getFailureDescription());
                     for (Callback cb : callback) {
-                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                        cb.onFailure(address, name, new RuntimeException(Console.MESSAGES.addingFailed(name) + ":" + response.getFailureDescription()));
                     }
                 } else {
-                    Console.info("Added resource " + name);
+                    Console.info(Console.MESSAGES.added(name));
                     for (Callback cb : callback) {
                         cb.onSuccess(address, name);
                     }
@@ -93,12 +93,12 @@ public class CrudOperationDelegate {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to remove resource " + name, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.deletionFailed(name), response.getFailureDescription());
                     for (Callback cb : callback) {
-                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name + ":" + response.getFailureDescription()));
+                        cb.onFailure(address, name, new RuntimeException(Console.MESSAGES.deletionFailed(name) + ":" + response.getFailureDescription()));
                     }
                 } else {
-                    Console.info("Removed resource " + name);
+                    Console.info(Console.MESSAGES.deleted(name));
                     for (Callback cb : callback) {
                         cb.onSuccess(address, name);
                     }
@@ -130,13 +130,13 @@ public class CrudOperationDelegate {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to save " + address.toString(), response.getFailureDescription());
+                    Console.error(Console.MESSAGES.saveFailed(address.toString()), response.getFailureDescription());
                     for (Callback cb : callback) {
-                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                        cb.onFailure(address, name, new RuntimeException(Console.MESSAGES.saveFailed(name) +":"+ response.getFailureDescription()));
                     }
                 }
                 else {
-                    Console.info("Successfully saved " + address.toString());
+                    Console.info(Console.MESSAGES.saved(address.toString()));
                     for (Callback cb : callback) {
                         cb.onSuccess(address, name);
                     }

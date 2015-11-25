@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.shared.general.validation;
 
+import com.google.gwt.core.client.GWT;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.general.model.Interface;
 
 import java.util.Map;
@@ -46,13 +48,13 @@ class AddressValidation extends AbstractValidationStep<Interface> {
         final DecisionTree<Interface> tree =  new DecisionTree<Interface>(entity);
 
         // INET ADDRESS
-        tree.createRoot(1,"Is Inet address set?", new Decision<Interface>() {
+        tree.createRoot(1, ((UIConstants) GWT.create(UIConstants.class)).isInetAddressSet(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return isSet(entity.getInetAddress());
             }
         });
-        tree.yes(1, 2, "Anything conflicts with Inet Address?", new Decision<Interface>() {
+        tree.yes(1, 2, ((UIConstants) GWT.create(UIConstants.class)).anythingConflictsWithInetAddress(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 Map<String,Object> properties = asProperties(entity);
@@ -60,7 +62,7 @@ class AddressValidation extends AbstractValidationStep<Interface> {
                 return !isEmpty(properties);
             }
         });
-        tree.no(1, 3, "Is address wildcard set?", new Decision<Interface>() {
+        tree.no(1, 3, ((UIConstants) GWT.create(UIConstants.class)).isAddressWildcardSet(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return isSet(entity.getAddressWildcard());
@@ -68,11 +70,11 @@ class AddressValidation extends AbstractValidationStep<Interface> {
         });
 
         tree.yes(2, 4, Console.CONSTANTS.interfaces_err_inetAddress_set(), FAILURE);
-        tree.no(2, 5, "Valid Inet address", SUCCESS);
+        tree.no(2, 5, ((UIConstants) GWT.create(UIConstants.class)).validInetAddress(), SUCCESS);
 
 
         // ADDRESS WILDCARD
-        tree.yes(3, 6, "Anything conflicts with address wildcard?", new Decision<Interface>() {
+        tree.yes(3, 6, ((UIConstants) GWT.create(UIConstants.class)).anythingConflictsWithAddressWildcard(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 Map<String,Object> properties = asProperties(entity);
@@ -84,7 +86,7 @@ class AddressValidation extends AbstractValidationStep<Interface> {
 
 
         tree.yes(6, 8, Console.CONSTANTS.interfaces_err_wildcard_set(), FAILURE);
-        tree.no(6, 9, "Valid Address Wildcard", SUCCESS);
+        tree.no(6, 9, ((UIConstants) GWT.create(UIConstants.class)).validAddressWildcard(), SUCCESS);
 
         return tree;
     }

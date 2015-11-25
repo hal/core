@@ -132,7 +132,7 @@ public class ConnectionFactoryList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("Connection factories for applications. Used to connect to the server using the JMS API.")
+                .setDescription(Console.CONSTANTS.jmsConnectionFactoryDescription())
                 .setMaster("Connection Factories", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

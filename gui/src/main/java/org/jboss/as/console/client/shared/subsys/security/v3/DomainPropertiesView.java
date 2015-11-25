@@ -1,6 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.security.v3;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
@@ -57,10 +60,10 @@ public class DomainPropertiesView {
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setHeadline("Settings for security domain: " + domain.getName())
+                .setHeadline(((UIMessages) GWT.create(UIMessages.class)).securityDomainDescription(domain.getName()))
                 .setDescription(localCacheDescription.get("description").asString())
-                .addContent("Help", formAssets.getHelp().asWidget())
-                .addContent("Attributes", form.asWidget());
+                .addContent(Console.CONSTANTS.help(), formAssets.getHelp().asWidget())
+                .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());
 
         return layout.build();
     }

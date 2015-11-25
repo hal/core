@@ -24,6 +24,7 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -41,6 +42,8 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -182,7 +185,7 @@ public class DomainDeploymentFinder
                     String name = context.deployNew ?
                             context.upload.getName() :
                             context.unmanagedDeployment.getName();
-                    Console.info(name + " successfully uploaded.");
+                    Console.info(((UIMessages) GWT.create(UIMessages.class)).contentSuccessfullyUploaded(name));
                     loadContentRepository();
                 });
         this.addDeploymentWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
@@ -192,12 +195,12 @@ public class DomainDeploymentFinder
                             context.deployExisting ?
                                     context.existingContent.getName() :
                                     context.unmanagedDeployment.getName();
-                    Console.info(name + " successfully deployed.");
+                    Console.info(((UIMessages) GWT.create(UIMessages.class)).deploymentSuccessfullyDeployed(name));
                     loadAssignments(context.serverGroup);
                 });
         this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
-                    Console.info(context.upload.getName() + " successfully replaced.");
+                    Console.info(((UIMessages) GWT.create(UIMessages.class)).deploymentSuccessfullyReplaced(context.upload.getName()));
                     loadAssignments(context.serverGroup);
                 });
 
@@ -226,7 +229,7 @@ public class DomainDeploymentFinder
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
-                        Console.error("Unable to find deployments.", context.getErrorMessage());
+                        Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToFindDeployments(), context.getErrorMessage());
                     }
 
                     @Override
@@ -246,7 +249,7 @@ public class DomainDeploymentFinder
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
-                        Console.error("Unable to find deployments.", context.getErrorMessage());
+                        Console.error(Console.CONSTANTS.unableToFindDeployments(), context.getErrorMessage());
                     }
 
                     @Override
@@ -271,10 +274,10 @@ public class DomainDeploymentFinder
 
     public void launchAddContentWizard() {
         if (!UploadHandler.verifySupport()) {
-            Console.warning("Uploads not supported",
-                    "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            Console.warning(((UIConstants) GWT.create(UIConstants.class)).uploadsNotSupported(),
+                    ((UIConstants) GWT.create(UIConstants.class)).noUploadDueToSecurityReasons());
         } else {
-            addContentWizard.open("Add Content");
+            addContentWizard.open(((UIConstants) GWT.create(UIConstants.class)).common_label_addContent());
         }
     }
 
@@ -285,7 +288,7 @@ public class DomainDeploymentFinder
                 Lists.transform(serverGroupStore.getServerGroups(), ServerGroupRecord::getName));
         serverGroupNames.removeAll(assignedServerGroupNames);
         if (serverGroupNames.isEmpty()) {
-            Console.warning(content.getName() + " is already assigned to all server groups.");
+            Console.warning(((UIMessages) GWT.create(UIMessages.class)).contentAlreadyAssigned(content.getName()));
         } else {
             assignContentDialog.open(content, Ordering.natural().immutableSortedCopy(serverGroupNames));
         }
@@ -304,13 +307,13 @@ public class DomainDeploymentFinder
             operations.add(operation);
         }
         dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
-                content.getName() + " successfully assigned to selected server groups.",
-                "Unable to assign " + content.getName() + "."));
+                ((UIMessages) GWT.create(UIMessages.class)).contentSuccessfullyAssignedToServerGroups(content.getName()),
+                ((UIMessages) GWT.create(UIMessages.class)).contentFailedToAssignToServerGroups(content.getName())));
     }
 
     public void launchUnassignContentDialog(Content content) {
         if (content.getAssignments().isEmpty()) {
-            Console.warning(content.getName() + " is not assigned to a server group.");
+            Console.warning(((UIMessages) GWT.create(UIMessages.class)).contentNotAssignedToServerGroup(content.getName()));
         } else {
             Set<String> assignedServerGroupNames = Sets.newHashSet(
                     Lists.transform(content.getAssignments(), Assignment::getServerGroup));
@@ -328,8 +331,8 @@ public class DomainDeploymentFinder
             operations.add(operation);
         }
         dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
-                content.getName() + " successfully unassigned from selected server groups.",
-                "Unable to unassign " + content.getName() + "."));
+                ((UIMessages) GWT.create(UIMessages.class)).contentSuccessfullyUnassignedFromServerGroups(content.getName()),
+                ((UIMessages) GWT.create(UIMessages.class)).contentFailedToUnassignFromServerGroups(content.getName())));
     }
 
     public void launchReplaceContentWizard() {
@@ -343,14 +346,14 @@ public class DomainDeploymentFinder
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error("Unable to remove deployment.", caught.getMessage());
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToRemoveDeployment(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    Console.error("Unable to remove deployment.", result.getFailureDescription());
+                    Console.error(Console.CONSTANTS.unableToRemoveDeployment(), result.getFailureDescription());
                 } else {
                     Console.info(content.getName() + " successfully removed.");
                     if (unmanaged) {
@@ -371,7 +374,7 @@ public class DomainDeploymentFinder
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
-                        Console.error("Unable to add deployment.", context.getErrorMessage());
+                        Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToAddDeployment(), context.getErrorMessage());
                     }
 
                     @Override
@@ -397,12 +400,12 @@ public class DomainDeploymentFinder
         //noinspection Duplicates
         if (assignment.isEnabled()) {
             operation = "undeploy";
-            question = "Disable " + assignment.getName();
-            successMessage = assignment.getName() + " successfully disabled.";
+            question = Console.CONSTANTS.common_label_disable() + " " + assignment.getName();
+            successMessage = ((UIMessages) GWT.create(UIMessages.class)).assignmentSuccessfullyDisabled(assignment.getName());
         } else {
             operation = "deploy";
-            question = "Enable " + assignment.getName();
-            successMessage = assignment.getName() + " successfully enabled.";
+            question = Console.CONSTANTS.common_label_enable() + " " + assignment.getName();
+            successMessage = ((UIMessages) GWT.create(UIMessages.class)).assignmentSuccessfullyEnabled(assignment.getName());
         }
         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), question,
                 isConfirmed -> {
@@ -424,7 +427,7 @@ public class DomainDeploymentFinder
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
-                        Console.error("Unable to modify deployment.", context.getErrorMessage());
+                        Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToModifyDeployment(), context.getErrorMessage());
                     }
 
                     @Override
@@ -461,7 +464,7 @@ public class DomainDeploymentFinder
                     List<Assignment> assignments = context.get(DeploymentFunctions.ASSIGNMENTS);
                     getView().updateAssignments(assignments);
                 } else {
-                    Console.error("Unable to load deployments", context.getErrorMessage());
+                    Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToLoadDeployments(), context.getErrorMessage());
                 }
             }
 

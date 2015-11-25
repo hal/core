@@ -118,11 +118,11 @@ public class ConnectorServiceList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("Class name of the factory class that can instantiate the connector service.")
+                .setDescription(Console.CONSTANTS.jmsConnectorServiceDescription())
                 .setMaster(Console.MESSAGES.available("Services"), table)
                 .setMasterTools(tools)
-                .addDetail("Detail", ConnectorServiceForm.asWidget())
-                .addDetail("Properties", properties.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_details(), ConnectorServiceForm.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_properties(), properties.asWidget());
 
         ConnectorServiceForm.getForm().bind(table);
 

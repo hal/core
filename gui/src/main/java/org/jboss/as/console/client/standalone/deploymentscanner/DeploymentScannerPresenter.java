@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.standalone.deploymentscanner;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -32,6 +33,7 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
@@ -132,14 +134,14 @@ public class DeploymentScannerPresenter
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error("Cannot read deployment scanner", caught.getMessage());
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).cannotReadDeploymentScanner(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    Console.error("Cannot read deployment scanner", result.getFailureDescription());
+                    Console.error(Console.CONSTANTS.cannotReadDeploymentScanner(), result.getFailureDescription());
                 } else {
                     List<Property> scanners = result.get(RESULT).asPropertyList();
                     getView().update(scanners);
@@ -181,7 +183,7 @@ public class DeploymentScannerPresenter
         crud.onCreateResource(SCANNER_TEMPLATE, name, payload, new CrudOperationDelegate.Callback() {
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                Console.error("Cannot add deployment scanner", t.getMessage());
+                Console.error(Console.MESSAGES.addingFailed(name), t.getMessage());
             }
 
             @Override
@@ -195,7 +197,7 @@ public class DeploymentScannerPresenter
         crud.onSaveResource(SCANNER_TEMPLATE, name, changedValues, new CrudOperationDelegate.Callback() {
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                Console.error("Unable to save scanner '" + name + "'", t.getMessage());
+                Console.error(Console.MESSAGES.saveFailed(name), t.getMessage());
             }
 
             @Override
@@ -209,7 +211,7 @@ public class DeploymentScannerPresenter
         crud.onRemoveResource(SCANNER_TEMPLATE, name, new CrudOperationDelegate.Callback() {
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                Console.error("Unable to remove scanner '" + name + "'", t.getMessage());
+                Console.error(Console.MESSAGES.deletionFailed(name), t.getMessage());
             }
 
             @Override

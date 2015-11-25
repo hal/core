@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.functions;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -61,8 +62,7 @@ public class CreateConnectorFn implements Function<FunctionContext> {
         dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
             @Override
             protected void onFailedOutcome(final ModelNode result) {
-                context.setErrorMessage(
-                        "Failed to add resource " + connectorName + ": " + result.getFailureDescription());
+                context.setErrorMessage(Console.MESSAGES.addingFailed(connectorName) + ": " + result.getFailureDescription());
             }
         });
     }

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.core.bootstrap.cors;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -10,6 +11,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
@@ -59,7 +61,7 @@ class ConfigurePage implements IsWidget {
                 boolean validate = super.validate(value);
                 if (validate) {
                     if ("localhost".equals(getValue())) {
-                        setErrMessage("Localhost does not work reliably. Please use 127.0.0.1 instead.");
+                        setErrMessage(((UIConstants) GWT.create(UIConstants.class)).localhostDoesNotWorkReliably());
                         validate = false;
                     }
                 }

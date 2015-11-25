@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
@@ -41,7 +42,7 @@ public class UndertowServerExample implements Sample {
         Container overview = new Container(ns, "httpServer", "Server", TemporalOperator.Choice, StereoTypes.EditorPanel);
 
 
-        Container attributes = new Container(ns, "server#attributes", "Attributes", Form);
+        Container attributes = new Container(ns, "server#attributes", Console.CONSTANTS.common_label_attributes(), Form);
         Mapping attributesMapping = new DMRMapping()
                 .addAttributes("default-host", "servlet-container");
 
@@ -103,13 +104,13 @@ public class UndertowServerExample implements Sample {
                                            .add(new Trigger(
                                                    QName.valueOf("org.jboss.httpListener:add"),
                                                    QName.valueOf("org.jboss.as:resource-operation#add"),
-                                                   "Add"))
+                                                   Console.CONSTANTS.common_label_add()))
                                                    .mappedBy(httpListenerCollection)
 
                                            .add(new Trigger(
                                                    QName.valueOf("org.jboss.httpListener:remove"),
                                                    QName.valueOf("org.jboss.as:resource-operation#remove"),
-                                                   "Remove"))
+                                                   Console.CONSTANTS.common_label_delete()))
                                 .end()
 
                             .add(new Select(ns, "httpListener", "HTTPListenerSelection"))
@@ -117,7 +118,7 @@ public class UndertowServerExample implements Sample {
 
                                 .start(new Container(ns, "undertow#httpListenerConfig", "httpConfig", Choice))
                                     .mappedBy(singleHttpListener)
-                                    .add(new Container(ns, "undertow#httpListenerAttributes", "Attributes", Form))
+                                    .add(new Container(ns, "undertow#httpListenerAttributes", Console.CONSTANTS.common_label_attributes(), Form))
                                         .mappedBy(new DMRMapping()
                                             .addAttributes(
                                                     "worker", "enabled",
@@ -137,13 +138,13 @@ public class UndertowServerExample implements Sample {
                                         .add(new Trigger(
                                             QName.valueOf("org.jboss.ajpListener:add"),
                                             QName.valueOf("org.jboss.as:resource-operation#add"),
-                                            "Add"))
+                                                Console.CONSTANTS.common_label_add()))
                                             .mappedBy(ajpListenerCollection)
 
                                         .add(new Trigger(
                                             QName.valueOf("org.jboss.ajpListener:remove"),
                                             QName.valueOf("org.jboss.as:resource-operation#remove"),
-                                            "Remove"))
+                                                Console.CONSTANTS.common_label_delete()))
                                 .end()
 
                             .add(new Select(ns, "ajpListener", "AJPListenerSelection"))
@@ -171,13 +172,13 @@ public class UndertowServerExample implements Sample {
                                             .add(new Trigger(
                                                 QName.valueOf("org.jboss.httpsListener:add"),
                                                 QName.valueOf("org.jboss.as:resource-operation#add"),
-                                                "Add"))
+                                                    Console.CONSTANTS.common_label_add()))
                                                 .mappedBy(httpsListenerCollection)
 
                                             .add(new Trigger(
                                                 QName.valueOf("org.jboss.httpsListener:remove"),
                                                 QName.valueOf("org.jboss.as:resource-operation#remove"),
-                                                "Remove"))
+                                                    Console.CONSTANTS.common_label_delete()))
                                     .end()
 
                             .add(new Select(ns, "httpsListener", "HTTPSListenerSelection"))
@@ -185,7 +186,7 @@ public class UndertowServerExample implements Sample {
 
                                 .start(new Container(ns, "undertow#httpsListenerConfig", "httpsConfig", Choice))
                                           .mappedBy(singleHTTPSListener)
-                                          .add(new Container(ns, "undertow#httpsListenerAttributes", "Attributes", Form))
+                                          .add(new Container(ns, "undertow#httpsListenerAttributes", Console.CONSTANTS.common_label_attributes(), Form))
                                             .mappedBy(new DMRMapping()
                                             .addAttributes(
                                             "worker", "enabled",

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.widgets.forms.items;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 
 import java.util.List;
@@ -42,6 +43,6 @@ public class JndiNamesItem extends ListItem
     @Override
     public String getErrMessage()
     {
-        return "JNDI names have to start with 'java:/' or 'java:jboss/'";
+        return Console.CONSTANTS.jndiFormatError();
     }
 }

@@ -256,7 +256,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                 .setTitle("Transactions")
                 .setHeadline("Transaction Manager")
                 .setDescription(Console.CONSTANTS.subys_tx_desc())
-                .addDetail("Attributes", commonAssets.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget())
                 .addDetail("Process ID", processAssets.asWidget())
                 .addDetail("Recovery", recoveryAssets.asWidget())
                 .addDetail("Path", pathAssets.asWidget())

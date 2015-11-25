@@ -110,10 +110,10 @@ public class BroadcastGroupList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("A broadcast group is the means by which a server broadcasts connectors over the network. A connector defines a way in which a client (or other server) can make connections to the server.")
+                .setDescription(Console.CONSTANTS.broadcastDescription())
                 .setMaster("BroadcastGroups", factoryTable)
                 .setMasterTools(tools)
-                .setDetail("Details", defaultAttributes.asWidget());
+                .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());
 
         defaultAttributes.getForm().bind(factoryTable);
         defaultAttributes.getForm().setEnabled(false);

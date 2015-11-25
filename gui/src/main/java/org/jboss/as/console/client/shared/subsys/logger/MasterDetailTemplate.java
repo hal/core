@@ -114,7 +114,7 @@ public class MasterDetailTemplate {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available(title), table)
-                .addDetail("Attributes", formAssets.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget());
 
         fileAssets = null;
 

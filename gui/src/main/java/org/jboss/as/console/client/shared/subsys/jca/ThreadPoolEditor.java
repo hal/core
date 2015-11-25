@@ -275,7 +275,7 @@ public class ThreadPoolEditor {
                 .setDescription(Console.CONSTANTS.subsys_jca_threadpool_config_desc())
                 .setMaster(Console.MESSAGES.available("Thread Pools"), table)
                 .setMasterTools(topLevelTools.asWidget())
-                .addDetail("Attributes", attributesPanel)
+                .addDetail(Console.CONSTANTS.common_label_attributes(), attributesPanel)
                 .addDetail("Sizing", sizingPanel)
                 .build();
 

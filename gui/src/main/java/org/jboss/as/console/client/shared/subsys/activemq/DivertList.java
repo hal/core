@@ -1,12 +1,14 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DivertForm;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
@@ -97,7 +99,7 @@ public class DivertList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "A messaging resource that allows you to transparently divert messages routed to one address to some other address, without making any changes to any client application logic.")
+                        ((UIConstants) GWT.create(UIConstants.class)).divertDescription())
                 .setMaster("Diverts", table)
                 .setMasterTools(tools)
                 .setDetail("Details", divertForm.asWidget());

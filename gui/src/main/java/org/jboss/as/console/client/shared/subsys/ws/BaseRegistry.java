@@ -55,7 +55,7 @@ public class BaseRegistry {
                     endpoint.setMaxProcessingTime(value.get("max-processing-time").asInt(0));
                     endpoint.setTotalProcessingTime(value.get("total-processing-time").asInt(0));
                 } catch (IllegalArgumentException e) {
-                    Console.error("Failed to parse response. Are the statistics enabled?", e.getMessage());
+                    Console.error(Console.CONSTANTS.statisticsEnabledError(), e.getMessage());
                     continue;
                 }
 

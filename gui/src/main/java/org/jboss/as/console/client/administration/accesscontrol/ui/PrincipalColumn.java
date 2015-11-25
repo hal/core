@@ -89,14 +89,14 @@ public class PrincipalColumn extends FinderColumn<Principal> {
                         accessControlStore.getAssignments(data, false))
         ));
 
-        setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddPrincipalDialog(type),
+        setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_add(), item -> presenter.launchAddPrincipalDialog(type),
                 MenuDelegate.Role.Operation));
 
-        setMenuItems(new MenuDelegate<>("Remove", item ->
+        setMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item ->
                 Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
                         "Remove " + item.getName() +
                                 "? This will also remove all assignments for this " +
-                                (item.getType() == Principal.Type.USER ? "user." : "group."),
+                                (item.getType() == Principal.Type.USER ? "user" : "group" + "."),
                         isConfirmed -> {
                             if (isConfirmed) { circuit.dispatch(new RemovePrincipal(item)); }
                         }),

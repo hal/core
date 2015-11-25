@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -37,6 +38,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -137,7 +139,8 @@ public class UnassignContentDialog implements IsWidget {
                         event -> {
                             Set<String> selectedSet = selectionModel.getSelectedSet();
                             if (selectedSet.isEmpty()) {
-                                errorMessages.setText("Please select a server group");
+                                errorMessages.setText(
+                                        ((UIConstants) GWT.create(UIConstants.class)).pleaseSelectServerGroup());
                                 errorMessages.setVisible(true);
                             } else {
                                 close();
@@ -160,7 +163,8 @@ public class UnassignContentDialog implements IsWidget {
         }
         errorMessages.setText("");
         errorMessages.setVisible(false);
-        intro.setText("'" + content.getName() + "' is assigned to the following server groups. Choose the server groups you want to unassign '" + content.getName() + "' from.");
+        intro.setText(
+                ((UIConstants) GWT.create(UIConstants.class)).unassignContent(content.getName(), content.getName()));
         dataProvider.setList(serverGroups);
         selectionModel.clear();
         table.selectDefaultEntity();

@@ -21,6 +21,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
@@ -537,19 +538,19 @@ public class ColumnServerView extends SuspendableViewImpl
 
     private String resolveDescriptionFor(String title) {
         if("Paths".equals(title))
-            return "A logical name for a filesystem path. The domain.xml, host.xml and standalone.xml configurations all include a section where paths can be declared. Other sections of the configuration can then reference those paths by their logical name, rather than having to include the full details of the path (which may vary on different machines). For example, the logging subsystem configuration includes a reference to the \"jboss.server.log.dir\" path that points to the server's \"log\" directory.";
+            return ((UIConstants) GWT.create(UIConstants.class)).pathsDescription();
 
         else if("Subsystems".equals(title))
-            return "A set of subsystem configurations. A subsystem is an added set of capabilities added to the core server by an extension. A subsystem provides servlet handling capabilities; a subsystem provides an EJB container; a subsystem provides JTA, etc. A profile is a named list of subsystems, along with the details of each subsystem's configuration. A profile with a large number of subsystems results in a server with a large set of capabilities. A profile with a small, focused set of subsystems will have fewer capabilities but a smaller footprint.";
+            return ((UIConstants) GWT.create(UIConstants.class)).subsystemsDescription();
 
         else if("Socket Binding".equals(title))
-            return "A socket binding is a named configuration for a socket. The domain.xml and standalone.xml configurations both include a section where named socket configurations can be declared. Other sections of the configuration can then reference those sockets by their logical name, rather than having to include the full details of the socket configuration (which may vary on different machines). See Interfaces and ports for full details.";
+            return ((UIConstants) GWT.create(UIConstants.class)).socketBindingDescription();
 
         else if("Interfaces".equals(title))
-            return "A logical name for a network interface/IP address/host name to which sockets can be bound. The domain.xml, host.xml and standalone.xml configurations all include a section where interfaces can be declared. Other sections of the configuration can then reference those interfaces by their logical name, rather than having to include the full details of the interface (which may vary on different machines). An interface configuration includes the logical name of the interface as well as information specifying the criteria to use for resolving the actual physical address to use. See Interfaces and ports for further details.";
+            return ((UIConstants) GWT.create(UIConstants.class)).interfacesDescription();
 
         else if("System Properties".equals(title))
-                   return "System property values can be set in a number of places in domain.xml, host.xml and standalone.xml. The values in standalone.xml are set as part of the server boot process. Values in domain.xml and host.xml are applied to servers when they are launched.";
+                   return ((UIConstants) GWT.create(UIConstants.class)).systemPropertiesDescription();
 
         return "";
     }

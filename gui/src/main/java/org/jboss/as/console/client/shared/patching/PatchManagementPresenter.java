@@ -191,7 +191,7 @@ public class PatchManagementPresenter
 
     public void launchApplyWizard() {
         if (!UploadHandler.verifySupport()) {
-            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            Console.warning(Console.CONSTANTS.uploadsNotSupported(), Console.CONSTANTS.noUploadDueToSecurityReasons());
         }
 
         // this callback is directly called from the standalone branch

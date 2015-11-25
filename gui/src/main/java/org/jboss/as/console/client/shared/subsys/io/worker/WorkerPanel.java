@@ -21,17 +21,16 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.io.IOPanel;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -63,10 +62,11 @@ public class WorkerPanel extends IOPanel {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("Workers")
-                .setDescription(SafeHtmlUtils.fromString("Please choose a worker from below for specific settings."))
+                .setDescription(SafeHtmlUtils.fromString(
+                        ((UIConstants) GWT.create(UIConstants.class)).pleaseChooseWorker()))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Worker"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
         return layoutBuilder.build();
     }
 

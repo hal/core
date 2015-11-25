@@ -21,9 +21,12 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -61,8 +64,8 @@ class IdentityProviderEditor implements IsWidget {
         OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Identity Provider")
-                .setDescription("The Identity Provider is the authoritative entity responsible for authenticating an end user and asserting an identity for that user in a trusted fashion to trusted partners.")
-                .setDetail("Attributes", formPanel());
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).identityProviderDescription())
+                .setDetail(Console.CONSTANTS.common_label_attributes(), formPanel());
         return layout.build();
     }
 

@@ -18,6 +18,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -146,10 +147,10 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
             public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
                 if ("Non-XA".equals(data.getTitle())) {
                     callback.onSuccess(TEMPLATE.typePreview("Non-XA Datasources",
-                            "Manage Non-XA datasources, which are used for applications which do not use transactions, or applications which use transactions with a single database."));
+                            ((UIMessages) GWT.create(UIMessages.class)).datasourceDescription()));
                 } else {
                     callback.onSuccess(TEMPLATE.typePreview("XA Datasources",
-                            "Manage XA datasources, which are used by applications whose transactions are distributed across multiple databases."));
+                            ((UIMessages) GWT.create(UIMessages.class)).xaDatasourceDescription()));
                 }
             }
         });
@@ -194,7 +195,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
         datasources.setTopMenuItems(
                 new MenuDelegate<DataSource>(
-                        "Add", new ContextualCommand<DataSource>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<DataSource>() {
                     @Override
                     public void executeOn(DataSource ds) {
                         presenter.launchNewDatasourceWizard();
@@ -205,7 +206,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
         datasources.setMenuItems(
                 new MenuDelegate<DataSource>(
-                        "View", new ContextualCommand<DataSource>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<DataSource>() {
                     @Override
                     public void executeOn(DataSource ds) {
                         placeManager.revealRelativePlace(
@@ -214,7 +215,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }),
                 new MenuDelegate<DataSource>(
-                        "Remove", new ContextualCommand<DataSource>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<DataSource>() {
                     @Override
                     public void executeOn(DataSource ds) {
 
@@ -233,7 +234,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }, MenuDelegate.Role.Operation),
 
-                new MenuDelegate<DataSource>("En/Disable",
+                new MenuDelegate<DataSource>(Console.CONSTANTS.common_label_enOrDisable(),
                         new ContextualCommand<DataSource>() {
                             @Override
                             public void executeOn(DataSource item) {
@@ -259,7 +260,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 ) {
                     @Override
                     public String render(DataSource data) {
-                        return data.isEnabled() ? "Disable" : "Enable";
+                        return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
                     }
                 }
         );
@@ -307,7 +308,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
         xadatasources.setTopMenuItems(
                 new MenuDelegate<XADataSource>(
-                        "Add", new ContextualCommand<XADataSource>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<XADataSource>() {
                     @Override
                     public void executeOn(XADataSource ds) {
                         presenter.launchNewXADatasourceWizard();
@@ -318,7 +319,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
         xadatasources.setMenuItems(
                 new MenuDelegate<XADataSource>(
-                        "View", new ContextualCommand<XADataSource>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<XADataSource>() {
                     @Override
                     public void executeOn(XADataSource ds) {
                         placeManager.revealRelativePlace(
@@ -327,7 +328,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }),
                 new MenuDelegate<XADataSource>(
-                        "Remove", new ContextualCommand<XADataSource>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<XADataSource>() {
                     @Override
                     public void executeOn(XADataSource ds) {
 
@@ -347,7 +348,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     }
                 }, MenuDelegate.Role.Operation),
 
-                new MenuDelegate<XADataSource>("En/Disable",
+                new MenuDelegate<XADataSource>(Console.CONSTANTS.common_label_enOrDisable(),
                         new ContextualCommand<XADataSource>() {
                             @Override
                             public void executeOn(XADataSource item) {
@@ -375,7 +376,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 {
                     @Override
                     public String render(XADataSource data) {
-                        return data.isEnabled() ? "Disable" : "Enable";
+                        return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
                     }
                 }
         );

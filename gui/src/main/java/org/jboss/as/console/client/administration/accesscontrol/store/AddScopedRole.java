@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import com.google.gwt.core.client.GWT;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.gwt.circuit.Action;
 
 /**
@@ -39,6 +41,6 @@ public class AddScopedRole implements Action, ModifiesRole, HasSuccessMessage {
 
     @Override
     public String getMessage() {
-        return "Scoped role " + role.getId() + " successfully added.";
+        return ((UIMessages) GWT.create(UIMessages.class)).scopedRoleSuccessfullyAdded(role.getId());
     }
 }

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -17,6 +18,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
@@ -242,7 +244,8 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         driverRegistry.refreshDrivers(new AsyncCallback<List<JDBCDriver>>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.warning("Failed to auto detect JDBC driver: " + caught.getMessage());
+                Console.warning(
+                        ((UIMessages) GWT.create(UIMessages.class)).failedToDetectJdbcDriver(caught.getMessage()));
             }
 
             @Override

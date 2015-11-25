@@ -167,7 +167,7 @@ public abstract class MasterDetailPanel implements IsWidget {
 
 
         if (hasAttributes()) {
-            layoutBuilder.addDetail("Attributes", formAssets.asWidget());
+            layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget());
         }
 
         if(resourceDescription.get("attributes").hasDefined("keepalive-time"))
@@ -206,7 +206,7 @@ public abstract class MasterDetailPanel implements IsWidget {
     }
 
     private void onAdd() {
-        DefaultWindow dialog = new DefaultWindow("Add In Memory Job Repository");
+        DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("In Memory Job Repository"));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override

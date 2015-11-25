@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.shared.general.SocketTable;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
@@ -24,7 +26,7 @@ public class PortsView {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
 
-        StaticHelpPanel helpPanel = new StaticHelpPanel("The effective ports on the currently selected server.");
+        StaticHelpPanel helpPanel = new StaticHelpPanel(((UIConstants) GWT.create(UIConstants.class)).portDescription());
         layout.add(helpPanel.asWidget());
 
         socketTable = new SocketTable();

@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.core.message;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -41,6 +42,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.state.ReloadEvent;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
@@ -199,7 +201,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
 
         DialogueOptions options = new DialogueOptions(
-                "Dismiss",
+                ((UIConstants) GWT.create(UIConstants.class)).dismiss(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {

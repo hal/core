@@ -1,15 +1,16 @@
 package org.jboss.as.console.client.shared.state;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -64,7 +65,7 @@ public class ReloadState {
             //Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
 
 
-            Message msg = new Message("Server configuration changed", sb.toString(), Message.Severity.Warning);
+            Message msg = new Message(((UIConstants) GWT.create(UIConstants.class)).serverConfigurationChanged(), sb.toString(), Message.Severity.Warning);
             showDetail(msg);
 
             if(Console.MODULES.getBootstrapContext().isStandalone())
@@ -111,7 +112,7 @@ public class ReloadState {
         widget.getElement().setAttribute("style", "margin:5px");
 
         DialogueOptions options = new DialogueOptions(
-                "Reload server(s) now!",
+                ((UIConstants) GWT.create(UIConstants.class)).reloadServerNow(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {
@@ -133,7 +134,7 @@ public class ReloadState {
                         }
                     }
                 },
-                "Dismiss",
+                Console.CONSTANTS.dismiss(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {

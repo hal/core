@@ -101,7 +101,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
 
         securityDomains.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "Add", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
                         presenter.onLauchAddDomain();
@@ -112,7 +112,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
 
         securityDomains.setMenuItems(
                 new MenuDelegate<Property>(
-                        "View", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         placeManager.revealRelativePlace(
@@ -121,7 +121,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Properties", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_properties(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
 
@@ -131,7 +131,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Remove", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
 

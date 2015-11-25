@@ -181,7 +181,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
         ResourceDescription resourceDescription = StaticResourceDescription
                 .from(PICKET_LINK_RESOURCES.newFederationDescription());
 
-        DefaultWindow dialog = new DefaultWindow("New Federation");
+        DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Federation"));
         ModelNodeFormBuilder.FormAssets assets = new ModelNodeFormBuilder()
                 .setResourceDescription(resourceDescription)
                 .setSecurityContext(securityContext)
@@ -216,7 +216,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
 
                                     @Override
                                     public void onSuccess(final DMRResponse dmrResponse) {
-                                        Console.info("Successfully added " + name);
+                                        Console.info(Console.MESSAGES.successfullyAdded((name)));
                                         readFederations();
                                     }
                                 });
@@ -274,13 +274,13 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
         crud.onRemoveResource(FEDERATION_TEMPLATE, federation.getName(), new CrudOperationDelegate.Callback() {
             @Override
             public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                Console.info("Successfully removed " + name);
+                Console.info(Console.MESSAGES.successfullyRemoved((name)));
                 readFederations();
             }
 
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                Console.error("Cannot remove federation " + name + ": " + t.getMessage());
+                Console.error(Console.MESSAGES.failedToRemoveResource(name), t.getMessage());
                 readFederations();
             }
         });
@@ -290,7 +290,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     // ------------------------------------------------------ crud service provider
 
     void launchAddServiceProviderDialog(final String federation) {
-        DefaultWindow dialog = new DefaultWindow("New Service Provider");
+        DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Service Provider"));
         ResourceDescription resourceDescription = descriptionRegistry.lookup(SERVICE_PROVIDER_TEMPLATE);
         //noinspection Duplicates
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
@@ -312,7 +312,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added " + name);
+                                Console.info(Console.MESSAGES.successfullyAdded((name)));
                                 readServiceProvider(federation);
                             }
                         });
@@ -357,13 +357,13 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
                 new CrudOperationDelegate.Callback() {
                     @Override
                     public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                        Console.info("Successfully removed " + name);
+                        Console.info(Console.MESSAGES.successfullyRemoved((name)));
                         readFederations();
                     }
 
                     @Override
                     public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                        Console.error("Cannot remove federation " + name + ": " + t.getMessage());
+                        Console.error(Console.MESSAGES.failedToRemoveResource(name), t.getMessage());
                         readFederations();
                     }
                 });

@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -28,6 +29,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore.PendingStreamingRequest;
@@ -67,8 +70,8 @@ public class StreamingProgress extends PopupPanel {
 
         FlowPanel content = new FlowPanel();
         content.addStyleName("stream-log-file-pending");
-        content.add(new Pending("Download in progress"));
-        cancel = new Button("Cancel");
+        content.add(new Pending(((UIConstants) GWT.create(UIConstants.class)).downloadInProgress()));
+        cancel = new Button(Console.CONSTANTS.common_label_cancel());
         setId(cancel.getElement(), BUTTON, BASE_ID, "cancel_stream");
         cancel.addStyleName("cancel");
         cancel.addClickHandler(new ClickHandler() {

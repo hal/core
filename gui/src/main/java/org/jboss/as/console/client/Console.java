@@ -114,7 +114,8 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                 new InsufficientPrivileges().execute();
             } else {
                 // unknown error
-                HTMLPanel explanation = new HTMLPanel("<div style='padding-top:150px;padding-left:120px;'><h2>The management interface could not be loaded.</h2><pre>" + cause + "</pre></div>");
+                HTMLPanel explanation = new HTMLPanel("<div style='padding-top:150px;padding-left:120px;'><h2>" + CONSTANTS
+                        .unableToLoadConsole() + "</h2><pre>" + cause + "</pre></div>");
                 RootLayoutPanel.get().add(explanation);
             }
         }

@@ -54,14 +54,14 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
-            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
             loadData();
         }
 
         @Override
         public void onFailure(AddressTemplate address, String name, Throwable t) {
             loadData();
-            Console.error("Failed to save resource " + address.resolve(statementContext, name), t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(address.resolve(statementContext, name).toString()), t.getMessage());
         }
     };
 

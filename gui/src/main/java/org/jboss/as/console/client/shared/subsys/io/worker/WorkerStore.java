@@ -21,9 +21,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -137,13 +139,14 @@ public class WorkerStore extends ChangeSupport {
 
         @Override
         public void onSuccess(AddressTemplate addressTemplate, String name) {
-            Console.info("Successfully modified resource "+ addressTemplate.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(addressTemplate.resolve(statementContext, name).toString()));
             refresh(channel);
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error("Failed to load resource "+addressTemplate.resolve(statementContext,name), t.getMessage());
+            Console.error(((UIMessages) GWT.create(UIMessages.class))
+                    .failedToLoadResource(addressTemplate.resolve(statementContext, name).toString()), t.getMessage());
             channel.nack(t);
         }
 

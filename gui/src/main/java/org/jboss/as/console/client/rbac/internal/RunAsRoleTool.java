@@ -18,12 +18,14 @@
  */
 package org.jboss.as.console.client.rbac.internal;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.rbac.RolesHelpPanel;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
@@ -80,8 +82,8 @@ public class RunAsRoleTool implements Tool {
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
         panel.add(new RolesHelpPanel().asWidget());
-        panel.add(new ContentHeaderLabel("Select Role"));
-        panel.add(new ContentDescription("Select the role you want to act on their behalf."));
+        panel.add(new ContentHeaderLabel(((UIConstants) GWT.create(UIConstants.class)).selectRole()));
+        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).selectRoleDescription()));
 
         final Form<Object> form = new Form<Object>(Object.class);
         form.setFields(role);
@@ -103,9 +105,9 @@ public class RunAsRoleTool implements Tool {
             }
         };
         DialogueOptions options = new DialogueOptions(
-                "Run As", runAsHandler, "Cancel", cancelHandler);
+                Console.CONSTANTS.runAs(), runAsHandler, Console.CONSTANTS.common_label_cancel(), cancelHandler);
 
-        window = new DefaultWindow("Run as Role");
+        window = new DefaultWindow(((UIConstants) GWT.create(UIConstants.class)).runAsRole());
         window.setWidth(480);
         window.setHeight(300);
         window.trapWidget(new WindowContentBuilder(panel, options).build());
@@ -115,24 +117,24 @@ public class RunAsRoleTool implements Tool {
 
     private void initRoles(Set<String> serverGroupScoped, Set<String> hostScoped) {
         List<String> roleNames = new ArrayList<String>();
-        roleNames.add("No preselection");
+        roleNames.add(Console.CONSTANTS.noPreselection());
         for (StandardRole standardRole : StandardRole.values()) {
             roleNames.add(standardRole.getId());
         }
         roleNames.addAll(serverGroupScoped);
         roleNames.addAll(hostScoped);
-        role.setChoices(roleNames, "No preselection");
+        role.setChoices(roleNames, Console.CONSTANTS.noPreselection());
     }
 
     private void runAs(final String role) {
         window.hide();
 
         String oldRole = Console.MODULES.getBootstrapContext().getRunAs();
-        if ((oldRole == null && role.equals("No preselection")) || role.equalsIgnoreCase(oldRole)) {
+        if ((oldRole == null && role.equals(Console.CONSTANTS.noPreselection())) || role.equalsIgnoreCase(oldRole)) {
             return;
         }
 
-        if (role.length() != 0 && !role.equals("No preselection")) {
+        if (role.length() != 0 && !role.equals(Console.CONSTANTS.noPreselection())) {
             Preferences.set(RUN_AS_ROLE, role); // temporary, see console bootstrap : clears the pref again
         }
 

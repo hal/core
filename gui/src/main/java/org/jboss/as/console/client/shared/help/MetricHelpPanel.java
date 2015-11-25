@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.help;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -12,6 +13,7 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.widgets.nav.AriaLink;
 
@@ -123,7 +125,8 @@ public class MetricHelpPanel {
                 public void onFailure(Throwable caught) {
                     //Console.error("Failed to retrieve attribute description", caught.getMessage());
                     helpPanel.clear();
-                    helpPanel.add(new HTML("<ul><li>Failed to retrieve metric descriptions.</li></ul>"));
+                    helpPanel.add(new HTML("<ul><li>" + ((UIConstants) GWT.create(UIConstants.class))
+                            .failedToReadMetricDescription() + "</li></ul>"));
                 }
             });
         }

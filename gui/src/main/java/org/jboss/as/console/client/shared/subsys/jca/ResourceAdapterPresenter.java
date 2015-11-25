@@ -190,10 +190,10 @@ public class ResourceAdapterPresenter
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Console.error("Failed to create resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToCreateResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
 
-                    Console.info("Successfully created " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                 }
 
                 loadAdapter();
@@ -212,16 +212,16 @@ public class ResourceAdapterPresenter
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
-                    Console.info("Successfully saved " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
 
                 loadAdapter();
@@ -253,11 +253,11 @@ public class ResourceAdapterPresenter
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadAdapter();
@@ -288,10 +288,10 @@ public class ResourceAdapterPresenter
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Console.error("Failed to remove resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
 
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadAdapter();
@@ -309,16 +309,16 @@ public class ResourceAdapterPresenter
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
-                    Console.info("Successfully saved " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
 
                 loadAdapter();
@@ -343,7 +343,7 @@ public class ResourceAdapterPresenter
 
         final ResourceDescription resourceDescription = getDescriptionRegistry().lookup(address);
 
-        final DefaultWindow dialog = new DefaultWindow("New "+address.getResourceType());
+        final DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle(address.getResourceType()));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -366,7 +366,7 @@ public class ResourceAdapterPresenter
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
+                                Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                                 loadAdapter();
                             }
                         });

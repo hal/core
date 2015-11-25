@@ -19,6 +19,7 @@ package org.jboss.as.console.client.shared.subsys.messaging;
  * MA  02110-1301, USA.
  */
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -32,11 +33,11 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.infinispan.v3.ContainerView;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -141,7 +142,7 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
                 new AsyncCallback<List<Property>>() {
                     @Override
                     public void onFailure(Throwable caught) {
-                        Console.error("Failed to load messaging server names", caught.getMessage());
+                        Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToLoadServerNames(), caught.getMessage());
                     }
 
                     @Override
@@ -195,11 +196,11 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadProvider();
@@ -214,7 +215,7 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
 
         final ResourceDescription resourceDescription = descriptionRegistry.lookup(PROVIDER);
 
-        final DefaultWindow dialog = new DefaultWindow("New Messaging Provider");
+        final DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Messaging Provider"));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -237,7 +238,7 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
+                                Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                                 loadProvider();
                             }
                         });
@@ -286,17 +287,17 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource "+fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else {
-                    Console.info("Successfully modified "+fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
 
                 loadProvider(provider.getName());

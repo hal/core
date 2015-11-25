@@ -168,10 +168,10 @@ public class AddressingDetails {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("An address setting defines the attributes that are applied to any address that matches the address setting's name (that can contain wildcards).")
-                .setMaster("Available Address Settings", addrTable)
+                .setDescription(Console.CONSTANTS.addressingDescription())
+                .setMaster(Console.MESSAGES.available("Address Settings"), addrTable)
                 .setMasterTools(tableTools.asWidget())
-                .setDetail("Details", formPanel);
+                .setDetail(Console.CONSTANTS.common_label_details(), formPanel);
 
         return layout.build();
 

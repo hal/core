@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.subsys.infinispan.v3;
  */
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -33,6 +34,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -229,7 +231,7 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
 
                 if (response.isFailure())
                 {
-                    Log.error("Failed to load cache container "+container, response.getFailureDescription());
+                    Log.error(((UIMessages) GWT.create(UIMessages.class)).failedToLoadCacheContainer(container), response.getFailureDescription());
                 }
                 else
                 {
@@ -270,12 +272,12 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
 
                 if (response.isFailure())
                 {
-                    Console.error("Failed to create resource "+fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToCreateResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
 
-                    Console.info("Successfully created "+fqAddress);
+                    Console.info(Console.MESSAGES.successfullyCreated(fqAddress.toString()));
                 }
 
                 loadContainer();
@@ -292,17 +294,17 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource "+fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else {
-                    Console.info("Successfully modified "+fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
 
                 loadContainer();
@@ -318,7 +320,7 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
 
         final ResourceDescription resourceDescription = getDescriptionRegistry().lookup(cacheType);
 
-        final DefaultWindow dialog = new DefaultWindow("New Cache Configuration");
+        final DefaultWindow dialog = new DefaultWindow(Console.CONSTANTS.newCacheConfiguration());
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -341,7 +343,7 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
+                                Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                                 loadContainer();
                             }
                         });
@@ -383,11 +385,11 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadContainer();

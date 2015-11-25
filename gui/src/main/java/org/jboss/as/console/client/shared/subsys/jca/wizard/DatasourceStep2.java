@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -31,6 +32,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -163,7 +165,7 @@ public class DatasourceStep2 {
                 if (driver != null) { // force selected driver
                     wizard.onConfigureDriver(driver);
                 } else {
-                    Console.warning("A driver needs to be specified or chosen!");
+                    Console.warning(((UIConstants) GWT.create(UIConstants.class)).noDriverSpecified());
                 }
             }
         };

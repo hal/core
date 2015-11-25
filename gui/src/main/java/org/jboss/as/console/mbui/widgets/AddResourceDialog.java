@@ -107,7 +107,7 @@ public class AddResourceDialog extends ModelDrivenWidget {
         else
         {
             // no writable attributes
-            return new HTML("There are no configurable attributes on resources " + address);
+            return new HTML(Console.MESSAGES.noConfigurableAttributesOnResources(address.toString()));
         }
     }
 

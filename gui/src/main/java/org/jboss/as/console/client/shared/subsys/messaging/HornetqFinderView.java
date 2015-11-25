@@ -101,7 +101,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
 
         mailSessions.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "Add", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property mailSession) {
                         presenter.launchNewProviderWizard();
@@ -147,7 +147,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Remove", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property provider) {
 

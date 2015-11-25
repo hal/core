@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
@@ -86,11 +88,11 @@ public class ConnectorServiceList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("Class name of the factory class that can instantiate the connector service.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).jmsConnectorServiceDescription())
                 .setMaster(Console.MESSAGES.available("Services"), table)
                 .setMasterTools(tools)
-                .addDetail("Detail", connectorServiceForm.asWidget())
-                .addDetail("Properties", properties.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_details(), connectorServiceForm.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_properties(), properties.asWidget());
 
         connectorServiceForm.getForm().bind(table);
 

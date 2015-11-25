@@ -109,7 +109,7 @@ public class ServerMgmtApplicationPresenter extends
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
-                List<SubsystemRecord> subsystems = subsysStore.getSubsystems("default");
+                @SuppressWarnings("HardCodedStringLiteral") List<SubsystemRecord> subsystems = subsysStore.getSubsystems("default");
                 getView().updateFrom(subsystems);
             }
         });
@@ -143,6 +143,7 @@ public class ServerMgmtApplicationPresenter extends
     }
 
     public void loadSubsystems() {
+        //noinspection HardCodedStringLiteral
         circuit.dispatch(new LoadProfile("default"));
     }
 

@@ -54,15 +54,15 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
         //System.out.println(">> "+changedValues);
 
         DecisionTree<Interface> tree = new DecisionTree<Interface>(entity);
-        tree.createRoot(1, "Any changes at all?", new Decision<Interface>() {
+        tree.createRoot(1, Console.CONSTANTS.anyChanges(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return !changedValues.isEmpty();
             }
         });
 
-        tree.no(1, 2, "No changes", SUCCESS);
-        tree.yes(1, 3, "Any address constraints modified?", new Decision<Interface>() {
+        tree.no(1, 2, Console.CONSTANTS.noChanges(), SUCCESS);
+        tree.yes(1, 3, Console.CONSTANTS.anyAddressModified(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return addressValidation.doesApplyTo(entity, changedValues);
@@ -71,7 +71,7 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
 
         // --------------------------------
 
-        tree.yes(3, 4, "Valid address criteria?", new Decision<Interface>() {
+        tree.yes(3, 4, Console.CONSTANTS.validAddressCriteria(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 ValidationResult result = addressValidation.validate(entity, changedValues);
@@ -79,19 +79,19 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
                 return result.isValid();
             }
         });
-        tree.no(3, 5, "Any nic constraints modified?", new Decision<Interface>() {
+        tree.no(3, 5, Console.CONSTANTS.anyNicModified(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return nicValidation.doesApplyTo(entity, changedValues);
             }
         });
 
-        tree.yes(4, 6, "Address criteria is valid.", SUCCESS);
-        tree.no(4, 7, "Invalid Address criteria!", FAILURE);
+        tree.yes(4, 6, Console.CONSTANTS.addressCriteriaIsValid(), SUCCESS);
+        tree.no(4, 7, Console.CONSTANTS.invalidAddressCriteria(), FAILURE);
 
         // --------------------------------
 
-        tree.yes(5, 8, "Valid nic constraints?", new Decision<Interface>() {
+        tree.yes(5, 8, Console.CONSTANTS.validNicConstraints(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 ValidationResult result = nicValidation.validate(entity, changedValues);
@@ -99,7 +99,7 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
                 return result.isValid();
             }
         });
-        tree.no(5, 9, "Any loopback constraints modified?", new Decision<Interface>() {
+        tree.no(5, 9, Console.CONSTANTS.anyLoopbackModified(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return loopbackValidation.doesApplyTo(entity, changedValues);
@@ -107,12 +107,12 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
         });
 
 
-        tree.yes(8, 10, "Nic criteria is valid.", SUCCESS);
-        tree.no(8, 11, "Invalid Nic criteria!", FAILURE);
+        tree.yes(8, 10, Console.CONSTANTS.nicCriteriaIsValid(), SUCCESS);
+        tree.no(8, 11, Console.CONSTANTS.invalidNicCriteria(), FAILURE);
 
         // --------------------------------
 
-        tree.yes(9, 12, "Valid Loopback criteria?", new Decision<Interface>() {
+        tree.yes(9, 12, Console.CONSTANTS.validLoopbackCriteria(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 ValidationResult result = loopbackValidation.validate(entity, changedValues);
@@ -120,7 +120,7 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
                 return result.isValid();
             }
         });
-        tree.no(9, 13, "Other constraints modified?", new Decision<Interface>() {
+        tree.no(9, 13, Console.CONSTANTS.otherConstraintsModified(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 return otherValidation.doesApplyTo(entity, changedValues);
@@ -128,12 +128,12 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
         });
 
 
-        tree.yes(12, 14, "Loopback criteria is valid.", SUCCESS);
-        tree.no(12, 15, "Invalid Loopback criteria!", FAILURE);
+        tree.yes(12, 14, Console.CONSTANTS.loopbackCriteriaIsValid(), SUCCESS);
+        tree.no(12, 15, Console.CONSTANTS.invalidLoopbackCriteria(), FAILURE);
 
         // --------------------------------
 
-        tree.yes(13, 16, "Valid other constraints?", new Decision<Interface>() {
+        tree.yes(13, 16, Console.CONSTANTS.validOtherConstraints(), new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
                 ValidationResult result = otherValidation.validate(entity, changedValues);
@@ -143,8 +143,8 @@ public class CompositeDecision extends AbstractValidationStep<Interface>{
         });
         tree.no(13, 17, Console.CONSTANTS.interfaces_err_not_set(), FAILURE);
 
-        tree.yes(16, 18, "Other criteria is valid.", SUCCESS);
-        tree.no(16, 19, "Invalid other criteria!", FAILURE);
+        tree.yes(16, 18, Console.CONSTANTS.otherCriteriaIsValid(), SUCCESS);
+        tree.no(16, 19, Console.CONSTANTS.invalidOtherCriteria(), FAILURE);
 
         return tree;
     }

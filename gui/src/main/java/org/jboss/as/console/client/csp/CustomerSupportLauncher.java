@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.csp;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -27,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 
 public class CustomerSupportLauncher {
@@ -79,7 +81,7 @@ public class CustomerSupportLauncher {
             }
         });
 
-        HTML openCaseLink = new HTML("Open Case");
+        HTML openCaseLink = new HTML(((UIConstants) GWT.create(UIConstants.class)).openCase());
         openCaseLink.addStyleName("menu-item");
         openCaseLink.addClickHandler(new ClickHandler() {
             @Override
@@ -88,7 +90,7 @@ public class CustomerSupportLauncher {
             }
         });
 
-        HTML modifyCaseLink = new HTML("Modify Case");
+        HTML modifyCaseLink = new HTML(((UIConstants) GWT.create(UIConstants.class)).modifyCase());
         modifyCaseLink.addStyleName("menu-item");
         modifyCaseLink.addClickHandler(new ClickHandler() {
             @Override

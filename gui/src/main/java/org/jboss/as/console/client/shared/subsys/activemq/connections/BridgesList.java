@@ -1,12 +1,14 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.BridgeConnectionsForm;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultBridgeForm;
@@ -111,7 +113,7 @@ public class BridgesList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "The function of a bridge is to consume messages from a source queue, and forward them to a target address, typically on a different HornetQ server.")
+                        ((UIConstants) GWT.create(UIConstants.class)).bridgeDescription())
                 .setMaster("Bridges", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

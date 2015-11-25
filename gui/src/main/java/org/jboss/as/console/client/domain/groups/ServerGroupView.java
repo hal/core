@@ -90,7 +90,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
                 .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverGroups_desc())
-                .addDetail("Attributes", details.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
 

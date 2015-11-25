@@ -21,9 +21,11 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 
 /**
  * @author Harald Pehl
@@ -36,9 +38,9 @@ final class StaticHelp {
         // TODO I18n or take from DMR
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
-        addHelpTextRow(builder, "Name:", "Unique identifier of the deployment. Must be unique across all deployments.");
+        addHelpTextRow(builder, "Name:", ((UIConstants) GWT.create(UIConstants.class)).deploymentNameDescription());
         addHelpTextRow(builder, "Runtime Name:",
-                "Name by which the deployment should be known within a server's runtime. This would be equivalent to the file name of a deployment file, and would form the basis for such things as default Java Enterprise Edition application and module names. This would typically be the same as 'name', but in some cases users may wish to have two deployments with the same 'runtime-name' (e.g. two versions of \\\"foo.war\\\") both available in the deployment content repository, in which case the deployments would need to have distinct 'name' values but would have the same 'runtime-name'.");
+                ((UIConstants) GWT.create(UIConstants.class)).deploymentRuntimeNameDescription());
         return builder.toSafeHtml();
     }
 
@@ -46,11 +48,11 @@ final class StaticHelp {
         // TODO I18n or take from DMR
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
-        addHelpTextRow(builder, "Name:", "Unique identifier of the deployment. Must be unique across all deployments.");
+        addHelpTextRow(builder, "Name:", Console.CONSTANTS.deploymentNameDescription());
         addHelpTextRow(builder, "Runtime Name:",
-                "Name by which the deployment should be known within a server's runtime. This would be equivalent to the file name of a deployment file, and would form the basis for such things as default Java Enterprise Edition application and module names. This would typically be the same as 'name', but in some cases users may wish to have two deployments with the same 'runtime-name' (e.g. two versions of \\\"foo.war\\\") both available in the deployment content repository, in which case the deployments would need to have distinct 'name' values but would have the same 'runtime-name'.");
+                Console.CONSTANTS.deploymentRuntimeNameDescription());
         addHelpTextRow(builder, "Enable:",
-                "Boolean indicating whether the deployment should be enabled after deployment.");
+                ((UIConstants) GWT.create(UIConstants.class)).deploymentEnabledDescription());
         return builder.toSafeHtml();
     }
 
@@ -59,17 +61,17 @@ final class StaticHelp {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
         addHelpTextRow(builder, "Path:",
-                "Path (relative or absolute) to unmanaged content that is part of the deployment.");
+                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentPathDescription());
         addHelpTextRow(builder, "Relative To:",
-                "Name of a system path to which the value of the 'path' is relative. If not set, the 'path' is considered to be absolute.");
+                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentRelativeToDescription());
         addHelpTextRow(builder, "Is Archive?:",
-                "Flag indicating whether unmanaged content is a zip archive (true) or exploded (false).");
-        addHelpTextRow(builder, "Name:", "Unique identifier of the deployment. Must be unique across all deployments.");
+                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentArchiveDescription());
+        addHelpTextRow(builder, "Name:", Console.CONSTANTS.deploymentNameDescription());
         addHelpTextRow(builder, "Runtime Name:",
-                "Name by which the deployment should be known within a server's runtime. This would be equivalent to the file name of a deployment file, and would form the basis for such things as default Java Enterprise Edition application and module names. This would typically be the same as 'name', but in some cases users may wish to have two deployments with the same 'runtime-name' (e.g. two versions of \\\"foo.war\\\") both available in the deployment content repository, in which case the deployments would need to have distinct 'name' values but would have the same 'runtime-name'.");
+                Console.CONSTANTS.deploymentRuntimeNameDescription());
         if (Console.getBootstrapContext().isStandalone()) {
             addHelpTextRow(builder, "Enable:",
-                    "Boolean indicating whether the deployment should be enabled after deployment.");
+                    Console.CONSTANTS.deploymentEnabledDescription());
         }
         return builder.toSafeHtml();
     }

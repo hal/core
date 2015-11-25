@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -123,9 +124,9 @@ public class AdapterDetails {
                 .setTitle("Resource Adapter")
                 .setHeadlineWidget(title)
                 .setDescription(description.get("description").asString())
-                .addDetail("Attributes", formAssets.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget())
                 .addDetail("Work Manager Security", formAssets2.asWidget())
-                .addDetail("Properties", configProperties.asWidget()
+                .addDetail(Console.CONSTANTS.common_label_properties(), configProperties.asWidget()
                 );
 
 

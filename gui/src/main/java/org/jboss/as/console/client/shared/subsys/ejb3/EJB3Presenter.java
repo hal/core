@@ -54,13 +54,13 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         @Override
         public void onSuccess(AddressTemplate address, String name) {
 
-            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
             loadContainer();
         }
 
         @Override
         public void onFailure(AddressTemplate address, String name, Throwable t) {
-            Console.error("Failed to save resource "+address.resolve(statementContext, name)+": "+t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(address.resolve(statementContext, name).toString()), t.getMessage());
         }
     };
 
@@ -227,10 +227,10 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Console.error("Failed to create resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToCreateResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
 
-                    Console.info("Successfully created " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyCreated(fqAddress.toString()));
                 }
 
                 loadContainer();

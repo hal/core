@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -35,6 +36,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -149,7 +151,8 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         SecurityContext securityContext = securityFramework.getSecurityContext(getProxy().getNameToken());
         ResourceDescription resourceDescription = descriptionRegistry.lookup(PROVIDER_TEMPLATE);
 
-        final DefaultWindow dialog = new DefaultWindow("New Messaging Provider");
+        final DefaultWindow dialog = new DefaultWindow(
+                ((UIMessages) GWT.create(UIMessages.class)).newMessagingProvider());
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -169,7 +172,8 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added messaging provider " + name);
+                                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                                        .successfullyAddedMessagingProvider(name));
                                 loadProvider();
                             }
                         });
@@ -197,7 +201,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         new LoadActivemqServersCmd(dispatcher, statementContext).execute(new AsyncCallback<List<Property>>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to load messaging server names", caught.getMessage());
+                Console.error(((UIMessages) GWT.create(UIMessages.class)).failedToLoadMessagingServerNames(), caught.getMessage());
             }
 
             @Override
@@ -225,17 +229,19 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify messaging provider  " + provider.getName(), caught.getMessage());
+                Console.error(
+                        ((UIMessages) GWT.create(UIMessages.class)).failedToModifyMessagingProvider(provider.getName()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify messaging provider" + provider.getName(),
+                    Console.error(Console.MESSAGES.failedToModifyMessagingProvider(provider.getName()),
                             response.getFailureDescription());
                 } else {
-                    Console.info("Successfully modified messaging provider " + provider.getName());
+                    Console.info(((UIMessages) GWT.create(UIMessages.class))
+                            .successfullyModifiedMessagingProvider(provider.getName()));
                 }
                 loadProvider(provider.getName());
             }
@@ -256,10 +262,12 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to remove messaging provider " + provider.getName(),
+                    Console.error(((UIMessages) GWT.create(UIMessages.class))
+                                    .failedToRemoveMessagingProvider(provider.getName()),
                             response.getFailureDescription());
                 } else {
-                    Console.info("Successfully removed messaging provider " + provider.getName());
+                    Console.info(((UIMessages) GWT.create(UIMessages.class))
+                            .successfullyRemovedMessagingProvider(provider.getName()));
                 }
                 loadProvider();
             }
@@ -267,7 +275,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     }
 
     public void onLaunchProviderSettings(Property provider) {
-        providerDialog = new DefaultWindow("Provider Settings");
+        providerDialog = new DefaultWindow(((UIMessages) GWT.create(UIMessages.class)).providerSettings());
         providerDialog.setWidth(640);
         providerDialog.setHeight(480);
         providerDialog.trapWidget(providerView.asWidget());

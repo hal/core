@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.subsys.infinispan.v3;
  */
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -34,6 +35,8 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -212,17 +215,13 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-
-                if (response.isFailure())
-                {
-                    Console.error("Failed to create resource "+fqAddress, response.getFailureDescription());
+                if (response.isFailure()) {
+                    Console.error(
+                            ((UIMessages) GWT.create(UIMessages.class)).failedToCreateResource(fqAddress.toString()),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyCreated(fqAddress.toString()));
                 }
-                else
-                {
-
-                    Console.info("Successfully created "+fqAddress);
-                }
-
                 loadContainer();
             }
         });
@@ -249,11 +248,11 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                    Console.error(((UIMessages) GWT.create(UIMessages.class)).failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadContainer();
@@ -268,7 +267,8 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
 
         final ResourceDescription resourceDescription = descriptionRegistry.lookup(CACHE_CONTAINER);
 
-        final DefaultWindow dialog = new DefaultWindow("New Cache Configuration");
+        final DefaultWindow dialog = new DefaultWindow(
+                ((UIConstants) GWT.create(UIConstants.class)).newCacheConfiguration());
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -291,7 +291,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
+                                Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyAdded(fqAddress.toString()));
                                 loadContainer();
                             }
                         });
@@ -313,7 +313,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     }
 
     public void onLaunchTransportSettings(Property cacheContainer) {
-        transportDialog = new DefaultWindow("Transport Settings");
+        transportDialog = new DefaultWindow(Console.CONSTANTS.transportSettings());
 
         transportView = new TransportView(this, cacheContainer);
 
@@ -338,17 +338,17 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource "+fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else {
-                    Console.info("Successfully modified "+fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
 
                 loadContainer();
@@ -357,7 +357,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     }
 
     public void onLaunchContainerSettings(Property cacheContainer) {
-        containerDialog = new DefaultWindow("Container Settings");
+        containerDialog = new DefaultWindow(Console.CONSTANTS.containerSettings());
 
         containerView = new ContainerView(this, cacheContainer);
 
