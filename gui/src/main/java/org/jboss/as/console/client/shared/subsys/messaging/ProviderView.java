@@ -136,7 +136,7 @@ public class ProviderView {
                 .setPlain(true)
                 .setHeadlineWidget(title)
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonForm.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonForm.asWidget())
                 .addDetail("Security", secForm.asWidget())
                 .addDetail("Journal", journalForm.asWidget());
 

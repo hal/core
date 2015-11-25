@@ -148,7 +148,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         driverRegistry.refreshDrivers(new AsyncCallback<List<JDBCDriver>>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.warning("Failed to auto detect JDBC driver: " + caught.getMessage());
+                Console.warning(Console.MESSAGES.failedToDetectJdbcDriver(caught.getMessage()));
             }
 
             @Override

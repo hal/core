@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -26,7 +25,6 @@ import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
-import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -286,8 +284,8 @@ public class ConnectionDefList {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster("", table)
-                .addDetail("Attributes", formAssets.asWidget())
-                .addDetail("Properties", configProperties.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_properties(), configProperties.asWidget())
                 .addDetail("Pool", poolAssets.asWidget())
                 .addDetail("Security", secAssets.asWidget())
                 .addDetail("Validation", validationAssets.asWidget())

@@ -20,11 +20,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -135,10 +137,10 @@ public class AddressingDetails {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "An address setting defines the attributes that are applied to any address that matches the address setting's name (that can contain wildcards).")
-                .setMaster("Available Address Settings", addrTable)
+                        ((UIConstants) GWT.create(UIConstants.class)).addressingDescription())
+                .setMaster(Console.MESSAGES.available("Address Settings"), addrTable)
                 .setMasterTools(tableTools.asWidget())
-                .setDetail("Details", formPanel);
+                .setDetail(Console.CONSTANTS.common_label_details(), formPanel);
 
         return layout.build();
 

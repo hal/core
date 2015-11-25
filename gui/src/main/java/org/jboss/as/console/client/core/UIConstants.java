@@ -1331,4 +1331,364 @@ public interface UIConstants extends Constants {
     String wizard_back();
 
     String homepage_help_need_help();
+
+    String replace_me();
+
+    String hornetq_acceptor_type_desc();
+
+    String resource_already_exists();
+
+    String addedTo();
+
+    String excludedFrom();
+
+    String noConfigurableAttributes();
+
+    String addressingDescription();
+
+    String common_label_include();
+
+    String assignContent();
+
+    String enableAssignmentOnSelectedServerGroups();
+
+    String pleaseSelectServerGroup();
+
+    String common_label_role();
+
+    String pleaseSelectRole();
+
+    String asyncCallFailed();
+
+    String reason();
+
+    String noReason();
+
+    String lostConnection();
+
+    String statisticsEnabledError();
+
+    String batchSubsystemDescription();
+
+    String bridgeDescription();
+
+    String broadcastDescription();
+
+    String browseBy();
+
+    String pleaseChoseBufferPool();
+
+    String containerSettings();
+
+    String transportSettings();
+
+    String newCacheConfiguration();
+
+    String isInetAddressSet();
+
+    String anythingConflictsWithInetAddress();
+
+    String isAddressWildcardSet();
+
+    String validInetAddress();
+
+    String anythingConflictsWithAddressWildcard();
+
+    String validAddressWildcard();
+
+    String availableChildrenTypes();
+
+    String allSingletonsAlreadyAdded();
+
+    String unauthorizedAdd();
+
+    String cannotCreateChildResource();
+
+    String selectResourceType();
+
+    String common_label_continue();
+
+    String pleaseChoose();
+
+    String uploadNewDeployment();
+
+    String chooseFromContentRepository();
+
+    String createUnmanaged();
+
+    String lastActionError();
+
+    String createProfile();
+
+    String clusterConnectionDescription();
+
+    String startServerGroup();
+
+    String stopServerGroup();
+
+    String suspend();
+
+    String resume();
+
+    String resumeServerGroup();
+
+    String restartServerGroup();
+
+    String reloadServerGroup();
+
+    String common_label_includes();
+
+    String removeProfile();
+
+    String includedFromProfile();
+
+    String homepage_help_operational_resources();
+
+    String common_label_clone();
+
+    String pathsDescription();
+
+    String subsystemsDescription();
+
+    String socketBindingDescription();
+
+    String interfacesDescription();
+
+    String systemPropertiesDescription();
+
+    String anyChanges();
+
+    String noChanges();
+
+    String anyAddressModified();
+
+    String validAddressCriteria();
+
+    String anyNicModified();
+
+    String addressCriteriaIsValid();
+
+    String invalidAddressCriteria();
+
+    String validNicConstraints();
+
+    String anyLoopbackModified();
+
+    String nicCriteriaIsValid();
+
+    String invalidNicCriteria();
+
+    String validLoopbackCriteria();
+
+    String otherConstraintsModified();
+
+    String loopbackCriteriaIsValid();
+
+    String invalidLoopbackCriteria();
+
+    String validOtherConstraints();
+
+    String otherCriteriaIsValid();
+
+    String invalidOtherCriteria();
+
+    String localhostDoesNotWorkReliably();
+
+    String jmsConnectionFactoryDescription();
+
+    String jmsConnectorDescription();
+
+    String jmsConnectorServiceDescription();
+
+    String unableToLoadConsole();
+
+    String servletContainerDescription();
+
+    String help();
+
+    String uploadedDeployments();
+
+    String allDeploymentsAlreadyAssigned();
+
+    String pleaseChooseAnEntry();
+
+    String copyServerDescription();
+
+    String openCase();
+
+    String modifyCase();
+
+    String common_label_filter();
+
+    String noDriverSpecified();
+
+    String discoveryGroupOrConnectorsCanBeDefined();
+
+    String discoveryGroupOrConnectorsMustBeDefined();
+
+    String failedToResolveExpression();
+
+    String failedToCreateSecurityContext();
+
+    String noReferenceServerFound();
+
+    String cannotUploadDeployment();
+
+    String unableToAddUnmanagedDeployment();
+
+    String unableToAssignDeployment();
+
+    String cannotReadDeploymentScanner();
+
+    String chooseDeploymentScanner();
+
+    String divertDescription();
+
+    String unableToFindDeployments();
+
+    String uploadsNotSupported();
+
+    String noUploadDueToSecurityReasons();
+
+    String unableToRemoveDeployment();
+
+    String unableToAddDeployment();
+
+    String unableToModifyDeployment();
+
+    String unableToLoadDeployments();
+
+    String unassign();
+
+    String allContent();
+
+    String unassigned();
+
+    String unassignedContent();
+
+    String cannotLoadSubsystems();
+
+    String serverDescription();
+
+    String resolveExpressionValues();
+
+    String expressionsRunningServer();
+
+    String unableToResolve();
+
+    String resolve();
+
+    String resolvedValue();
+
+    String logFileDescription();
+
+    String attributeDescriptionsNotAvailable();
+
+    String failedToParseDescription();
+
+    String failedToRetrieveAttributeDescriptions();
+
+    String attributesNotSupported();
+
+    String suspendTimeoutDescription();
+
+    String unableToNavigateBack();
+
+    String runAs();
+
+    String failedToLoadServerNames();
+
+    String pleaseChoseHost();
+
+    String identityProviderDescription();
+
+    String accessDenied();
+
+    String insufficientPrivileges();
+
+    String pleaseChoseMessagingProvider();
+
+    String jndiFormatError();
+
+    String localSocketDescription();
+
+    String downloadLogFile();
+
+    String downloadingLogFileConfirmation();
+
+    String logFilesOfSelectedServer();
+
+    String requestTimeout();
+
+    String member();
+
+    String pleaseSelectPrincipal();
+
+    String dismiss();
+
+    String failedToReadMetricDescription();
+
+    String portDescription();
+
+    String userAlreadyExists();
+
+    String groupAlreadyExists();
+
+    String connectedTo();
+
+    String serverConfigurationChanged();
+
+    String reloadServerNow();
+
+    String remoteSocketDescription();
+
+    String replaceDeployment();
+
+    String standardRolesCannotBeRemoved();
+
+    String selectRole();
+
+    String selectRoleDescription();
+
+    String runAsRole();
+
+    String noPreselection();
+
+    String securitySettingsDescription();
+
+    String failedToAddServer();
+
+    String failedToRemoveServer();
+
+    String serviceProviderDescription();
+
+    String serverConfigurationNeedsToBeReloaded();
+
+    String serverNeedsToBeRestarted();
+
+    String deploymentNameDescription();
+
+    String deploymentRuntimeNameDescription();
+
+    String deploymentEnabledDescription();
+
+    String unmanagedDeploymentPathDescription();
+
+    String unmanagedDeploymentRelativeToDescription();
+
+    String unmanagedDeploymentArchiveDescription();
+
+    String downloadInProgress();
+
+    String undertowDescription();
+
+    String unassignContent(String name, String name1);
+
+    String pleaseChooseFile();
+
+    String verifyUpload();
+
+    String successfullyRefreshedStatistics();
+
+    String pleaseChooseWorker();
 }

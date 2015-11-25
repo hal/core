@@ -114,7 +114,7 @@ public class HostView {
                 .setDescription("")
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Host Settings"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();

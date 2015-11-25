@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.gwt.circuit.Action;
 
 /**
@@ -39,6 +40,6 @@ public class RemovePrincipal implements Action, ModifiesPrincipal, HasSuccessMes
 
     @Override
     public String getMessage() {
-        return (principal.getType() == Principal.Type.USER ? "User" : "Group") + " successfully removed.";
+        return Console.MESSAGES.successfullyRemoved(principal.getType() == Principal.Type.USER ? Console.CONSTANTS.common_label_user() : Console.CONSTANTS.common_label_group());
     }
 }

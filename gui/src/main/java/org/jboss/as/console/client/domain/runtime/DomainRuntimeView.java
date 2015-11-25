@@ -20,8 +20,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -41,7 +40,6 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
-import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -271,14 +269,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         serverColumn.setTopMenuItems(
                 new MenuDelegate<Server>(
-                        "Add", new ContextualCommand<Server>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.launchNewConfigDialoge();
                     }
                 }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
-                        "Refresh", new ContextualCommand<Server>() {
+                        Console.CONSTANTS.common_label_refresh(), new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.refreshServer();
@@ -298,7 +296,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 html.appendHtmlConstant("</h2>");
 
 
-                html.appendEscaped("A \"Server\" represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. ");
+                html.appendEscaped(((UIConstants) GWT.create(UIConstants.class)).serverDescription());
 
                 // TODO: reload state
                 if (!data.isStarted()) {

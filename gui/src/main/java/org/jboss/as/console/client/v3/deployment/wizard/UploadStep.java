@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.common.base.Strings;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -29,6 +30,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 
@@ -79,7 +81,7 @@ public class UploadStep extends
     protected boolean onNext(final Context context) {
         String filename = fileUpload.getFilename();
         if (Strings.isNullOrEmpty(filename)) {
-            wizard.showError("Please choose a file!");
+            wizard.showError(((UIConstants) GWT.create(UIConstants.class)).pleaseChooseFile());
             return false;
         } else {
             wizard.clearError();

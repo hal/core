@@ -157,7 +157,7 @@ public class PathManagementView extends SuspendableViewImpl implements PathManag
                 .setDescription(Console.MESSAGES.path_description())
                 .setMaster(Console.MESSAGES.available("Paths"), table)
                 .setMasterTools(toolstrip)
-                .addDetail("Attributes", formLayout.build());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formLayout.build());
 
 
         return layout.build();

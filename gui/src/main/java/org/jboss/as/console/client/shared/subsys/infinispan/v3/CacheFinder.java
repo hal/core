@@ -17,6 +17,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -113,7 +114,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
 
         cacheContainer.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "Add", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
                         presenter.onLauchAddContainer();
@@ -124,7 +125,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
 
         cacheContainer.setMenuItems(
                 new MenuDelegate<Property>(
-                        "View", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         placeManager.revealRelativePlace(
@@ -133,21 +134,21 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Container Settings", new ContextualCommand<Property>() {
+                        ((UIConstants) GWT.create(UIConstants.class)).containerSettings(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         presenter.onLaunchContainerSettings(cacheContainer);
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Transport Settings", new ContextualCommand<Property>() {
+                        ((UIConstants) GWT.create(UIConstants.class)).transportSettings(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         presenter.onLaunchTransportSettings(cacheContainer);
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Remove", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
 

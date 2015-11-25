@@ -74,7 +74,7 @@ public class IIOPSvcView {
                 .setPlain(true)
                 .setHeadline("IIOP Service")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget());
 
         return layoutBuilder.build();
     }

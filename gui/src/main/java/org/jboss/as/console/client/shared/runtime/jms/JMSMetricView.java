@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -12,6 +13,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
@@ -85,7 +87,7 @@ public class JMSMetricView extends SuspendableViewImpl implements JMSMetricPrese
         Widget frontPage = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("JMS Messaging Provider")
-                .setDescription("Please chose a provider from below for specific metrics.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).pleaseChoseMessagingProvider())
                 .addContent("", table.asWidget())
                 .build();
 

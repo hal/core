@@ -185,7 +185,7 @@ public class CommonCacheAttributes {
                 .setDescription(localCacheDescription.get("description").asString())
                 .setMaster("Available Caches", table)
                 .setMasterTools(tools.asWidget())
-                .addDetail("Attributes", formMapping.get(cacheType).asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formMapping.get(cacheType).asWidget())
                 .addDetail("Locking", formMapping.get(LOCKING).asWidget())
                 .addDetail("Eviction", formMapping.get(EVICTION).asWidget())
                 .addDetail("Expiration", formMapping.get(EXPIRATION).asWidget())

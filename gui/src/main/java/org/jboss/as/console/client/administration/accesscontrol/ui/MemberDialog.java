@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -37,6 +38,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.Assignment
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -112,7 +114,7 @@ public class MemberDialog implements IsWidget {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     if (selectionModel.getSelectedObject() == null) {
-                        errorMessage.setText("Please select a user or group");
+                        errorMessage.setText(((UIConstants) GWT.create(UIConstants.class)).pleaseSelectPrincipal());
                         errorMessage.setVisible(true);
                     } else {
                         Assignment assignment = new Assignment(selectionModel.getSelectedObject(), role,

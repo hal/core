@@ -116,7 +116,7 @@ public class RemotingProfileView {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Remoting Profile"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         selectionModel = new SingleSelectionModel<Property>();

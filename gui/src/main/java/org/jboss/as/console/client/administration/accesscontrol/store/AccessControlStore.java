@@ -213,8 +213,8 @@ public class AccessControlStore extends ChangeSupport {
                         if (assignmentNode.hasDefined("include-all")) {
                             role.setIncludeAll(assignmentNode.get("include-all").asBoolean());
                         }
-                        if (assignmentNode.hasDefined("include")) {
-                            properties = assignmentNode.get("include").asPropertyList();
+                        if (assignmentNode.hasDefined("common_label_include")) {
+                            properties = assignmentNode.get("common_label_include").asPropertyList();
                             for (Property include : properties) {
                                 addAssignment(include, role, true);
                             }

@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -34,6 +35,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -242,7 +244,7 @@ public class FederationPresenter
 
     private void launchAddDialog(final String resourceName, final AddressTemplate template,
             final ResourceDescription resourceDescription, String... attributes) {
-        DefaultWindow dialog = new DefaultWindow("New " + resourceName);
+        DefaultWindow dialog = new DefaultWindow(((UIMessages) GWT.create(UIMessages.class)).newTitle(resourceName));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -262,7 +264,7 @@ public class FederationPresenter
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added " + name);
+                                Console.info(Console.MESSAGES.successfullyAdded(name));
                                 readFederation();
                             }
                         });
@@ -286,13 +288,13 @@ public class FederationPresenter
                 new Callback() {
                     @Override
                     public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                        Console.info("Successfully modified " + name);
+                        Console.info(Console.MESSAGES.successfullyModifiedResource(name));
                         readFederation();
                     }
 
                     @Override
                     public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                        Console.error("Unable to modify " + name, t.getMessage());
+                        Console.error(Console.MESSAGES.failedToModifyResource(name), t.getMessage());
                         readFederation();
                     }
                 });
@@ -309,13 +311,13 @@ public class FederationPresenter
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
-                        Console.error("Cannot save " + resourceName, context.getErrorMessage());
+                        Console.error(Console.MESSAGES.failedToModifyResource(resourceName), context.getErrorMessage());
                         readFederation();
                     }
 
                     @Override
                     public void onSuccess(final FunctionContext context) {
-                        Console.info("Successfully modified " + resourceName);
+                        Console.info(Console.MESSAGES.successfullyModifiedResource(resourceName));
                         readFederation();
                     }
                 });
@@ -325,14 +327,14 @@ public class FederationPresenter
         crud.onRemoveResource(template, name, new CrudOperationDelegate.Callback() {
             @Override
             public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                Console.info("Successfully removed " + name);
+                Console.info(Console.MESSAGES.successfullyRemoved(name));
                 readFederation();
             }
 
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
                 readFederation();
-                Console.error("Unable to remove " + name, t.getMessage());
+                Console.error(Console.MESSAGES.failedToRemoveResource(name), t.getMessage());
             }
         });
     }

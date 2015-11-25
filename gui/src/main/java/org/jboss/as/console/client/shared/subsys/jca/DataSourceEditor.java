@@ -155,11 +155,11 @@ public class DataSourceEditor {
                 .setHeadlineWidget(title)
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSources_desc())
                 .setMaster("",topLevelTools.asWidget())
-                .addDetail("Attributes", details.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), details.asWidget())
                 .addDetail("Connection", connectionEditor.asWidget())
                 .addDetail("Pool", poolConfig.asWidget())
                 .addDetail("Security", securityEditor.asWidget())
-                .addDetail("Properties", connectionProps.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_properties(), connectionProps.asWidget())
                 .addDetail("Validation", validationEditor.asWidget())
                 .addDetail("Timeouts", timeoutEditor.asWidget())
                 .addDetail("Statements", statementEditor.asWidget());

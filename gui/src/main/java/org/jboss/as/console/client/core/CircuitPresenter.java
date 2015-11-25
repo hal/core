@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -106,14 +107,14 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected void onError(Action action, String reason) {
-        Console.error("Last action resulted in an error", reason);
+        Console.error(((UIConstants) GWT.create(UIConstants.class)).lastActionError(), reason);
     }
 
     /**
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected void onError(Action action, Throwable t) {
-        Console.error("Last action resulted in an error", t.getMessage());
+        Console.error(Console.CONSTANTS.lastActionError(), t.getMessage());
     }
 
 

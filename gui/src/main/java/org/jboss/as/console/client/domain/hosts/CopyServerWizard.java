@@ -19,11 +19,13 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -61,8 +63,7 @@ public class CopyServerWizard {
         layout.setStyleName("window-content");
 
 
-        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy a server-configuration. "+
-                "Please verify the port offset to avoid conflicts when starting the server."));
+        layout.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).copyServerDescription()));
 
         final Form<Server> form = new Form<Server>(Server.class);
         form.setNumColumns(1);

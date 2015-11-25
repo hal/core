@@ -15,6 +15,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -121,7 +122,7 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
             }
         });
 
-        links.setMenuItems(new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
+        links.setMenuItems(new MenuDelegate<FinderItem>(Console.CONSTANTS.common_label_view(), new ContextualCommand<FinderItem>() {
             @Override
             public void executeOn(FinderItem item) {
                 item.getCmd().execute();

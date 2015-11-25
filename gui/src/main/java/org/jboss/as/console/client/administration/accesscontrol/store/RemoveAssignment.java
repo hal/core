@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import com.google.gwt.core.client.GWT;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.gwt.circuit.Action;
 
 import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
@@ -51,13 +54,12 @@ public class RemoveAssignment implements Action, ModifiesAssignment, HasSuccessM
     @Override
     public String getMessage() {
         if (relation == PRINCIPAL_TO_ROLE) {
-            return "Role " + assignment.getRole().getId() +
-                    " successfully removed from " +
-                    assignment.getPrincipal().getName() + ".";
+            return ((UIMessages) GWT.create(UIMessages.class))
+                    .roleSuccessfullyRemovedFrom(assignment.getRole().getId(), assignment.getPrincipal().getName());
         } else {
-            return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User " : "Group ") +
-                    " successfully removed from " +
-                    assignment.getPrincipal().getName() + ".";
+            return ((UIMessages) GWT.create(UIMessages.class)).principalSuccessfullyRemovedFromAssignment(
+                    assignment.getPrincipal().getType() == Principal.Type.USER ? Console.CONSTANTS.common_label_user() : Console.CONSTANTS.common_label_group(),
+                    assignment.getPrincipal().getName());
         }
     }
 }

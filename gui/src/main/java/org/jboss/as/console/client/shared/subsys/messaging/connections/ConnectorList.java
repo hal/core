@@ -136,8 +136,8 @@ public class ConnectorList {
         tabs.getElement().setAttribute("style", "margin-top:15px;");
         tabs.addStyleName("master_detail-detail");
 
-        tabs.add(ConnectorForm.asWidget(), "Details");
-        tabs.add(properties.asWidget(), "Properties");
+        tabs.add(ConnectorForm.asWidget(), Console.CONSTANTS.common_label_details());
+        tabs.add(properties.asWidget(), Console.CONSTANTS.common_label_properties());
 
         layout.add(tabs);
         tabs.selectTab(0);

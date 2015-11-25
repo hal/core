@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.standalone.deploymentscanner;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -32,6 +33,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
@@ -149,10 +151,10 @@ public class DeploymentScannerView extends SuspendableViewImpl implements Deploy
                 .setPlain(true)
                 .setHeadline("Deployment Scanners")
                 .setDescription(SafeHtmlUtils
-                        .fromString("Please choose a deployment scanner from below for specific settings."))
+                        .fromString(((UIConstants) GWT.create(UIConstants.class)).chooseDeploymentScanner()))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Deployment Scanners"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
         return layoutBuilder.build();
     }
 

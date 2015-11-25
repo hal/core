@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -66,13 +67,7 @@ public class SuspendStandaloneDialogue {
         Widget formWidget = form.asWidget();
 
         layout.add(new HTML("<h3> Suspend server?</h3>"));
-        layout.add(
-                new ContentDescription(
-                        "Timeout in seconds. If this is zero the operation will return immediately, " +
-                                "-1 means that it will wait indefinitely. Note that the operation will not roll back if the timeout is exceeded, " +
-                                "it just means that not all current requests completed in the specified timeout."
-                )
-        );
+        layout.add(new ContentDescription(Console.CONSTANTS.suspendTimeoutDescription()));
         layout.add(formWidget);
         return new WindowContentBuilder(layout, options).build();
     }

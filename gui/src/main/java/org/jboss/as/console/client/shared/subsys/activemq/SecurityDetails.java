@@ -20,11 +20,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -152,10 +154,10 @@ public class SecurityDetails {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "A security setting allows sets of permissions to be defined against queues based on their address.")
-                .setMaster("Available security settings", secTable)
+                        ((UIConstants) GWT.create(UIConstants.class)).securitySettingsDescription())
+                .setMaster(Console.MESSAGES.available("security settings"), secTable)
                 .setMasterTools(tableTools.asWidget())
-                .setDetail("Details", formPanel);
+                .setDetail(Console.CONSTANTS.common_label_details(), formPanel);
 
         return layout.build();
     }

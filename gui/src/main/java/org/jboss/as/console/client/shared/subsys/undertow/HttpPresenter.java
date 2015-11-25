@@ -22,11 +22,6 @@ import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-
-import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -62,7 +57,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         @Override
         public void onSuccess(AddressTemplate address, String name) {
 
-            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
 
             if(address.getResourceType().equals("server"))
                 loadServer();
@@ -74,7 +69,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
         }
     };
 

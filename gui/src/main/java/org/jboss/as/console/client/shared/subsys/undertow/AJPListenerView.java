@@ -126,7 +126,7 @@ public class AJPListenerView {
                 .setDescription("")
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("AJP Listener "), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         selectionModel = new SingleSelectionModel<Property>();

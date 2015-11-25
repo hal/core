@@ -23,6 +23,7 @@ package org.jboss.as.console.client.shared.subsys.remoting.ui;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.remoting.store.ModifyEndpointConfiguration;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -123,7 +124,7 @@ class EndpointConfigurationEditor implements IsWidget {
                 .setPlain(true)
                 .setHeadline("Endpoint Configuration")
                 .setDescription(resourceDescription.get(DESCRIPTION).asString())
-                .addDetail("Attributes", commonForm.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonForm.asWidget())
                 .addDetail("Security", secForm.asWidget())
                 .addDetail("Channels", channelForm.asWidget());
 

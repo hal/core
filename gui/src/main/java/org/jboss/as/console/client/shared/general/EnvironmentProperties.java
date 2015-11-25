@@ -136,7 +136,7 @@ public class EnvironmentProperties {
                 .setDescription(Console.MESSAGES.environment_description())
                 .setMaster("", propertyTable)
                 .setMasterTools(toolStrip.asWidget())
-                .addDetail("Attributes", form.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), form.asWidget());
 
         return layout.build();
     }

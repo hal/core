@@ -62,13 +62,13 @@ public class JberetStore extends ChangeSupport {
 
         @Override
         public void onSuccess(final AddressTemplate address, final String name) {
-            Console.info("Successfully modified resource " + address.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
             init(channel);
         }
 
         @Override
         public void onFailure(final AddressTemplate address, final String name, final Throwable t) {
-            Console.info("Failed to modify resource " + address.resolve(statementContext, name));
+            Console.error(Console.MESSAGES.failedToModifyResource(address.resolve(statementContext, name).toString()), t.getMessage());
             channel.nack(t);
         }
     }

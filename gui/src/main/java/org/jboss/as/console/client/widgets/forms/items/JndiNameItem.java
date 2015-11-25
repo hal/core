@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.widgets.forms.items;
 
+import com.google.gwt.core.client.GWT;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
@@ -26,6 +28,6 @@ public class JndiNameItem extends TextBoxItem {
 
     @Override
     public String getErrMessage() {
-        return "JNDI name has to start with 'java:/' or 'java:jboss/'";
+        return ((UIConstants) GWT.create(UIConstants.class)).jndiFormatError();
     }
 }

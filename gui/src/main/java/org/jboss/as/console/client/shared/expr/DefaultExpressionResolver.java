@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.expr;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -49,7 +51,7 @@ public class DefaultExpressionResolver extends ExpressionResolver {
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to resolve expression", response.getFailureDescription());
+                    Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToResolveExpression(), response.getFailureDescription());
                 }
                 else
                 {

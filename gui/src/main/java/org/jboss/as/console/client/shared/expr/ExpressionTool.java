@@ -1,9 +1,11 @@
 package org.jboss.as.console.client.shared.expr;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.tools.Tool;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -49,20 +51,20 @@ public class ExpressionTool implements Tool {
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
 
-        panel.add(new ContentHeaderLabel("Resolve Expression Values"));
+        panel.add(new ContentHeaderLabel(((UIConstants) GWT.create(UIConstants.class)).resolveExpressionValues()));
 
         Form<Expression> form = new Form<Expression>(Expression.class);
         input = new TextBoxItem("input", "Expression");
-        output = new TextAreaItem("output", "Resolved Value") {
+        output = new TextAreaItem("output", ((UIConstants) GWT.create(UIConstants.class)).resolvedValue()) {
             @Override
             public String getErrMessage() {
-                return "Cannot be resolved!";
+                return ((UIConstants) GWT.create(UIConstants.class)).unableToResolve();
             }
         };
 
         form.setFields(input, output);
 
-        panel.add(new ContentDescription("Expressions will be resolved against running server instances."));
+        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).expressionsRunningServer()));
         panel.add(form.asWidget());
 
 
@@ -82,7 +84,7 @@ public class ExpressionTool implements Tool {
         };
 
         DialogueOptions options = new DialogueOptions(
-                "Resolve",submitHandler, "Done",cancelHandler);
+                ((UIConstants) GWT.create(UIConstants.class)).resolve(),submitHandler, Console.CONSTANTS.common_label_done(),cancelHandler);
 
 
         window.trapWidget(new WindowContentBuilder(panel, options).build());

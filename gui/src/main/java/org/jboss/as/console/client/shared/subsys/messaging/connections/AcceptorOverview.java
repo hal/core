@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
 import org.jboss.as.console.client.shared.subsys.messaging.model.AcceptorType;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -47,7 +48,7 @@ public class AcceptorOverview {
 
         // ---
 
-        serverName = new HTML("Replace me");
+        serverName = new HTML(Console.CONSTANTS.replace_me());
         serverName.setStyleName("content-header-label");
 
 
@@ -78,7 +79,7 @@ public class AcceptorOverview {
 
 
         panel.add(header);
-        panel.add(new ContentDescription("Defines a way in which connections can be made to the HornetQ server."));
+        panel.add(new ContentDescription(Console.CONSTANTS.hornetq_acceptor_type_desc()));
 
         genericAcceptors = new AcceptorList(presenter, AcceptorType.GENERIC);
         remoteAcceptors = new AcceptorList(presenter, AcceptorType.REMOTE);

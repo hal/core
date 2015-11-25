@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
@@ -78,11 +79,11 @@ public class IOSubsystemExample implements Sample
 
         // worker master detail
         Select workerList = new Select(ns, "worker", "Worker");
-        Container workerDetails = new Container(ns, "workerDetails", "Details", Form);
+        Container workerDetails = new Container(ns, "workerDetails", Console.CONSTANTS.common_label_details(), Form);
 
         // buffer pool master detail
         Select bufferList = new Select(ns, "buffer", "Buffer Pool");
-        Container bufferDetails = new Container(ns, "bufferDetails", "Details", Form);
+        Container bufferDetails = new Container(ns, "bufferDetails", Console.CONSTANTS.common_label_details(), Form);
 
         DMRMapping workerInstance = new DMRMapping().setAddress("/{selected.profile}/subsystem=io/worker={selected.entity}");
         DMRMapping bufferInstance = new DMRMapping().setAddress("/{selected.profile}/subsystem=io/buffer-pool={selected.entity}");

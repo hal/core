@@ -103,11 +103,11 @@ public class CrudOperationDelegate {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to save " + name, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.saveFailed(name), response.getFailureDescription());
                     for (Callback cb : callback) {
                         cb.onFailure(addressTemplate, name,
-                                new RuntimeException("Failed to save resource " +
-                                        addressTemplate.replaceWildcards(name) + ":" + response.getFailureDescription()));
+                                new RuntimeException(Console.MESSAGES.saveFailed(
+                                        addressTemplate.replaceWildcards(name).toString()) + ":" + response.getFailureDescription()));
                     }
                 } else {
                     for (Callback cb : callback) {
@@ -137,11 +137,11 @@ public class CrudOperationDelegate {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to save " + name, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.saveFailed(name), response.getFailureDescription());
                     for (Callback cb : callback) {
                         cb.onFailure(addressTemplate, name,
-                                new RuntimeException("Failed to save resource " +
-                                        addressTemplate.replaceWildcards(name) + ":" + response.getFailureDescription()));
+                                new RuntimeException(Console.MESSAGES.saveFailed(
+                                        addressTemplate.replaceWildcards(name).toString()) + ":" + response.getFailureDescription()));
                     }
                 } else {
                     for (Callback cb : callback) {

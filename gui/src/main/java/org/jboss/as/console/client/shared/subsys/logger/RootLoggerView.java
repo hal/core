@@ -69,7 +69,7 @@ public class RootLoggerView {
                 .setPlain(true)
                 .setHeadline("Root Logger")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget());
 
         return layoutBuilder.build();
     }

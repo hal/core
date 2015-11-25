@@ -1,7 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.messaging.forms;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -68,7 +70,8 @@ public class DefaultBridgeForm {
                     discoveryGroup.setErroneous(true);
                     connectors.setErroneous(true);
 
-                    String errMessage = "Discovery group or connectors can be defined, not both";
+                    String errMessage = ((UIConstants) GWT.create(UIConstants.class))
+                            .discoveryGroupOrConnectorsCanBeDefined();
                     discoveryGroup.setErrMessage(errMessage);
                     connectors.setErrMessage(errMessage);
 

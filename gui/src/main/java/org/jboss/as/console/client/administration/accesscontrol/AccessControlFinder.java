@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.administration.accesscontrol;
 
 import com.google.common.collect.Sets;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -58,6 +59,8 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
@@ -178,17 +181,18 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
         circuit.addDiagnostics(errorSupport);
         errorSupport.onError((action, error) -> {
             if (error instanceof DuplicateResourceException) {
-                Console.error("Resource already exists",
-                        "The resource with the name '" + ((DuplicateResourceException) error)
-                                .getName() + "' already exists.");
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).resource_already_exists(),
+                        ((UIMessages) GWT.create(UIMessages.class))
+                                .resource_already_exists(((DuplicateResourceException) error)
+                                        .getName()));
 
             } else if (error instanceof RoleInUseException) {
                 int usage = ((RoleInUseException) error).getUsage();
-                Console.error("The role is used in assignments",
+                Console.error(((UIMessages) GWT.create(UIMessages.class)).role_is_used_in_assignments(),
                         Console.MESSAGES.administration_scoped_role_in_use(usage));
 
             } else {
-                Console.error("Unknown Error", error.getMessage());
+                Console.error(Console.CONSTANTS.common_error_unknownError(), error.getMessage());
             }
         });
 
@@ -263,17 +267,18 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
 
     public void launchAddPrincipalDialog(final Principal.Type type) {
         PrincipalDialog dialog = new PrincipalDialog(type, accessControlStore, circuit, this);
-        openWindow(type == Principal.Type.USER ? "Add User" : "Add Group", WINDOW_WIDTH, 250, dialog);
+        openWindow(type == Principal.Type.USER ? ((UIMessages) GWT.create(UIMessages.class)).addUser() : ((UIMessages) GWT
+                .create(UIMessages.class)).addGroup(), WINDOW_WIDTH, 250, dialog);
     }
 
     public void launchAddScopedRoleDialog() {
         ScopedRoleDialog dialog = new ScopedRoleDialog(beanFactory, accessControlStore, circuit, this, true);
-        openWindow("Add Scoped Role", WINDOW_WIDTH, 400, dialog);
+        openWindow(Console.CONSTANTS.administration_add_scoped_role(), WINDOW_WIDTH, 400, dialog);
     }
 
     public void editRole(final Role role) {
         ScopedRoleDialog dialog = new ScopedRoleDialog(beanFactory, accessControlStore, circuit, this, role);
-        openWindow("Edit Role", WINDOW_WIDTH, 400, dialog);
+        openWindow(((UIMessages) GWT.create(UIMessages.class)).editRole(), WINDOW_WIDTH, 400, dialog);
     }
 
     public void launchAddMemberDialog(final Role role, final boolean include) {
@@ -283,10 +288,12 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
             unassignedPrincipals.remove(assignment.getPrincipal());
         }
         if (unassignedPrincipals.isEmpty()) {
-            Console.warning("All users and groups are already members of " + role.getName());
+            Console.warning(
+                    ((UIMessages) GWT.create(UIMessages.class)).allPrincipalsAreAlreadyMembersOf(role.getName()));
         } else {
             MemberDialog dialog = new MemberDialog(role, include, unassignedPrincipals, circuit, this);
-            openWindow(include ? "Add Member" : "Exclude Member", WINDOW_WIDTH, 400, dialog);
+            openWindow(include ? ((UIMessages) GWT.create(UIMessages.class)).addMember() : ((UIMessages) GWT
+                    .create(UIMessages.class)).excludeMember(), WINDOW_WIDTH, 400, dialog);
         }
     }
 
@@ -297,10 +304,12 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
             unassignedRoles.remove(assignment.getRole());
         }
         if (unassignedRoles.isEmpty()) {
-            Console.warning("All roles are already assigned to " + principal.getNameAndRealm());
+            Console.warning(((UIMessages) GWT.create(UIMessages.class))
+                    .allRolesAreAlreadyAssignedTo(principal.getNameAndRealm()));
         } else {
             AssignmentDialog dialog = new AssignmentDialog(principal, include, unassignedRoles, circuit, this);
-            openWindow(include ? "Assign Role" : "Exclude Role", WINDOW_WIDTH, 400, dialog);
+            openWindow(include ? ((UIMessages) GWT.create(UIMessages.class)).assignRole() : ((UIMessages) GWT
+                    .create(UIMessages.class)).excludeRole(), WINDOW_WIDTH, 400, dialog);
         }
     }
 }

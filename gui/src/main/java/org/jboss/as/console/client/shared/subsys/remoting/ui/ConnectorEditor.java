@@ -100,8 +100,8 @@ class ConnectorEditor extends RemotingEditor {
                 .setDescription(SafeHtmlUtils.fromString(resourceDescription.get(DESCRIPTION).asString()))
                 .setMasterTools(tools())
                 .setMaster(Console.MESSAGES.available(title), table())
-                .addDetail("Attributes", formPanel())
-                .addDetail("Properties", propertyEditor().asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel())
+                .addDetail(Console.CONSTANTS.common_label_properties(), propertyEditor().asWidget())
                 .addDetail("Security", saslSecurityEditor.asWidget())
                 .addDetail("Security Properties", securityProperties.asWidget())
                 .addDetail("Policy", saslPolicyEditor.asWidget());

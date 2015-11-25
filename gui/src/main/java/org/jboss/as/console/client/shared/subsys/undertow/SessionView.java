@@ -74,7 +74,7 @@ public class SessionView {
                 .setPlain(true)
                 .setHeadline("Persistent Session Settings")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget());
 
         return layoutBuilder.build();
     }

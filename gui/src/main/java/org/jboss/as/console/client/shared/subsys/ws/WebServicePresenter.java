@@ -60,13 +60,13 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
-            Console.info("Successfully saved resource "+address);
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.toString()));
             loadProvider();
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
         }
     };
 

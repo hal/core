@@ -21,10 +21,12 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
@@ -40,7 +42,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
             final SelectionChangeEvent.Handler selectionHandler, String token) {
 
         super(FinderId.DEPLOYMENT,
-                "Browse By",
+                ((UIConstants) GWT.create(UIConstants.class)).browseBy(),
                 new Display<BrowseByItem>() {
                     @Override
                     public boolean isFolder(final BrowseByItem data) {

@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
@@ -37,6 +38,7 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -224,7 +226,7 @@ public class ProfileMgmtPresenter
         }
 
         if(inUseBy!=null)
-            Console.error("The profile is still in use by server group: "+ inUseBy.getName());
+            Console.error(((UIMessages) GWT.create(UIMessages.class)).profileUsedBy(inUseBy.getName()));
         else
             circuit.dispatch(new RemoveProfile(profileRecord.getName()));
 

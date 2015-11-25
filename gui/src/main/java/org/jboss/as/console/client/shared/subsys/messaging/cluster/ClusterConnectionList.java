@@ -110,10 +110,10 @@ public class ClusterConnectionList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("Multicast group to listen to receive broadcast from other servers announcing their connectors.")
+                .setDescription(Console.CONSTANTS.clusterConnectionDescription())
                 .setMaster("ClusterConnections", factoryTable)
                 .setMasterTools(tools)
-                .setDetail("Details", defaultAttributes.asWidget());
+                .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());
 
         defaultAttributes.getForm().bind(factoryTable);
         defaultAttributes.getForm().setEnabled(false);

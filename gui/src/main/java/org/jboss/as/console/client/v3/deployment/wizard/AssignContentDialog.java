@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -37,6 +38,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -84,7 +87,7 @@ public class AssignContentDialog implements IsWidget {
         intro = new Label();
         intro.getElement().getStyle().setMarginBottom(10, PX);
 
-        root.add(new HTML("<h3>Assign Content</h3>"));
+        root.add(new HTML("<h3>" + ((UIConstants) GWT.create(UIConstants.class)).assignContent() + "</h3>"));
         root.add(errorMessages);
         root.add(intro);
 
@@ -136,7 +139,8 @@ public class AssignContentDialog implements IsWidget {
 
         // enable assignments?
         Form<Object> form = new Form<>(Object.class); // form is just used for layout reasons
-        CheckBoxItem enable = new CheckBoxItem("enable", "Enable assignment on selected server groups");
+        CheckBoxItem enable = new CheckBoxItem("enable",
+                ((UIConstants) GWT.create(UIConstants.class)).enableAssignmentOnSelectedServerGroups());
         form.setFields(enable);
         root.add(form.asWidget());
 
@@ -145,7 +149,8 @@ public class AssignContentDialog implements IsWidget {
                         event -> {
                             Set<String> selectedSet = selectionModel.getSelectedSet();
                             if (selectedSet.isEmpty()) {
-                                errorMessages.setText("Please select a server group");
+                                errorMessages.setText(
+                                        ((UIConstants) GWT.create(UIConstants.class)).pleaseSelectServerGroup());
                                 errorMessages.setVisible(true);
                             } else {
                                 close();
@@ -160,7 +165,7 @@ public class AssignContentDialog implements IsWidget {
         this.content = content;
 
         if (window == null) {
-            window = new DefaultWindow("Assign Content");
+            window = new DefaultWindow(((UIConstants) GWT.create(UIConstants.class)).assignContent());
             window.setWidth(520);
             window.setHeight(400);
             window.trapWidget(asWidget());
@@ -168,7 +173,7 @@ public class AssignContentDialog implements IsWidget {
         }
         errorMessages.setText("");
         errorMessages.setVisible(false);
-        intro.setText("Choose the server groups for assigning '" + content.getName() + "'.");
+        intro.setText(((UIMessages) GWT.create(UIMessages.class)).chooseServerGroupsForAssigning(content.getName()));
         dataProvider.setList(serverGroups);
         selectionModel.clear();
         table.selectDefaultEntity();

@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -14,6 +15,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
@@ -336,12 +338,14 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
                 if(response.isFailure())
                 {
-                    Console.error(Console.MESSAGES.failed("Flush connections error for " + dsName), response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failed(
+                            ((UIMessages) GWT.create(UIMessages.class)).flushConnectionsError(dsName)), response.getFailureDescription());
                 }
                 else
                 {
                     Log.info("Successfully executed flush operation ':" + flushOp + "'");
-                    Console.info(Console.MESSAGES.successful("Flush connections for " + dsName));
+                    Console.info(Console.MESSAGES.successful(
+                            ((UIMessages) GWT.create(UIMessages.class)).flushConnectionsSuccess(dsName)));
                 }
             }
         });

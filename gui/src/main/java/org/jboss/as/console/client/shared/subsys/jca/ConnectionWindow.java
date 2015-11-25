@@ -78,7 +78,7 @@ public class ConnectionWindow {
                 window.hide();
             }
         };
-        DialogueOptions options = new DialogueOptions("OK", confirmHandler, "Cancel", confirmHandler);
+        DialogueOptions options = new DialogueOptions("OK", confirmHandler, Console.CONSTANTS.common_label_cancel(), confirmHandler);
         Widget content = new WindowContentBuilder(panel, options.showCancel(false)).build();
         window.trapWidget(content);
     }

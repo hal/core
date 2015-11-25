@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
@@ -12,6 +13,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.messaging.MessagingProviderEditor;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -136,10 +138,10 @@ public class ContainerList {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("Servlet Container")
-                .setDescription("Please chose a container below for further settings.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).servletContainerDescription())
                         //.setMasterTools(tools) // TODO: implement add/remove ops
                 .setMaster(Console.MESSAGES.available("Servlet Container"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();

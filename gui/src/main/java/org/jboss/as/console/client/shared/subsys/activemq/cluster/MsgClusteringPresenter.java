@@ -62,13 +62,13 @@ public class MsgClusteringPresenter
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
-            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
+            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
             onReset();
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
         }
     };
 

@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -35,6 +36,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.runtime.logging.store.DownloadLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -78,7 +80,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
 
         // header
         panel.add(new ContentHeaderLabel("Log Viewer"));
-        panel.add(new ContentDescription("Log files of selected server"));
+        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).logFilesOfSelectedServer()));
 
         // toolbar
         ToolStrip tools = new ToolStrip();

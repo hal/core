@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.general;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
@@ -9,6 +10,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.general.forms.LocalSocketForm;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
@@ -109,7 +111,7 @@ public class LocalSocketList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(headline)
-                .setDescription("Configuration information for a, local destination, outbound socket binding.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).localSocketDescription())
                 .setMaster("Local Socket Bindings", factoryTable)
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());

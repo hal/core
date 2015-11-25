@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
 import com.google.common.base.Supplier;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -32,6 +33,7 @@ import org.jboss.as.console.client.administration.accesscontrol.AccessControlFin
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.RemoveAssignment;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -63,7 +65,7 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
             final String token) {
 
         super(FinderId.ACCESS_CONTROL,
-                "Role",
+                ((UIConstants) GWT.create(UIConstants.class)).common_label_role(),
                 new Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {
@@ -108,12 +110,12 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
             }
         });
 
-        setTopMenuItems(new MenuDelegate<>("Add",
+        setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_add(),
                 item -> presenter.launchAddAssignmentDialog(selectedPrincipal.get(), include.get()),
                 MenuDelegate.Role.Operation));
 
-        setMenuItems(new MenuDelegate<>("Remove", item ->
-                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getRole().getName(),
+        setMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item ->
+                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(item.getRole().getName()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveAssignment(item, PRINCIPAL_TO_ROLE));

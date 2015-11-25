@@ -17,6 +17,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
@@ -64,7 +66,7 @@ public class ChildView {
         layout.setStyleName("fill-layout-width");
 
         tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton("Add", new ClickHandler() {
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
@@ -120,7 +122,8 @@ public class ChildView {
                         dialog.center();
                     }
                     else {
-                        Feedback.alert("Available Children Types","All singleton resources have been added already.");
+                        Feedback.alert(((UIConstants) GWT.create(UIConstants.class)).availableChildrenTypes(),
+                                ((UIConstants) GWT.create(UIConstants.class)).allSingletonsAlreadyAdded());
                     }
 
 
@@ -133,7 +136,7 @@ public class ChildView {
             }
         }));
 
-        final ToolButton remove = new ToolButton("Remove", new ClickHandler() {
+        final ToolButton remove = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 ModelNode selection = selectionModel.getSelectedObject();
@@ -233,7 +236,8 @@ public class ChildView {
         }
         else
         {
-            Feedback.alert("Authorisation Required", "You seem to lack permissions to add new resources!");
+            Feedback.alert(Console.CONSTANTS.unauthorized(),
+                    ((UIConstants) GWT.create(UIConstants.class)).unauthorizedAdd());
         }
 
     }
@@ -257,7 +261,8 @@ public class ChildView {
         form.setEnabled(true);
 
         if(form.hasWritableAttributes()) {
-            final DefaultWindow window = new DefaultWindow("Create Resource '" + type + "'");
+            final DefaultWindow window = new DefaultWindow(
+                    ((UIMessages) GWT.create(UIMessages.class)).createResource(type));
             window.addStyleName("browser-view");
 
             DialogueOptions options = new DialogueOptions(new ClickHandler() {
@@ -296,7 +301,8 @@ public class ChildView {
         else
         {
             // no writable attributes
-            Feedback.alert("Cannot create child resource", "There are no configurable attributes on resources " + address);
+            Feedback.alert(((UIConstants) GWT.create(UIConstants.class)).cannotCreateChildResource(),
+                    ((UIMessages) GWT.create(UIMessages.class)).noConfigurableAttributes(address.toString()));
         }
     }
 
@@ -314,7 +320,7 @@ public class ChildView {
 
 
         public SingletonDialog(Set<String> singletonTypes, final SimpleCallback callback) {
-            super("Select Resource Type");
+            super(((UIConstants) GWT.create(UIConstants.class)).selectResourceType());
 
             // Create a CellList that uses the cell.
             cellList = new CellList<String>(new TextCell()
@@ -345,7 +351,7 @@ public class ChildView {
             panel.setStyleName("fill-layout-width");
             panel.add(cellList.asWidget());
             Widget widget = new WindowContentBuilder(panel, new DialogueOptions(
-                    "Continue",
+                    ((UIConstants) GWT.create(UIConstants.class)).common_label_continue(),
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
@@ -354,7 +360,7 @@ public class ChildView {
                             callback.onSuccess(selectionModel.getSelectedObject());
                         }
                     },
-                    "Cancel",
+                    Console.CONSTANTS.common_label_cancel(),
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {

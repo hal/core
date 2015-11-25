@@ -23,6 +23,7 @@ package org.jboss.as.console.client.administration.accesscontrol.ui;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -32,6 +33,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.AccessCont
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.RemoveAssignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -59,7 +61,7 @@ public class MemberColumn extends FinderColumn<Assignment> {
             final String token) {
 
         super(FinderId.ACCESS_CONTROL,
-                "Member",
+                ((UIConstants) GWT.create(UIConstants.class)).member(),
                 new Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {
@@ -89,12 +91,12 @@ public class MemberColumn extends FinderColumn<Assignment> {
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.memberPreview(data,
                 Iterables.size(accessControlStore.getAssignments(data.getPrincipal(), include.get())))));
 
-        setTopMenuItems(new MenuDelegate<>("Add",
+        setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_add(),
                 item -> presenter.launchAddMemberDialog(selectedRole.get(), include.get()),
                 MenuDelegate.Role.Operation));
 
-        setMenuItems(new MenuDelegate<>("Remove", item ->
-                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getPrincipal().getName(),
+        setMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item ->
+                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(item.getPrincipal().getName()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveAssignment(item, ROLE_TO_PRINCIPAL));

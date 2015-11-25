@@ -123,7 +123,7 @@ public class CategoryView {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Log Categories"), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         selectionModel = new SingleSelectionModel<Property>();

@@ -1,9 +1,12 @@
 package org.jboss.as.console.client.tools;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -83,7 +86,7 @@ public class FormView {
                 // display unsupported types
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
                 html.appendHtmlConstant("<div style='color:#999999; padding:20px'>");
-                html.appendHtmlConstant("Some attributes are not supported in this editor:<br/>");
+                html.appendHtmlConstant(((UIConstants) GWT.create(UIConstants.class)).attributesNotSupported() + "<br/>");
                 html.appendHtmlConstant("<ul>");
                 for(String[] unsupported : formAssets.getUnsupportedTypes()) {
                     html.appendHtmlConstant("<li>");
@@ -97,7 +100,7 @@ public class FormView {
             formAssets.getForm().edit(model.getValue());
         }
         else {
-            formContainer.add(new HTML("No configurable attributes available."));
+            formContainer.add(new HTML(Console.CONSTANTS.noConfigurableAttributes()));
         }
 
     }

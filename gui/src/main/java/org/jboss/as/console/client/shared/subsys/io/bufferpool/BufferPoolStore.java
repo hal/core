@@ -21,9 +21,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -139,13 +141,15 @@ public class BufferPoolStore extends ChangeSupport {
 
         @Override
         public void onSuccess(AddressTemplate addressTemplate, String name) {
-            Console.info("Successfully modified resource "+ addressTemplate.resolve(statementContext, name));
+            Console.info(((UIMessages) GWT.create(UIMessages.class))
+                    .successfullyModifiedResource(addressTemplate.resolve(statementContext, name).toString()));
             refresh(channel);
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error("Failed to modify resource "+ addressTemplate.resolve(statementContext, name));
+            Console.error(((UIMessages) GWT.create(UIMessages.class))
+                    .failedToModifyResource(addressTemplate.resolve(statementContext, name).toString()));
             channel.nack(t);
         }
 

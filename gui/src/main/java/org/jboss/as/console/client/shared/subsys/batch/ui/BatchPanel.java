@@ -21,7 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -59,7 +61,7 @@ class BatchPanel extends Composite {
         OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Batch Subsystem")
-                .setDescription("The configuration of the batch subsystem.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).batchSubsystemDescription())
                 .addDetail("Repository Type", batch)
                 .addDetail("JDBC Job repository", jobRepository);
 

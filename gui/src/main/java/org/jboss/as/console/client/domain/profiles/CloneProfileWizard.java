@@ -1,11 +1,14 @@
 package org.jboss.as.console.client.domain.profiles;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -35,7 +38,7 @@ public class CloneProfileWizard  {
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
-        layout.add(new HTML("<h3>Create a copy of profile " + fromProfile.getName() + "</h3>"));
+        layout.add(new HTML("<h3>" + ((UIMessages) GWT.create(UIMessages.class)).cloneProfile(fromProfile.getName()) + "</h3>"));
 
         Form<ProfileRecord> form = new Form<ProfileRecord>(ProfileRecord.class);
 
@@ -49,7 +52,8 @@ public class CloneProfileWizard  {
             @Override
             public void validate(List<FormItem> list, FormValidation outcome) {
                 if(profileMgmtPresenter.doesExist(nameItem.getValue())) {
-                    String errMessage = "A profile with name " + nameItem.getValue() + " already exists!";
+                    String errMessage = ((UIMessages) GWT.create(UIMessages.class))
+                            .profileAlreadyExists(nameItem.getValue());
                     nameItem.setErrMessage(errMessage);
                     nameItem.setErroneous(true);
                     outcome.addError(errMessage);
@@ -74,7 +78,7 @@ public class CloneProfileWizard  {
         };
 
         DialogueOptions options = new DialogueOptions(
-                "Create new profile", submitHandler,
+                ((UIConstants) GWT.create(UIConstants.class)).createProfile(), submitHandler,
                 Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
         return new WindowContentBuilder(layout, options).build();

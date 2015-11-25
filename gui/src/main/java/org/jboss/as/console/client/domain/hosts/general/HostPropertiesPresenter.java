@@ -33,6 +33,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -187,7 +188,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
 
     public void launchNewPropertyDialoge(String group) {
 
-        propertyWindow = new DefaultWindow("New Host Property");
+        propertyWindow = new DefaultWindow(Console.MESSAGES.newTitle("Host Property"));
         propertyWindow.setWidth(480);
         propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {

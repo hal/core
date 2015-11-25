@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
+import com.google.gwt.core.client.GWT;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -32,6 +33,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.shared.runtime.logging.store.ReadLogFiles;
@@ -146,8 +148,8 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         } else {
             if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
                 Feedback.confirm(
-                        "Download Log File",
-                        "Downloading this log file may take some time. Do you want to proceed?",
+                        ((UIConstants) GWT.create(UIConstants.class)).downloadLogFile(),
+                        ((UIConstants) GWT.create(UIConstants.class)).downloadingLogFileConfirmation(),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 streamingProgress.monitor(logFile);

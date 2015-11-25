@@ -19,11 +19,13 @@
 package org.jboss.as.console.mbui.reification;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.JBossQNames;
@@ -31,7 +33,6 @@ import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
-import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -184,7 +185,8 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                         helpTexts.appendHtmlConstant(descWorkaround.equals("null") ? "n/a" : descWorkaround);
                     } catch (Throwable e) {
                         // ignore parse errors
-                        helpTexts.appendHtmlConstant("<i>Failed to parse description</i>");
+                        helpTexts.appendHtmlConstant("<i>" + ((UIConstants) GWT.create(UIConstants.class))
+                                .failedToParseDescription() + "</i>");
                     }
                     helpTexts.appendHtmlConstant("</td>");
                     helpTexts.appendHtmlConstant("</tr>");

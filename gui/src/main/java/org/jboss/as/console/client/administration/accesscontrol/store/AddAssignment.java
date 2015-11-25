@@ -21,9 +21,11 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.gwt.circuit.Action;
 
 import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * @author Harald Pehl
@@ -51,13 +53,23 @@ public class AddAssignment implements Action, ModifiesAssignment, HasSuccessMess
     @Override
     public String getMessage() {
         if (relation == PRINCIPAL_TO_ROLE) {
-            return "Role " + assignment.getRole().getId() + " successfully " +
-                    (assignment.isInclude() ? "assigned to " : "excluded from ") +
-                    assignment.getPrincipal().getNameAndRealm() + ".";
+            if (assignment.isInclude()) {
+                return Console.MESSAGES.assignmentIncludeRoleToPrincipal(assignment.getRole().getId(),
+                        assignment.getPrincipal().getNameAndRealm());
+            } else {
+                return Console.MESSAGES.assignmentExcludeRoleToPrincipal(assignment.getRole().getId(),
+                        assignment.getPrincipal().getNameAndRealm());
+            }
         } else {
-            return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User " : "Group ") +
-                    assignment.getPrincipal().getNameAndRealm() + " successfully " +
-                    (assignment.isInclude() ? "added to " : "excluded from ") + assignment.getRole().getId() + ".";
+            String userOrGroup = assignment.getPrincipal().getType() == USER ? Console.CONSTANTS
+                    .common_label_user() : Console.CONSTANTS.common_label_group();
+            if (assignment.isInclude()) {
+                return Console.MESSAGES.assignmentIncludePrincipalToRole(userOrGroup,
+                        assignment.getPrincipal().getNameAndRealm(), assignment.getRole().getId());
+            } else {
+                return Console.MESSAGES.assignmentExcludePrincipalToRole(userOrGroup,
+                        assignment.getPrincipal().getNameAndRealm(), assignment.getRole().getId());
+            }
         }
     }
 }

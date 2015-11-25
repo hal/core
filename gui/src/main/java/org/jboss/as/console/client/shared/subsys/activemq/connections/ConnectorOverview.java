@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -9,6 +10,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -65,7 +67,7 @@ public class ConnectorOverview {
         selector.getElement().getParentElement().setAttribute("align", "right");
 
         panel.add(header);
-        panel.add(new ContentDescription("A connector can be used by a client to define how it connects to a server."));
+        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).jmsConnectorDescription()));
 
         genericConnectors = new ConnectorList(presenter, ConnectorType.GENERIC);
         remoteConnectors = new ConnectorList(presenter, ConnectorType.REMOTE);

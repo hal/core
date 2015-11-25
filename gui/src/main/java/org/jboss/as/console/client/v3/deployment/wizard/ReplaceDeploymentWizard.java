@@ -21,10 +21,12 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
@@ -49,7 +51,7 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
     }
 
     public void open() {
-        super.open("Replace Deployment");
+        super.open(((UIConstants) GWT.create(UIConstants.class)).replaceDeployment());
     }
 
     @Override

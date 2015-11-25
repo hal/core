@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.runtime;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -22,6 +23,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.hosts.CopyServerWizard;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
@@ -298,8 +300,7 @@ public class DomainRuntimePresenter
         final Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
             public void onFailure(final FunctionContext context) {
-                // TODO i18n
-                Console.error("Cannot load subsystems of selected server");
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).cannotLoadSubsystems());
             }
 
             @Override

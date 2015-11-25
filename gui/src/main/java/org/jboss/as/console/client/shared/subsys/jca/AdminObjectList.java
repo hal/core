@@ -142,9 +142,8 @@ public class AdminObjectList {
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster("", table)
-                .addDetail("Attributes", formAssets.asWidget())
-                .addDetail("Configuration Properties", configProperties.asWidget()
-                );
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_properties(), configProperties.asWidget());
 
         selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

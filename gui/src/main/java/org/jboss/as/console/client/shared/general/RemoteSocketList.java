@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.general;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
@@ -9,6 +10,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.general.forms.RemoteSocketForm;
 import org.jboss.as.console.client.shared.general.model.RemoteSocketBinding;
@@ -112,10 +114,10 @@ public class RemoteSocketList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(headline)
-                .setDescription("Configuration information for a, remote destination, outbound socket binding.")
+                .setDescription(((UIConstants) GWT.create(UIConstants.class)).remoteSocketDescription())
                 .setMaster("Remote Socket Bindings", factoryTable)
                 .setMasterTools(tools)
-                .setDetail("Details", defaultAttributes.asWidget());
+                .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());
 
         defaultAttributes.getForm().bind(factoryTable);
         defaultAttributes.getForm().setEnabled(false);

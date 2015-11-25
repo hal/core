@@ -25,6 +25,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.accesscontrol.store.ReloadAccessControl;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -45,7 +46,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
             final String token) {
 
         super(FinderId.ACCESS_CONTROL,
-                "Browse By",
+                Console.CONSTANTS.browseBy(),
                 new Display<BrowseByItem>() {
                     @Override
                     public boolean isFolder(final BrowseByItem data) {
@@ -70,7 +71,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
                 },
                 token);
 
-        setTopMenuItems(new MenuDelegate<>("Refresh", item -> circuit.dispatch(new ReloadAccessControl()),
+        setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_refresh(), item -> circuit.dispatch(new ReloadAccessControl()),
                 MenuDelegate.Role.Operation));
         setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
         addSelectionChangeHandler(selectionHandler);

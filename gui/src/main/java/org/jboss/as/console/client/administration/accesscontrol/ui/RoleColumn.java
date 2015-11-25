@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -33,6 +34,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.AccessCont
 import org.jboss.as.console.client.administration.accesscontrol.store.RemoveScopedRole;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -113,20 +115,20 @@ public class RoleColumn extends FinderColumn<Role> {
         });
 
         if (!bootstrapContext.isStandalone()) {
-            setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddScopedRoleDialog(),
+            setTopMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_add(), item -> presenter.launchAddScopedRoleDialog(),
                     MenuDelegate.Role.Operation));
         }
         setMenuItems(
-                new MenuDelegate<>("Edit", item -> presenter.editRole(item), MenuDelegate.Role.Operation),
-                new MenuDelegate<>("Remove", item -> {
+                new MenuDelegate<>(Console.CONSTANTS.common_label_edit(), item -> presenter.editRole(item), MenuDelegate.Role.Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item -> {
                     if (item.isScoped()) {
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
-                                "Remove " + item.getName(),
+                                Console.MESSAGES.deleteTitle(item.getName()),
                                 isConfirmed -> {
                                     if (isConfirmed) { circuit.dispatch(new RemoveScopedRole(item)); }
                                 });
                     } else {
-                        Console.warning("Standard roles cannot be removed.");
+                        Console.warning(((UIConstants) GWT.create(UIConstants.class)).standardRolesCannotBeRemoved());
                     }
                 }, MenuDelegate.Role.Operation)
         );

@@ -23,6 +23,7 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -37,6 +38,8 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -139,30 +142,31 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         assignmentColumn.setShowSize(true);
 
         assignmentColumn.setTopMenuItems(
-                new MenuDelegate<>("Add",
+                new MenuDelegate<>(Console.CONSTANTS.common_label_add(),
                         item -> presenter.launchAddAssignmentWizard(serverGroupColumn.getSelectedItem().getName()),
                         Operation)
         );
 
         //noinspection Convert2MethodRef
-        MenuDelegate<Assignment> enableDisableDelegate = new MenuDelegate<Assignment>("(En/Dis)able",
+        MenuDelegate<Assignment> enableDisableDelegate = new MenuDelegate<Assignment>(Console.CONSTANTS.common_label_enOrDisable(),
                 item -> presenter.verifyEnableDisableAssignment(item), Operation) {
             @Override
             public String render(final Assignment data) {
-                return data.isEnabled() ? "Disable" : "Enable";
+                return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
             }
         };
         //noinspection Convert2MethodRef
         assignmentColumn.setMenuItems(
-                new MenuDelegate<>("View", item -> presenter.showDetails(item), Navigation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_view(), item -> presenter.showDetails(item), Navigation),
                 enableDisableDelegate,
-                new MenuDelegate<>("Unassign", item ->
+                new MenuDelegate<>(((UIConstants) GWT.create(UIConstants.class)).unassign(), item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
-                                "Unassign " + item.getName(),
+                                ((UIMessages) GWT.create(UIMessages.class)).unassignAssignment(item.getName()),
                                 isConfirmed -> {
                                     if (isConfirmed) {
                                         presenter.modifyAssignment(item, REMOVE,
-                                                item.getName() + " successfully unassigned.");
+                                                ((UIMessages) GWT.create(UIMessages.class))
+                                                        .AssignmentSuccessfullyUnassigned(item.getName()));
                                     }
                                 }))
         );
@@ -262,22 +266,23 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         // ------------------------------------------------------ (unassigned) content
 
         //noinspection Convert2MethodRef
-        contentColumn = new ContentColumn("All Content", columnManager,
-                new MenuDelegate<Content>("Add", item -> presenter.launchAddContentWizard(), Operation)
+        contentColumn = new ContentColumn(((UIConstants) GWT.create(UIConstants.class)).allContent(), columnManager,
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_add(), item -> presenter.launchAddContentWizard(), Operation)
                         .setOperationAddress("/deployment=*", "add"),
-                new MenuDelegate<Content>("Assign", item -> presenter.launchAssignContentDialog(item), Operation)
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "add"),
-                new MenuDelegate<Content>("Unassign", item -> presenter.launchUnassignContentDialog(item), Operation)
+                new MenuDelegate<Content>(Console.CONSTANTS.unassign(), item -> presenter.launchUnassignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "remove"),
-                new MenuDelegate<>("Replace", item -> presenter.launchReplaceContentWizard(), Operation),
-                new MenuDelegate<Content>("Remove", item -> {
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceContentWizard(), Operation),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_delete(), item -> {
                     if (!item.getAssignments().isEmpty()) {
                         String serverGroups = "\t- " + Joiner.on("\n\t- ").join(
                                 Lists.transform(item.getAssignments(), Assignment::getServerGroup));
-                        Console.error(item.getName() + " is in use. Please remove its assignments first.",
-                                item.getName() + " is assigned to the following server groups:\n\n" + serverGroups);
+                        Console.error(((UIMessages) GWT.create(UIMessages.class)).deploymentInUse(item.getName()),
+                                ((UIMessages) GWT.create(UIMessages.class))
+                                        .assignedToServerGroups(item.getName(), serverGroups));
                     } else {
-                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(item.getName()),
                                 isConfirmed -> {
                                     if (isConfirmed) {
                                         presenter.removeContent(item, false);
@@ -292,12 +297,12 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         contentColumnWidget = contentColumn.asWidget();
 
         //noinspection Convert2MethodRef
-        unassignedColumn = new ContentColumn("Unassigned", columnManager,
+        unassignedColumn = new ContentColumn(((UIConstants) GWT.create(UIConstants.class)).unassigned(), columnManager,
                 null,
-                new MenuDelegate<Content>("Assign", item -> presenter.launchAssignContentDialog(item), Operation)
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "add"),
-                new MenuDelegate<Content>("Remove", item ->
-                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_delete(), item ->
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(item.getName()),
                                 isConfirmed -> {
                                     if (isConfirmed) {
                                         presenter.removeContent(item, true);
@@ -318,7 +323,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             columnManager.appendColumn(contentColumnWidget);
             presenter.loadContentRepository();
         });
-        BrowseByItem unassignedContentItem = new BrowseByItem("Unassigned Content",
+        BrowseByItem unassignedContentItem = new BrowseByItem(
+                ((UIConstants) GWT.create(UIConstants.class)).unassignedContent(),
                 PreviewContent.INSTANCE.unassigned_content(), () -> {
             columnManager.appendColumn(unassignedColumnWidget);
             presenter.loadUnassignedContent();

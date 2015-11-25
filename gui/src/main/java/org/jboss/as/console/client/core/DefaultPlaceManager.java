@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -28,7 +29,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             public void onFailure(Throwable caught) {
                 unlock();
                 revealDefaultPlace();
-                Console.error("Failed to create security context", caught.getMessage());
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToCreateSecurityContext(), caught.getMessage());
             }
 
             @Override

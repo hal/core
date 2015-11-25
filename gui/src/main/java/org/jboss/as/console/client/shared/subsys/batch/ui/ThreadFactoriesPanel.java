@@ -128,7 +128,7 @@ class ThreadFactoriesPanel extends Composite {
                 .setDescription(SafeHtmlUtils.fromString("Please chose a thread factory from below for specific settings."))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Thread Factory"), table)
-                .addDetail("Attributes", details);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), details);
         initWidget(layoutBuilder.build());
     }
 

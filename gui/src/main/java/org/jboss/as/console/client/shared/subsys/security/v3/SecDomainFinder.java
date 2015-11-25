@@ -221,11 +221,11 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info("Successfully removed " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadDomains();
@@ -243,7 +243,7 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+                Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), caught.getMessage());
                 loadDomains();
             }
 
@@ -251,9 +251,9 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToModifyResource(fqAddress.toString()), response.getFailureDescription());
                 } else {
-                    Console.info("Successfully modified " + fqAddress);
+                    Console.info(Console.MESSAGES.successfullyModifiedResource(fqAddress.toString()));
                 }
                 loadDomains();
             }
@@ -267,7 +267,7 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
 
         final ResourceDescription resourceDescription = descriptionRegistry.lookup(SECURITY_DOMAIN);
 
-        final DefaultWindow dialog = new DefaultWindow("New Security Domain");
+        final DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Security Domain"));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -290,7 +290,7 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
+                                Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                                 loadDomains();
                             }
                         });

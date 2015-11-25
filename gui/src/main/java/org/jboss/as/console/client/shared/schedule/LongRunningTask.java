@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.schedule;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
@@ -48,7 +50,7 @@ public class LongRunningTask {
 
                 if(numAttempts>limit)
                 {
-                    Console.warning("Your request timed out.");
+                    Console.warning(((UIConstants) GWT.create(UIConstants.class)).requestTimeout());
                     keepRunning=false;
                 }
                 else

@@ -119,7 +119,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
 
         adapter.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "Add", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property ra) {
                         presenter.launchNewAdapterWizard();
@@ -130,7 +130,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
 
         adapter.setMenuItems(
                 new MenuDelegate<Property>(
-                        "View", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property ra) {
                         placeManager.revealRelativePlace(
@@ -139,7 +139,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
                     }
                 }),
                 new MenuDelegate<Property>(
-                        "Remove", new ContextualCommand<Property>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property ra) {
                         Feedback.confirm(

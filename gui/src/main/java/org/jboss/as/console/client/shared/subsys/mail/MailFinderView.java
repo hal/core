@@ -14,6 +14,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -110,7 +111,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
         mailSessions.setTopMenuItems(
                 new MenuDelegate<MailSession>(
-                        "Add", new ContextualCommand<MailSession>() {
+                        Console.CONSTANTS.common_label_add(), new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         presenter.launchNewSessionWizard();
@@ -121,7 +122,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
         mailSessions.setMenuItems(
                 new MenuDelegate<MailSession>(
-                        "View", new ContextualCommand<MailSession>() {
+                        Console.CONSTANTS.common_label_view(), new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         placeManager.revealRelativePlace(
@@ -130,14 +131,14 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     }
                 }),
                 new MenuDelegate<MailSession>(
-                        "Attributes", new ContextualCommand<MailSession>() {
+                        Console.CONSTANTS.common_label_attributes(), new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         presenter.onLauchAttributesWizard(mailSession);
                     }
                 }),
                 new MenuDelegate<MailSession>(
-                        "Remove", new ContextualCommand<MailSession>() {
+                        Console.CONSTANTS.common_label_delete(), new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         presenter.onDelete(mailSession);

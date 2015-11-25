@@ -21,9 +21,11 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.v3.deployment.UploadBean;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
@@ -43,7 +45,7 @@ public class VerifyUploadStep extends
     private CheckBoxItem enable;
 
     public VerifyUploadStep(final DeploymentWizard wizard, final boolean standalone) {
-        super(wizard, "Verify Upload");
+        super(wizard, ((UIConstants) GWT.create(UIConstants.class)).verifyUpload());
         this.standalone = standalone;
     }
 
@@ -55,7 +57,7 @@ public class VerifyUploadStep extends
         form = new Form<>(UploadBean.class);
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
-        enable = new CheckBoxItem("enableAfterDeployment", "Enable");
+        enable = new CheckBoxItem("enableAfterDeployment", Console.CONSTANTS.common_label_enable());
         if (wizard instanceof CanEnableDeployment) {
             form.setFields(nameField, runtimeNameField, enable);
         } else {

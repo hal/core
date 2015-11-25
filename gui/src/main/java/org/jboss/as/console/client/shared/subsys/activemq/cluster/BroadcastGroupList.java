@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.BroadcastGroupForm;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -80,10 +82,10 @@ public class BroadcastGroupList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        "A broadcast group is the means by which a server broadcasts connectors over the network. A connector defines a way in which a client (or other server) can make connections to the server.")
+                        ((UIConstants) GWT.create(UIConstants.class)).broadcastDescription())
                 .setMaster("BroadcastGroups", table)
                 .setMasterTools(tools)
-                .setDetail("Details", defaultAttributes.asWidget());
+                .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());
 
         table.getSelectionModel().addSelectionChangeHandler(selectionChangeEvent -> {
             Property selection = selectionModel.getSelectedObject();

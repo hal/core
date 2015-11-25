@@ -21,7 +21,10 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.gwt.circuit.Action;
+
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * This is much like the {@link AddAssignment} action but with slightly different semantics.
@@ -47,6 +50,8 @@ public class AddPrincipal implements Action, ModifiesPrincipal, HasSuccessMessag
 
     @Override
     public String getMessage() {
-        return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User" : "Group") + " successfully added.";
+        String userOrGroup = assignment.getPrincipal().getType() == USER ? Console.CONSTANTS
+                .common_label_user() : Console.CONSTANTS.common_label_group();
+        return Console.MESSAGES.principalSuccessfullyAdded(userOrGroup);
     }
 }

@@ -188,10 +188,10 @@ public class SecurityDetails {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("A security setting allows sets of permissions to be defined against queues based on their address.")
-                .setMaster("Available security settings", secTable)
+                .setDescription(Console.CONSTANTS.securitySettingsDescription())
+                .setMaster(Console.MESSAGES.available("security settings"), secTable)
                 .setMasterTools(tableTools.asWidget())
-                .setDetail("Details", formPanel);
+                .setDetail(Console.CONSTANTS.common_label_details(), formPanel);
 
         return layout.build();
     }

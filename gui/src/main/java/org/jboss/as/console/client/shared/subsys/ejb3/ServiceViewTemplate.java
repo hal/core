@@ -120,7 +120,7 @@ public class ServiceViewTemplate {
                 .setDescription("")
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available(title), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
 
         selectionModel = new SingleSelectionModel<Property>();

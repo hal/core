@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.help;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -13,6 +14,7 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.nav.AriaLink;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.dmr.client.ModelNode;
@@ -106,7 +108,8 @@ public class FormHelpPanel {
 
                         html.appendHtmlConstant("<tr class='help-field-row'>");
                         html.appendHtmlConstant("<td class='help-field-name' colspan=2>");
-                        html.appendEscaped("Attribute descriptions not available.");
+                        html.appendEscaped(
+                                ((UIConstants) GWT.create(UIConstants.class)).attributeDescriptionsNotAvailable());
                         html.appendHtmlConstant("</td>");
                         html.appendHtmlConstant("</tr>");
                     }
@@ -133,7 +136,8 @@ public class FormHelpPanel {
                                 html.appendEscaped(field.getDesc());
                             } catch (Throwable e) {
                                 // ignore parse errors
-                                html.appendHtmlConstant("<i>Failed to parse description</i>");
+                                html.appendHtmlConstant("<i>" + ((UIConstants) GWT.create(UIConstants.class))
+                                        .failedToParseDescription() + "</i>");
                             }
                             html.appendHtmlConstant("</td>");
                             html.appendHtmlConstant("</tr>");
@@ -149,7 +153,8 @@ public class FormHelpPanel {
                 public void onFailure(Throwable caught) {
                     Log.error("Failed to retrieve attribute description", caught.getMessage());
                     helpPanel.clear();
-                    helpPanel.add(new HTML("<ul><li>Failed to retrieve attribute descriptions.</li></ul>"));
+                    helpPanel.add(new HTML("<ul><li>" + ((UIConstants) GWT.create(UIConstants.class))
+                            .failedToRetrieveAttributeDescriptions() + "</li></ul>"));
                 }
             });
         }

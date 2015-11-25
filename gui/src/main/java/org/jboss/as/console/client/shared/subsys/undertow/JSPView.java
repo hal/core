@@ -91,7 +91,7 @@ public class JSPView {
                 .setPlain(true)
                 .setHeadline("JSP Settings")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget())
                 .addDetail("Development", devAssets.asWidget());
 
         return layoutBuilder.build();

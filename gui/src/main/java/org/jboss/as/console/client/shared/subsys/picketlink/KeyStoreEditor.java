@@ -97,7 +97,7 @@ class KeyStoreEditor extends SingletonEditor {
                 .setPlain(true)
                 .setHeadline(resourceName)
                 .setDescription(resourceDescription.get(DESCRIPTION).asString())
-                .addDetail("Attributes", formPanel())
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel())
                 .addDetail("Host Keys", keys.asWidget());
         return layout.build();
     }

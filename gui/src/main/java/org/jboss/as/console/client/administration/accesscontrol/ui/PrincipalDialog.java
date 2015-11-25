@@ -35,6 +35,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.AccessCont
 import org.jboss.as.console.client.administration.accesscontrol.store.AddPrincipal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -109,14 +110,15 @@ public class PrincipalDialog implements IsWidget {
         form.addFormValidator((formItems, outcome) -> {
             if (accessControlStore.getPrincipals().contains(beanToModel(form.getUpdatedEntity()))) {
                 outcome.addError("name");
-                name.setErrMessage(type == Principal.Type.USER ? "User already exists" : "Group already exists");
+                name.setErrMessage(type == Principal.Type.USER ? ((UIConstants) GWT.create(UIConstants.class))
+                        .userAlreadyExists() : ((UIConstants) GWT.create(UIConstants.class)).groupAlreadyExists());
                 name.setErroneous(true);
             }
         });
         form.addFormValidator((formItems, outcome) -> {
             if (!roles.containsKey(role.getValue())) {
                 outcome.addError("role");
-                role.setErrMessage("Please select a role");
+                role.setErrMessage(((UIConstants) GWT.create(UIConstants.class)).pleaseSelectRole());
                 role.setErroneous(true);
             }
         });

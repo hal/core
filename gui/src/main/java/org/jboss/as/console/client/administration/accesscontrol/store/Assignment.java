@@ -68,7 +68,7 @@ public class Assignment {
     }
 
     public String getId() {
-        return Joiner.on('-').join(principal.getId(), role.getId(), include ? "include" : "exclude");
+        return Joiner.on('-').join(principal.getId(), role.getId(), include ? "common_label_include" : "exclude");
     }
 
     public Principal getPrincipal() {

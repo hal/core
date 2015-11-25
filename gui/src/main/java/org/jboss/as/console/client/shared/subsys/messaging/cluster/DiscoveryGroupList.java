@@ -110,7 +110,7 @@ public class DiscoveryGroupList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription("Multicast group to listen to receive broadcast from other servers announcing their connectors.")
+                .setDescription(Console.CONSTANTS.clusterConnectionDescription())
                 .setMaster("DiscoveryGroups", factoryTable)
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());

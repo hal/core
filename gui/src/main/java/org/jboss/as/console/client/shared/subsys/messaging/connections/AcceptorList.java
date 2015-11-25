@@ -137,8 +137,8 @@ public class AcceptorList {
         tabs.addStyleName("master_detail-detail");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
 
-        tabs.add(acceptorForm.asWidget(), "Details");
-        tabs.add(properties.asWidget(), "Properties");
+        tabs.add(acceptorForm.asWidget(), Console.CONSTANTS.common_label_details());
+        tabs.add(properties.asWidget(), Console.CONSTANTS.common_label_properties());
 
         layout.add(tabs);
         tabs.selectTab(0);

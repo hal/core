@@ -1,9 +1,12 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -206,13 +209,14 @@ public class ServerStore extends ChangeSupport {
 
             @Override
             public void onSuccess(Boolean success) {
-                Console.info("Successfully added server " + action.getServer().getName());
+                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                        .successfullyAddedServer(action.getServer().getName()));
                 onRefresh(channel);
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to add server", caught.getMessage());
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToAddServer(), caught.getMessage());
                 channel.nack(caught);
             }
         });
@@ -226,13 +230,14 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean success) {
 
-                Console.info("Successfully removed server " + action.getServerRef().getServerName());
+                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                        .successfullyRemovedServer(action.getServerRef().getServerName()));
                 onRefresh(channel);
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to remove server", caught.getMessage());
+                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToRemoveServer(), caught.getMessage());
                 channel.nack(caught);
             }
         });

@@ -218,7 +218,7 @@ public class ServiceProviderPresenter
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added " + name);
+                                Console.info(Console.MESSAGES.successfullyAdded(name));
                                 readServiceProvider();
                             }
                         });
@@ -242,13 +242,13 @@ public class ServiceProviderPresenter
                 new Callback() {
                     @Override
                     public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                        Console.info("Successfully modified " + name);
+                        Console.info(Console.MESSAGES.successfullyModifiedResource(name));
                         readServiceProvider();
                     }
 
                     @Override
                     public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
-                        Console.error("Unable to modify " + name, t.getMessage());
+                        Console.error(Console.MESSAGES.failedToModifyResource(name), t.getMessage());
                         readServiceProvider();
                     }
                 });
@@ -258,14 +258,14 @@ public class ServiceProviderPresenter
         crud.onRemoveResource(template, name, new Callback() {
             @Override
             public void onSuccess(final AddressTemplate addressTemplate, final String name) {
-                Console.info("Successfully removed " + name);
+                Console.info(Console.MESSAGES.successfullyRemoved(name));
                 readServiceProvider();
             }
 
             @Override
             public void onFailure(final AddressTemplate addressTemplate, final String name, final Throwable t) {
                 readServiceProvider();
-                Console.error("Unable to remove " + name, t.getMessage());
+                Console.error(Console.MESSAGES.failedToRemoveResource(name), t.getMessage());
             }
         });
     }

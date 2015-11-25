@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -74,7 +75,7 @@ public class AsyncSvcView {
                 .setPlain(true)
                 .setHeadline("Async Service")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), commonAssets.asWidget());
 
         return layoutBuilder.build();
     }

@@ -23,6 +23,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
@@ -50,7 +51,7 @@ public class MessageWindow {
 
         DialogueOptions options = new DialogueOptions(
             "OK", new MyClickHandler(true),
-            "Cancel", new MyClickHandler(false));
+                Console.CONSTANTS.common_label_cancel(), new MyClickHandler(false));
 
         return new WindowContentBuilder(layout, options).build();
     }

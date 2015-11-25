@@ -1,6 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.infinispan.v3;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -11,7 +14,6 @@ import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,8 +73,8 @@ public class ContainerView {
                 .setPlain(true)
                 .setHeadline("Settings for container: " + cacheContainer.getName())
                 .setDescription(localCacheDescription.get("description").asString())
-                .addContent("Help", formAssets.getHelp().asWidget())
-                .addContent("Attributes", form.asWidget());
+                .addContent(((UIConstants) GWT.create(UIConstants.class)).help(), formAssets.getHelp().asWidget())
+                .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());
 
         return layout.build();
 
