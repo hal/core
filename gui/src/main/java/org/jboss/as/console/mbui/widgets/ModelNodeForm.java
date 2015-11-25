@@ -58,6 +58,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         // the DMR getter otherwise mutate the bean
         this.editedEntity.protect();
 
+        // clear previous values
+        clearItems();
+
         final Map<String, String> exprMap = getExpressions(editedEntity);
 
         //final List<ModelNode> filteredDMRNames = bean.hasDefined("_filtered-attributes") ?
@@ -90,7 +93,6 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                             item.setExpressionValue(exprValue);
                         }
 
-                        // values
                         // values
                         else if(value.isDefined()) {
                             item.setUndefined(false);
@@ -513,6 +515,15 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
         editedEntity = null;
 
+        clearItems();
+
+        setOperational(false);
+        if(toolsCallback !=null)
+            setEnabled(false);
+        refreshPlainView();
+    }
+
+    private void clearItems() {
         for(Map<String, FormItem> groupItems : formItems.values())
         {
             for(String key : groupItems.keySet())
@@ -525,11 +536,6 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                 });
             }
         }
-
-        setOperational(false);
-        if(toolsCallback !=null)
-            setEnabled(false);
-        refreshPlainView();
     }
 
     public void setDefaults(Map<String, ModelNode> defaults) {
