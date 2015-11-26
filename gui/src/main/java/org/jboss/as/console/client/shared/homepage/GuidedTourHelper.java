@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import elemental.events.KeyboardEvent;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.shared.Preferences;
 
 /**
  * Helper class to manage the guided tour iframe and make it closable from within the guided tour iframe.
@@ -38,8 +39,9 @@ class GuidedTourHelper {
     static PopupPanel guidedTour;
 
     static void init(BootstrapContext bootstrapContext) {
+        String locale = Preferences.get(Preferences.Key.LOCALE, "en");
         String url = bootstrapContext.getProperty(ApplicationProperties.GUIDED_TOUR) + "/" +
-                (bootstrapContext.isStandalone() ? "standalone" : "domain") + "/step1.html";
+                (bootstrapContext.isStandalone() ? "standalone" : "domain") + "/step1.html?setLng=" + locale;
 
         Frame tourFrame = new Frame(url);
         tourFrame.setWidth("100%");
