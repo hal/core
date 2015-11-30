@@ -345,8 +345,7 @@
                                 <configuration>
                                     <target>
                                         <mkdir dir="${project.build.directory}/i18n" />
-                                        <copy file="./src/main/java/org/jboss/as/console/client/core/UIConstants_en.properties" tofile="${project.build.directory}/i18n/UIConstants.properties" overwrite="true" />
-                                        <copy file="./src/main/java/org/jboss/as/console/client/core/UIMessages.properties" todir="${project.build.directory}/i18n" overwrite="true" />
+                                        <copy file="./src/main/java/org/jboss/as/console/client/core/UIConstants.properties" todir="${project.build.directory}/i18n" overwrite="true" />
                                         <copy todir="${project.build.directory}/i18n">
                                             <fileset dir="./src/main/java/org/jboss/as/console/client/core/">
                                                 <include name="UIConstants_de.properties" />
@@ -358,6 +357,7 @@
                                                 <include name="UIConstants_zh_Hans.properties" />
                                             </fileset>
                                         </copy>
+                                        <copy file="./src/main/java/org/jboss/as/console/client/core/UIMessages.properties" todir="${project.build.directory}/i18n" overwrite="true" />
                                         <copy todir="${project.build.directory}/i18n">
                                             <fileset dir="./src/main/java/org/jboss/as/console/client/core/">
                                                 <include name="UIMessages_de.properties" />
