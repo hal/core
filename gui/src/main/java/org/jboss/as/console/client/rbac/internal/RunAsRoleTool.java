@@ -82,8 +82,8 @@ public class RunAsRoleTool implements Tool {
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
         panel.add(new RolesHelpPanel().asWidget());
-        panel.add(new ContentHeaderLabel(((UIConstants) GWT.create(UIConstants.class)).selectRole()));
-        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).selectRoleDescription()));
+        panel.add(new ContentHeaderLabel(Console.CONSTANTS.selectRole()));
+        panel.add(new ContentDescription(Console.CONSTANTS.selectRoleDescription()));
 
         final Form<Object> form = new Form<Object>(Object.class);
         form.setFields(role);
@@ -107,7 +107,7 @@ public class RunAsRoleTool implements Tool {
         DialogueOptions options = new DialogueOptions(
                 Console.CONSTANTS.runAs(), runAsHandler, Console.CONSTANTS.common_label_cancel(), cancelHandler);
 
-        window = new DefaultWindow(((UIConstants) GWT.create(UIConstants.class)).runAsRole());
+        window = new DefaultWindow(Console.CONSTANTS.runAsRole());
         window.setWidth(480);
         window.setHeight(300);
         window.trapWidget(new WindowContentBuilder(panel, options).build());

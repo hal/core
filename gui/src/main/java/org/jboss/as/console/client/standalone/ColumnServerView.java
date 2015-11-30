@@ -538,19 +538,19 @@ public class ColumnServerView extends SuspendableViewImpl
 
     private String resolveDescriptionFor(String title) {
         if("Paths".equals(title))
-            return ((UIConstants) GWT.create(UIConstants.class)).pathsDescription();
+            return Console.CONSTANTS.pathsDescription();
 
         else if("Subsystems".equals(title))
-            return ((UIConstants) GWT.create(UIConstants.class)).subsystemsDescription();
+            return Console.CONSTANTS.subsystemsDescription();
 
         else if("Socket Binding".equals(title))
-            return ((UIConstants) GWT.create(UIConstants.class)).socketBindingDescription();
+            return Console.CONSTANTS.socketBindingDescription();
 
         else if("Interfaces".equals(title))
-            return ((UIConstants) GWT.create(UIConstants.class)).interfacesDescription();
+            return Console.CONSTANTS.interfacesDescription();
 
         else if("System Properties".equals(title))
-                   return ((UIConstants) GWT.create(UIConstants.class)).systemPropertiesDescription();
+                   return Console.CONSTANTS.systemPropertiesDescription();
 
         return "";
     }

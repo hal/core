@@ -128,7 +128,7 @@ public class RoleColumn extends FinderColumn<Role> {
                                     if (isConfirmed) { circuit.dispatch(new RemoveScopedRole(item)); }
                                 });
                     } else {
-                        Console.warning(((UIConstants) GWT.create(UIConstants.class)).standardRolesCannotBeRemoved());
+                        Console.warning(Console.CONSTANTS.standardRolesCannotBeRemoved());
                     }
                 }, MenuDelegate.Role.Operation)
         );

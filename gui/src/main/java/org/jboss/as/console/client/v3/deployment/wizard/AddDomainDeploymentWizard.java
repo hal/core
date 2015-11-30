@@ -58,7 +58,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
     }
 
     public void open(List<Content> contentRepository, String serverGroup) {
-        super.open(((UIMessages) GWT.create(UIMessages.class)).addDeploymentToServerGroup(serverGroup));
+        super.open(Console.MESSAGES.addDeploymentToServerGroup(serverGroup));
         context.contentRepository.clear();
         context.contentRepository.addAll(contentRepository);
         context.serverGroup = serverGroup;

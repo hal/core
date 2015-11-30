@@ -61,7 +61,7 @@ public class MemberColumn extends FinderColumn<Assignment> {
             final String token) {
 
         super(FinderId.ACCESS_CONTROL,
-                ((UIConstants) GWT.create(UIConstants.class)).member(),
+                Console.CONSTANTS.member(),
                 new Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {

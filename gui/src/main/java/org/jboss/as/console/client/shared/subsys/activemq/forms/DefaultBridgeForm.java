@@ -1,10 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -131,7 +129,7 @@ public class DefaultBridgeForm {
                 setError(outcome, Console.CONSTANTS.discoveryGroupOrConnectorsCanBeDefined());
             } else if (discoveryGroup.getValue().equals("") && connectors.getValue().size() == 0) {
                 setError(outcome,
-                        ((UIConstants) GWT.create(UIConstants.class)).discoveryGroupOrConnectorsMustBeDefined());
+                        Console.CONSTANTS.discoveryGroupOrConnectorsMustBeDefined());
             }
         }
 

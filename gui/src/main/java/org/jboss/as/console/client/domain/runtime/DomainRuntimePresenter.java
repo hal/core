@@ -300,7 +300,7 @@ public class DomainRuntimePresenter
         final Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
             public void onFailure(final FunctionContext context) {
-                Console.error(((UIConstants) GWT.create(UIConstants.class)).cannotLoadSubsystems());
+                Console.error(Console.CONSTANTS.cannotLoadSubsystems());
             }
 
             @Override

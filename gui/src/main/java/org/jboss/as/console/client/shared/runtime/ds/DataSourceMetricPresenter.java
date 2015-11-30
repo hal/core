@@ -339,13 +339,13 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                 if(response.isFailure())
                 {
                     Console.error(Console.MESSAGES.failed(
-                            ((UIMessages) GWT.create(UIMessages.class)).flushConnectionsError(dsName)), response.getFailureDescription());
+                            Console.MESSAGES.flushConnectionsError(dsName)), response.getFailureDescription());
                 }
                 else
                 {
                     Log.info("Successfully executed flush operation ':" + flushOp + "'");
                     Console.info(Console.MESSAGES.successful(
-                            ((UIMessages) GWT.create(UIMessages.class)).flushConnectionsSuccess(dsName)));
+                            Console.MESSAGES.flushConnectionsSuccess(dsName)));
                 }
             }
         });

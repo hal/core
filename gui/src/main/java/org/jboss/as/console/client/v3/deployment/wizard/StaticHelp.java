@@ -38,9 +38,9 @@ final class StaticHelp {
         // TODO I18n or take from DMR
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
-        addHelpTextRow(builder, "Name:", ((UIConstants) GWT.create(UIConstants.class)).deploymentNameDescription());
+        addHelpTextRow(builder, "Name:", Console.CONSTANTS.deploymentNameDescription());
         addHelpTextRow(builder, "Runtime Name:",
-                ((UIConstants) GWT.create(UIConstants.class)).deploymentRuntimeNameDescription());
+                Console.CONSTANTS.deploymentRuntimeNameDescription());
         return builder.toSafeHtml();
     }
 
@@ -52,7 +52,7 @@ final class StaticHelp {
         addHelpTextRow(builder, "Runtime Name:",
                 Console.CONSTANTS.deploymentRuntimeNameDescription());
         addHelpTextRow(builder, "Enable:",
-                ((UIConstants) GWT.create(UIConstants.class)).deploymentEnabledDescription());
+                Console.CONSTANTS.deploymentEnabledDescription());
         return builder.toSafeHtml();
     }
 
@@ -61,11 +61,11 @@ final class StaticHelp {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
         addHelpTextRow(builder, "Path:",
-                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentPathDescription());
+                Console.CONSTANTS.unmanagedDeploymentPathDescription());
         addHelpTextRow(builder, "Relative To:",
-                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentRelativeToDescription());
+                Console.CONSTANTS.unmanagedDeploymentRelativeToDescription());
         addHelpTextRow(builder, "Is Archive?:",
-                ((UIConstants) GWT.create(UIConstants.class)).unmanagedDeploymentArchiveDescription());
+                Console.CONSTANTS.unmanagedDeploymentArchiveDescription());
         addHelpTextRow(builder, "Name:", Console.CONSTANTS.deploymentNameDescription());
         addHelpTextRow(builder, "Runtime Name:",
                 Console.CONSTANTS.deploymentRuntimeNameDescription());

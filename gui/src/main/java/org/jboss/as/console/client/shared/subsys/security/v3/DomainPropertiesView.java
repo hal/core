@@ -60,7 +60,7 @@ public class DomainPropertiesView {
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setHeadline(((UIMessages) GWT.create(UIMessages.class)).securityDomainDescription(domain.getName()))
+                .setHeadline(Console.MESSAGES.securityDomainDescription(domain.getName()))
                 .setDescription(localCacheDescription.get("description").asString())
                 .addContent(Console.CONSTANTS.help(), formAssets.getHelp().asWidget())
                 .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());

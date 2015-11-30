@@ -148,8 +148,8 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         } else {
             if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
                 Feedback.confirm(
-                        ((UIConstants) GWT.create(UIConstants.class)).downloadLogFile(),
-                        ((UIConstants) GWT.create(UIConstants.class)).downloadingLogFileConfirmation(),
+                        Console.CONSTANTS.downloadLogFile(),
+                        Console.CONSTANTS.downloadingLogFileConfirmation(),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 streamingProgress.monitor(logFile);

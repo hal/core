@@ -142,7 +142,7 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
                 new AsyncCallback<List<Property>>() {
                     @Override
                     public void onFailure(Throwable caught) {
-                        Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToLoadServerNames(), caught.getMessage());
+                        Console.error(Console.CONSTANTS.failedToLoadServerNames(), caught.getMessage());
                     }
 
                     @Override

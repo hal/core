@@ -151,7 +151,7 @@ public class DeploymentScannerView extends SuspendableViewImpl implements Deploy
                 .setPlain(true)
                 .setHeadline("Deployment Scanners")
                 .setDescription(SafeHtmlUtils
-                        .fromString(((UIConstants) GWT.create(UIConstants.class)).chooseDeploymentScanner()))
+                        .fromString(Console.CONSTANTS.chooseDeploymentScanner()))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Deployment Scanners"), table)
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);

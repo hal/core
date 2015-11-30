@@ -21,11 +21,10 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 
@@ -45,7 +44,7 @@ public class ChooseStep extends
 
     public ChooseStep(final DeploymentWizard wizard, final boolean standalone,
             final boolean showDeployNew, final boolean showDeployExisting, final boolean showDeployUnmanaged) {
-        super(wizard, ((UIConstants) GWT.create(UIConstants.class)).pleaseChoose());
+        super(wizard, Console.CONSTANTS.pleaseChoose());
         this.standalone = standalone;
         this.showDeployNew = showDeployNew;
         this.showDeployExisting = showDeployExisting;
@@ -57,17 +56,17 @@ public class ChooseStep extends
         FlowPanel body = new FlowPanel();
 
         deployNew = new RadioButton("deployment_kind",
-                ((UIConstants) GWT.create(UIConstants.class)).uploadNewDeployment());
+                Console.CONSTANTS.uploadNewDeployment());
         deployNew.addStyleName("radio-block");
         IdHelper.setId(deployNew, id(), "deployNew");
 
         deployExisting = new RadioButton("deployment_kind",
-                ((UIConstants) GWT.create(UIConstants.class)).chooseFromContentRepository());
+                Console.CONSTANTS.chooseFromContentRepository());
         deployExisting.addStyleName("radio-block");
         IdHelper.setId(deployExisting, id(), "deployExisting");
 
         deployUnmanaged = new RadioButton("deployment_kind",
-                ((UIConstants) GWT.create(UIConstants.class)).createUnmanaged());
+                Console.CONSTANTS.createUnmanaged());
         deployUnmanaged.addStyleName("radio-block");
         IdHelper.setId(deployUnmanaged, id(), "deployUnmanaged");
 

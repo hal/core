@@ -1,12 +1,11 @@
 package org.jboss.as.console.client.domain;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
@@ -74,7 +73,7 @@ public class GroupSuspendDialogue {
         layout.add(new HTML("<h3> Suspend group " + group.getName()+"?</h3>"));
         layout.add(
                 new ContentDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).suspendTimeoutDescription()
+                        Console.CONSTANTS.suspendTimeoutDescription()
                 )
         );
         layout.add(formWidget);

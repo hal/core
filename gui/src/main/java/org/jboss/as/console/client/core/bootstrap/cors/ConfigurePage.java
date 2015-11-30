@@ -61,7 +61,7 @@ class ConfigurePage implements IsWidget {
                 boolean validate = super.validate(value);
                 if (validate) {
                     if ("localhost".equals(getValue())) {
-                        setErrMessage(((UIConstants) GWT.create(UIConstants.class)).localhostDoesNotWorkReliably());
+                        setErrMessage(Console.CONSTANTS.localhostDoesNotWorkReliably());
                         validate = false;
                     }
                 }

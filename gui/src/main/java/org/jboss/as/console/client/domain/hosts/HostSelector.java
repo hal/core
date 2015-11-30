@@ -26,7 +26,7 @@ public class HostSelector {
 
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setId("host_selection");
-        layout.getElement().setAttribute("title", ((UIConstants) GWT.create(UIConstants.class)).pleaseChoseHost());
+        layout.getElement().setAttribute("title", Console.CONSTANTS.pleaseChoseHost());
         layout.setStyleName("fill-layout-width");
         layout.addStyleName("lhs-selector");
         layout.getElement().setAttribute("style", "padding:4px;");

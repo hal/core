@@ -19,13 +19,12 @@
 package org.jboss.as.console.mbui.reification;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.JBossQNames;
@@ -185,7 +184,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                         helpTexts.appendHtmlConstant(descWorkaround.equals("null") ? "n/a" : descWorkaround);
                     } catch (Throwable e) {
                         // ignore parse errors
-                        helpTexts.appendHtmlConstant("<i>" + ((UIConstants) GWT.create(UIConstants.class))
+                        helpTexts.appendHtmlConstant("<i>" + Console.CONSTANTS
                                 .failedToParseDescription() + "</i>");
                     }
                     helpTexts.appendHtmlConstant("</td>");

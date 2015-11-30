@@ -134,7 +134,7 @@ public class DeploymentScannerPresenter
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error(((UIConstants) GWT.create(UIConstants.class)).cannotReadDeploymentScanner(), caught.getMessage());
+                Console.error(Console.CONSTANTS.cannotReadDeploymentScanner(), caught.getMessage());
             }
 
             @Override

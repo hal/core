@@ -217,10 +217,10 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                 ModelNode response = result.get();
                 if (response.isFailure()) {
                     Console.error(
-                            ((UIMessages) GWT.create(UIMessages.class)).failedToCreateResource(fqAddress.toString()),
+                            Console.MESSAGES.failedToCreateResource(fqAddress.toString()),
                             response.getFailureDescription());
                 } else {
-                    Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyCreated(fqAddress.toString()));
+                    Console.info(Console.MESSAGES.successfullyCreated(fqAddress.toString()));
                 }
                 loadContainer();
             }
@@ -248,11 +248,11 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error(((UIMessages) GWT.create(UIMessages.class)).failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
+                    Console.error(Console.MESSAGES.failedToRemoveResource(fqAddress.toString()), response.getFailureDescription());
                 }
                 else
                 {
-                    Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyRemoved(fqAddress.toString()));
+                    Console.info(Console.MESSAGES.successfullyRemoved(fqAddress.toString()));
                 }
 
                 loadContainer();
@@ -268,7 +268,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
         final ResourceDescription resourceDescription = descriptionRegistry.lookup(CACHE_CONTAINER);
 
         final DefaultWindow dialog = new DefaultWindow(
-                ((UIConstants) GWT.create(UIConstants.class)).newCacheConfiguration());
+                Console.CONSTANTS.newCacheConfiguration());
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -291,7 +291,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info(((UIMessages) GWT.create(UIMessages.class)).successfullyAdded(fqAddress.toString()));
+                                Console.info(Console.MESSAGES.successfullyAdded(fqAddress.toString()));
                                 loadContainer();
                             }
                         });

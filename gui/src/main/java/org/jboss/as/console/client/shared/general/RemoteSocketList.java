@@ -114,7 +114,7 @@ public class RemoteSocketList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(headline)
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).remoteSocketDescription())
+                .setDescription(Console.CONSTANTS.remoteSocketDescription())
                 .setMaster("Remote Socket Bindings", factoryTable)
                 .setMasterTools(tools)
                 .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());

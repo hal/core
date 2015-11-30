@@ -244,7 +244,7 @@ public class FederationPresenter
 
     private void launchAddDialog(final String resourceName, final AddressTemplate template,
             final ResourceDescription resourceDescription, String... attributes) {
-        DefaultWindow dialog = new DefaultWindow(((UIMessages) GWT.create(UIMessages.class)).newTitle(resourceName));
+        DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle(resourceName));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override

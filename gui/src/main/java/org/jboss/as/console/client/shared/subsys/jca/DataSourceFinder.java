@@ -245,7 +245,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
             @Override
             public void onFailure(final Throwable caught) {
                 Console.warning(
-                        ((UIMessages) GWT.create(UIMessages.class)).failedToDetectJdbcDriver(caught.getMessage()));
+                        Console.MESSAGES.failedToDetectJdbcDriver(caught.getMessage()));
             }
 
             @Override

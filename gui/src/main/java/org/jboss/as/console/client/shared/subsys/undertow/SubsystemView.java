@@ -69,7 +69,7 @@ public class SubsystemView {
         SimpleLayout layoutBuilder = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("General Configuration")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).undertowDescription())
+                .setDescription(Console.CONSTANTS.undertowDescription())
                 .addContent(Console.CONSTANTS.common_label_attributes(), formPanel);
 
         return layoutBuilder.build();

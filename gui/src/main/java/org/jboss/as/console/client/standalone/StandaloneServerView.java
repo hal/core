@@ -188,8 +188,8 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
             StringBuffer sb = new StringBuffer();
             ServerState serverState = serverStates.values().iterator().next();
             String message = serverState.isReloadRequired() ?
-                    ((UIConstants) GWT.create(UIConstants.class)).serverConfigurationNeedsToBeReloaded() :
-                    ((UIConstants) GWT.create(UIConstants.class)).serverNeedsToBeRestarted();
+                    Console.CONSTANTS.serverConfigurationNeedsToBeReloaded() :
+                    Console.CONSTANTS.serverNeedsToBeRestarted();
 
             sb.append(message).append("\n\n");
 

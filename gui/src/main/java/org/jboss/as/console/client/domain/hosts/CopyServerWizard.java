@@ -63,7 +63,7 @@ public class CopyServerWizard {
         layout.setStyleName("window-content");
 
 
-        layout.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).copyServerDescription()));
+        layout.add(new ContentDescription(Console.CONSTANTS.copyServerDescription()));
 
         final Form<Server> form = new Form<Server>(Server.class);
         form.setNumColumns(1);

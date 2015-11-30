@@ -82,7 +82,7 @@ public class BroadcastGroupList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).broadcastDescription())
+                        Console.CONSTANTS.broadcastDescription())
                 .setMaster("BroadcastGroups", table)
                 .setMasterTools(tools)
                 .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());

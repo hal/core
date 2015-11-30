@@ -21,12 +21,16 @@
  */
 package org.jboss.as.console.client.v3.widgets;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
-import org.jboss.as.console.client.core.UIConstants;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
@@ -136,7 +140,7 @@ public class AddResourceDialog implements IsWidget {
 
             return new TrappedFocusPanel(content);
         } else {
-            return new HTML(((UIConstants) GWT.create(UIConstants.class)).noConfigurableAttributes());
+            return new HTML(Console.CONSTANTS.noConfigurableAttributes());
         }
     }
 

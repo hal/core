@@ -134,14 +134,14 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                     }
                 }),
                 new MenuDelegate<Property>(
-                        ((UIConstants) GWT.create(UIConstants.class)).containerSettings(), new ContextualCommand<Property>() {
+                        Console.CONSTANTS.containerSettings(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         presenter.onLaunchContainerSettings(cacheContainer);
                     }
                 }),
                 new MenuDelegate<Property>(
-                        ((UIConstants) GWT.create(UIConstants.class)).transportSettings(), new ContextualCommand<Property>() {
+                        Console.CONSTANTS.transportSettings(), new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property cacheContainer) {
                         presenter.onLaunchTransportSettings(cacheContainer);

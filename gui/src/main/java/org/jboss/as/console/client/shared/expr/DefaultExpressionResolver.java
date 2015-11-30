@@ -51,7 +51,7 @@ public class DefaultExpressionResolver extends ExpressionResolver {
                 ModelNode response = dmrResponse.get();
                 if(response.isFailure())
                 {
-                    Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToResolveExpression(), response.getFailureDescription());
+                    Console.error(Console.CONSTANTS.failedToResolveExpression(), response.getFailureDescription());
                 }
                 else
                 {

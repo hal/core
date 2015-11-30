@@ -65,7 +65,7 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
             final String token) {
 
         super(FinderId.ACCESS_CONTROL,
-                ((UIConstants) GWT.create(UIConstants.class)).common_label_role(),
+                Console.CONSTANTS.common_label_role(),
                 new Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {

@@ -54,10 +54,10 @@ public class RemoveAssignment implements Action, ModifiesAssignment, HasSuccessM
     @Override
     public String getMessage() {
         if (relation == PRINCIPAL_TO_ROLE) {
-            return ((UIMessages) GWT.create(UIMessages.class))
+            return Console.MESSAGES
                     .roleSuccessfullyRemovedFrom(assignment.getRole().getId(), assignment.getPrincipal().getName());
         } else {
-            return ((UIMessages) GWT.create(UIMessages.class)).principalSuccessfullyRemovedFromAssignment(
+            return Console.MESSAGES.principalSuccessfullyRemovedFromAssignment(
                     assignment.getPrincipal().getType() == Principal.Type.USER ? Console.CONSTANTS.common_label_user() : Console.CONSTANTS.common_label_group(),
                     assignment.getPrincipal().getName());
         }

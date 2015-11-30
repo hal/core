@@ -313,7 +313,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         if(featureSet.isProfileCloneEnabled()) {   // compat with WF 9.x
             profiles.setMenuItems(
-                    new MenuDelegate<ProfileRecord>(((UIConstants) GWT.create(UIConstants.class)).common_label_clone(), new ContextualCommand<ProfileRecord>() {
+                    new MenuDelegate<ProfileRecord>(Console.CONSTANTS.common_label_clone(), new ContextualCommand<ProfileRecord>() {
                         @Override
                         public void executeOn(ProfileRecord profileRecord) {
                             presenter.onCloneProfile(profileRecord);
@@ -324,8 +324,8 @@ public class ColumnProfileView extends SuspendableViewImpl
                         @Override
                         public void executeOn(ProfileRecord profileRecord) {
 
-                            Feedback.confirm(((UIConstants) GWT.create(UIConstants.class)).removeProfile(),
-                                    ((UIMessages) GWT.create(UIMessages.class))
+                            Feedback.confirm(Console.CONSTANTS.removeProfile(),
+                                    Console.MESSAGES
                                             .reallyRemoveProfile(profileRecord.getName()), new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {

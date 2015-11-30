@@ -154,7 +154,7 @@ public class SecurityDetails {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).securitySettingsDescription())
+                        Console.CONSTANTS.securitySettingsDescription())
                 .setMaster(Console.MESSAGES.available("security settings"), secTable)
                 .setMasterTools(tableTools.asWidget())
                 .setDetail(Console.CONSTANTS.common_label_details(), formPanel);

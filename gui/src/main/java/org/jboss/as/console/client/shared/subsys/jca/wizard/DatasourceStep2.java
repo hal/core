@@ -165,7 +165,7 @@ public class DatasourceStep2 {
                 if (driver != null) { // force selected driver
                     wizard.onConfigureDriver(driver);
                 } else {
-                    Console.warning(((UIConstants) GWT.create(UIConstants.class)).noDriverSpecified());
+                    Console.warning(Console.CONSTANTS.noDriverSpecified());
                 }
             }
         };

@@ -99,7 +99,7 @@ public class DivertList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).divertDescription())
+                        Console.CONSTANTS.divertDescription())
                 .setMaster("Diverts", table)
                 .setMasterTools(tools)
                 .setDetail("Details", divertForm.asWidget());

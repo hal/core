@@ -109,7 +109,7 @@ public class FormHelpPanel {
                         html.appendHtmlConstant("<tr class='help-field-row'>");
                         html.appendHtmlConstant("<td class='help-field-name' colspan=2>");
                         html.appendEscaped(
-                                ((UIConstants) GWT.create(UIConstants.class)).attributeDescriptionsNotAvailable());
+                                Console.CONSTANTS.attributeDescriptionsNotAvailable());
                         html.appendHtmlConstant("</td>");
                         html.appendHtmlConstant("</tr>");
                     }
@@ -136,7 +136,7 @@ public class FormHelpPanel {
                                 html.appendEscaped(field.getDesc());
                             } catch (Throwable e) {
                                 // ignore parse errors
-                                html.appendHtmlConstant("<i>" + ((UIConstants) GWT.create(UIConstants.class))
+                                html.appendHtmlConstant("<i>" + Console.CONSTANTS
                                         .failedToParseDescription() + "</i>");
                             }
                             html.appendHtmlConstant("</td>");
@@ -153,7 +153,7 @@ public class FormHelpPanel {
                 public void onFailure(Throwable caught) {
                     Log.error("Failed to retrieve attribute description", caught.getMessage());
                     helpPanel.clear();
-                    helpPanel.add(new HTML("<ul><li>" + ((UIConstants) GWT.create(UIConstants.class))
+                    helpPanel.add(new HTML("<ul><li>" + Console.CONSTANTS
                             .failedToRetrieveAttributeDescriptions() + "</li></ul>"));
                 }
             });

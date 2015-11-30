@@ -125,7 +125,7 @@ public class MetricHelpPanel {
                 public void onFailure(Throwable caught) {
                     //Console.error("Failed to retrieve attribute description", caught.getMessage());
                     helpPanel.clear();
-                    helpPanel.add(new HTML("<ul><li>" + ((UIConstants) GWT.create(UIConstants.class))
+                    helpPanel.add(new HTML("<ul><li>" + Console.CONSTANTS
                             .failedToReadMetricDescription() + "</li></ul>"));
                 }
             });

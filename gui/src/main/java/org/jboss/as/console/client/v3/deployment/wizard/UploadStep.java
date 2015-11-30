@@ -81,7 +81,7 @@ public class UploadStep extends
     protected boolean onNext(final Context context) {
         String filename = fileUpload.getFilename();
         if (Strings.isNullOrEmpty(filename)) {
-            wizard.showError(((UIConstants) GWT.create(UIConstants.class)).pleaseChooseFile());
+            wizard.showError(Console.CONSTANTS.pleaseChooseFile());
             return false;
         } else {
             wizard.clearError();

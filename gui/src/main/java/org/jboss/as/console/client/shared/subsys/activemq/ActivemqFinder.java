@@ -152,7 +152,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         ResourceDescription resourceDescription = descriptionRegistry.lookup(PROVIDER_TEMPLATE);
 
         final DefaultWindow dialog = new DefaultWindow(
-                ((UIMessages) GWT.create(UIMessages.class)).newMessagingProvider());
+                Console.MESSAGES.newMessagingProvider());
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -172,7 +172,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                                Console.info(Console.MESSAGES
                                         .successfullyAddedMessagingProvider(name));
                                 loadProvider();
                             }
@@ -201,7 +201,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         new LoadActivemqServersCmd(dispatcher, statementContext).execute(new AsyncCallback<List<Property>>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error(((UIMessages) GWT.create(UIMessages.class)).failedToLoadMessagingServerNames(), caught.getMessage());
+                Console.error(Console.MESSAGES.failedToLoadMessagingServerNames(), caught.getMessage());
             }
 
             @Override
@@ -230,7 +230,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
             @Override
             public void onFailure(Throwable caught) {
                 Console.error(
-                        ((UIMessages) GWT.create(UIMessages.class)).failedToModifyMessagingProvider(provider.getName()), caught.getMessage());
+                        Console.MESSAGES.failedToModifyMessagingProvider(provider.getName()), caught.getMessage());
             }
 
             @Override
@@ -240,7 +240,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                     Console.error(Console.MESSAGES.failedToModifyMessagingProvider(provider.getName()),
                             response.getFailureDescription());
                 } else {
-                    Console.info(((UIMessages) GWT.create(UIMessages.class))
+                    Console.info(Console.MESSAGES
                             .successfullyModifiedMessagingProvider(provider.getName()));
                 }
                 loadProvider(provider.getName());
@@ -262,11 +262,11 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    Console.error(((UIMessages) GWT.create(UIMessages.class))
+                    Console.error(Console.MESSAGES
                                     .failedToRemoveMessagingProvider(provider.getName()),
                             response.getFailureDescription());
                 } else {
-                    Console.info(((UIMessages) GWT.create(UIMessages.class))
+                    Console.info(Console.MESSAGES
                             .successfullyRemovedMessagingProvider(provider.getName()));
                 }
                 loadProvider();
@@ -275,7 +275,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     }
 
     public void onLaunchProviderSettings(Property provider) {
-        providerDialog = new DefaultWindow(((UIMessages) GWT.create(UIMessages.class)).providerSettings());
+        providerDialog = new DefaultWindow(Console.MESSAGES.providerSettings());
         providerDialog.setWidth(640);
         providerDialog.setHeight(480);
         providerDialog.trapWidget(providerView.asWidget());
