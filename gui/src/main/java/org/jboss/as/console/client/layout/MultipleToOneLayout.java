@@ -9,12 +9,15 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.*;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,6 +180,20 @@ public class MultipleToOneLayout {
             DefaultPager pager = new DefaultPager();
             pager.setDisplay(master.widget);
             panel.add(pager);
+
+
+            // Reset pager: See https://issues.jboss.org/browse/HAL-992
+            SelectionModel selectionModel = master.widget.getSelectionModel();
+            if(selectionModel!=null && selectionModel instanceof SingleSelectionModel)
+            {
+                selectionModel.addSelectionChangeHandler(selectionChangeEvent -> {
+                    Object selectedObject = ((SingleSelectionModel) selectionModel).getSelectedObject();
+                    if(null==selectedObject)
+                    {
+                        pager.setPage(0);
+                    }
+                });
+            }
 
             if(masterFooter!=null)
             {
