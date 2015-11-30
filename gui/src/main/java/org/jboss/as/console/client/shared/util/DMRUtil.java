@@ -25,16 +25,19 @@ public class DMRUtil {
                 if(ModelType.OBJECT.equals(attributeValue.getType()))
                 {
                     // probably children
-                    Property child = attributeValue.asProperty();
+                    List<Property> properties = attributeValue.asPropertyList();
+                    for (Property child: properties) {
 
-                    ModelNode childOp = new ModelNode();
-                    childOp.get(OP).set(ADD);
-                    childOp.get(ADDRESS).set(toResourceParent.get(ADDRESS));
-                    childOp.get(ADDRESS).add(key, child.getName());
+                        ModelNode childOp = new ModelNode();
+                        childOp.get(OP).set(ADD);
+                        childOp.get(ADDRESS).set(toResourceParent.get(ADDRESS));
+                        childOp.get(ADDRESS).add(key, child.getName());
 
-                    copyResourceValues(child.getValue(), childOp, steps);
+                        copyResourceValues(child.getValue(), childOp, steps);
 
-                    steps.add(childOp);
+                        steps.add(childOp);
+                    }
+
                 }
                 else
                 {

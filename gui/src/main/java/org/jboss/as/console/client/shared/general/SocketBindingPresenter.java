@@ -33,17 +33,21 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
 import org.jboss.as.console.client.shared.general.model.RemoteSocketBinding;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.general.model.SocketGroup;
+import org.jboss.as.console.client.shared.general.wizard.CloneGroupWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewLocalSocketWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewRemoteSocketWizard;
+import org.jboss.as.console.client.shared.general.wizard.NewSocketGroupWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewSocketWizard;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshSocketBindings;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -56,6 +60,10 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +77,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
 
+
     @ProxyCodeSplit
     @NameToken(NameTokens.SocketBindingPresenter)
     @SearchIndex(keywords = {"socket", "port", "multi-cast", "interface", "network-interface", "bind-address"})
@@ -78,7 +87,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
 
     public interface MyView extends View {
         void setPresenter(SocketBindingPresenter presenter);
-        void updateGroups(List<String> groups);
+        void updateGroups(List<SocketGroup> groups);
         void setBindings(String groupName, List<SocketBinding> bindings);
         void setEnabled(boolean b);
         void setRemoteSockets(String groupName, List<RemoteSocketBinding> entities);
@@ -92,7 +101,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
     private BeanFactory factory;
     private RevealStrategy revealStrategy;
     private DefaultWindow window;
-    private List<String> bindingGroups;
+    private List<SocketGroup> bindingGroups;
     private ApplicationMetaData metaData;
     private final Dispatcher circuit;
     private EntityAdapter<SocketBinding> entityAdapter;
@@ -160,7 +169,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).setEmptyList();
-        operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(CHILD_TYPE).set("socket-binding-group");
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -169,17 +178,17 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("Binding Groups"), response.getFailureDescription());
-                }
-                else
-                {
-                    List<ModelNode> payload = response.get("result").asList();
+                } else {
+                    List<Property> items = response.get("result").asPropertyList();
 
-                    List<String> groups = new ArrayList<String>();
-                    for (ModelNode group : payload) {
-                        groups.add(group.asString());
+                    List<SocketGroup> groups = new ArrayList<>();
+                    for (Property item : items) {
+                        SocketGroup sg = factory.socketGroup().as();
+                        sg.setName(item.getName());
+                        sg.setDefaultInterface(item.getValue().get("default-interface").asString());
+                        groups.add(sg);
                     }
 
                     bindingGroups = groups;
@@ -224,8 +233,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                 ModelNode response = result.get();
                 List<Property> items = response.get(RESULT).asPropertyList();
                 List<RemoteSocketBinding> entities = new ArrayList<RemoteSocketBinding>();
-                for(Property item : items)
-                {
+                for (Property item : items) {
                     RemoteSocketBinding remoteSocketBinding = remoteSocketAdapter.fromDMR(item.getValue());
                     remoteSocketBinding.setName(item.getName());
                     entities.add(remoteSocketBinding);
@@ -251,8 +259,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                 ModelNode response = result.get();
                 List<Property> items = response.get(RESULT).asPropertyList();
                 List<LocalSocketBinding> entities = new ArrayList<LocalSocketBinding>();
-                for(Property item : items)
-                {
+                for (Property item : items) {
                     LocalSocketBinding LocalSocketBinding = localSocketAdapter.fromDMR(item.getValue());
                     LocalSocketBinding.setName(item.getName());
                     entities.add(LocalSocketBinding);
@@ -304,7 +311,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
+                if (ModelAdapter.wasSuccess(response))
                     Console.info(Console.MESSAGES.deleted("Socket binding " + editedEntity.getName()));
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Socket binding " + editedEntity.getName()), response.getFailureDescription());
@@ -344,8 +351,8 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
-                    Console.info(Console.MESSAGES.added("Socket Binding "+socketBinding.getName()));
+                if (ModelAdapter.wasSuccess(response))
+                    Console.info(Console.MESSAGES.added("Socket Binding " + socketBinding.getName()));
                 else
                     Console.error(Console.MESSAGES.addingFailed("Socket Binding " + socketBinding.getName()), response.getFailureDescription());
 
@@ -358,20 +365,20 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
 
     private void reload() {
         loadBindingGroups();
-        loadBindings(bindingGroups.get(0));
+        loadBindings(bindingGroups.get(0).getName());
     }
 
     public void closeDialoge() {
         window.hide();
     }
 
-    /*public void launchNewGroupDialogue() {
+    public void launchNewGroupDialogue() {
 
 
         loadInterfacesCmd.execute(new SimpleCallback<List<Interface>>() {
             @Override
             public void onSuccess(List<Interface> result) {
-                window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
+                window = new DefaultWindow(Console.MESSAGES.createTitle("Socket Binidng Group"));
                 window.setWidth(480);
                 window.setHeight(400);
 
@@ -383,10 +390,10 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                 window.center();
             }
         });
-    }*/
+    }
 
     public void createNewSocketGroup(SocketGroup newGroup) {
-        /*closeDialoge();
+        closeDialoge();
 
         ModelNode operation = socketGroupAdapter.fromEntity(newGroup);
         operation.get(OP).set(ADD);
@@ -397,15 +404,13 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if(ModelAdapter.wasSuccess(response))
-                    Console.info("Success: Created socket binding "+socketBinding.getName());
+                    Console.info("Created socket binding group "+newGroup);
                 else
-                    Console.error("Error: Failed to created socket binding " + socketBinding.getName(), response.toString());
+                    Console.error("Failed to created socket binding group " + newGroup, response.toString());
 
                 reload();
             }
-        });*/
-
-
+        });
     }
 
     public void saveRemoteSocketBinding(final String name, Map<String, Object> changeset) {
@@ -424,7 +429,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
+                if (response.isFailure())
                     Console.error(Console.MESSAGES.modificationFailed("Remote Socket Binding" + name), response.getFailureDescription());
                 else
                     Console.info(Console.MESSAGES.modified("Remote Socket Binding " + name));
@@ -458,7 +463,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
+                if (ModelAdapter.wasSuccess(response))
                     Console.info(Console.MESSAGES.deleted("Remote Socket Binding " + name));
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Remote Socket Binding " + name), response.getFailureDescription());
@@ -482,8 +487,8 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
-                    Console.info(Console.MESSAGES.added("Remote Socket Binding "+entity.getName()));
+                if (ModelAdapter.wasSuccess(response))
+                    Console.info(Console.MESSAGES.added("Remote Socket Binding " + entity.getName()));
                 else
                     Console.error(Console.MESSAGES.addingFailed("Remote Socket Binding " + entity.getName()), response.getFailureDescription());
 
@@ -513,7 +518,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
+                if (response.isFailure())
                     Console.error(Console.MESSAGES.modificationFailed("Local Socket Binding" + name), response.getFailureDescription());
                 else
                     Console.info(Console.MESSAGES.modified("Local Socket Binding " + name));
@@ -549,8 +554,8 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
-                    Console.info(Console.MESSAGES.added("Local Socket Binding "+entity.getName()));
+                if (ModelAdapter.wasSuccess(response))
+                    Console.info(Console.MESSAGES.added("Local Socket Binding " + entity.getName()));
                 else
                     Console.error(Console.MESSAGES.addingFailed("Local Socket Binding " + entity.getName()), response.getFailureDescription());
 
@@ -574,7 +579,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
+                if (ModelAdapter.wasSuccess(response))
                     Console.info(Console.MESSAGES.deleted("Local Socket Binding " + name));
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Local Socket Binding " + name), response.getFailureDescription());
@@ -584,4 +589,127 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             }
         });
     }
+
+
+    public void onDeleteGroup(String group) {
+        this.selectedSocketGroup = null;
+
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set(REMOVE);
+        operation.get(ADDRESS).add("socket-binding-group", group);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if(ModelAdapter.wasSuccess(response))
+                    Console.info(Console.MESSAGES.deleted("Socket binding Group " + group));
+                else
+                    Console.error(Console.MESSAGES.deletionFailed("Socket binding Group " + group), response.getFailureDescription());
+
+                loadBindingGroups();
+            }
+        });
+    }
+
+    public void launchCloneDialoge(String group) {
+        window = new DefaultWindow("Clone Socket Binding Group");
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.trapWidget(
+                new CloneGroupWizard(group, this).asWidget()
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void onCloneGroup(final String from, final String to) {
+
+        this.selectedSocketGroup = null;
+
+        Function<List<ModelNode>> read = new Function<List<ModelNode>>() {
+            @Override
+            public void execute(Control<List<ModelNode>> control) {
+
+
+                ModelNode operation = new ModelNode();
+                operation.get(OP).set(READ_RESOURCE_OPERATION);
+                operation.get(RECURSIVE).set(true);
+                operation.get(ADDRESS).add("socket-binding-group", from);
+
+                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        super.onFailure(caught);
+                        control.abort();
+                    }
+
+                    @Override
+                    public void onSuccess(DMRResponse result) {
+                        control.getContext().add(result.get().get(RESULT).asObject());
+                        control.proceed();
+                    }
+                });
+
+            }
+        };
+
+        Function<List<ModelNode>> write = new Function<List<ModelNode>>() {
+            @Override
+            public void execute(Control<List<ModelNode>> control) {
+                // re-create node
+
+                ModelNode compositeOp = new ModelNode();
+                compositeOp.get(OP).set(COMPOSITE);
+                compositeOp.get(ADDRESS).setEmptyList();
+
+                List<ModelNode> steps = new ArrayList<ModelNode>();
+
+                final ModelNode rootResourceOp = new ModelNode();
+                rootResourceOp.get(OP).set(ADD);
+                rootResourceOp.get(ADDRESS).add("socket-binding-group", to);
+
+                steps.add(rootResourceOp);
+
+                ModelNode model = control.getContext().get(0); // created in previous step
+                System.out.println(model);
+                DMRUtil.copyResourceValues(model, rootResourceOp, steps);
+
+                compositeOp.get(STEPS).set(steps);
+
+                dispatcher.execute(new DMRAction(compositeOp), new SimpleCallback<DMRResponse>() {
+                    @Override
+                    public void onSuccess(DMRResponse dmrResponse) {
+                        ModelNode response = dmrResponse.get();
+
+                        if (response.isFailure()) {
+                            Console.error("Failed to copy socket binding group", response.getFailureDescription());
+                        } else {
+                            Console.info("Successfully copied server-socket binding group'" + to + "'");
+                        }
+
+                        control.proceed();
+                    }
+                });
+
+
+            }
+        };
+
+        new Async().waterfall(new ArrayList<ModelNode>(), new Outcome<List<ModelNode>>() {
+            @Override
+            public void onFailure(List<ModelNode> context) {
+
+            }
+
+            @Override
+            public void onSuccess(List<ModelNode> context) {
+                closeDialoge();
+                loadBindingGroups();
+            }
+        }, read, write);
+    }
+
 }
