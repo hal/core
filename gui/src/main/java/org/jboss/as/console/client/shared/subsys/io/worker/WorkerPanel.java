@@ -63,7 +63,7 @@ public class WorkerPanel extends IOPanel {
                 .setPlain(true)
                 .setHeadline("Workers")
                 .setDescription(SafeHtmlUtils.fromString(
-                        ((UIConstants) GWT.create(UIConstants.class)).pleaseChooseWorker()))
+                        Console.CONSTANTS.pleaseChooseWorker()))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Worker"), table)
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);

@@ -97,7 +97,7 @@ public class WebServiceRuntimePresenter
             public void onSuccess(List<WebServiceEndpoint> result) {
                 getView().updateEndpoints(result);
 
-                if(msg) Console.info(((UIConstants) GWT.create(UIConstants.class)).successfullyRefreshedStatistics());
+                if(msg) Console.info(Console.CONSTANTS.successfullyRefreshedStatistics());
 
             }
         });

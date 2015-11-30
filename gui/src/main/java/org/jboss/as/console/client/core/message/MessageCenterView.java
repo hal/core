@@ -201,7 +201,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
 
         DialogueOptions options = new DialogueOptions(
-                ((UIConstants) GWT.create(UIConstants.class)).dismiss(),
+                Console.CONSTANTS.dismiss(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {

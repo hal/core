@@ -50,7 +50,7 @@ public class LongRunningTask {
 
                 if(numAttempts>limit)
                 {
-                    Console.warning(((UIConstants) GWT.create(UIConstants.class)).requestTimeout());
+                    Console.warning(Console.CONSTANTS.requestTimeout());
                     keepRunning=false;
                 }
                 else

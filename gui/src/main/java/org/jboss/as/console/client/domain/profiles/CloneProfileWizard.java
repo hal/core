@@ -38,7 +38,7 @@ public class CloneProfileWizard  {
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
-        layout.add(new HTML("<h3>" + ((UIMessages) GWT.create(UIMessages.class)).cloneProfile(fromProfile.getName()) + "</h3>"));
+        layout.add(new HTML("<h3>" + Console.MESSAGES.cloneProfile(fromProfile.getName()) + "</h3>"));
 
         Form<ProfileRecord> form = new Form<ProfileRecord>(ProfileRecord.class);
 
@@ -52,7 +52,7 @@ public class CloneProfileWizard  {
             @Override
             public void validate(List<FormItem> list, FormValidation outcome) {
                 if(profileMgmtPresenter.doesExist(nameItem.getValue())) {
-                    String errMessage = ((UIMessages) GWT.create(UIMessages.class))
+                    String errMessage = Console.MESSAGES
                             .profileAlreadyExists(nameItem.getValue());
                     nameItem.setErrMessage(errMessage);
                     nameItem.setErroneous(true);
@@ -78,7 +78,7 @@ public class CloneProfileWizard  {
         };
 
         DialogueOptions options = new DialogueOptions(
-                ((UIConstants) GWT.create(UIConstants.class)).createProfile(), submitHandler,
+                Console.CONSTANTS.createProfile(), submitHandler,
                 Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
         return new WindowContentBuilder(layout, options).build();

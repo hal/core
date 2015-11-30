@@ -147,10 +147,10 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
             public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
                 if ("Non-XA".equals(data.getTitle())) {
                     callback.onSuccess(TEMPLATE.typePreview("Non-XA Datasources",
-                            ((UIMessages) GWT.create(UIMessages.class)).datasourceDescription()));
+                            Console.MESSAGES.datasourceDescription()));
                 } else {
                     callback.onSuccess(TEMPLATE.typePreview("XA Datasources",
-                            ((UIMessages) GWT.create(UIMessages.class)).xaDatasourceDescription()));
+                            Console.MESSAGES.xaDatasourceDescription()));
                 }
             }
         });

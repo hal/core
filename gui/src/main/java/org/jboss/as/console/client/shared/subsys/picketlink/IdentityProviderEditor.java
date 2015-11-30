@@ -64,7 +64,7 @@ class IdentityProviderEditor implements IsWidget {
         OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Identity Provider")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).identityProviderDescription())
+                .setDescription(Console.CONSTANTS.identityProviderDescription())
                 .setDetail(Console.CONSTANTS.common_label_attributes(), formPanel());
         return layout.build();
     }

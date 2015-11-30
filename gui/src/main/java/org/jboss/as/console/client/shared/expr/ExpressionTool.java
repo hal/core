@@ -51,20 +51,20 @@ public class ExpressionTool implements Tool {
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
 
-        panel.add(new ContentHeaderLabel(((UIConstants) GWT.create(UIConstants.class)).resolveExpressionValues()));
+        panel.add(new ContentHeaderLabel(Console.CONSTANTS.resolveExpressionValues()));
 
         Form<Expression> form = new Form<Expression>(Expression.class);
         input = new TextBoxItem("input", "Expression");
-        output = new TextAreaItem("output", ((UIConstants) GWT.create(UIConstants.class)).resolvedValue()) {
+        output = new TextAreaItem("output", Console.CONSTANTS.resolvedValue()) {
             @Override
             public String getErrMessage() {
-                return ((UIConstants) GWT.create(UIConstants.class)).unableToResolve();
+                return Console.CONSTANTS.unableToResolve();
             }
         };
 
         form.setFields(input, output);
 
-        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).expressionsRunningServer()));
+        panel.add(new ContentDescription(Console.CONSTANTS.expressionsRunningServer()));
         panel.add(form.asWidget());
 
 
@@ -84,7 +84,7 @@ public class ExpressionTool implements Tool {
         };
 
         DialogueOptions options = new DialogueOptions(
-                ((UIConstants) GWT.create(UIConstants.class)).resolve(),submitHandler, Console.CONSTANTS.common_label_done(),cancelHandler);
+                Console.CONSTANTS.resolve(),submitHandler, Console.CONSTANTS.common_label_done(),cancelHandler);
 
 
         window.trapWidget(new WindowContentBuilder(panel, options).build());

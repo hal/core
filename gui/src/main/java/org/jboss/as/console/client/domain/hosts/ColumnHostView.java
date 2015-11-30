@@ -418,8 +418,8 @@ public class ColumnHostView extends SuspendableViewImpl
 
 
                         Feedback.confirm(
-                                ((UIConstants) GWT.create(UIConstants.class)).startServerGroup(),
-                                ((UIMessages) GWT.create(UIMessages.class)).wantToStartServerGroup(group.getName()),
+                                Console.CONSTANTS.startServerGroup(),
+                                Console.MESSAGES.wantToStartServerGroup(group.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -438,8 +438,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     public void executeOn(final ServerGroupRecord group) {
 
                         Feedback.confirm(
-                                ((UIConstants) GWT.create(UIConstants.class)).stopServerGroup(),
-                                ((UIMessages) GWT.create(UIMessages.class)).wantToStopServerGroup(group.getName()),
+                                Console.CONSTANTS.stopServerGroup(),
+                                Console.MESSAGES.wantToStopServerGroup(group.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -454,7 +454,7 @@ public class ColumnHostView extends SuspendableViewImpl
                         .setOperationAddress("/server-group=*", "stop-servers"),
 
                 new MenuDelegate<ServerGroupRecord>(
-                        ((UIConstants) GWT.create(UIConstants.class)).suspend(), new ContextualCommand<ServerGroupRecord>() {
+                        Console.CONSTANTS.suspend(), new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
@@ -465,13 +465,13 @@ public class ColumnHostView extends SuspendableViewImpl
                         .setOperationAddress("/server-group=*", "suspend-servers"),
 
                 new MenuDelegate<ServerGroupRecord>(
-                        ((UIConstants) GWT.create(UIConstants.class)).resume(), new ContextualCommand<ServerGroupRecord>() {
+                        Console.CONSTANTS.resume(), new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
                         Feedback.confirm(
-                                ((UIConstants) GWT.create(UIConstants.class)).resumeServerGroup(),
-                                ((UIMessages) GWT.create(UIMessages.class)).wantToResumeServerGroup(group.getName()),
+                                Console.CONSTANTS.resumeServerGroup(),
+                                Console.MESSAGES.wantToResumeServerGroup(group.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -491,8 +491,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     public void executeOn(final ServerGroupRecord group) {
 
                         Feedback.confirm(
-                                ((UIConstants) GWT.create(UIConstants.class)).restartServerGroup(),
-                                ((UIMessages) GWT.create(UIMessages.class)).wantToRestartServerGroup(group.getName()),
+                                Console.CONSTANTS.restartServerGroup(),
+                                Console.MESSAGES.wantToRestartServerGroup(group.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -512,8 +512,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     public void executeOn(final ServerGroupRecord group) {
 
                         Feedback.confirm(
-                                ((UIConstants) GWT.create(UIConstants.class)).reloadServerGroup(),
-                                ((UIMessages) GWT.create(UIMessages.class)).wantToReloadServerGroup(group.getName()),
+                                Console.CONSTANTS.reloadServerGroup(),
+                                Console.MESSAGES.wantToReloadServerGroup(group.getName()),
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {

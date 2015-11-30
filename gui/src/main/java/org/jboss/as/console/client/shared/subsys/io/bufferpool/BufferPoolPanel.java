@@ -63,7 +63,7 @@ public class BufferPoolPanel extends IOPanel {
                 .setPlain(true)
                 .setHeadline("Buffer Pools")
                 .setDescription(SafeHtmlUtils.fromString(
-                        ((UIConstants) GWT.create(UIConstants.class)).pleaseChoseBufferPool()))
+                        Console.CONSTANTS.pleaseChoseBufferPool()))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Buffer Pool"), table)
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);

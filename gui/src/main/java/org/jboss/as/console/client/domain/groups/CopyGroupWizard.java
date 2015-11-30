@@ -38,7 +38,7 @@ public class CopyGroupWizard {
 
 
         layout.add(new ContentDescription(
-                ((UIMessages) GWT.create(UIMessages.class)).copyGroupDescription(orig.getName())));
+                Console.MESSAGES.copyGroupDescription(orig.getName())));
 
         final Form<ServerGroupRecord> form = new Form<ServerGroupRecord>(ServerGroupRecord.class);
         form.setNumColumns(1);

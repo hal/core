@@ -51,7 +51,7 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
     }
 
     public void open() {
-        super.open(((UIConstants) GWT.create(UIConstants.class)).replaceDeployment());
+        super.open(Console.CONSTANTS.replaceDeployment());
     }
 
     @Override

@@ -209,14 +209,14 @@ public class ServerStore extends ChangeSupport {
 
             @Override
             public void onSuccess(Boolean success) {
-                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                Console.info(Console.MESSAGES
                         .successfullyAddedServer(action.getServer().getName()));
                 onRefresh(channel);
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToAddServer(), caught.getMessage());
+                Console.error(Console.CONSTANTS.failedToAddServer(), caught.getMessage());
                 channel.nack(caught);
             }
         });
@@ -230,14 +230,14 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean success) {
 
-                Console.info(((UIMessages) GWT.create(UIMessages.class))
+                Console.info(Console.MESSAGES
                         .successfullyRemovedServer(action.getServerRef().getServerName()));
                 onRefresh(channel);
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToRemoveServer(), caught.getMessage());
+                Console.error(Console.CONSTANTS.failedToRemoveServer(), caught.getMessage());
                 channel.nack(caught);
             }
         });

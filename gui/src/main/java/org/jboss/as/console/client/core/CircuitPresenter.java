@@ -107,7 +107,7 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected void onError(Action action, String reason) {
-        Console.error(((UIConstants) GWT.create(UIConstants.class)).lastActionError(), reason);
+        Console.error(Console.CONSTANTS.lastActionError(), reason);
     }
 
     /**

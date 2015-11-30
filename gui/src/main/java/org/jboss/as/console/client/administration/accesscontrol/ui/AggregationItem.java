@@ -22,10 +22,8 @@
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
 import com.google.common.base.Supplier;
-import com.google.gwt.core.client.GWT;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
-import org.jboss.as.console.client.core.UIConstants;
 
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class AggregationItem {
     }
 
     public String getTitle() {
-        return include ? ((UIConstants) GWT.create(UIConstants.class)).common_label_include() : Console.CONSTANTS.common_label_exclude();
+        return include ? Console.CONSTANTS.common_label_include() : Console.CONSTANTS.common_label_exclude();
     }
 
     public List<Assignment> getEntries() {

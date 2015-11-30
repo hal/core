@@ -141,14 +141,14 @@ public class BufferPoolStore extends ChangeSupport {
 
         @Override
         public void onSuccess(AddressTemplate addressTemplate, String name) {
-            Console.info(((UIMessages) GWT.create(UIMessages.class))
+            Console.info(Console.MESSAGES
                     .successfullyModifiedResource(addressTemplate.resolve(statementContext, name).toString()));
             refresh(channel);
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error(((UIMessages) GWT.create(UIMessages.class))
+            Console.error(Console.MESSAGES
                     .failedToModifyResource(addressTemplate.resolve(statementContext, name).toString()));
             channel.nack(t);
         }

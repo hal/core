@@ -296,7 +296,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 html.appendHtmlConstant("</h2>");
 
 
-                html.appendEscaped(((UIConstants) GWT.create(UIConstants.class)).serverDescription());
+                html.appendEscaped(Console.CONSTANTS.serverDescription());
 
                 // TODO: reload state
                 if (!data.isStarted()) {

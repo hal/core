@@ -231,7 +231,7 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
 
                 if (response.isFailure())
                 {
-                    Log.error(((UIMessages) GWT.create(UIMessages.class)).failedToLoadCacheContainer(container), response.getFailureDescription());
+                    Log.error(Console.MESSAGES.failedToLoadCacheContainer(container), response.getFailureDescription());
                 }
                 else
                 {

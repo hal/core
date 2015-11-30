@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;

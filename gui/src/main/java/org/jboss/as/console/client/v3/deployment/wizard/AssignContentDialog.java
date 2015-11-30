@@ -87,7 +87,7 @@ public class AssignContentDialog implements IsWidget {
         intro = new Label();
         intro.getElement().getStyle().setMarginBottom(10, PX);
 
-        root.add(new HTML("<h3>" + ((UIConstants) GWT.create(UIConstants.class)).assignContent() + "</h3>"));
+        root.add(new HTML("<h3>" + Console.CONSTANTS.assignContent() + "</h3>"));
         root.add(errorMessages);
         root.add(intro);
 
@@ -140,7 +140,7 @@ public class AssignContentDialog implements IsWidget {
         // enable assignments?
         Form<Object> form = new Form<>(Object.class); // form is just used for layout reasons
         CheckBoxItem enable = new CheckBoxItem("enable",
-                ((UIConstants) GWT.create(UIConstants.class)).enableAssignmentOnSelectedServerGroups());
+                Console.CONSTANTS.enableAssignmentOnSelectedServerGroups());
         form.setFields(enable);
         root.add(form.asWidget());
 
@@ -150,7 +150,7 @@ public class AssignContentDialog implements IsWidget {
                             Set<String> selectedSet = selectionModel.getSelectedSet();
                             if (selectedSet.isEmpty()) {
                                 errorMessages.setText(
-                                        ((UIConstants) GWT.create(UIConstants.class)).pleaseSelectServerGroup());
+                                        Console.CONSTANTS.pleaseSelectServerGroup());
                                 errorMessages.setVisible(true);
                             } else {
                                 close();
@@ -165,7 +165,7 @@ public class AssignContentDialog implements IsWidget {
         this.content = content;
 
         if (window == null) {
-            window = new DefaultWindow(((UIConstants) GWT.create(UIConstants.class)).assignContent());
+            window = new DefaultWindow(Console.CONSTANTS.assignContent());
             window.setWidth(520);
             window.setHeight(400);
             window.trapWidget(asWidget());
@@ -173,7 +173,7 @@ public class AssignContentDialog implements IsWidget {
         }
         errorMessages.setText("");
         errorMessages.setVisible(false);
-        intro.setText(((UIMessages) GWT.create(UIMessages.class)).chooseServerGroupsForAssigning(content.getName()));
+        intro.setText(Console.MESSAGES.chooseServerGroupsForAssigning(content.getName()));
         dataProvider.setList(serverGroups);
         selectionModel.clear();
         table.selectDefaultEntity();

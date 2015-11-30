@@ -110,15 +110,15 @@ public class PrincipalDialog implements IsWidget {
         form.addFormValidator((formItems, outcome) -> {
             if (accessControlStore.getPrincipals().contains(beanToModel(form.getUpdatedEntity()))) {
                 outcome.addError("name");
-                name.setErrMessage(type == Principal.Type.USER ? ((UIConstants) GWT.create(UIConstants.class))
-                        .userAlreadyExists() : ((UIConstants) GWT.create(UIConstants.class)).groupAlreadyExists());
+                name.setErrMessage(type == Principal.Type.USER ? Console.CONSTANTS
+                        .userAlreadyExists() : Console.CONSTANTS.groupAlreadyExists());
                 name.setErroneous(true);
             }
         });
         form.addFormValidator((formItems, outcome) -> {
             if (!roles.containsKey(role.getValue())) {
                 outcome.addError("role");
-                role.setErrMessage(((UIConstants) GWT.create(UIConstants.class)).pleaseSelectRole());
+                role.setErrMessage(Console.CONSTANTS.pleaseSelectRole());
                 role.setErroneous(true);
             }
         });

@@ -88,7 +88,7 @@ public class ConnectorServiceList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).jmsConnectorServiceDescription())
+                .setDescription(Console.CONSTANTS.jmsConnectorServiceDescription())
                 .setMaster(Console.MESSAGES.available("Services"), table)
                 .setMasterTools(tools)
                 .addDetail(Console.CONSTANTS.common_label_details(), connectorServiceForm.asWidget())

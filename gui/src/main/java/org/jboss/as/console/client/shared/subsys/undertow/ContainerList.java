@@ -138,7 +138,7 @@ public class ContainerList {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("Servlet Container")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).servletContainerDescription())
+                .setDescription(Console.CONSTANTS.servletContainerDescription())
                         //.setMasterTools(tools) // TODO: implement add/remove ops
                 .setMaster(Console.MESSAGES.available("Servlet Container"), table)
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);

@@ -21,9 +21,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -32,8 +31,8 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.Map;
 
-import static org.jboss.as.console.client.shared.subsys.batch.store.BatchStore.JOB_REPOSITORY_ADDRESS;
 import static org.jboss.as.console.client.shared.subsys.batch.store.BatchStore.BATCH_ADDRESS;
+import static org.jboss.as.console.client.shared.subsys.batch.store.BatchStore.JOB_REPOSITORY_ADDRESS;
 
 /**
  * @author Harald Pehl
@@ -61,7 +60,7 @@ class BatchPanel extends Composite {
         OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Batch Subsystem")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).batchSubsystemDescription())
+                .setDescription(Console.CONSTANTS.batchSubsystemDescription())
                 .addDetail("Repository Type", batch)
                 .addDetail("JDBC Job repository", jobRepository);
 

@@ -18,10 +18,10 @@ public class InsufficientPrivileges implements ScheduledCommand {
 
     @Override
     public void execute() {
-        final DefaultWindow window = new DefaultWindow(((UIConstants) GWT.create(UIConstants.class)).accessDenied());
+        final DefaultWindow window = new DefaultWindow(Console.CONSTANTS.accessDenied());
         window.setWidth(320);
         window.setHeight(240);
-        HTML message = new HTML(((UIConstants) GWT.create(UIConstants.class)).insufficientPrivileges());
+        HTML message = new HTML(Console.CONSTANTS.insufficientPrivileges());
 
         DialogueOptions options = new DialogueOptions(
                 Console.CONSTANTS.common_label_logout(),

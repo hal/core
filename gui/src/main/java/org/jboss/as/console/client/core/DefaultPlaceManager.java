@@ -70,7 +70,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             public void onFailure(Throwable caught) {
                 unlock();
                 revealDefaultPlace();
-                Console.error(((UIConstants) GWT.create(UIConstants.class)).failedToCreateSecurityContext(), caught.getMessage());
+                Console.error(Console.CONSTANTS.failedToCreateSecurityContext(), caught.getMessage());
             }
 
             @Override

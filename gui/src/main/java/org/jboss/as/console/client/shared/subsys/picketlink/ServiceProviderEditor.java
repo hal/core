@@ -64,7 +64,7 @@ class ServiceProviderEditor implements IsWidget {
         OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Service Provider")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).serviceProviderDescription())
+                .setDescription(Console.CONSTANTS.serviceProviderDescription())
                 .setDetail(Console.CONSTANTS.common_label_attributes(), formPanel());
         return layoutBuilder.build();
     }

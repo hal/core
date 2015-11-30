@@ -70,7 +70,7 @@ public class StreamingProgress extends PopupPanel {
 
         FlowPanel content = new FlowPanel();
         content.addStyleName("stream-log-file-pending");
-        content.add(new Pending(((UIConstants) GWT.create(UIConstants.class)).downloadInProgress()));
+        content.add(new Pending(Console.CONSTANTS.downloadInProgress()));
         cancel = new Button(Console.CONSTANTS.common_label_cancel());
         setId(cancel.getElement(), BUTTON, BASE_ID, "cancel_stream");
         cancel.addStyleName("cancel");

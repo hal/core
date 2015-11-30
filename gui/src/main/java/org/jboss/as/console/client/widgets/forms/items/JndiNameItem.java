@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.widgets.forms.items;
 
-import com.google.gwt.core.client.GWT;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
@@ -28,6 +27,6 @@ public class JndiNameItem extends TextBoxItem {
 
     @Override
     public String getErrMessage() {
-        return ((UIConstants) GWT.create(UIConstants.class)).jndiFormatError();
+        return Console.CONSTANTS.jndiFormatError();
     }
 }

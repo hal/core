@@ -111,7 +111,7 @@ public class LocalSocketList {
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadlineWidget(headline)
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).localSocketDescription())
+                .setDescription(Console.CONSTANTS.localSocketDescription())
                 .setMaster("Local Socket Bindings", factoryTable)
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());

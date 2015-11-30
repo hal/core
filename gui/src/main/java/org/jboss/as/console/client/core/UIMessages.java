@@ -430,4 +430,6 @@ public interface UIMessages extends Messages {
     String successfullyRemovedServer(String serverName);
 
     String failedToLoadResource(String s);
+
+    String unassignContent(String name);
 }

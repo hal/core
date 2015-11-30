@@ -104,7 +104,7 @@ public class ConnectionFactoryList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).jmsConnectionFactoryDescription())
+                        Console.CONSTANTS.jmsConnectionFactoryDescription())
                 .setMaster("Connection Factories", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

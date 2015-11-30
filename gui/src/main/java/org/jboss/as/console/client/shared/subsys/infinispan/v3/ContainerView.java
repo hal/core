@@ -73,7 +73,7 @@ public class ContainerView {
                 .setPlain(true)
                 .setHeadline("Settings for container: " + cacheContainer.getName())
                 .setDescription(localCacheDescription.get("description").asString())
-                .addContent(((UIConstants) GWT.create(UIConstants.class)).help(), formAssets.getHelp().asWidget())
+                .addContent(Console.CONSTANTS.help(), formAssets.getHelp().asWidget())
                 .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());
 
         return layout.build();

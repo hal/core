@@ -21,10 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.jberet.store.ModifyDefaults;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -76,7 +75,7 @@ class DefaultsPanel implements IsWidget {
         OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Batch Subsystem")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).batchSubsystemDescription())
+                .setDescription(Console.CONSTANTS.batchSubsystemDescription())
                 .setDetail(null, formAssets.asWidget());
         return layout.build();
     }

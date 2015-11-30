@@ -45,7 +45,7 @@ public class VerifyUploadStep extends
     private CheckBoxItem enable;
 
     public VerifyUploadStep(final DeploymentWizard wizard, final boolean standalone) {
-        super(wizard, ((UIConstants) GWT.create(UIConstants.class)).verifyUpload());
+        super(wizard, Console.CONSTANTS.verifyUpload());
         this.standalone = standalone;
     }
 

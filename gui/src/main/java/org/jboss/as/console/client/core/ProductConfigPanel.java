@@ -1,9 +1,9 @@
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PlainFormView;
@@ -43,7 +43,7 @@ public class ProductConfigPanel implements IsWidget {
         productVersion.setValue(productConfig.getProductVersion());
         TextItem profile = new TextItem("profile", "Profile");
         profile.setValue(productConfig.getProfile().name());
-        TextItem connectedTo = new TextItem("connectedTo", ((UIConstants) GWT.create(UIConstants.class)).connectedTo());
+        TextItem connectedTo = new TextItem("connectedTo", Console.CONSTANTS.connectedTo());
         connectedTo.setValue(context.getProperty(DOMAIN_API));
 
         ArrayList<FormItem> items = new ArrayList<FormItem>(

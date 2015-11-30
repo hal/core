@@ -122,8 +122,8 @@ public class ChildView {
                         dialog.center();
                     }
                     else {
-                        Feedback.alert(((UIConstants) GWT.create(UIConstants.class)).availableChildrenTypes(),
-                                ((UIConstants) GWT.create(UIConstants.class)).allSingletonsAlreadyAdded());
+                        Feedback.alert(Console.CONSTANTS.availableChildrenTypes(),
+                                Console.CONSTANTS.allSingletonsAlreadyAdded());
                     }
 
 
@@ -237,7 +237,7 @@ public class ChildView {
         else
         {
             Feedback.alert(Console.CONSTANTS.unauthorized(),
-                    ((UIConstants) GWT.create(UIConstants.class)).unauthorizedAdd());
+                    Console.CONSTANTS.unauthorizedAdd());
         }
 
     }
@@ -262,7 +262,7 @@ public class ChildView {
 
         if(form.hasWritableAttributes()) {
             final DefaultWindow window = new DefaultWindow(
-                    ((UIMessages) GWT.create(UIMessages.class)).createResource(type));
+                    Console.MESSAGES.createResource(type));
             window.addStyleName("browser-view");
 
             DialogueOptions options = new DialogueOptions(new ClickHandler() {
@@ -301,8 +301,8 @@ public class ChildView {
         else
         {
             // no writable attributes
-            Feedback.alert(((UIConstants) GWT.create(UIConstants.class)).cannotCreateChildResource(),
-                    ((UIMessages) GWT.create(UIMessages.class)).noConfigurableAttributes(address.toString()));
+            Feedback.alert(Console.CONSTANTS.cannotCreateChildResource(),
+                    Console.MESSAGES.noConfigurableAttributes(address.toString()));
         }
     }
 
@@ -320,7 +320,7 @@ public class ChildView {
 
 
         public SingletonDialog(Set<String> singletonTypes, final SimpleCallback callback) {
-            super(((UIConstants) GWT.create(UIConstants.class)).selectResourceType());
+            super(Console.CONSTANTS.selectResourceType());
 
             // Create a CellList that uses the cell.
             cellList = new CellList<String>(new TextCell()
@@ -351,7 +351,7 @@ public class ChildView {
             panel.setStyleName("fill-layout-width");
             panel.add(cellList.asWidget());
             Widget widget = new WindowContentBuilder(panel, new DialogueOptions(
-                    ((UIConstants) GWT.create(UIConstants.class)).common_label_continue(),
+                    Console.CONSTANTS.common_label_continue(),
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {

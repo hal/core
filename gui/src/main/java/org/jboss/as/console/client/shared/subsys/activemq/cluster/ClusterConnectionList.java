@@ -90,7 +90,7 @@ public class ClusterConnectionList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).clusterConnectionDescription())
+                        Console.CONSTANTS.clusterConnectionDescription())
                 .setMaster("ClusterConnections", factoryTable)
                 .setMasterTools(tools)
                 .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());

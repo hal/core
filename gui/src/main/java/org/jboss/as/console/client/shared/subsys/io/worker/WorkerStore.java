@@ -145,7 +145,7 @@ public class WorkerStore extends ChangeSupport {
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error(((UIMessages) GWT.create(UIMessages.class))
+            Console.error(Console.MESSAGES
                     .failedToLoadResource(addressTemplate.resolve(statementContext, name).toString()), t.getMessage());
             channel.nack(t);
         }

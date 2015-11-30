@@ -166,7 +166,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 if (places.isEmpty()) {
 
                     // should not happen
-                    Console.error(((UIConstants) GWT.create(UIConstants.class)).unableToNavigateBack());
+                    Console.error(Console.CONSTANTS.unableToNavigateBack());
                 } else {
 
                     /*
@@ -329,7 +329,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             runAsBtn.addStyleName("menu-item");
 
             SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
-            runAsRole.appendEscaped(((UIConstants) GWT.create(UIConstants.class)).runAs());
+            runAsRole.appendEscaped(Console.CONSTANTS.runAs());
             if (bootstrap.getRunAs()!=null) {
                 runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(bootstrap.getRunAs());
             } else {

@@ -113,7 +113,7 @@ public class BridgesList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).bridgeDescription())
+                        Console.CONSTANTS.bridgeDescription())
                 .setMaster("Bridges", factoryTable)
                 .setMasterTools(tools)
                 .addDetail("Common", defaultAttributes.asWidget())

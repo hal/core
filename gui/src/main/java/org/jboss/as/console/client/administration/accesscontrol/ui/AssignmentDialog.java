@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -32,13 +31,13 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.as.console.client.administration.accesscontrol.store.AddAssignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -113,7 +112,7 @@ public class AssignmentDialog implements IsWidget {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     if (selectionModel.getSelectedObject() == null) {
-                        errorMessage.setText(((UIConstants) GWT.create(UIConstants.class)).pleaseSelectRole());
+                        errorMessage.setText(Console.CONSTANTS.pleaseSelectRole());
                         errorMessage.setVisible(true);
                     } else {
                         Assignment assignment = new Assignment(principal, selectionModel.getSelectedObject(),

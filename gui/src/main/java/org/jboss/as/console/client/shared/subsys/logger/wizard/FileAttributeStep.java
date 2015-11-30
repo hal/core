@@ -1,12 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.logger.wizard;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -37,7 +36,7 @@ public class FileAttributeStep extends WizardStep<HandlerContext, HandlerSteps> 
         FlowPanel layout = new FlowPanel();
 
         ContentDescription text = new ContentDescription(
-                ((UIConstants) GWT.create(UIConstants.class)).logFileDescription());
+                Console.CONSTANTS.logFileDescription());
         layout.add(text);
         layout.add(formAssets.asWidget());
         formAssets.getForm().setEnabled(true);

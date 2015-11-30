@@ -80,7 +80,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
 
         // header
         panel.add(new ContentHeaderLabel("Log Viewer"));
-        panel.add(new ContentDescription(((UIConstants) GWT.create(UIConstants.class)).logFilesOfSelectedServer()));
+        panel.add(new ContentDescription(Console.CONSTANTS.logFilesOfSelectedServer()));
 
         // toolbar
         ToolStrip tools = new ToolStrip();

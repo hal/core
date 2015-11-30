@@ -226,7 +226,7 @@ public class ProfileMgmtPresenter
         }
 
         if(inUseBy!=null)
-            Console.error(((UIMessages) GWT.create(UIMessages.class)).profileUsedBy(inUseBy.getName()));
+            Console.error(Console.MESSAGES.profileUsedBy(inUseBy.getName()));
         else
             circuit.dispatch(new RemoveProfile(profileRecord.getName()));
 

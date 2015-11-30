@@ -65,7 +65,7 @@ public class ReloadState {
             //Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
 
 
-            Message msg = new Message(((UIConstants) GWT.create(UIConstants.class)).serverConfigurationChanged(), sb.toString(), Message.Severity.Warning);
+            Message msg = new Message(Console.CONSTANTS.serverConfigurationChanged(), sb.toString(), Message.Severity.Warning);
             showDetail(msg);
 
             if(Console.MODULES.getBootstrapContext().isStandalone())
@@ -112,7 +112,7 @@ public class ReloadState {
         widget.getElement().setAttribute("style", "margin:5px");
 
         DialogueOptions options = new DialogueOptions(
-                ((UIConstants) GWT.create(UIConstants.class)).reloadServerNow(),
+                Console.CONSTANTS.reloadServerNow(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {

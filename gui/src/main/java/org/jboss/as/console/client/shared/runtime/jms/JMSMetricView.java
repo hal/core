@@ -87,7 +87,7 @@ public class JMSMetricView extends SuspendableViewImpl implements JMSMetricPrese
         Widget frontPage = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("JMS Messaging Provider")
-                .setDescription(((UIConstants) GWT.create(UIConstants.class)).pleaseChoseMessagingProvider())
+                .setDescription(Console.CONSTANTS.pleaseChoseMessagingProvider())
                 .addContent("", table.asWidget())
                 .build();
 

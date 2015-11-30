@@ -81,7 +81,7 @@ public class CustomerSupportLauncher {
             }
         });
 
-        HTML openCaseLink = new HTML(((UIConstants) GWT.create(UIConstants.class)).openCase());
+        HTML openCaseLink = new HTML(Console.CONSTANTS.openCase());
         openCaseLink.addStyleName("menu-item");
         openCaseLink.addClickHandler(new ClickHandler() {
             @Override
@@ -90,7 +90,7 @@ public class CustomerSupportLauncher {
             }
         });
 
-        HTML modifyCaseLink = new HTML(((UIConstants) GWT.create(UIConstants.class)).modifyCase());
+        HTML modifyCaseLink = new HTML(Console.CONSTANTS.modifyCase());
         modifyCaseLink.addStyleName("menu-item");
         modifyCaseLink.addClickHandler(new ClickHandler() {
             @Override

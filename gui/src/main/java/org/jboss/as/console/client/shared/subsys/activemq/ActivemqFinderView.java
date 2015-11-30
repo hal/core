@@ -66,7 +66,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
     public Widget createWidget() {
         mailSessionColumn = new FinderColumn<>(
                 FinderColumn.FinderId.CONFIGURATION,
-                ((UIMessages) GWT.create(UIMessages.class)).messagingProvider(),
+                Console.MESSAGES.messagingProvider(),
                 new FinderColumn.Display<Property>() {
 
                     @Override
@@ -112,7 +112,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMsgClusteringPresenter)
                                         .with("name", provider.getName()).build())),
 
-                new MenuDelegate<>(((UIMessages) GWT.create(UIMessages.class)).providerSettings(), presenter::onLaunchProviderSettings),
+                new MenuDelegate<>(Console.MESSAGES.providerSettings(), presenter::onLaunchProviderSettings),
 
                 new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), provider ->
                         Feedback.confirm(Console.MESSAGES.deleteTitle("Messaging Provider"),

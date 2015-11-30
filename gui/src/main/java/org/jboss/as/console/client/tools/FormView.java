@@ -86,7 +86,7 @@ public class FormView {
                 // display unsupported types
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
                 html.appendHtmlConstant("<div style='color:#999999; padding:20px'>");
-                html.appendHtmlConstant(((UIConstants) GWT.create(UIConstants.class)).attributesNotSupported() + "<br/>");
+                html.appendHtmlConstant(Console.CONSTANTS.attributesNotSupported() + "<br/>");
                 html.appendHtmlConstant("<ul>");
                 for(String[] unsupported : formAssets.getUnsupportedTypes()) {
                     html.appendHtmlConstant("<li>");

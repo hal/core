@@ -137,7 +137,7 @@ public class AddressingDetails {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        ((UIConstants) GWT.create(UIConstants.class)).addressingDescription())
+                        Console.CONSTANTS.addressingDescription())
                 .setMaster(Console.MESSAGES.available("Address Settings"), addrTable)
                 .setMasterTools(tableTools.asWidget())
                 .setDetail(Console.CONSTANTS.common_label_details(), formPanel);
