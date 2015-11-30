@@ -725,7 +725,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     }
 
 
-
     public final class Predicate {
         private String subsysName;
         private PlaceLink link;
