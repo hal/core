@@ -28,6 +28,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
 import org.jboss.as.console.client.shared.general.model.RemoteSocketBinding;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
+import org.jboss.as.console.client.shared.general.model.SocketGroup;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
@@ -106,7 +107,7 @@ public class SocketBindingView extends DisposableViewImpl implements SocketBindi
     }
 
     @Override
-    public void updateGroups(List<String> groups) {
+    public void updateGroups(List<SocketGroup> groups) {
         socketGroups.setGroups(groups);
     }
 
