@@ -117,7 +117,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         return placeManager;
     }
 
-
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
     @AccessControl(resources = {

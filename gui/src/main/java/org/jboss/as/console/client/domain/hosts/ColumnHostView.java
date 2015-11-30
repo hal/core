@@ -239,7 +239,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 if (browseColumn.hasSelectedItem()) {
                     columnManager.updateActiveSelection(browseWidget);
 
-                    clearNestedPresenter();
+                    //clearNestedPresenter();
 
                     /*presenter.getPlaceManager().revealPlace(
                             new PlaceRequest(NameTokens.HostMgmtPresenter)
@@ -636,6 +636,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void updateServerGroups(List<ServerGroupRecord> serverGroups) {
+        clearNestedPresenter();
         groups.updateFrom(serverGroups, false);
     }
 
