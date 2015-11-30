@@ -8,6 +8,7 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.shared.expr.ExpressionColumn;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -104,6 +105,7 @@ public class SocketTable {
 
     public void updateFrom(String groupName, List<SocketBinding> bindings) {
 
+        ((SingleSelectionModel)table.getSelectionModel()).clear();
         List<SocketBinding> list = dataProvider.getList();
         list.clear(); // cannot call setList() as that breaks the sort handler
         list.addAll(bindings);
