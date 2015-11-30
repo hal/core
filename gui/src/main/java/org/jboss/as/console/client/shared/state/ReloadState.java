@@ -127,7 +127,7 @@ public class ReloadState {
                         {
                             window.hide();
                             Scheduler.get().scheduleDeferred(() -> {
-                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.DomainRuntimePresenter));
+                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.HostMgmtPresenter));
                             });
 
                         }
