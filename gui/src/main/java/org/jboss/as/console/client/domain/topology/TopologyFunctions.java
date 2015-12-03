@@ -249,4 +249,66 @@ public final class TopologyFunctions {
             });
         }
     }
+
+    public static class EffectivePortOffset implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+
+        public EffectivePortOffset(final DispatchAsync dispatcher) {
+            this.dispatcher = dispatcher;
+        }
+
+        @Override
+        public void execute(Control<FunctionContext> control) {
+            final ModelNode node = new ModelNode();
+            node.get(ADDRESS).setEmptyList();
+            node.get(OP).set(COMPOSITE);
+            List<ModelNode> steps = new LinkedList<ModelNode>();
+
+            int step = 1;
+            final Map<String, ServerInstance> stepToServer = new HashMap<String, ServerInstance>();
+            final List<HostInfo> hosts = control.getContext().get(HOSTS_KEY);
+            for (HostInfo hostInfo : hosts) {
+                for (ServerInstance serverInstance : hostInfo.getServerInstances()) {
+                    // find a server which we haven't processed so far - no matter which host
+                    if (serverInstance.isRunning()) {
+                        ModelNode portOffsetOp = new ModelNode();
+                        portOffsetOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+                        portOffsetOp.get(ADDRESS).add("host", hostInfo.getName());
+                        portOffsetOp.get(ADDRESS).add("server", serverInstance.getName());
+                        portOffsetOp.get(CHILD_TYPE).set("socket-binding-group");
+
+                        steps.add(portOffsetOp);
+                        stepToServer.put("step-" + step, serverInstance);
+                        step++;
+                    }
+                }
+            }
+
+            node.get(STEPS).set(steps);
+            dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
+                @Override
+                protected void onSuccess(final ModelNode result) {
+                    ModelNode stepsResult = result.get(RESULT);
+                    if (stepsResult.isDefined()) {
+                        for (Property property : stepsResult.asPropertyList()) {
+                            String step = property.getName();
+                            ModelNode node = property.getValue();
+                            ServerInstance serverInstance = stepToServer.get(step);
+                            if (serverInstance != null && node.get(RESULT).isDefined()
+                                    && !node.get(RESULT).asPropertyList().isEmpty()) {
+
+                                ModelNode socketBinding = node.get(RESULT).asPropertyList().get(0).getValue();
+                                String portOffset = socketBinding.get("port-offset").asString();
+                                Map<String, String> socketBindings = new HashMap<String, String>();
+                                socketBindings.put(socketBinding.get("name").asString(), portOffset);
+                                serverInstance.setSocketBindings(socketBindings);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
 }
