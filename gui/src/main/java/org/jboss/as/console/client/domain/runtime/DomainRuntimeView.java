@@ -20,7 +20,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -307,6 +306,21 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     PreviewState.warn(html, "Server needs to be restarted");
                 } else if (data.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
+                } else {
+                    PreviewState.good(html, "Server is running");
+                }
+
+                if (data.isStarted()) {
+                    html.appendHtmlConstant("<h3>");
+                    html.appendEscaped("Attributes");
+                    html.appendHtmlConstant("</h3>");
+
+                    html.appendHtmlConstant("<div><table><tr><td>");
+                    html.appendEscaped(Console.CONSTANTS.common_label_effectivePortOffset() + ":");
+                    html.appendHtmlConstant("</td><td>");
+                    html.appendEscaped(data.getEffectivePortOffset());
+                    html.appendHtmlConstant("</td></tr>");
+                    html.appendHtmlConstant("</table></div>");
                 }
 
                 html.appendHtmlConstant("</div>");

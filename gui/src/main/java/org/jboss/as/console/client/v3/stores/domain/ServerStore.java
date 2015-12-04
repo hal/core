@@ -177,7 +177,8 @@ public class ServerStore extends ChangeSupport {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 new TopologyFunctions.ReadHostsAndGroups(dispatcher),
                 new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
-                new TopologyFunctions.FindRunningServerInstances(dispatcher));
+                new TopologyFunctions.FindRunningServerInstances(dispatcher),
+                new TopologyFunctions.EffectivePortOffset(dispatcher));
     }
 
     /**

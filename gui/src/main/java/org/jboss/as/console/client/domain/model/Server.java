@@ -53,6 +53,9 @@ public interface Server {
     int getPortOffset();
     void setPortOffset(int offset);
 
+    String getEffectivePortOffset();
+    void setEffectivePortOffset(String offsetString);
+
     @Binding(skip=true)
     Jvm getJvm();
     void setJvm(Jvm jvm);
