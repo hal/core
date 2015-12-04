@@ -128,7 +128,7 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
             "{selected.profile}/subsystem=infinispan/cache-container=*/invalidation-cache=*/store=binary-jdbc",
             "{selected.profile}/subsystem=infinispan/cache-container=*/invalidation-cache=*/store=custom",
             "{selected.profile}/subsystem=infinispan/cache-container=*/invalidation-cache=*/store=remote",
-    })
+    }, recursive = false)
     @SearchIndex(keywords = {
             "cache", "ejb", "hibernate", "web", "transport"
     })
