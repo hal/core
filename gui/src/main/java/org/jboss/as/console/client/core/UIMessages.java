@@ -28,408 +28,154 @@ import com.google.gwt.safehtml.shared.SafeHtml;
  * @date 5/2/11
  */
 public interface UIMessages extends Messages {
-
-    String changeServerStatus(String state, String name);
-
-    String deleteServerConfig();
-
-    String deleteServerConfigConfirm(String name);
-
-    String deploymentsFor(String serverGroup);
-
-    String common_validation_portOffsetUndefined(String errMessage);
-
-    String common_validation_notEmptyNoSpace();
-
-    String deleteServerGroupConfirm(String groupName);
-
-    String deleteServerGroup();
-
-    String deleteJVM();
-
-    String deleteJVMConfirm();
-
-    String removeProperty();
-
-    String removePropertyConfirm(String key);
-
-    String common_validation_requiredField();
-
-    String common_validation_heapSize();
-
-    String mustBeDeployableArchive(String fieldName);
-
-    String restartRequired();
-
-    String alreadyExists(String fieldName);
-
-    String commmon_description_newServerGroup();
-
-    String savedSettings();
-
-    String restartRequiredConfirm();
-
-    String removeFromConfirm(String entity, String target);
-
-    String failedToRemoveFrom(String entity, String target);
-
-    String removedFrom(String entity, String target);
-
-    String enableConfirm(String entity);
-
-    String disableConfirm(String entity);
-
-    String failedToEnable(String entity);
-
-    String failedToDisable(String entity);
-
-    String successEnabled(String entity);
-
-    String successDisabled(String entity);
-
-    String addConfirm(String entity, String target);
-
-    String failedToAdd(String entity, String target);
-
-    String successAdd(String entity, String target);
-
-    String alreadyAssignedTo(String deploymentName, String serverGroup);
-
-    String subsys_naming_failedToLoadJNDIView();
-
-    String subsys_configadmin_addNoPIDselected();
-
-    String subsys_configadmin_remove();
-
-    String subsys_configadmin_removeConfirm(String pid);
-
-    String subsys_configadmin_oneValueRequired();
-
-    String subsys_configadmin_removeOnLastValueConfirm(String pid);
-
-    String subsys_osgi_frameworkPropertiesHelp();
-
-    String subsys_osgi_capabilitiesHelp();
-
-    String subsys_osgi_removeCapability();
-
-    String subsys_osgi_removeCapabilityConfirm(String id);
-
-    String subsys_osgi_cant_start_fragment(String bsn);
-
-    String subsys_osgi_cant_stop_fragment(String bsn);
-
-    String subsys_osgi_activate();
-
-    String subsys_osgi_activating();
-
-    String subsys_messaging(String providerName);
-
-    String temporarilyUnavailable();
-
-    String deleteTitle(String name);
-
-    String deleteConfirm(String name);
-
-    String createTitle(String itemName);
-
-    String added(String name);
-
-    String addingFailed(String name);
-
-    String deleted(String name);
-
-    String deletionFailed(String name);
-
-    String saved(String name);
-
-    String saveFailed(String name);
-
-    String modify(String name);
-
-    String modifyConfirm(String name);
-
-    String modified(String name);
-
-    String modificationFailed(String name);
-
-    String serversRunningOnHost(String hostName);
-
-    String selectServerGroups();
-
-    String selectServerGroupsFor(String deploymentRuntimeName);
-
-    String alreadyAssignedToAllGroups(String deploymentRuntimeName);
-
-    String noServerGroupsSelected();
-
-    String unknown_error();
-
-    String available(String s);
-
-    String successful(String p0);
-
-    String failed(String p0);
-
-    String server_config_stillRunning(String name);
-
-    String subsys_jca_err_ds_notEnabled(String name);
-
-    String subsys_jpa_err_mericDisabled(String s);
-
-    String server_reload_confirm(String p0);
-
-    String subsys_jca_err_ds_enabled(String name);
-
-    String pleaseChoseanItem();
-
-    String path_description();
-
-    String topology_description();
-
-    String topology_no_server();
-
-    String extensions_description();
-
-    String deployment_repo_description();
-
-    String deployment_filesystem();
-
-    String deployments_for_group();
-
-    String environment_description();
-
-    String transaction_log_description();
-
-    String administration_scoped_role_in_use(int usage);
-
-    String administration_members(String name);
-
+    // @formatter:off
     SafeHtml access_control_provider();
-
-    String deployment_assign_help();
-
-    String no_groups_header();
-
-    String no_groups_warning();
-
-    String verify_datasource_successful_message(String datasource);
-
-    String verify_datasource_failed_message(String datasource);
-
-    String patch_manager_rollback_body(String id);
-
-    String patch_manager_stop_server_body(String host);
-
-    String patch_manager_applying(String filename);
-
-    String patch_manager_restart_yes(String serverOrHost);
-
-    SafeHtml patch_manager_conflict_override_title();
-
-    SafeHtml patch_manager_desc_product();
-
-    String patch_manager_applying_patch_body(String filename);
-
-    String patch_manager_restart_needed(String serverOrHost);
-
-    String patch_manager_error_parse_result(String exception, String payload);
-
-    String patch_manager_rolling_back_body(String id);
-
-    SafeHtml content_box_create_datasource_body_standalone();
-
-    SafeHtml content_box_create_datasource_body_domain();
-
-    SafeHtml content_box_new_deployment_body_standalone();
-
-    SafeHtml content_box_new_deployment_body_domain();
-
-    SafeHtml content_box_apply_patch_body_standalone();
-
-    SafeHtml content_box_apply_patch_body_domain();
-
-    SafeHtml content_box_role_assignment_body();
-
-    SafeHtml content_box_create_server_group_body();
-
-    SafeHtml content_box_topology_body();
-
-    SafeHtml search_index_pending();
-
-    SafeHtml search_on_homepage();
-
-    SafeHtml search_n_results(int n);
-
-    String search_popup_description(String shortcut);
-
-    String patch_manager_restart_verify(String host);
-
-    String bs_interface_warning(String url);
-
-    String homepage_patching_sub_header(String name);
-    String homepage_patching_standalone_step_intro(String name);
-    String homepage_patching_domain_step_intro(String name);
-
-    String resource_already_exists(String name);
-
-    String role_is_used_in_assignments();
-
-    String addUser();
-
-    String addGroup();
-
-    String editRole();
-
-    String allPrincipalsAreAlreadyMembersOf(String name);
-
-    String addMember();
-
-    String excludeMember();
-
-    String allRolesAreAlreadyAssignedTo(String nameAndRealm);
-
-    String assignRole();
-
-    String excludeRole();
-
-    String membership();
-
-    String assignment();
-
-    String newMessagingProvider();
-
-    String successfullyAddedMessagingProvider(String name);
-
-    String failedToLoadMessagingServerNames();
-
-    String failedToModifyMessagingProvider(String name);
-
-    String successfullyModifiedMessagingProvider(String name);
-
-    String failedToRemoveMessagingProvider(String name);
-
-    String successfullyRemovedMessagingProvider(String name);
-
-    String providerSettings();
-
-    String messagingProvider();
-
-    String assignmentIncludeRoleToPrincipal(String role, String principal);
-
-    String assignmentExcludeRoleToPrincipal(String role, String principal);
-
-    String assignmentIncludePrincipalToRole(String userOrGroup, String principal, String role);
-
-    String assignmentExcludePrincipalToRole(String userOrGroup, String principal, String role);
-
-    String assignedTo();
-
-    String excludedFrom();
-
     String addDeploymentToServerGroup(String serverGroup);
-
-    String principalSuccessfullyAdded(String userOrGroup);
-
-    String noConfigurableAttributesOnResources(String address);
-
-    String scopedRoleSuccessfullyAdded(String roleId);
-
-    String chooseServerGroupsForAssigning(String name);
-
-    String successfullyModifiedResource(String resource);
-
-    String failedToModifyResource(String resource);
-
-    String failedToCreateResource(String resource);
-
-    String successfullyCreated(String resource);
-
-    String failedToRemoveResource(String resource);
-
-    String successfullyRemoved(String resource);
-
-    String successfullyAdded(String resource);
-
-    String failedToLoadCacheContainer(String container);
-
-    String createResource(String type);
-
-    String noConfigurableAttributes(String resource);
-
-    String cloneProfile(String name);
-
-    String profileAlreadyExists(String name);
-
-    String wantToStartServerGroup(String name);
-
-    String wantToStopServerGroup(String name);
-
-    String wantToResumeServerGroup(String name);
-
-    String wantToRestartServerGroup(String name);
-
-    String wantToReloadServerGroup(String name);
-
-    String reallyRemoveProfile(String name);
-
-    String copyGroupDescription(String name);
-
-    String failedToDetectJdbcDriver(String reason);
-
-    String datasourceDescription();
-
-    String xaDatasourceDescription();
-
-    String flushConnectionsError(String dsName);
-
-    String flushConnectionsSuccess(String dsName);
-
-    String contentSuccessfullyUploaded(String name);
-
-    String deploymentSuccessfullyDeployed(String name);
-
-    String deploymentSuccessfullyReplaced(String name);
-
-    String contentAlreadyAssigned(String name);
-
-    String contentSuccessfullyAssignedToServerGroups(String name);
-
-    String contentFailedToAssignToServerGroups(String name);
-
-    String contentNotAssignedToServerGroup(String name);
-
-    String contentSuccessfullyUnassignedFromServerGroups(String name);
-
-    String contentFailedToUnassignFromServerGroups(String name);
-
-    String assignmentSuccessfullyDisabled(String name);
-
-    String assignmentSuccessfullyEnabled(String name);
-
-    String unassignAssignment(String name);
-
-    String AssignmentSuccessfullyUnassigned(String name);
-
-    String deploymentInUse(String name);
-
+    String added(String name);
+    String addGroup();
+    String addingFailed(String name);
+    String addMember();
+    String addUser();
+    String administration_members(String name);
+    String administration_scoped_role_in_use(int usage);
+    String allPrincipalsAreAlreadyMembersOf(String name);
+    String allRolesAreAlreadyAssignedTo(String nameAndRealm);
     String assignedToServerGroups(String name, String serverGroups);
-
-    String securityDomainDescription(String name);
-
-    String newTitle(String resourceName);
-
-    String profileUsedBy(String name);
-
-    String roleSuccessfullyRemovedFrom(String role, String assignment);
-
-    String principalSuccessfullyRemovedFromAssignment(String principal, String assignment);
-
-    String successfullyAddedServer(String name);
-
-    String successfullyRemovedServer(String serverName);
-
+    String assignment();
+    String assignmentExcludePrincipalToRole(String userOrGroup, String principal, String role);
+    String assignmentExcludeRoleToPrincipal(String role, String principal);
+    String assignmentIncludePrincipalToRole(String userOrGroup, String principal, String role);
+    String assignmentIncludeRoleToPrincipal(String role, String principal);
+    String assignmentSuccessfullyDisabled(String name);
+    String assignmentSuccessfullyEnabled(String name);
+    String AssignmentSuccessfullyUnassigned(String name);
+    String assignRole();
+    String available(String s);
+    String bs_interface_warning(String url);
+    String chooseServerGroupsForAssigning(String name);
+    String cloneProfile(String name);
+    String common_validation_heapSize();
+    String common_validation_notEmptyNoSpace();
+    String common_validation_portOffsetUndefined(String errMessage);
+    String contentAlreadyAssigned(String name);
+    String contentFailedToAssignToServerGroups(String name);
+    String contentFailedToUnassignFromServerGroups(String name);
+    String contentNotAssignedToServerGroup(String name);
+    String contentSuccessfullyAssignedToServerGroups(String name);
+    String contentSuccessfullyUnassignedFromServerGroups(String name);
+    String contentSuccessfullyUploaded(String name);
+    String copyGroupDescription(String name);
+    String createResource(String type);
+    String createTitle(String itemName);
+    String datasourceDescription();
+    String deleteConfirm(String name);
+    String deleted(String name);
+    String deleteServerConfig();
+    String deleteServerGroup();
+    String deleteServerGroupConfirm(String groupName);
+    String deleteTitle(String name);
+    String deletionFailed(String name);
+    String deploymentInUse(String name);
+    String deploymentSuccessfullyDeployed(String name);
+    String deploymentSuccessfullyReplaced(String name);
+    String disableConfirm(String entity);
+    String editRole();
+    String enableConfirm(String entity);
+    String environment_description();
+    String excludedFrom();
+    String excludeMember();
+    String excludeRole();
+    String extensions_description();
+    String failed(String p0);
+    String failedToCreateResource(String resource);
+    String failedToDetectJdbcDriver(String reason);
+    String failedToLoadCacheContainer(String container);
+    String failedToLoadMessagingServerNames();
     String failedToLoadResource(String s);
-
+    String failedToModifyMessagingProvider(String name);
+    String failedToModifyResource(String resource);
+    String failedToRemoveMessagingProvider(String name);
+    String failedToRemoveResource(String resource);
+    String flushConnectionsError(String dsName);
+    String flushConnectionsSuccess(String dsName);
+    String homepage_patching_domain_step_intro(String name);
+    String homepage_patching_standalone_step_intro(String name);
+    String homepage_patching_sub_header(String name);
+    String membership();
+    String messagingProvider();
+    String modificationFailed(String name);
+    String modified(String name);
+    String modify(String name);
+    String newMessagingProvider();
+    String newTitle(String resourceName);
+    String noConfigurableAttributes(String resource);
+    String noConfigurableAttributesOnResources(String address);
+    String patch_manager_applying_patch_body(String filename);
+    SafeHtml patch_manager_desc_product();
+    SafeHtml patch_manager_conflict_override_title();
+    String patch_manager_error_parse_result(String exception, String payload);
+    String patch_manager_restart_needed(String serverOrHost);
+    String patch_manager_restart_verify(String host);
+    String patch_manager_restart_yes(String serverOrHost);
+    String patch_manager_rolling_back_body(String id);
+    String patch_manager_stop_server_body(String host);
+    String path_description();
+    String pleaseChoseanItem();
+    String principalSuccessfullyAdded(String userOrGroup);
+    String principalSuccessfullyRemovedFromAssignment(String principal, String assignment);
+    String profileAlreadyExists(String name);
+    String profileUsedBy(String name);
+    String providerSettings();
+    String reallyRemoveProfile(String name);
+    String removeProperty();
+    String removePropertyConfirm(String key);
+    String resource_already_exists(String name);
+    String restartRequired();
+    String restartRequiredConfirm();
+    String role_is_used_in_assignments();
+    String roleSuccessfullyRemovedFrom(String role, String assignment);
+    String saved(String name);
+    String savedSettings();
+    String saveFailed(String name);
+    String scopedRoleSuccessfullyAdded(String roleId);
+    SafeHtml search_index_pending();
+    SafeHtml search_n_results(int n);
+    String search_popup_description(String shortcut);
+    String securityDomainDescription(String name);
+    String server_config_stillRunning(String name);
+    String server_reload_confirm(String p0);
+    String subsys_configadmin_addNoPIDselected();
+    String subsys_configadmin_oneValueRequired();
+    String subsys_configadmin_remove();
+    String subsys_configadmin_removeConfirm(String pid);
+    String subsys_configadmin_removeOnLastValueConfirm(String pid);
+    String subsys_jca_err_ds_enabled(String name);
+    String subsys_jca_err_ds_notEnabled(String name);
+    String subsys_jpa_err_mericDisabled(String s);
+    String successDisabled(String entity);
+    String successEnabled(String entity);
+    String successful(String p0);
+    String successfullyAdded(String resource);
+    String successfullyAddedMessagingProvider(String name);
+    String successfullyAddedServer(String name);
+    String successfullyCreated(String resource);
+    String successfullyModifiedMessagingProvider(String name);
+    String successfullyModifiedResource(String resource);
+    String successfullyRemoved(String resource);
+    String successfullyRemovedMessagingProvider(String name);
+    String successfullyRemovedServer(String serverName);
+    String topology_description();
+    String transaction_log_description();
+    String unassignAssignment(String name);
     String unassignContent(String name);
+    String unknown_error();
+    String verify_datasource_failed_message(String datasource);
+    String verify_datasource_successful_message(String datasource);
+    String wantToReloadServerGroup(String name);
+    String wantToRestartServerGroup(String name);
+    String wantToResumeServerGroup(String name);
+    String wantToStartServerGroup(String name);
+    String wantToStopServerGroup(String name);
+    String xaDatasourceDescription();
+    // @formatter:on
 }
