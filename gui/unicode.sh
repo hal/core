@@ -25,5 +25,3 @@ do
 	echo "src/main/java/org/jboss/as/console/client/core/$i"
 	native2ascii -encoding Shift_JIS src/main/java/org/jboss/as/console/client/core/$i src/main/java/org/jboss/as/console/client/core/$i
 done
-
-
