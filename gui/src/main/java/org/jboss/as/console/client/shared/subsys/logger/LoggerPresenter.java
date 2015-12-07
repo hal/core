@@ -267,7 +267,7 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
                                 window.hide();
                             }
                         }
-                ).include("handlers", "level", "use-parent-handlers")
+                )
         );
 
         window.setGlassEnabled(true);
