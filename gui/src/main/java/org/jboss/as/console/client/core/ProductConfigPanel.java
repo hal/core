@@ -33,21 +33,21 @@ public class ProductConfigPanel implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        TextItem consoleVersion = new TextItem("console_version", "HAL version");
-        consoleVersion.setValue(productConfig.getConsoleVersion() == null ? "n/a" : productConfig.getConsoleVersion());
-        TextItem coreVersion = new TextItem("core_version", "Core version");
-        coreVersion.setValue(productConfig.getCoreVersion());
         TextItem productName = new TextItem("product_name", "Product name");
         productName.setValue(productConfig.getProductName());
         TextItem productVersion = new TextItem("product_version", "Product version");
         productVersion.setValue(productConfig.getProductVersion());
         TextItem profile = new TextItem("profile", "Profile");
+        TextItem consoleVersion = new TextItem("console_version", "HAL version");
+        consoleVersion.setValue(productConfig.getConsoleVersion() == null ? "n/a" : productConfig.getConsoleVersion());
+        TextItem coreVersion = new TextItem("core_version", "Core version");
+        coreVersion.setValue(productConfig.getCoreVersion());
         profile.setValue(productConfig.getProfile().name());
         TextItem connectedTo = new TextItem("connectedTo", Console.CONSTANTS.connectedTo());
         connectedTo.setValue(context.getProperty(DOMAIN_API));
 
         ArrayList<FormItem> items = new ArrayList<FormItem>(
-                asList(consoleVersion, coreVersion, productName, productVersion, profile));
+                asList(productName, productVersion, profile, consoleVersion, coreVersion));
         if (!context.isSameOrigin()) {
             items.add(connectedTo);
         }

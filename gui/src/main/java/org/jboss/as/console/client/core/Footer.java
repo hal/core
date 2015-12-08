@@ -186,12 +186,8 @@ public class Footer {
             layout.add(diagWidget);
         }
 
-        String versionToShow = productConfig.getConsoleVersion();
-        if (versionToShow == null) {
-            // That's no HAL build - fall back core version
-            versionToShow = productConfig.getCoreVersion();
-        }
-        HTML version = new HTML(versionToShow);
+        String productVersion = productConfig.getProductVersion();
+        HTML version = new HTML(productVersion);
         version.setTitle("Version Information");
         version.addStyleName("footer-link");
         version.getElement().setAttribute("style", "font-size:10px; align:left");
