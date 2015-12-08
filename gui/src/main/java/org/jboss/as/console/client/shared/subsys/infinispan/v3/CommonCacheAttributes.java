@@ -253,6 +253,7 @@ public class CommonCacheAttributes {
     }
 
     public void updateFrom(List<Property> properties) {
+        selectionModel.clear();
         dataProvider.setList(properties);
         table.selectDefaultEntity();
         updateForms(selectionModel.getSelectedObject());
