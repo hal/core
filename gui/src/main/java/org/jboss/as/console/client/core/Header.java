@@ -403,10 +403,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         logo.setStyleName("logo");
         panel.add(logo);
 
-        HTML productVersion = new HTML(productConfig.getProductVersion());
-        productVersion.setStyleName("header-product-version");
-        panel.add(productVersion);
-
         if (ProductConfig.Profile.PRODUCT.equals(productConfig.getProfile())) {
             logo.addErrorHandler(new ErrorHandler() {
                 @Override
