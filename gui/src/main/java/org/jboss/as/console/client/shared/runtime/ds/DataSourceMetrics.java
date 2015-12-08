@@ -5,7 +5,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,7 +23,6 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.ballroom.client.widgets.common.ButtonDropdown;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -168,9 +166,9 @@ public class DataSourceMetrics {
         verifyBtn.setVisible(true);
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
         if (isXA) {
-            verifyBtn.setOperationAddress("/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*", "test-connection-in-pool");
+            verifyBtn.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*", "test-connection-in-pool");
         } else {
-            verifyBtn.setOperationAddress("/{selected.host}/{selected.server}/subsystem=datasources/data-source=*", "test-connection-in-pool");
+            verifyBtn.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=datasources/data-source=*", "test-connection-in-pool");
         }
         tools.addToolButtonRight(verifyBtn);
         tools.addToolWidgetRight(flushDropdown);
