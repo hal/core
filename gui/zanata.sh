@@ -27,6 +27,7 @@ function clean {
 function info {
     find src/main/java/org/jboss/as/console/client/core/ -name "UIConstants*.properties" | xargs wc -l
     find src/main/java/org/jboss/as/console/client/core/ -name "UIMessages*.properties" | xargs wc -l
+    find src/main/java/org/jboss/as/console/client/preview/ -name "*.html" | xargs wc -l
 }
 
 function verifyPushPull {
@@ -64,24 +65,24 @@ function push {
 }
 
 function pushBundles {
-    mkdir -p target/zanata/bundles
-    cp src/main/zanata/hal-resource-bundles/zanata.xml target/zanata/bundles
-    cp src/main/java/org/jboss/as/console/client/core/UIConstants*.properties target/zanata/bundles
-    cp src/main/java/org/jboss/as/console/client/core/UIMessages*.properties target/zanata/bundles
-    cd target/zanata/bundles
+    mkdir -p target/zanata/push/bundles
+    cp src/main/zanata/hal-resource-bundles/zanata.xml target/zanata/push/bundles
+    cp src/main/java/org/jboss/as/console/client/core/UIConstants*.properties target/zanata/push/bundles
+    cp src/main/java/org/jboss/as/console/client/core/UIMessages*.properties target/zanata/push/bundles
+    cd target/zanata/push/bundles
     zanata-cli push --batch-mode
     cd "${ROOT}"
 }
 
 function pushPreviews {
-    mkdir -p target/zanata/previews
-    mkdir -p target/zanata/previews/content
-    mkdir -p target/zanata/previews/roles
-    cp src/main/zanata/hal-html-previews/zanata.xml target/zanata/previews
-    cp src/main/java/org/jboss/as/console/client/preview/*.html target/zanata/previews
-    cp src/main/java/org/jboss/as/console/client/preview/content/*.html target/zanata/previews/content
-    cp src/main/java/org/jboss/as/console/client/preview/roles/*.html target/zanata/previews/content
-    cd target/zanata/previews
+    mkdir -p target/zanata/push/previews
+    mkdir -p target/zanata/push/previews/content
+    mkdir -p target/zanata/push/previews/roles
+    cp src/main/zanata/hal-html-previews/zanata.xml target/zanata/push/previews
+    cp src/main/java/org/jboss/as/console/client/preview/*.html target/zanata/push/previews
+    cp src/main/java/org/jboss/as/console/client/preview/content/*.html target/zanata/push/previews/content
+    cp src/main/java/org/jboss/as/console/client/preview/roles/*.html target/zanata/push/previews/content
+    cd target/zanata/push/previews
     zanata-cli push --batch-mode --file-types HTML
     cd "${ROOT}"
 }
@@ -103,19 +104,19 @@ function pull {
 }
 
 function pullBundles {
-    mkdir -p target/zanata/bundles
-    cp src/main/zanata/hal-resource-bundles/zanata.xml target/zanata/bundles
-    cd target/zanata/bundles
+    mkdir -p target/zanata/pull/bundles
+    cp src/main/zanata/hal-resource-bundles/zanata.xml target/zanata/pull/bundles
+    cd target/zanata/pull/bundles
     zanata-cli pull --batch-mode
     cd "${ROOT}"
 }
 
 function pullPreviews {
-    mkdir -p target/zanata/previews
-    mkdir -p target/zanata/previews/content
-    mkdir -p target/zanata/previews/roles
-    cp src/main/zanata/hal-html-previews/zanata.xml target/zanata/previews
-    cd target/zanata/previews
+    mkdir -p target/zanata/pull/previews
+    mkdir -p target/zanata/pull/previews/content
+    mkdir -p target/zanata/pull/previews/roles
+    cp src/main/zanata/hal-html-previews/zanata.xml target/zanata/pull/previews
+    cd target/zanata/pull/previews
     zanata-cli pull --batch-mode
     cd "${ROOT}"
 }
