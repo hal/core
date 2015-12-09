@@ -10,6 +10,7 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
+import org.jboss.ballroom.client.widgets.forms.DoubleFormItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
@@ -235,7 +236,7 @@ public class ModelNodeFormBuilder {
                 // skip deprecated attributes
                 if(attrDesc.hasDefined("deprecated"))
                 {
-                    Log.error("Skip deprecated attribute '" + attr.getName() + "'");
+                    //Log.error("Skip deprecated attribute '" + attr.getName() + "'");
                     continue;
                 }
 
@@ -308,7 +309,7 @@ public class ModelNodeFormBuilder {
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case DOUBLE:
-                            formItem = new NumberBoxItem(attr.getName(), label);
+                            formItem = new DoubleFormItem(attr.getName(), label);
                             formItem.setRequired(isRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;

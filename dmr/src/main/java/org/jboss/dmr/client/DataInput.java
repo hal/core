@@ -19,6 +19,8 @@
 
 package org.jboss.dmr.client;
 
+import com.google.gwt.core.client.GWT;
+
 import java.io.IOException;
 
 /**
@@ -63,15 +65,23 @@ public class DataInput {
         byte doubleBytes[] = new byte[8];
         readFully(doubleBytes);
 
-        return IEEE754.toDouble(
-                doubleBytes[0],
-                doubleBytes[1],
-                doubleBytes[2],
-                doubleBytes[3],
-                doubleBytes[4],
-                doubleBytes[5],
-                doubleBytes[6],
-                doubleBytes[7]);
+        // a workaround: I couldn't figure out why
+        // one method fails in web mode and the other in hosted mode.
+        if(GWT.isScript()) {
+            return IEEE754.toDouble(doubleBytes);
+        }
+        else {
+            return IEEE754.toDouble(
+                    doubleBytes[0],
+                    doubleBytes[1],
+                    doubleBytes[2],
+                    doubleBytes[3],
+                    doubleBytes[4],
+                    doubleBytes[5],
+                    doubleBytes[6],
+                    doubleBytes[7]);
+        }
+
     }
 
     public float readFloat() throws IOException {
