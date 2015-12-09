@@ -13,12 +13,14 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
 /**
  * @author Heiko Braun
  * @since 19/08/14
  */
-public class CSPPresenter extends Presenter<CSPPresenter.MyView, CSPPresenter.MyProxy> {
+public class CSPPresenter extends Presenter<CSPPresenter.MyView, CSPPresenter.MyProxy>  implements Finder {
 
     private final PlaceManager placeManager;
     private String angularRef;
@@ -32,6 +34,11 @@ public class CSPPresenter extends Presenter<CSPPresenter.MyView, CSPPresenter.My
         void setPresenter(CSPPresenter presenter);
 
         void setRef(String angularRef);
+    }
+
+    @Override
+    public FinderColumn.FinderId getFinderId() {
+        return FinderColumn.FinderId.CSP;
     }
 
     @Inject
