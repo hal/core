@@ -409,8 +409,8 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <extraJvmArgs>-Xms768m -Xmx768m</extraJvmArgs>
-                            <style>DETAILED</style>
+                            <extraJvmArgs>-Xms1024m -Xmx1536m -Xss1024k -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory</extraJvmArgs>
+                            <!--<style>DETAILED</style>-->
                             <enableClosureCompiler>false</enableClosureCompiler>
                             <module>${gwt.module}</module>
                         </configuration>

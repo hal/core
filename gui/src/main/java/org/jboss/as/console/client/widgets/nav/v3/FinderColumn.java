@@ -57,7 +57,7 @@ public class FinderColumn<T> implements SecurityContextAware {
     private ColumnFilter filter;
     private Object previousSelectedKey = null;
 
-    public enum FinderId { HOME, DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, PATCHING }
+    public enum FinderId { HOME, DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, CSP, PATCHING }
 
     static Framework FRAMEWORK = GWT.create(Framework.class);
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
