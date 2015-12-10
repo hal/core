@@ -21,13 +21,11 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.v3.deployment.UploadBean;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.as.console.client.v3.deployment.UploadBean;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -37,8 +35,7 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 /**
  * @author Harald Pehl
  */
-public class VerifyUploadStep extends
-        WizardStep<Context, State> {
+public class VerifyUploadStep extends WizardStep<Context, State> {
 
     private final boolean standalone;
     private Form<UploadBean> form;
@@ -50,7 +47,7 @@ public class VerifyUploadStep extends
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(final Context context) {
         FlowPanel panel = new FlowPanel();
         panel.add(new StaticHelpPanel(StaticHelp.replace()).asWidget());
 
@@ -69,7 +66,7 @@ public class VerifyUploadStep extends
     }
 
     @Override
-    public void reset() {
+    public void reset(final Context context) {
         form.clearValues();
     }
 

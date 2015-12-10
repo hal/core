@@ -25,7 +25,7 @@ public class FileAttributeStep extends WizardStep<HandlerContext, HandlerSteps> 
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(final HandlerContext context) {
         ComplexAttributeForm fileAttributeForm = new ComplexAttributeForm(
                 "file",
                 wizard.getSecurityContext(),

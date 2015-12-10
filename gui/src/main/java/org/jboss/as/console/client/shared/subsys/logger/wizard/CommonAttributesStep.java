@@ -26,30 +26,25 @@ public class CommonAttributesStep extends WizardStep<HandlerContext, HandlerStep
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(HandlerContext context) {
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setCreateMode(true)
                 .setResourceDescription(wizard.getResourceDescription())
                 .setRequiredOnly(true)
                 .setSecurityContext(wizard.getSecurityContext());
 
-
         ModelNodeFormBuilder.FormAssets assets = builder.build();
         form = assets.getForm();
         form.setEnabled(true);
 
         if (form.hasWritableAttributes()) {
-
-
             FlowPanel layout = new FlowPanel();
-
             Widget formWidget = form.asWidget();
             ModelNode opDescription = wizard.getResourceDescription().get("operations").get("add").get("description");
             ContentDescription text = new ContentDescription(opDescription.asString());
             layout.add(text);
             layout.add(assets.getHelp().asWidget());
             layout.add(formWidget);
-
             return layout;
 
         } else {
