@@ -216,12 +216,12 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     public void launchNewDatasourceWizard() {
         new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources,drivers, false)
-                .open(Console.MESSAGES.createTitle("Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 50);
+                .open(Console.MESSAGES.createTitle("Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 100);
     }
 
     public void launchNewXADatasourceWizard() {
         new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources, drivers, true)
-                .open(Console.MESSAGES.createTitle("XA Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 50);
+                .open(Console.MESSAGES.createTitle("XA Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 100);
     }
 
     private void loadDrivers() {
