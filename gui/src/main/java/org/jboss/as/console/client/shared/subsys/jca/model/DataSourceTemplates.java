@@ -29,6 +29,39 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         List<DataSourceTemplate<? extends DataSource>> setup = new ArrayList<>();
 
 
+        // ------------------------------------------------------ H2
+        // Driver
+        driver = beanFactory.jdbcDriver().as();
+        driver.setName("h2");
+        driver.setDriverModuleName("com.h2database.h2");
+        driver.setDriverClass("org.h2.Driver");
+        driver.setXaDataSourceClass("org.h2.jdbcx.JdbcDataSource");
+
+        // DS
+        dataSource = beanFactory.dataSource().as();
+        dataSource.setName("H2DS");
+        dataSource.setPoolName("H2DS_Pool");
+        dataSource.setJndiName("java:/H2DS");
+        dataSource.setDriverName("h2");
+        dataSource.setConnectionUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
+        dataSource.setUsername("admin");
+        dataSource.setPassword("admin");
+        dataSource.setBackgroundValidation(false);
+        setup.add(new DataSourceTemplate<>("h2", H2, dataSource, driver));
+
+        // XA DS
+        xaDataSource = beanFactory.xaDataSource().as();
+        xaDataSource.setName("H2XADS");
+        xaDataSource.setPoolName("H2XADS_Pool");
+        xaDataSource.setJndiName("java:/H2XADS");
+        xaDataSource.setDriverName("h2");
+        xaDataSource.setProperties(properties("URL", "jdbc:h2:mem:test"));
+        xaDataSource.setUsername("admin");
+        xaDataSource.setPassword("admin");
+        xaDataSource.setBackgroundValidation(false);
+        setup.add(new DataSourceTemplate<>("h2-xa", H2, xaDataSource, driver));
+
+
         // ------------------------------------------------------ PostgreSQL
         // Driver
         driver = beanFactory.jdbcDriver().as();
@@ -49,7 +82,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setBackgroundValidation(true);
         dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker");
         dataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter");
-        setup.add(new DataSourceTemplate<DataSource>("postgresql", POSTGRE_SQL, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("postgresql", POSTGRE_SQL, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -65,7 +98,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setBackgroundValidation(true);
         xaDataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker");
         xaDataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter");
-        setup.add(new DataSourceTemplate<XADataSource>("postgresql-xa", POSTGRE_SQL, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("postgresql-xa", POSTGRE_SQL, xaDataSource, driver));
 
 
         // ------------------------------------------------------ MySQL
@@ -88,7 +121,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setBackgroundValidation(true);
         dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker");
         dataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter");
-        setup.add(new DataSourceTemplate<DataSource>("mysql", MYSQL, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("mysql", MYSQL, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -103,7 +136,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setBackgroundValidation(true);
         xaDataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker");
         xaDataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter");
-        setup.add(new DataSourceTemplate<XADataSource>("mysql-xa", MYSQL, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("mysql-xa", MYSQL, xaDataSource, driver));
 
 
         // ------------------------------------------------------ Oracle
@@ -127,7 +160,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.oracle.OracleValidConnectionChecker");
         dataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.oracle.OracleExceptionSorter");
         dataSource.setStaleConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.oracle.OracleStaleConnectionChecker");
-        setup.add(new DataSourceTemplate<DataSource>("oracle", ORACLE, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("oracle", ORACLE, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -144,7 +177,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setStaleConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.oracle.OracleStaleConnectionChecker");
         xaDataSource.setNoTxSeparatePool(true);
         xaDataSource.setSameRmOverride(false);
-        setup.add(new DataSourceTemplate<XADataSource>("oracle-xa", ORACLE, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("oracle-xa", ORACLE, xaDataSource, driver));
 
 
         // ------------------------------------------------------ Microsoft SQL Server
@@ -166,7 +199,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setPassword("admin");
         dataSource.setBackgroundValidation(true);
         dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mssql.MSSQLValidConnectionChecker");
-        setup.add(new DataSourceTemplate<DataSource>("sqlserver", SQL_SERVER, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("sqlserver", SQL_SERVER, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -182,7 +215,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setBackgroundValidation(true);
         xaDataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mssql.MSSQLValidConnectionChecker");
         xaDataSource.setSameRmOverride(false);
-        setup.add(new DataSourceTemplate<XADataSource>("sqlserver-xa", SQL_SERVER, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("sqlserver-xa", SQL_SERVER, xaDataSource, driver));
 
 
         // ------------------------------------------------------ DB2
@@ -208,7 +241,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setStaleConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.db2.DB2StaleConnectionChecker");
         dataSource.setMinPoolSize(0);
         dataSource.setMaxPoolSize(50);
-        setup.add(new DataSourceTemplate<DataSource>("db2", DB2, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("db2", DB2, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -228,7 +261,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setRecoveryPluginClassName("org.jboss.jca.core.recovery.ConfigurableRecoveryPlugin");
         // TODO Add missing recovery plugin properties
         xaDataSource.setSameRmOverride(false);
-        setup.add(new DataSourceTemplate<XADataSource>("db2-xa", DB2, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("db2-xa", DB2, xaDataSource, driver));
 
 
         // ------------------------------------------------------ Sybase
@@ -251,7 +284,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setBackgroundValidation(true);
         dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.sybase.SybaseValidConnectionChecker");
         dataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.sybase.SybaseExceptionSorter");
-        setup.add(new DataSourceTemplate<DataSource>("sybase", SYBASE, dataSource, driver));
+        setup.add(new DataSourceTemplate<>("sybase", SYBASE, dataSource, driver));
 
         // XA DS
         xaDataSource = beanFactory.xaDataSource().as();
@@ -268,7 +301,7 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setBackgroundValidation(true);
         xaDataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.sybase.SybaseValidConnectionChecker");
         xaDataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.sybase.SybaseExceptionSorter");
-        setup.add(new DataSourceTemplate<XADataSource>("sybase-xa", SYBASE, xaDataSource, driver));
+        setup.add(new DataSourceTemplate<>("sybase-xa", SYBASE, xaDataSource, driver));
 
         pool = Collections.unmodifiableList(setup);
     }

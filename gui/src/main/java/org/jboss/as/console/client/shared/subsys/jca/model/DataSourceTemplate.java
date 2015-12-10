@@ -7,6 +7,7 @@ package org.jboss.as.console.client.shared.subsys.jca.model;
 public class DataSourceTemplate<T extends DataSource> {
 
     enum Vendor {
+        H2("H2"),
         POSTGRE_SQL("PostgreSQL"),
         MYSQL("MySQL"),
         ORACLE("Oracle"),
