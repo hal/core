@@ -54,8 +54,12 @@ public class ReloadState {
 
             sb.append(message).append("\n\n");
 
+            boolean restartRequired = false;
             for(ServerState server : serverStates.values())
             {
+                if(server.isRestartRequired())
+                    restartRequired = true;
+
                 sb.append("  - ");
                 sb.append(server.getName());
                 sb.append("\n");
@@ -66,7 +70,7 @@ public class ReloadState {
 
 
             Message msg = new Message(Console.CONSTANTS.serverConfigurationChanged(), sb.toString(), Message.Severity.Warning);
-            showDetail(msg);
+            showDetail(msg, restartRequired, Console.MODULES.getBootstrapContext().isStandalone());
 
             if(Console.MODULES.getBootstrapContext().isStandalone())
             {
@@ -79,7 +83,7 @@ public class ReloadState {
         }
     }
 
-    private void showDetail(final Message msg) {
+    private void showDetail(final Message msg, boolean restartRequired, boolean isStandalone) {
 
         msg.setNew(false);
 
@@ -111,37 +115,88 @@ public class ReloadState {
         final HTML widget = new HTML(html.toSafeHtml());
         widget.getElement().setAttribute("style", "margin:5px");
 
-        DialogueOptions options = new DialogueOptions(
-                Console.CONSTANTS.reloadServerNow(),
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        if(Console.MODULES.getBootstrapContext().isStandalone())
-                        {
-                            window.hide();
-                            Scheduler.get().scheduleDeferred(() -> {
-                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.StandaloneRuntimePresenter));
-                            });
+        ClickHandler reloadHandler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                if (Console.MODULES.getBootstrapContext().isStandalone()) {
+                    window.hide();
+                    Scheduler.get().scheduleDeferred(() -> {
+                        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.StandaloneRuntimePresenter));
+                    });
 
-                        }
-                        else
-                        {
-                            window.hide();
-                            Scheduler.get().scheduleDeferred(() -> {
-                                Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.HostMgmtPresenter));
-                            });
+                } else {
+                    window.hide();
+                    Scheduler.get().scheduleDeferred(() -> {
+                        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.HostMgmtPresenter));
+                    });
 
-                        }
-                    }
-                },
-                Console.CONSTANTS.dismiss(),
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        window.hide();
-                    }
                 }
-        );
+            }
+        };
+
+        ClickHandler restartHandler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                if (Console.MODULES.getBootstrapContext().isStandalone()) {
+                    window.hide();
+                    Scheduler.get().scheduleDeferred(() -> {
+                        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.StandaloneRuntimePresenter));
+                    });
+
+                } else {
+                    window.hide();
+                    Scheduler.get().scheduleDeferred(() -> {
+                        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.HostMgmtPresenter));
+                    });
+
+                }
+            }
+        };
+
+        DialogueOptions options = null;
+
+        final ClickHandler dismissHandler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                window.hide();
+            }
+        };
+
+        if(restartRequired && isStandalone)
+        {
+            // standalone servers cannot be restarted from the UI
+            options = new DialogueOptions(
+                    Console.CONSTANTS.dismiss(),
+                    dismissHandler,
+                    "",
+                    new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent clickEvent) {
+                            // not used
+                        }
+                    }
+
+            ).showCancel(false);
+        }
+        else if(restartRequired && !isStandalone)
+        {
+            // domain mode restart
+            options = new DialogueOptions(
+                    "Restart servers now!",
+                    restartHandler,
+                    Console.CONSTANTS.dismiss(),
+                    dismissHandler
+            );
+        }
+        else if(!restartRequired) // reload required
+        {
+            options = new DialogueOptions(
+                    Console.CONSTANTS.reloadServerNow(),
+                    reloadHandler,
+                    Console.CONSTANTS.dismiss(),
+                    dismissHandler
+            );
+        }
 
         options.getSubmit().setAttribute("aria-describedby", "consise-message detail-message");
 
