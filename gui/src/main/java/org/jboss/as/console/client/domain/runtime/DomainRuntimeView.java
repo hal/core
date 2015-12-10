@@ -304,7 +304,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 } else if (data.getServerState() == SrvState.RELOAD_REQUIRED) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
                 } else if (data.getServerState() == SrvState.RESTART_REQUIRED) {
-                    PreviewState.warn(html, Console.CONSTANTS.server_instance_servers_needRestart());
+                    PreviewState.warn(html, "Server needs to be restarted");
                 } else if (data.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
                 }
