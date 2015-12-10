@@ -40,7 +40,8 @@ class Context<T extends DataSource> {
     private XADataSource xaDataSource;
     final boolean standalone;
     final boolean xa;
-    final FormHelpPanel.AddressCallback helpCallback;
+    final FormHelpPanel.AddressCallback dataSourceHelp;
+    final FormHelpPanel.AddressCallback jdbcDriverHelp;
     DataSourceTemplate<T> selectedTemplate;
     JDBCDriver driver;
 
@@ -48,10 +49,16 @@ class Context<T extends DataSource> {
         this.beanFactory = beanFactory;
         this.standalone = standalone;
         this.xa = xa;
-        this.helpCallback = () -> {
+        this.dataSourceHelp = () -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "datasources");
             address.add(xa ? "xa-data-source" : "data-source", "*");
+            return address;
+        };
+        this.jdbcDriverHelp = () -> {
+            ModelNode address = Baseadress.get();
+            address.add("subsystem", "datasources");
+            address.add("jdbc-driver", "*");
             return address;
         };
     }

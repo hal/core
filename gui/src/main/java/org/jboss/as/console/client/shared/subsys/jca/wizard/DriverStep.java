@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
@@ -64,16 +65,25 @@ class DriverStep<T extends DataSource> extends WizardStep<Context<T>, State> {
     protected Widget asWidget(final Context<T> context) {
         // first tab: driver form
         form = new Form<>(JDBCDriver.class);
-        DriverNameItem driverName = new DriverNameItem(drivers);
-        DriverModuleNameItem moduleName = new DriverModuleNameItem(drivers);
+        TextBoxItem driverName = new TextBoxItem("name", "Name", true);
+        TextBoxItem moduleName = new TextBoxItem("driverModuleName", "Module Name", true);
         TextBoxItem driverClass = new TextBoxItem("driverClass", "Driver Class", false);
+        TextBoxItem xaDataSource = new TextBoxItem("xaDataSourceClass", "XA DataSource Class", false);
         NumberBoxItem major = new NumberBoxItem("majorVersion", "Major Version") {{
             setRequired(false);
         }};
         NumberBoxItem minor = new NumberBoxItem("minorVersion", "Minor Version") {{
             setRequired(false);
         }};
-        form.setFields(driverName, moduleName, driverClass, major, minor);
+        if (context.xa) {
+            form.setFields(driverName, moduleName, driverClass, xaDataSource, major, minor);
+        } else {
+            form.setFields(driverName, moduleName, driverClass, major, minor);
+        }
+
+        FlowPanel formPanel = new FlowPanel();
+        formPanel.add(new FormHelpPanel(context.jdbcDriverHelp, form).asWidget());
+        formPanel.add(form);
 
         // second tab: existing drivers
         table = new DefaultCellTable<>(5);
@@ -108,7 +118,7 @@ class DriverStep<T extends DataSource> extends WizardStep<Context<T>, State> {
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
         tabs.addSelectionHandler(event -> selectedTab = event.getSelectedItem());
-        tabs.add(form.asWidget(), "Specify Driver");
+        tabs.add(formPanel, "Specify Driver");
         tabs.add(driverPanel, "Detected Driver");
 
         // body

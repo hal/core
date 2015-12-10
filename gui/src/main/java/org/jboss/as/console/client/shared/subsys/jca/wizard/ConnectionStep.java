@@ -73,7 +73,7 @@ public class ConnectionStep<T extends DataSource> extends WizardStep<Context<T>,
         }
 
         FlowPanel body = new FlowPanel();
-        body.add(new FormHelpPanel(context.helpCallback, form).asWidget());
+        body.add(new FormHelpPanel(context.dataSourceHelp, form).asWidget());
         body.add(form.asWidget());
         return body;
     }

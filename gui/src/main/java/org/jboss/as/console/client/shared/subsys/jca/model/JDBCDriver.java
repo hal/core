@@ -35,15 +35,15 @@ public interface JDBCDriver {
     String getDeploymentName();
     void setDeploymentName(String name);
 
-    @Binding(detypedName = "major-version")
+    @Binding(detypedName = "driver-major-version")
     int getMajorVersion();
     void setMajorVersion(int major);
 
-    @Binding(detypedName = "minor-version")
+    @Binding(detypedName = "driver-minor-version")
     int getMinorVersion();
     void setMinorVersion(int minor);
 
-    @Binding(detypedName = "driver-class")
+    @Binding(detypedName = "driver-class-name")
     String getDriverClass();
     void setDriverClass(String driverClass);
 
