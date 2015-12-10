@@ -325,12 +325,17 @@ public class BulletGraphView implements Sampler {
         graphWidget.addAttachHandler(new AttachEvent.Handler() {
             @Override
             public void onAttachOrDetach(AttachEvent event) {
-                Element svg = graphWidget.getElement().getFirstChildElement();
-                if(svg!=null)
-                {
-                    svg.setAttribute("overflow", "visible");
+                if(event.isAttached()) {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            Element svg = graphWidget.getElement().getFirstChildElement();
+                            if (svg != null) {
+                                svg.setAttribute("overflow", "visible");
+                            }
+                        }
+                    });
                 }
-
             }
         });
 
