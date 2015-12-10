@@ -1009,3 +1009,9 @@ h3,
 .back {
     z-index: 500;
 }
+
+.req {
+    font-size: 110%;
+    border-bottom: none !important;
+    padding-left:2px;
+}
