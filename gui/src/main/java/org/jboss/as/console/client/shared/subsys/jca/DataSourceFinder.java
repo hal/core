@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -15,10 +14,9 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
@@ -36,8 +34,8 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DriverStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
-import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
+import org.jboss.as.console.client.v3.widgets.wizard.Wizard;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -63,7 +61,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     private final DataSourceTemplates dataSourceTemplates;
     private final BeanFactory beanFactory;
     private final DriverStrategy driverRegistry;
-    private final ApplicationProperties bootstrap;
+    private final BootstrapContext bootstrap;
     private final CurrentProfileSelection currentProfileSelection;
 
     // cached data
@@ -101,7 +99,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     public DataSourceFinder(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                             DispatchAsync dispatcher, RevealStrategy revealStrategy, DataSourceStore dataSourceStore,
                             DataSourceTemplates dataSourceTemplates, BeanFactory beanFactory,
-                            DriverRegistry driverRegistry,  ApplicationProperties bootstrap, CurrentProfileSelection currentProfileSelection) {
+                            DriverRegistry driverRegistry,  BootstrapContext bootstrap, CurrentProfileSelection currentProfileSelection) {
 
         super(eventBus, view, proxy);
 
@@ -217,26 +215,13 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     }
 
     public void launchNewDatasourceWizard() {
-
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
-        window.setWidth(480);
-        window.setHeight(450);
-        window.setWidget(new NewDatasourceWizard(DataSourceFinder.this, drivers, datasources, bootstrap,
-                dataSourceTemplates, beanFactory).asWidget());
-        window.setGlassEnabled(true);
-        window.center();
-
+        new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources,drivers, false)
+                .open(Console.MESSAGES.createTitle("Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 50);
     }
 
     public void launchNewXADatasourceWizard() {
-
-        window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
-        window.setWidth(480);
-        window.setHeight(450);
-        window.setWidget(new NewXADatasourceWizard(DataSourceFinder.this, drivers, xaDatasources, bootstrap,
-                dataSourceTemplates, beanFactory).asWidget());
-        window.setGlassEnabled(true);
-        window.center();
+        new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources, drivers, true)
+                .open(Console.MESSAGES.createTitle("XA Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 50);
     }
 
     private void loadDrivers() {
@@ -256,8 +241,6 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     }
 
     public void onCreateDatasource(final DataSource datasource) {
-        window.hide();
-
         // HAL-617 / WFLY-4750
         datasource.setEnabled(true);
 
@@ -289,8 +272,6 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     }
 
     public void onCreateXADatasource(final XADataSource updatedEntity) {
-        window.hide();
-
         // HAL-617 / WFLY-4750
         updatedEntity.setEnabled(true);
 

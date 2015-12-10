@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -118,6 +119,9 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
     }
 
 
+    public static final int DEFAULT_WIDTH = 520;
+    public static final int DEFAULT_HEIGHT = 450;
+
     private static final UIConstants CONSTANTS = Console.CONSTANTS;
     private static final Template TEMPLATE = GWT.create(Template.class);
 
@@ -158,7 +162,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
         int index = 0;
         for (Map.Entry<S, WizardStep<C, S>> entry : steps.entrySet()) {
             stateIndex.put(entry.getKey(), index);
-            body.add(entry.getValue());
+            body.add(entry.getValue().asWidget(context));
             index++;
         }
 
@@ -182,11 +186,18 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
      * {@code super.open()} <em>before</em> you access or modify the context.
      */
     public void open(String title) {
+        open(title, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    /**
+     * Same as {@link #open(String)} with the ability to pass a different width and height.
+     */
+    public void open(String title, int width, int height) {
         assertSteps();
         if (window == null) {
             window = new DefaultWindow(title);
-            window.setWidth(520);
-            window.setHeight(450);
+            window.setWidth(width);
+            window.setHeight(height);
             window.trapWidget(asWidget());
             window.setGlassEnabled(true);
         } else {
@@ -194,7 +205,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
         }
         resetContext();
         for (WizardStep<C, S> step : steps.values()) {
-            step.reset();
+            step.reset(context);
         }
         state = initialState();
         pushState(state);
@@ -328,7 +339,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
         return id;
     }
 
-    private void assertSteps() {
+    private <T extends DataSource> void assertSteps() {
         if (steps.isEmpty()) {
             throw new IllegalStateException("No steps found for wizard " + getClass()
                     .getName() + ". Please add steps in the constructor before using this wizard");

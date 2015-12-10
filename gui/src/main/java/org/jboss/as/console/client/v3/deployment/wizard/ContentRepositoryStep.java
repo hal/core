@@ -39,8 +39,7 @@ import java.util.List;
 /**
  * @author Harald Pehl
  */
-public class ContentRepositoryStep extends
-        WizardStep<Context, State> {
+public class ContentRepositoryStep extends WizardStep<Context, State> {
 
     static class SelectableContent implements CheckboxColumn.Selectable {
 
@@ -77,7 +76,7 @@ public class ContentRepositoryStep extends
 
     @Override
     @SuppressWarnings("unchecked")
-    public Widget asWidget() {
+    protected Widget asWidget(final Context context) {
         FlowPanel panel = new FlowPanel();
 
         ProvidesKey<SelectableContent> keyProvider = item -> item.getContent().getName();
@@ -106,7 +105,7 @@ public class ContentRepositoryStep extends
     }
 
     @Override
-    public void reset() {
+    public void reset(final Context context) {
         selection.clear();
     }
 

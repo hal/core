@@ -31,8 +31,7 @@ import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 /**
  * @author Harald Pehl
  */
-public class ChooseStep extends
-        WizardStep<Context, State> {
+public class ChooseStep extends WizardStep<Context, State> {
 
     private final boolean standalone;
     private final boolean showDeployNew;
@@ -52,7 +51,7 @@ public class ChooseStep extends
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(final Context context) {
         FlowPanel body = new FlowPanel();
 
         deployNew = new RadioButton("deployment_kind",
@@ -83,7 +82,7 @@ public class ChooseStep extends
     }
 
     @Override
-    public void reset() {
+    public void reset(final Context context) {
         // Deploy new is the default in standalone - deploy existing in domain mode
         if (standalone || !showDeployExisting) {
             deployNew.setValue(true);

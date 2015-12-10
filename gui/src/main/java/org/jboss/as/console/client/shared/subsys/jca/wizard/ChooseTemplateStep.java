@@ -1,90 +1,86 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2010, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplate;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
-import org.jboss.ballroom.client.widgets.window.DialogueOptions;
-import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+import org.jboss.as.console.client.v3.widgets.wizard.Wizard;
+import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 
-public class ChooseTemplateStep<T extends DataSource> implements IsWidget, ClickHandler {
+/**
+ * @author Harald Pehl
+ */
+class ChooseTemplateStep<T extends DataSource> extends WizardStep<Context<T>, State> {
 
-    private final DataSourceFinder presenter;
     private final DataSourceTemplates templates;
-    private final boolean xa;
-    private final Command onNext;
     private DataSourceTemplate<T> selectedTemplate;
 
-    public ChooseTemplateStep(DataSourceFinder presenter, DataSourceTemplates templates, boolean xa, Command onNext) {
-        this.presenter = presenter;
+    ChooseTemplateStep(final Wizard<Context<T>, State> wizard, final DataSourceTemplates templates) {
+        super(wizard, Console.CONSTANTS.subsys_jca_dataSource_choose_template());
         this.templates = templates;
-        this.xa = xa;
-        this.onNext = onNext;
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(final Context<T> context) {
+        VerticalPanel body = new VerticalPanel();
 
-        VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("window-content");
-        layout.add(new HTML("<h3>" + Console.CONSTANTS.subsys_jca_dataSource_choose_template() + "</h3>"));
-
-        RadioButton customButton = new RadioButton("template", Console.CONSTANTS.subsys_jca_dataSource_custom_template());
+        RadioButton customButton = new RadioButton("template",
+                Console.CONSTANTS.subsys_jca_dataSource_custom_template());
         customButton.getElement().setId("custom");
         customButton.setStyleName("choose_template");
         customButton.setValue(true);
-        customButton.addClickHandler(this);
+        customButton.addClickHandler(event -> {
+            RadioButton button = (RadioButton) event.getSource();
+            selectedTemplate = templates.getTemplate(button.getElement().getId());
+        });
         customButton.setFocus(true);
-        layout.add(customButton);
+        body.add(customButton);
 
         for (DataSourceTemplate<? extends DataSource> template : templates) {
-            if (template.isXA() != xa) {
+            if (template.isXA() != context.xa) {
                 continue;
             }
             RadioButton radioButton = new RadioButton("template", template.toString());
             radioButton.getElement().setId(template.getId());
             radioButton.setStyleName("choose_template");
-            radioButton.addClickHandler(this);
-            layout.add(radioButton);
+            radioButton.addClickHandler(event -> {
+                RadioButton button = (RadioButton) event.getSource();
+                selectedTemplate = templates.getTemplate(button.getElement().getId());
+            });
+            body.add(radioButton);
         }
 
-
-        ClickHandler submitHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                onNext.execute();
-            }
-        };
-        ClickHandler cancelHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.closeDialogue();
-            }
-        };
-        DialogueOptions options = new DialogueOptions(
-                Console.CONSTANTS.common_label_next(), submitHandler,
-                Console.CONSTANTS.common_label_cancel(), cancelHandler
-        );
-
-        return new WindowContentBuilder(layout, options).build();
+        return body;
     }
 
     @Override
-    public void onClick(ClickEvent event) {
-        RadioButton button = (RadioButton) event.getSource();
-        selectedTemplate = templates.getTemplate(button.getElement().getId());
-    }
-
-    public DataSourceTemplate<T> getSelectedTemplate() {
-        return selectedTemplate;
+    protected boolean onNext(final Context<T> context) {
+        context.selectedTemplate = selectedTemplate;
+        context.start();
+        return true;
     }
 }

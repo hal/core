@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.common.base.Strings;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -30,15 +29,13 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class UploadStep extends
-        WizardStep<Context, State> {
+public class UploadStep extends WizardStep<Context, State> {
 
     private FormPanel form;
     private FileUpload fileUpload;
@@ -48,7 +45,7 @@ public class UploadStep extends
     }
 
     @Override
-    public Widget asWidget() {
+    protected Widget asWidget(final Context context) {
         final FlowPanel panel = new FlowPanel();
 
         HTML description = new HTML(Console.CONSTANTS.common_label_chooseFile());

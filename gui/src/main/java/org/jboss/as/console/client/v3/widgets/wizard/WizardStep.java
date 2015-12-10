@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.v3.widgets.wizard;
 
 import com.google.common.base.CharMatcher;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -32,7 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author Harald Pehl
  */
 @SuppressWarnings("UnusedParameters")
-public abstract class WizardStep<C, S extends Enum<S>> implements IsWidget {
+public abstract class WizardStep<C, S extends Enum<S>> {
 
     protected final Wizard<C, S> wizard;
     private final String title;
@@ -43,11 +42,20 @@ public abstract class WizardStep<C, S extends Enum<S>> implements IsWidget {
     }
 
     /**
+     * Steps need to setup and return their UI using this method. Called once when the wizards UI is built.
+     *
+     * @param context the current context
+     *
+     * @return this steps UI
+     */
+    protected abstract Widget asWidget(C context);
+
+    /**
      * Subclasses should reset their state using this method. This method is called just before the
      * wizard is opened. Opposed to {@link #onShow(Object)} this method should be used to implement one-time
      * initialization.
      */
-    public void reset() {
+    public void reset(C context) {
 
     }
 
