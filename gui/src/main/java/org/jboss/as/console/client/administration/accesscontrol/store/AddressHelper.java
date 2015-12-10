@@ -53,6 +53,6 @@ final class AddressHelper {
     static ResourceAddress assignment(Assignment assignment) {
         return root()
                 .add("role-mapping", assignment.getRole().getId())
-                .add(assignment.isInclude() ? "common_label_include" : "exclude", assignment.getPrincipal().getId());
+                .add(assignment.isInclude() ? "include" : "exclude", assignment.getPrincipal().getId());
     }
 }
