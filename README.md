@@ -8,7 +8,7 @@
 In order to work on the console you a need running WildFly
 instance on your local host. You can download it here:
 
-<http://www.wildfly.org/download/>
+<http://www.wildfly.org/downloads/>
 
 You can run WildFly in either the 'domain' or 'standalone' mode.
 
