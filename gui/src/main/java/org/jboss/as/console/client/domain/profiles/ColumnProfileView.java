@@ -518,7 +518,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     if(link.isFolder() && !link.isIncluded())
                     {
                         // hb: some trickery with regard to nested presenters
-                        // it needs to be relative, but should not append to existing hirarchies
+                        // it needs to be relative, but should not append to existing hierarchies
                         List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
                         next.add(placeManager.getCurrentPlaceHierarchy().get(0));
                         next.add(new PlaceRequest(link.getToken()));
@@ -540,7 +540,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                 new SimpleCallback<SafeHtml>() {
                     @Override
                     public void onSuccess(SafeHtml previewContent) {
-                        contentCanvas.add(new HTML(previewContent));
+                        setPreview(previewContent);
                     }
                 }
         );

@@ -34,6 +34,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.gwtplatform.mvp.client.proxy.LockInteractionEvent;
+import com.gwtplatform.mvp.client.proxy.LockInteractionHandler;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -54,6 +56,10 @@ public class FinderColumn<T> implements SecurityContextAware {
 
 
     private static final String RBAC_SUPPRESSED = "rbac-suppressed";
+
+    // temporary state that prevents preview events
+    private boolean previewLock = false;
+
     private ColumnFilter filter;
     private Object previousSelectedKey = null;
 
@@ -209,12 +215,15 @@ public class FinderColumn<T> implements SecurityContextAware {
             }
         });*/
 
+        // In the beginning we used to have multiple columns, which lead to this implementation
+        // But now with a single column this part might be moved the SelectionHandler
+        // TODO: Revisit this idea...
         cellTable.addCellPreviewHandler(new CellPreviewEvent.Handler<T>() {
             @Override
             public void onCellPreview(final CellPreviewEvent<T> event) {
                 boolean isClick = CLICK.equals(event.getNativeEvent().getType());
-                if(isClick && 0==event.getColumn())
-                {
+                if (isClick && 0 == event.getColumn()) {
+
                     // preview
                     triggerPreviewEvent();
 
@@ -224,12 +233,9 @@ public class FinderColumn<T> implements SecurityContextAware {
                     event.getNativeEvent().preventDefault();
                     final Element element = Element.as(event.getNativeEvent().getEventTarget());
                     ButtonRef ref = resolveActionAttribute(element);
-                    if("default".equals(ref.action))
-                    {
+                    if ("default".equals(ref.action)) {
                         accessibleMenuItems.get(0).getCommand().executeOn(event.getValue());
-                    }
-                    else if("menu".equals(ref.action))
-                    {
+                    } else if ("menu".equals(ref.action)) {
                         openContextMenu(ref.element, event.getValue());
                     }
 
@@ -257,13 +263,17 @@ public class FinderColumn<T> implements SecurityContextAware {
                 triggerBreadcrumbEvent(false);
 
                 // skip empty menus
-                if(accessibleMenuItems.size()==0) return;
+                if (accessibleMenuItems.size() == 0) return;
 
                 // toggle row level tools
-                toggleRowLevelTools( () -> selectionModel.getSelectedObject()==null);
+                toggleRowLevelTools(() -> selectionModel.getSelectedObject() == null);
             }
         });
 
+        // listen on navigation events to prevent Preview race conditions
+        Console.MODULES.getEventBus().addHandler(LockInteractionEvent.getType(), e -> {
+            FinderColumn.this.previewLock = e.shouldLock();
+        });
     }
 
     private ButtonRef resolveActionAttribute(Element element) {
@@ -380,27 +390,22 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     private void triggerPreviewEvent() {
 
-        // preview and place management sometimes compete, hence the timed event
+        if(!hasSelectedItem()) return;
+
         final T selectedObject = selectionModel.getSelectedObject();
-       /*
-        if(selectedObject!=null)
-        {
-            if(previousSelectedKey!=null && previousSelectedKey.equals(keyProvider.getKey(selectedObject)))
-            {
-                // no preview for the same selected object
-                return;
-            }
-        }*/
 
-        // differetn selected object trigger preview
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-            @Override
-            public boolean execute() {
+        // different selected object trigger preview
+        // preview and place management sometimes compete, hence the deferred event
+        // see also DefaultPlacemanager#doRevealPlace() when the callback returns
+        Scheduler.get().scheduleFixedDelay(() -> {
 
+            boolean reschedulePreviewEvents = FinderColumn.this.previewLock;
+
+            if(!reschedulePreviewEvents) {
                 // preview events
                 PlaceManager placeManager = Console.MODULES.getPlaceManager();
-                if(selectedObject!=null) {
-                    //previousSelectedKey = keyProvider.getKey(selectedObject);
+                if (selectedObject != null) {
+
                     previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
                         @Override
                         public void onSuccess(SafeHtml content) {
@@ -408,11 +413,14 @@ public class FinderColumn<T> implements SecurityContextAware {
                         }
                     });
                 }
-
-
-                return false;
             }
-        }, 200);
+
+            if(reschedulePreviewEvents)
+                System.out.println("Preview event will be re-scheduled: "+FinderColumn.this.title);
+
+            return reschedulePreviewEvents; // if locked this fn get re-scheduled
+
+        }, 100);
 
     }
 

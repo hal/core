@@ -247,6 +247,9 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     browseColumn.getSelectedItem().getCmd().execute();
                 }
+                else {
+                    clearNestedPresenter();
+                }
             }
         });
 
@@ -301,6 +304,10 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
+                }
+                else
+                {
+                    clearNestedPresenter();
                 }
             }
         });
@@ -359,6 +366,10 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
+                }
+                else
+                {
+                    clearNestedPresenter();
                 }
             }
         });
@@ -590,6 +601,9 @@ public class ColumnHostView extends SuspendableViewImpl
             public void execute() {
                 if(presenter.getPlaceManager().getHierarchyDepth()>1)
                     presenter.getPlaceManager().revealRelativePlace(1);
+
+                if(columnManager.getVisibleComunsSize()==1)
+                    startupContent();
             }
         });
     }
@@ -599,7 +613,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 new SimpleCallback<SafeHtml>() {
                     @Override
                     public void onSuccess(SafeHtml previewContent) {
-                        contentCanvas.add(new HTML(previewContent));
+                        preview(previewContent);
                     }
                 }
         );
@@ -636,7 +650,6 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void updateServerGroups(List<ServerGroupRecord> serverGroups) {
-        clearNestedPresenter();
         groups.updateFrom(serverGroups, false);
     }
 
