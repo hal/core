@@ -147,6 +147,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/mail.html")
     ExternalTextResource mail();
 
+    @Source("content/messaging_provider.html")
+    ExternalTextResource messaging_provider();
+
     @Source("content/mod_cluster.html")
     ExternalTextResource modcluster();
 

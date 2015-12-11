@@ -102,8 +102,6 @@ public class MsgDestinationsPresenter
         void enableEditQueue(boolean b);
         void enableEditTopic(boolean b);
     }
-
-
     // @formatter:on
 
 
@@ -1059,7 +1057,8 @@ public class MsgDestinationsPresenter
         window.trapWidget(
                 new AddResourceDialog(
                         "{selected.profile}/subsystem=messaging-activemq/hornetq=*",
-                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.ActivemqMessagingPresenter),
+                        Console.MODULES.getSecurityFramework()
+                                .getSecurityContext(NameTokens.ActivemqMessagingPresenter),
                         MsgDestinationsPresenter.this
                 )
         );
