@@ -158,6 +158,10 @@ public class ColumnManager {
 
     }
 
+    public int getVisibleComunsSize() {
+        return visibleColumns.size();
+    }
+
     private void scrollIfNecessary() {
         assertVisibleColumns();
 
