@@ -4,8 +4,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -15,7 +16,8 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIMessages;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -38,16 +40,18 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
     private static final Template TEMPLATE = GWT.create(Template.class);
 
     private final PlaceManager placeManager;
+    private final PreviewContentFactory contentFactory;
     private ActivemqFinder presenter;
 
-    private LayoutPanel previewCanvas;
+    private HTML previewCanvas;
     private ColumnManager columnManager;
-    private FinderColumn<Property> mailSessionColumn;
-    private Widget mailSessionColumnWidget;
+    private FinderColumn<Property> messagingProviderColumn;
+    private Widget messagingProviderColumnWidget;
 
     @Inject
-    public ActivemqFinderView(PlaceManager placeManager) {
+    public ActivemqFinderView(PlaceManager placeManager, PreviewContentFactory contentFactory) {
         this.placeManager = placeManager;
+        this.contentFactory = contentFactory;
     }
 
     @Override
@@ -57,14 +61,14 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
 
     @Override
     public void updateFrom(List<Property> list) {
-        mailSessionColumn.updateFrom(list);
+        messagingProviderColumn.updateFrom(list);
     }
 
 
     @Override
     @SuppressWarnings("unchecked")
     public Widget createWidget() {
-        mailSessionColumn = new FinderColumn<>(
+        messagingProviderColumn = new FinderColumn<>(
                 FinderColumn.FinderId.CONFIGURATION,
                 Console.MESSAGES.messagingProvider(),
                 new FinderColumn.Display<Property>() {
@@ -91,12 +95,13 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                     }
                 },
                 presenter.getProxy().getNameToken());
-        mailSessionColumnWidget = mailSessionColumn.asWidget();
+        messagingProviderColumnWidget = messagingProviderColumn.asWidget();
 
-        mailSessionColumn.setTopMenuItems(
-                new MenuDelegate<>(Console.CONSTANTS.common_label_add(), mailSession -> presenter.launchNewProviderWizard(), Operation));
+        messagingProviderColumn.setTopMenuItems(
+                new MenuDelegate<>(Console.CONSTANTS.common_label_add(),
+                        mailSession -> presenter.launchNewProviderWizard(), Operation));
 
-        mailSessionColumn.setMenuItems(
+        messagingProviderColumn.setMenuItems(
                 new MenuDelegate<>("Queues/Topics", provider ->
                         placeManager.revealRelativePlace(
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMessagingPresenter)
@@ -124,17 +129,21 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                                 }), Operation)
         );
 
-        mailSessionColumn.addSelectionChangeHandler(event -> {
-            if (mailSessionColumn.hasSelectedItem()) {
-                columnManager.updateActiveSelection(mailSessionColumnWidget);
+        messagingProviderColumn.setPreviewFactory(
+                (data, callback) -> contentFactory
+                        .createContent(PreviewContent.INSTANCE.messaging_provider(), callback));
+
+        messagingProviderColumn.addSelectionChangeHandler(event -> {
+            if (messagingProviderColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(messagingProviderColumnWidget);
             }
         });
 
         SplitLayoutPanel layout = new SplitLayoutPanel(2);
-        previewCanvas = new LayoutPanel();
+        previewCanvas = new HTML(SafeHtmlUtils.EMPTY_SAFE_HTML);
         columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
-        columnManager.addWest(mailSessionColumnWidget);
-        columnManager.add(previewCanvas);
+        columnManager.addWest(messagingProviderColumnWidget);
+        columnManager.add(new ScrollPanel(previewCanvas));
         columnManager.setInitialVisible(1);
         return layout;
     }
@@ -142,8 +151,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
     @Override
     public void setPreview(final SafeHtml html) {
         Scheduler.get().scheduleDeferred(() -> {
-            previewCanvas.clear();
-            previewCanvas.add(new HTML(html));
+            previewCanvas.setHTML(html);
         });
     }
 }
