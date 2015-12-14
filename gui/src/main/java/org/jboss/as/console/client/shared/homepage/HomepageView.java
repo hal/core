@@ -111,11 +111,18 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                     constants.homepage_configuration_standalone_step1(),
                     constants.homepage_configuration_step2(),
                     constants.homepage_configuration_step3());
+            HomepageSection jmsSection = new HomepageSection(NameTokens.ServerProfile,
+                    constants.homepage_jms_section(),
+                    constants.homepage_jms_step_intro(),
+                    constants.homepage_jms_standalone_step1(),
+                    constants.homepage_jms_step2(),
+                    constants.homepage_jms_step3());
+            jmsSection.toggle();
             configurationModule = new HomepageModule(NameTokens.ServerProfile,
                     "images/homepage/configuration.png",
                     "Configuration",
                     constants.homepage_configuration_standalone_sub_header(),
-                    configurationSection);
+                    configurationSection, jmsSection);
 
             HomepageSection runtimeSection = new HomepageSection(NameTokens.StandaloneRuntimePresenter,
                     constants.homepage_runtime_standalone_section(),
@@ -147,11 +154,18 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                     constants.homepage_configuration_domain_step1(),
                     constants.homepage_configuration_step2(),
                     constants.homepage_configuration_step3());
+            HomepageSection jmsSection = new HomepageSection(NameTokens.ProfileMgmtPresenter,
+                    constants.homepage_jms_section(),
+                    constants.homepage_jms_step_intro(),
+                    constants.homepage_jms_domain_step1(),
+                    constants.homepage_jms_step2(),
+                    constants.homepage_jms_step3());
+            jmsSection.toggle();
             configurationModule = new HomepageModule(NameTokens.ProfileMgmtPresenter,
                     "images/homepage/configuration.png",
                     "Configuration",
                     constants.homepage_configuration_domain_sub_header(),
-                    configurationSection);
+                    configurationSection, jmsSection);
 
             HomepageSection serverGroupSection = new HomepageSection(NameTokens.HostMgmtPresenter,
                     constants.homepage_runtime_domain_server_group_section(),
