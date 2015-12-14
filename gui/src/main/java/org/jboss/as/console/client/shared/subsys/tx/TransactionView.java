@@ -94,6 +94,21 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                 commonAssets.getForm().cancel();
             }
         });
+        commonAssets.getForm().addFormValidator((formItems, outcome) -> {
+            final FormItem<Boolean> journalStoreEnableAsyncIoItem = formItem(formItems, "journal-store-enable-async-io");
+            final FormItem<Boolean> useJournalStoreItem = formItem(formItems, "use-journal-store");
+
+            if (journalStoreEnableAsyncIoItem != null) {
+                final boolean journalStoreEnableAsyncIo = journalStoreEnableAsyncIoItem.getValue() != null && journalStoreEnableAsyncIoItem.getValue();
+                final boolean useJournalStore = useJournalStoreItem != null && useJournalStoreItem.getValue() != null && useJournalStoreItem.getValue();
+
+                if (journalStoreEnableAsyncIo && !useJournalStore) {
+                    useJournalStoreItem.setErrMessage("Journal store needs to be enabled before enabling asynchronous IO.");
+                    useJournalStoreItem.setErroneous(true);
+                    outcome.addError("use-journal-store");
+                }
+            }
+        });
 
         processAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
