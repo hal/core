@@ -21,9 +21,12 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
+import elemental.client.Browser;
+import elemental.html.LabelElement;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
@@ -54,20 +57,20 @@ public class ChooseStep extends WizardStep<Context, State> {
     protected Widget asWidget(final Context context) {
         FlowPanel body = new FlowPanel();
 
-        deployNew = new RadioButton("deployment_kind",
-                Console.CONSTANTS.uploadNewDeployment());
+        deployNew = new RadioButton("deployment_kind", Console.CONSTANTS.uploadNewDeployment());
         deployNew.addStyleName("radio-block");
         IdHelper.setId(deployNew, id(), "deployNew");
+        addDescription(deployNew, Console.CONSTANTS.uploadNewDeploymentDescription());
 
-        deployExisting = new RadioButton("deployment_kind",
-                Console.CONSTANTS.chooseFromContentRepository());
+        deployExisting = new RadioButton("deployment_kind", Console.CONSTANTS.chooseFromContentRepository());
         deployExisting.addStyleName("radio-block");
         IdHelper.setId(deployExisting, id(), "deployExisting");
+        addDescription(deployExisting,Console.CONSTANTS.chooseFromContentRepositoryDescription());
 
-        deployUnmanaged = new RadioButton("deployment_kind",
-                Console.CONSTANTS.createUnmanaged());
+        deployUnmanaged = new RadioButton("deployment_kind", Console.CONSTANTS.createUnmanaged());
         deployUnmanaged.addStyleName("radio-block");
         IdHelper.setId(deployUnmanaged, id(), "deployUnmanaged");
+        addDescription(deployUnmanaged, Console.CONSTANTS.createUnmanagedDescription());
 
         if (showDeployNew) {
             body.add(deployNew);
@@ -79,6 +82,14 @@ public class ChooseStep extends WizardStep<Context, State> {
             body.add(deployUnmanaged);
         }
         return body;
+    }
+
+    private void addDescription(final RadioButton radioButton, final String description) {
+        LabelElement label = Browser.getDocument().createLabelElement();
+        label.setHtmlFor(radioButton.getElement().getFirstChildElement().getId());
+        label.getClassList().add("label-desc");
+        label.setInnerText(description);
+        radioButton.getElement().appendChild((Node)label);
     }
 
     @Override

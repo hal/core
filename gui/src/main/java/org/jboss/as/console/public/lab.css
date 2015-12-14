@@ -1015,3 +1015,8 @@ h3,
     border-bottom: none !important;
     padding-left:2px;
 }
+
+.label-desc {
+    display: block;
+    margin: 4px 0 0 24px;
+}
