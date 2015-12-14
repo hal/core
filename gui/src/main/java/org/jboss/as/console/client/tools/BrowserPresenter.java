@@ -1,13 +1,11 @@
 package org.jboss.as.console.client.tools;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.util.LRUCache;
@@ -17,6 +15,7 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -50,10 +49,10 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         void setPresenter(BrowserPresenter presenter);
         void updateRootTypes(ModelNode address, List<ModelNode> modelNodes);
         void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes);
-        void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes, boolean flagSquatting);
+        void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes);
         void updateResource(ModelNode address, SecurityContext securityContext, ModelNode description, ModelNode resource);
 
-        void showAddDialog(ModelNode address, SecurityContext securityContext, ModelNode desc);
+        void showAddDialog(ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode desc);
     }
 
     @Inject
@@ -80,12 +79,18 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         }
     }
 
+    @Override
+    protected void onHide() {
+        super.onHide();
+        Console.getPlaceManager().revealRelativePlace(-1);
+    }
+
     public void onRefresh() {
 
         ModelNode target = pinToAddress != null ? pinToAddress : ROOT;
 
         readChildrenTypes(target, true);
-        readResource(target);
+        readResource(target, false);
     }
 
     class DMRContext {
@@ -125,7 +130,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed ot load children types: "+context.response.getFailureDescription());
@@ -160,45 +165,6 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         }
 
         final String typeName = typeDenominator.asProperty().getName();
-
-        Function<DMRContext> squatterFn = new Function<DMRContext>() {
-            @Override
-            public void execute(final Control<DMRContext> control) {
-
-                ModelNode operation  = new ModelNode();
-                operation.get(ADDRESS).set(address);
-                operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-
-                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Log.error("Failed to load child names: " + caught.getMessage());
-
-                        control.getContext().flagSquatting = true;
-                        control.proceed();
-                    }
-
-                    @Override
-                    public void onSuccess(DMRResponse dmrResponse) {
-                        ModelNode dmrRsp = dmrResponse.get();
-
-                        // TODO (hbraun): workaround for https://issues.jboss.org/browse/WFLY-3706
-                        if(dmrRsp.isFailure() || dmrRsp.get(RESULT).isFailure())
-                        {
-                            control.getContext().flagSquatting = true;
-                            //System.out.println("squatting: "+ address);
-                            control.proceed();
-                        }
-                        else
-                        {
-                            control.proceed();
-                        }
-                    }
-                });
-
-            }
-        };
 
         Function<DMRContext> childNameFn = new Function<DMRContext>() {
             @Override
@@ -236,7 +202,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed to load children names: "+ context.response.getFailureDescription());
@@ -245,19 +211,24 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             @Override
             public void onSuccess(DMRContext context) {
                 ModelNode response = context.response;
-                getView().updateChildrenNames(address, response.get(RESULT).asList(), context.flagSquatting);
+                getView().updateChildrenNames(address, response.get(RESULT).asList());
             }
-        }, squatterFn, childNameFn);
+        }, childNameFn);
 
     }
 
     class ResourceData {
+        private final boolean isTransient;
         SecurityContext securityContext;
         ModelNode description;
         ModelNode data;
+
+        public ResourceData(boolean isTransient) {
+            this.isTransient = isTransient;
+        }
     }
 
-    public void readResource(final ModelNode address) {
+    public void readResource(final ModelNode address, boolean isPlaceHolder) {
 
 
         Function<ResourceData> secFn = new Function<ResourceData>() {
@@ -266,7 +237,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                 SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
 
-                final String addressString = AddressUtils.toString(address, false); // TODO: what about squatting resources?
+                final String addressString = AddressUtils.toString(address, true);
 
                 final Set<String> resources = new HashSet<String>();
                 resources.add(addressString);
@@ -288,7 +259,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                                 @Override
                                 public void onSuccess(SecurityContext result) {
-                                    final String cacheKey = AddressUtils.asKey(address, false);
+                                    final String cacheKey = AddressUtils.asKey(address, true);
                                     contextCache.put(cacheKey, result);
                                     control.getContext().securityContext = result;
                                     control.proceed();
@@ -323,25 +294,33 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         Function<ResourceData> dataFn = new Function<ResourceData>() {
             @Override
             public void execute(final Control<ResourceData> control) {
-                _readResouce(address, new SimpleCallback<ModelNode>() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Console.error("Failed to read resource: "+caught.getMessage());
-                        control.abort();
-                    }
+                if(!control.getContext().isTransient) {
+                    _readResouce(address, new SimpleCallback<ModelNode>() {
 
-                    @Override
-                    public void onSuccess(ModelNode result) {
-                        control.getContext().data = result;
-                        control.proceed();
-                    }
-                });
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Console.error("Failed to read resource: " + caught.getMessage());
+                            control.abort();
+                        }
+
+                        @Override
+                        public void onSuccess(ModelNode result) {
+                            control.getContext().data = result;
+                            control.proceed();
+                        }
+                    });
+                }
+                else
+                {
+                    control.getContext().data = new ModelNode(); // no data
+                    control.proceed();
+                }
             }
         };
 
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(), new Outcome<ResourceData>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 
@@ -375,11 +354,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                         final ModelNode response = dmrResponse.get();
 
-                        if(response.isFailure())
-                        {
-                            callback.onFailure(new RuntimeException("Failed to load resource description: "+response.getFailureDescription()));
-                        }
-                        else {
+                        if (response.isFailure()) {
+                            callback.onFailure(new RuntimeException("Failed to load resource description: " + response.getFailureDescription()));
+                        } else {
 
 
                             ModelNode resourceDescription = null;
@@ -426,7 +403,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                         if(response.isFailure())
                         {
-                            callback.onFailure(new RuntimeException("Failed to load resource: "+response.getFailureDescription()));
+                            callback.onFailure(new RuntimeException("Failed to load resource: " + response.getFailureDescription()));
                         }
                         else
                         {
@@ -452,10 +429,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                 if (response.isFailure()) {
                     Console.error("Failed to save resource " + address.asString(), response.getFailureDescription());
-                }
-                else {
+                } else {
                     Console.info("Successfully saved resource " + address.asString());
-                    readResource(address); // refresh
+                    readResource(address, false); // refresh
                 }
 
             }
@@ -488,12 +464,12 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
         Feedback.confirm(
                 "Remove Resource",
-                "Do you really want to remove resource "+fqAddress.toString(),
+                "Do you really want to remove resource " + fqAddress.toString(),
                 new Feedback.ConfirmationHandler() {
                     @Override
                     public void onConfirmation(boolean isConfirmed) {
 
-                        if(isConfirmed) {
+                        if (isConfirmed) {
 
                             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                                 @Override
@@ -518,9 +494,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     /**
      * Add a child resource
      * @param address
-     * @param isSquatting
+     * @param isSingleton
      */
-    public void onPrepareAddChildResource(final ModelNode address, final boolean isSquatting) {
+    public void onPrepareAddChildResource(final ModelNode address, final boolean isSingleton) {
 
 
         Function<ResourceData> secFn = new Function<ResourceData>() {
@@ -529,7 +505,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                 SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
 
-                final String addressString = AddressUtils.toString(address, isSquatting);
+                final String addressString = AddressUtils.toString(address, isSingleton);
 
                 final Set<String> resources = new HashSet<String>();
                 resources.add(addressString);
@@ -587,19 +563,11 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                             if (ModelType.LIST.equals(result.getType()))
                                 desc = result.asList().get(0).get(RESULT).asObject();
                             else {
-                                // workaround ...
-                                if (!result.hasDefined(RESULT)) {
-                                    Console.warning("Failed to read resource description" + address);
-                                } else {
-                                    desc = result.asObject();
-                                }
+                                desc = result.asObject();
                             }
 
-                            if (desc != null) {
-
-                                control.getContext().description = desc;
-                                control.proceed();
-                            }
+                            control.getContext().description = desc;
+                            control.proceed();
 
                         }
 
@@ -608,7 +576,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(), new Outcome<ResourceData>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(true), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 
@@ -616,7 +584,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
             @Override
             public void onSuccess(ResourceData context) {
-                getView().showAddDialog(address, context.securityContext, context.description);
+                getView().showAddDialog(address, isSingleton, context.securityContext, context.description);
             }
         }, secFn, descFn);
 
@@ -638,11 +606,13 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                     Console.error("Failed to add resource " + fqAddress.asString(),
                             response.getFailureDescription());
                 } else {
-                    readChildrenNames(address);
+                    readChildrenNames(org.jboss.as.console.client.tools.AddressUtils.fromFqAddress(address));
                 }
 
             }
         });
     }
+
+
 
 }

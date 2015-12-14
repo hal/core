@@ -13,7 +13,6 @@ import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.client.tools.mapping.DescriptionMapper;
 import org.jboss.as.console.client.tools.mapping.RequestParameter;
 import org.jboss.as.console.client.tools.mapping.ResponseParameter;
-import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;

@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -36,9 +37,13 @@ import org.jboss.dmr.client.Property;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -47,7 +52,10 @@ import java.util.List;
 public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyView,
         BrowserNavigation {
 
+    public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
+
     private static final String DEFAULT_ROOT = "Management Model";
+    private static final String WILDCARD = "*";
     private BrowserPresenter presenter;
     private SplitLayoutPanel layout;
 
@@ -102,6 +110,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     private void createWidget() {
         window = new DefaultWindow("Management Model View");
         window.addStyleName("model-browser-window");
+        PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
+        window.getFooter().add(PROGRESS_ELEMENT);
 
         window.setGlassEnabled(true);
 
@@ -251,10 +261,17 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         ModelNode address = toAddress(path);
         ModelNode displayAddress = address.clone();
 
+        boolean isPlaceHolder = (treeItem instanceof PlaceholderItem);
+        //ChildInformation childInfo = findChildInfo(treeItem);
 
         if(path.size()%2==0) {
+
+            /*String denominatorType = AddressUtils.getDenominatorType(address.asPropertyList());
+            boolean isSingleton = denominatorType!=null ? childInfo.isSingleton(denominatorType) : false; // false==root*/
+
             // addressable resources
-            presenter.readResource(address);
+            presenter.readResource(address, isPlaceHolder);
+
             toggleEditor(true);
             filter.setEnabled(true);
 
@@ -262,7 +279,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         else {
             toggleEditor(false);
             // display tweaks
-            displayAddress.add(path.getLast(), "*");
+            displayAddress.add(path.getLast(), WILDCARD);
 
             // force loading of children upon selection
             loadChildren((ModelTreeItem)treeItem, false);
@@ -270,6 +287,21 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         }
 
         nodeHeader.updateDescription(displayAddress);
+    }
+
+    private final static ChildInformation findChildInfo(TreeItem treeItem)
+    {
+        ChildInformation childInfo = null;
+
+        if(treeItem instanceof ModelTreeItem)
+        {
+            childInfo = ((ModelTreeItem) treeItem).getChildInformation();
+            if(null==childInfo) {
+                if(treeItem.getParentItem()!=null)
+                    childInfo = findChildInfo(treeItem.getParentItem());
+            }
+        }
+        return childInfo;
     }
 
     /**
@@ -347,21 +379,26 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         else if(!notHasBeenLoaded)
         {
             // if it has been loaded before we need to update the child view
-            // the data exists with the tree
+            // NOTE: the data exists with the tree
             List<ModelNode> model = new ArrayList<ModelNode>(treeItem.getChildCount());
-            boolean squatting = false;
+            boolean hasSingletons = false;
             for(int i=0; i<treeItem.getChildCount(); i++)
             {
-                ModelTreeItem child = (ModelTreeItem)treeItem.getChild(i);
-                squatting = child.isSquatting(); // either all or none children are squatting
-                model.add(new ModelNode().set(child.getText()));
+                if(treeItem.getChild(i) instanceof ModelTreeItem) { // in some cases the children a placehoders
+                    ModelTreeItem child = (ModelTreeItem) treeItem.getChild(i);
+                    hasSingletons = child.isSingleton(); // either all or none children are hasSingletons
+                    model.add(new ModelNode().set(child.getText()));
+                }
             }
 
             final List<String> path = resolvePath(treeItem);
-            path.add("*");
+            path.add(WILDCARD);
             final ModelNode address = toAddress(path);
 
-            childView.setChildren(address, model, squatting);
+            ChildInformation childInformation = treeItem.getParentItem()!=null ?
+                    ((ModelTreeItem) treeItem.getParentItem()).getChildInformation() : treeItem.getChildInformation();
+
+            childView.setChildren(address, model, childInformation);
         }
     }
 
@@ -381,7 +418,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             if(i%2!=0 )
                 address.add(path.get(i-1), path.get(i));
             else
-                address.add(path.get(i), "*");
+                address.add(path.get(i), WILDCARD);
         }
 
         return address;
@@ -445,7 +482,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         currentRootKey = key;
 
-        addChildrenTypes(rootItem, modelNodes);
+        addChildrenTypes((ModelTreeItem)rootItem, modelNodes);
     }
 
     /**
@@ -457,22 +494,24 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     public void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem  rootItem = findTreeItem(tree, address);
-        addChildrenTypes(rootItem, modelNodes);
+        addChildrenTypes((ModelTreeItem)rootItem, modelNodes);
 
     }
 
     @Override
-    public void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes, boolean flagSquatting) {
+    public void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem rootItem = findTreeItem(tree, address);
 
         assert rootItem!=null : "unable to find matching tree item: "+address;
 
         // update the tree
-        addChildrenNames(rootItem, modelNodes, flagSquatting);
+        addChildrenNames((ModelTreeItem)rootItem, modelNodes);
 
         // update the append child panel
-        childView.setChildren(address, modelNodes, flagSquatting);
+        // the parent of the current node contains the child info
+        ChildInformation childInformation = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation();
+        childView.setChildren(address, modelNodes, childInformation);
     }
 
     @Override
@@ -486,7 +525,10 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         final List<Property> tokens = address.asPropertyList();
         String name = tokens.isEmpty() ? DEFAULT_ROOT : tokens.get(tokens.size()-1).getValue().asString();
 
-        formView.display(address, description, securityContext, new Property(name, resource));
+        if(resource.isDefined())
+            formView.display(address, description, securityContext, new Property(name, resource));
+        else
+            formView.clearDisplay();
 
         if(!GWT.isScript())
         {
@@ -494,45 +536,105 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         }
     }
 
-    private void addChildrenTypes(TreeItem rootItem, List<ModelNode> modelNodes) {
+    private void addChildrenTypes(ModelTreeItem rootItem, List<ModelNode> modelNodes) {
 
         rootItem.removeItems();
 
-        for(ModelNode child : modelNodes)
+        final ChildInformation childInformation = parseChildrenTypes(modelNodes);
+
+        for(String child : childInformation.getNames())
         {
-            final ModelNode address = getNodeAddress(rootItem, child.asString());
+            final ModelNode address = getNodeAddress(rootItem, child);
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<i class='icon-folder-close-alt'></i>&nbsp;");
-            html.appendHtmlConstant(child.asString());
-            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child.asString(), address, false);
+            html.appendHtmlConstant(child);
+            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child, address, childInformation.isSingleton(child));
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
+            rootItem.updateChildInfo(childInformation);
         }
 
         rootItem.setState(true);
     }
 
-    private void addChildrenNames(TreeItem rootItem, List<ModelNode> modelNodes, boolean flagSquatting) {
+    private ChildInformation parseChildrenTypes(List<ModelNode> childrenTypes)
+    {
+        Set<String> names = new HashSet<>();
+        Map<String, Set<String>> singletons = new HashMap<>();
+        Set<String> whitelist = new HashSet<>();
+        for(ModelNode child : childrenTypes)
+        {
+            String item = child.asString();
+            int idx = item.indexOf("=");
+            boolean isSingleton = idx != -1;
+            String key = isSingleton ? item.substring(0, idx) : item;
+            String value = isSingleton ? item.substring(idx+1, item.length()) : item;
+
+            names.add(key);
+            if(!isSingleton)
+                whitelist.add(key);
+
+            if(isSingleton) {
+                if(null==singletons.get(key))
+                    singletons.put(key, new HashSet<String>());
+
+                singletons.get(key).add(value);
+            }
+
+        }
+
+        // process white list: {datasource, datasource=ExampleDS} means datasource is _not_ a singleton
+        for(String whitelisted : whitelist)
+        {
+            if(singletons.containsKey(whitelisted))
+                singletons.remove(whitelisted);
+        }
+
+
+        return new ChildInformation(names, singletons);
+
+    }
+
+    private void addChildrenNames(ModelTreeItem rootItem, List<ModelNode> modelNodes) {
 
         rootItem.removeItems();
 
         if(modelNodes.isEmpty())
             rootItem.addItem(new PlaceholderItem());
 
+        String denominatorType = AddressUtils.getDenominatorType(rootItem.getAddress().asPropertyList());
+
+        Set<String> singletonTypes = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation().getSingletons().get(denominatorType);
+        Set<String> remainingSingletons = rootItem.isSingleton() ?
+                new HashSet<String>(singletonTypes) :
+                new HashSet<String>();
+
         for(ModelNode child : modelNodes)
         {
 
-            final ModelNode address = getNodeAddress(rootItem, child.asString());
+            String childName = child.asString();
+            boolean isSingleton = rootItem.isSingleton; // both parent and child form the tuple and are of the same type
+            final ModelNode address = getNodeAddress(rootItem, childName);
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
-            String icon = flagSquatting ? "icon-file-alt" : "icon-file-text-alt";
+
+            String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
             html.appendHtmlConstant("<i class='"+icon+"'></i>&nbsp;");
-            html.appendHtmlConstant(child.asString());
-            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child.asString(), address, flagSquatting);
+            html.appendHtmlConstant(childName);
+            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
+
+            remainingSingletons.remove(childName);
         }
+
+        // remaining singleton links (the ones not added yet)
+        for(String child : remainingSingletons)
+        {
+            rootItem.addItem(new PlaceholderItem(child));
+        }
+
     }
 
     private ModelNode getNodeAddress(TreeItem rootItem, String childName) {
@@ -541,7 +643,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         {
             // non-addressable resource
             path.add(childName);
-            path.add("*");
+            path.add(WILDCARD);
         }
         else
         {
@@ -562,7 +664,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         {
             path.add(prop.getName());
             final String value = prop.getValue().asString();
-            if(!"*".equals(value)) {
+            if(!WILDCARD.equals(value)) {
                 path.add(value);
             }
         }
@@ -691,7 +793,15 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     class PlaceholderItem extends TreeItem {
 
         PlaceholderItem() {
-            super(new SafeHtmlBuilder().appendEscaped("*").toSafeHtml());
+            this(WILDCARD);
+        }
+
+        PlaceholderItem(String title) {
+            super(new SafeHtmlBuilder()
+                    .appendHtmlConstant("<span style='color:#cccccc'>")
+                    .appendEscaped(title)
+                    .appendHtmlConstant("</span>")
+                    .toSafeHtml());
         }
     }
 
@@ -699,13 +809,14 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         private String key;
         private ModelNode address;
-        private boolean isSquatting = false;
+        private boolean isSingleton = false;
+        private ChildInformation childInformation;
 
-        ModelTreeItem(SafeHtml html, String key, ModelNode address, boolean isSquatting) {
+        ModelTreeItem(SafeHtml html, String key, ModelNode address, boolean isSingleton) {
             super(html);
             this.key = key;
             this.address = address;
-            this.isSquatting = isSquatting;
+            this.isSingleton = isSingleton;
         }
 
         @Override
@@ -721,8 +832,21 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             return key;
         }
 
-        public boolean isSquatting() {
-            return isSquatting;
+        public boolean isSingleton() {
+            return isSingleton;
+        }
+
+        public void updateChildInfo(ChildInformation childInformation) {
+
+            this.childInformation = childInformation;
+        }
+
+        public ChildInformation getChildInformation() {
+            return childInformation;
+        }
+
+        public boolean hasChildInformation() {
+            return childInformation!=null;
         }
     }
 
@@ -732,7 +856,42 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     }
 
     @Override
-    public void showAddDialog(ModelNode address, SecurityContext securityContext, ModelNode desc) {
-        childView.showAddDialog(address, securityContext, desc);
+    public void showAddDialog(ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode desc) {
+        childView.showAddDialog(address, isSingleton, securityContext, desc);
+    }
+
+    class ChildInformation {
+
+        private final Set<String> names;
+        private final Map<String, Set<String>> singletons;
+
+        public ChildInformation(Set<String> names, Map<String, Set<String>> singletons) {
+
+            this.names = names;
+            this.singletons = singletons;
+        }
+
+        /*public ChildInformation() {
+            this.names = new HashSet<>();
+            this.singletons = new HashMap<String, Set<String>>();
+        }*/
+
+        public Set<String> getNames() {
+            return names;
+        }
+
+        public Map<String, Set<String>> getSingletons() {
+            return singletons;
+        }
+
+        public boolean isSingleton(String key) {
+            if(!names.contains(key))
+                throw new IllegalArgumentException("Invalid key "+key);
+            return singletons.containsKey(key);
+        }
+
+        public boolean hasSingletons() {
+            return singletons.size()>0;
+        }
     }
 }

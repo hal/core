@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.tools;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.apache.html.dom.HTMLBuilder;
 import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
@@ -24,7 +26,7 @@ public class FormView {
     private BrowserPresenter presenter;
     private ModelNode currentAddress;
     private VerticalPanel formContainer;
-    private LRUCache<String, ModelNodeForm> widgetCache = new LRUCache<String, ModelNodeForm>(10);
+    private LRUCache<String, ModelNodeFormBuilder.FormAssets> widgetCache = new LRUCache<String, ModelNodeFormBuilder.FormAssets>(10);
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
@@ -45,11 +47,12 @@ public class FormView {
 
 
         String cacheKey = AddressUtils.asKey(address, true);
-        ModelNodeForm form = null;
+        ModelNodeFormBuilder.FormAssets formAssets = null;
         if(widgetCache.containsKey(cacheKey))
         {
             // retrieve from cache
-            form = widgetCache.get(cacheKey);
+            formAssets = widgetCache.get(cacheKey);
+            formAssets.getForm().clearValues();
         }
         else {
 
@@ -58,28 +61,27 @@ public class FormView {
                     .setResourceDescription(description)
                     .setSecurityContext(securityContext);
 
-            ModelNodeFormBuilder.FormAssets assets = builder.build();
-
-            form = assets.getForm();
+            formAssets = builder.build();
 
             // cache it
-            widgetCache.put(cacheKey, form);
+            widgetCache.put(cacheKey, formAssets);
         }
 
-        form.setEnabled(false);
+        formAssets.getForm().setEnabled(false);
 
         List<Property> tuples = address.asPropertyList();
         boolean isPlaceholder = tuples.isEmpty() ? false : tuples.get(tuples.size()-1).getValue().asString().equals("*");
 
         // some resources only provide runtime attributes, hence the form might be empty
-        if(!isPlaceholder && form.getFormItemNames().size()>0) {
+        if(!isPlaceholder && formAssets.getForm().getFormItemNames().size()>0) {
             // only provide tools when writable attributes are present
-            if (form.hasWritableAttributes())
-                form.setToolsCallback(new AddressableFormCallback(address));
+            if (formAssets.getForm().hasWritableAttributes())
+                formAssets.getForm().setToolsCallback(new AddressableFormCallback(address));
 
 
-            formContainer.add(form);
-            form.edit(model.getValue());
+            formContainer.add(formAssets.getForm());
+
+            formAssets.getForm().edit(model.getValue());
         }
         else {
             formContainer.add(new HTML("No configurable attributes available."));
@@ -90,7 +92,7 @@ public class FormView {
     public void clearDisplay()
     {
         currentAddress = null;
-
+        formContainer.clear();
     }
 
     public void setPresenter(BrowserPresenter presenter) {
@@ -113,7 +115,7 @@ public class FormView {
 
         @Override
         public void onCancel(ModelNode entity) {
-            presenter.readResource(address);
+            presenter.readResource(address, false);
         }
     }
 }
