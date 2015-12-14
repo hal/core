@@ -573,4 +573,10 @@ public interface UIConstants extends Constants {
     String verify_datasource_successful_header();
     String verifyUpload();
     String wizard_back();
+
+    String uploadNewDeploymentDescription();
+
+    String chooseFromContentRepositoryDescription();
+
+    String createUnmanagedDescription();
 }
