@@ -579,4 +579,17 @@ public interface UIConstants extends Constants {
     String chooseFromContentRepositoryDescription();
 
     String createUnmanagedDescription();
+
+    String homepage_jms_section();
+
+    String homepage_jms_step_intro();
+
+    String homepage_jms_standalone_step1();
+
+    String homepage_jms_step2();
+
+    String homepage_jms_step3();
+
+    @Key("constants.homepage_jms_domain_step1")
+    String homepage_jms_domain_step1();
 }
