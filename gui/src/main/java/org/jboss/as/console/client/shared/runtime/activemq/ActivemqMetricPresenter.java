@@ -173,7 +173,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "messaging-activemq");
-        operation.get(ADDRESS).add("server", "default");
+        operation.get(ADDRESS).add("server", currentServer);
         operation.get(ADDRESS).add("jms-queue", selectedQueue.getName());
 
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -209,7 +209,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "messaging-activemq");
-        operation.get(ADDRESS).add("server", "default");
+        operation.get(ADDRESS).add("server", currentServer);
         operation.get(ADDRESS).add("jms-topic", selectedTopic.getName());
 
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -266,7 +266,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "messaging-activemq");
-        operation.get(ADDRESS).add("server", "default");
+        operation.get(ADDRESS).add("server", currentServer);
         operation.get(ADDRESS).add("jms-queue", queue.getName());
 
         operation.get(OP).set("remove-messages");
@@ -294,7 +294,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "messaging-activemq");
-        operation.get(ADDRESS).add("server", "default");
+        operation.get(ADDRESS).add("server", currentServer);
         operation.get(ADDRESS).add("jms-topic", topic.getName());
 
         operation.get(OP).set("remove-messages");
