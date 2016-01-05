@@ -70,6 +70,7 @@ class DomainRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandl
 
         LHSNavTreeItem datasources = new LHSNavTreeItem("Datasources", NameTokens.DataSourceMetricPresenter);
         LHSNavTreeItem jmsQueues = new LHSNavTreeItem("JMS Destinations", NameTokens.JmsMetricPresenter);
+        LHSNavTreeItem activemq = new LHSNavTreeItem("Queues/Topics", NameTokens.ActivemqMetricPresenter);
         LHSNavTreeItem web = new LHSNavTreeItem("Web", NameTokens.WebMetricPresenter);
         LHSNavTreeItem jpa = new LHSNavTreeItem("JPA", NameTokens.JPAMetricPresenter);
         LHSNavTreeItem ws = new LHSNavTreeItem("Webservices", NameTokens.WebServiceRuntimePresenter);
@@ -77,6 +78,7 @@ class DomainRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandl
 
         metricPredicates.add(new Predicate("datasources", datasources));
         metricPredicates.add(new Predicate("messaging", jmsQueues));
+        metricPredicates.add(new Predicate("messaging-activemq", activemq));
         metricPredicates.add(new Predicate("web", web));
         metricPredicates.add(new Predicate("jpa", jpa));
         metricPredicates.add(new Predicate("webservices", ws));

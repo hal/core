@@ -102,6 +102,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("JMS Destinations", NameTokens.JmsMetricPresenter);
+        PlaceLink activemq = new PlaceLink("Messaging - ActiveMQ", NameTokens.ActivemqMetricPresenter);
         PlaceLink web = new PlaceLink("HTTP", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
@@ -110,6 +111,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
         metricPredicates.add(new Predicate("datasources", datasources));
         metricPredicates.add(new Predicate("messaging", jmsQueues));
+        metricPredicates.add(new Predicate("messaging-activemq", activemq));
         metricPredicates.add(new Predicate("undertow", web));
         metricPredicates.add(new Predicate("jpa", jpa));
         metricPredicates.add(new Predicate("batch-jberet", batch));
