@@ -85,6 +85,7 @@ import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
@@ -332,6 +333,7 @@ public interface CoreUI {
     AsyncProvider<WebMetricPresenter> WebMetricPresenter();
 
     AsyncProvider<JMSMetricPresenter> JMSMetricPresenter();
+    AsyncProvider<ActivemqMetricPresenter> ActivemqMetricPresenter();
 
     AsyncProvider<DataSourceMetricPresenter> DataSourceMetricPresenter();
 

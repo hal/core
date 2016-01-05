@@ -20,7 +20,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -107,6 +106,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("Messaging", NameTokens.JmsMetricPresenter);
+        PlaceLink activemq = new PlaceLink("Messaging - ActiveMQ", NameTokens.ActivemqMetricPresenter);
         PlaceLink web = new PlaceLink("Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
@@ -115,6 +115,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         metricPredicates.add(new Predicate("datasources", datasources));
         metricPredicates.add(new Predicate("messaging", jmsQueues));
+        metricPredicates.add(new Predicate("messaging-activemq", activemq));
         metricPredicates.add(new Predicate("undertow", web));
         metricPredicates.add(new Predicate("jpa", jpa));
         metricPredicates.add(new Predicate("batch-jberet", batch));

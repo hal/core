@@ -148,6 +148,8 @@ import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementView;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricPresenter;
+import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricView;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricView;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
@@ -229,10 +231,10 @@ import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
-import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
-import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinderView;
 import org.jboss.as.console.client.shared.subsys.picketlink.FederationPresenter;
 import org.jboss.as.console.client.shared.subsys.picketlink.FederationView;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinderView;
 import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPresenter;
 import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderView;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
@@ -615,6 +617,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 JMSMetricPresenter.MyView.class,
                 JMSMetricView.class,
                 JMSMetricPresenter.MyProxy.class);
+
+        bindPresenter(ActivemqMetricPresenter.class,
+                ActivemqMetricPresenter.MyView.class,
+                ActivemqMetricView.class,
+                ActivemqMetricPresenter.MyProxy.class);
 
         bindPresenter(DataSourceMetricPresenter.class,
                 DataSourceMetricPresenter.MyView.class,
