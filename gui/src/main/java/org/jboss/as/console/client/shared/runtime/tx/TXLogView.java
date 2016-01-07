@@ -158,7 +158,7 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_probe(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                presenter.onProbe(true);
+                presenter.onProbe();
             }
         }));
 
