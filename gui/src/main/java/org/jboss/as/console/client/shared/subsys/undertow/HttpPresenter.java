@@ -85,7 +85,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/http-listener=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/https-listener=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/ajp-listener=*"
-            })
+            }, recursive = false)
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpPresenter)
     public interface MyProxy extends Proxy<HttpPresenter>, Place {
