@@ -25,9 +25,9 @@ function clean {
 }
 
 function info {
-    find src/main/java/org/jboss/as/console/client/core/ -name "UIConstants*.properties" | xargs wc -l
-    find src/main/java/org/jboss/as/console/client/core/ -name "UIMessages*.properties" | xargs wc -l
-    find src/main/java/org/jboss/as/console/client/preview/ -name "*.html" | xargs wc -l
+    find src/main/java/org/jboss/as/console/client/core -name "UIConstants*.properties" | xargs wc -l
+    find src/main/java/org/jboss/as/console/client/core -name "UIMessages*.properties" | xargs wc -l
+    find src/main/java/org/jboss/as/console/client/preview -name "*.html" | xargs wc -l
 }
 
 function verifyPushPull {
