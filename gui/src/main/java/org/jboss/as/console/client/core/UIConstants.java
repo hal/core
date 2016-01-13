@@ -29,8 +29,6 @@ import com.google.gwt.i18n.client.Constants;
  */
 public interface UIConstants extends Constants {
     // @formatter:off
-    @Deprecated
-    // use the term "delete" instead
     String accessDenied();
     String addressCriteriaIsValid();
     String addressingDescription();
@@ -77,6 +75,7 @@ public interface UIConstants extends Constants {
     String cannotUploadDeployment();
     String chooseDeploymentScanner();
     String chooseFromContentRepository();
+    String chooseFromContentRepositoryDescription();
     String clusterConnectionDescription();
     String commom_label_filter();
     String common_error_unknownError();
@@ -176,6 +175,7 @@ public interface UIConstants extends Constants {
     String copyServerDescription();
     String createProfile();
     String createUnmanaged();
+    String createUnmanagedDescription();
     String deploymentEnabledDescription();
     String deploymentNameDescription();
     String deploymentRuntimeNameDescription();
@@ -255,6 +255,12 @@ public interface UIConstants extends Constants {
     String homepage_help_wildfly_issues_text();
     String homepage_help_wilfdfly_documentation_text();
     String homepage_help_wilfdfly_home_text();
+    String homepage_jms_domain_step1();
+    String homepage_jms_section();
+    String homepage_jms_standalone_step1();
+    String homepage_jms_step_intro();
+    String homepage_jms_step2();
+    String homepage_jms_step3();
     String homepage_new_to_eap();
     String homepage_patching_domain_step2();
     String homepage_patching_section();
@@ -317,8 +323,6 @@ public interface UIConstants extends Constants {
     String loopbackCriteriaIsValid();
     String lostConnection();
     String member();
-    String missing_driver_module();
-    String missing_driver();
     String modifyCase();
     String newCacheConfiguration();
     String nicCriteriaIsValid();
@@ -557,6 +561,7 @@ public interface UIConstants extends Constants {
     String unmanagedDeploymentRelativeToDescription();
     String uploadedDeployments();
     String uploadNewDeployment();
+    String uploadNewDeploymentDescription();
     String uploadsNotSupported();
     String userAlreadyExists();
     String validAddressCriteria();
@@ -573,23 +578,4 @@ public interface UIConstants extends Constants {
     String verify_datasource_successful_header();
     String verifyUpload();
     String wizard_back();
-
-    String uploadNewDeploymentDescription();
-
-    String chooseFromContentRepositoryDescription();
-
-    String createUnmanagedDescription();
-
-    String homepage_jms_section();
-
-    String homepage_jms_step_intro();
-
-    String homepage_jms_standalone_step1();
-
-    String homepage_jms_step2();
-
-    String homepage_jms_step3();
-
-    @Key("constants.homepage_jms_domain_step1")
-    String homepage_jms_domain_step1();
 }
