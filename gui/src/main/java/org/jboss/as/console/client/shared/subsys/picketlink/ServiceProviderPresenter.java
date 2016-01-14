@@ -22,6 +22,8 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -41,6 +43,7 @@ import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate.Callback;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -58,6 +61,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -77,7 +81,7 @@ public class ServiceProviderPresenter
     }
 
     public interface MyView extends View, HasPresenter<ServiceProviderPresenter> {
-        void update(ModelNode serviceProvider);
+        void update(ModelNode serviceProvider, final List<String> securityDomains);
     }
     // @formatter:on
 
@@ -140,10 +144,14 @@ public class ServiceProviderPresenter
 
     private void readServiceProvider() {
         if (federation != null && serviceProvider != null) {
-            Operation operation = new Operation.Builder(READ_RESOURCE_OPERATION,
+            Operation spOp = new Operation.Builder(READ_RESOURCE_OPERATION,
                     SERVICE_PROVIDER_TEMPLATE.resolve(statementContext, federation, serviceProvider))
                     .param(RECURSIVE, true).build();
-            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            Operation sdOp = new Operation.Builder(READ_CHILDREN_NAMES_OPERATION,
+                    AddressTemplate.of("{selected.profile}/subsystem=security").resolve(statementContext))
+                    .param(CHILD_TYPE, "security-domain")
+                    .build();
+            dispatcher.execute(new DMRAction(new Composite(spOp, sdOp)), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(final DMRResponse dmrResponse) {
                     ModelNode response = dmrResponse.get();
@@ -152,8 +160,11 @@ public class ServiceProviderPresenter
                         Log.error("Failed to read service provider " + serviceProvider +
                                 " from federation " + federation, response.getFailureDescription());
                     } else {
-                        ModelNode serviceProvider = response.get(RESULT);
-                        getView().update(serviceProvider);
+                        ModelNode serviceProvider = response.get(RESULT).get("step-1").get(RESULT);
+                        List<ModelNode> sdNodes = response.get(RESULT).get("step-2").get(RESULT).asList();
+
+                        getView().update(serviceProvider, Ordering.natural().immutableSortedCopy(
+                                FluentIterable.from(sdNodes).transform(ModelNode::asString)));
                     }
                 }
             });

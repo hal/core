@@ -45,11 +45,9 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -385,29 +383,13 @@ public class SecDomainPresenter extends Presenter<SecDomainPresenter.MyView, Sec
 
         )
                 // custom field for code attribute
-                .addFactory(
-                        new AddResourceDialog.NamedFactory() {
-                            @Override
-                            public String getAttributeName() {
-                                return "code";
-                            }
-
-                            @Override
-                            public ModelNodeFormBuilder.FormItemFactory getFactory() {
-
-                                return new ModelNodeFormBuilder.FormItemFactory() {
-                                    @Override
-                                    public FormItem create(Property attributeDescription) {
-                                        SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
-                                        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-                                        oracle.setDefaultSuggestionsFromText(codes);
-                                        item.setOracle(oracle);
-                                        return item;
-                                    }
-                                };
-                            }
-                        }
-                );
+                .addFactory("code", attributeDescription -> {
+                    SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
+                    MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+                    oracle.setDefaultSuggestionsFromText(codes);
+                    item.setOracle(oracle);
+                    return item;
+                });
 
         dialog.setWidth(640);
         dialog.setHeight(480);

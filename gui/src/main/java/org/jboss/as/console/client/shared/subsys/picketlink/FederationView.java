@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -36,6 +35,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkDirectory.*;
 
@@ -104,9 +104,9 @@ public class FederationView extends SuspendableViewImpl implements FederationPre
     }
 
     @Override
-    public void update(final ModelNode federation) {
+    public void update(final ModelNode federation, List<String> securityDomains) {
         ModelNode identityProvider = federation.get("identity-provider").asProperty().getValue();
-        identityProviderEditor.update(identityProvider);
+        identityProviderEditor.update(identityProvider, securityDomains);
 
         if (federation.hasDefined("saml")) {
             samlConfigurationEditor.update(federation.get("saml").asProperty().getValue());

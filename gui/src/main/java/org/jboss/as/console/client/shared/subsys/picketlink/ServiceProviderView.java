@@ -35,6 +35,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkDirectory.SERVICE_PROVIDER_HANDLER_TEMPLATE;
 import static org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkDirectory.SERVICE_PROVIDER_TEMPLATE;
@@ -92,8 +93,8 @@ public class ServiceProviderView extends SuspendableViewImpl implements ServiceP
     }
 
     @Override
-    public void update(final ModelNode serviceProvider) {
-        serviceProviderEditor.update(serviceProvider);
+    public void update(final ModelNode serviceProvider, final List<String> securityDomains) {
+        serviceProviderEditor.update(serviceProvider, securityDomains);
 
         if (serviceProvider.hasDefined("handler")) {
             handlerEditor.updateMaster(serviceProvider.get("handler").asPropertyList());

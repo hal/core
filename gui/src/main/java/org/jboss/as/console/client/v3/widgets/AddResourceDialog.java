@@ -35,14 +35,15 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder.FormItemFactory;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl
@@ -61,12 +62,7 @@ public class AddResourceDialog implements IsWidget {
     private final ResourceDescription resourceDescription;
     private final Callback callback;
     private ModelNodeForm form;
-    private List<NamedFactory> factories = new ArrayList<>();
-
-    public interface NamedFactory {
-        String getAttributeName();
-        ModelNodeFormBuilder.FormItemFactory getFactory();
-    }
+    private Map<String, FormItemFactory> factories = new LinkedHashMap<>();
 
     public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback) {
         this.securityContext = securityContext;
@@ -75,8 +71,8 @@ public class AddResourceDialog implements IsWidget {
     }
 
 
-    public AddResourceDialog addFactory(NamedFactory factory) {
-        factories.add(factory);
+    public AddResourceDialog addFactory(String attribute, FormItemFactory factory) {
+        factories.put(attribute, factory);
         return this;
     }
 
@@ -93,8 +89,8 @@ public class AddResourceDialog implements IsWidget {
                 .setRequiredOnly(true)
                 .setSecurityContext(securityContext);
 
-        for (NamedFactory factory : factories) {
-            builder.addFactory(factory.getAttributeName(), factory.getFactory());
+        for (Map.Entry<String, FormItemFactory> entry : factories.entrySet()) {
+            builder.addFactory(entry.getKey(), entry.getValue());
         }
 
         if(includes!=null)

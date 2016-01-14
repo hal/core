@@ -22,7 +22,8 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -35,7 +36,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -44,6 +44,7 @@ import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate.Callback;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -62,6 +63,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -86,7 +88,7 @@ public class FederationPresenter
     }
 
     public interface MyView extends View, HasPresenter<FederationPresenter> {
-        void update(ModelNode federation);
+        void update(ModelNode federation, List<String> securityDomains);
     }
     // @formatter:on
 
@@ -148,9 +150,13 @@ public class FederationPresenter
 
     private void readFederation() {
         if (federation != null) {
-            Operation operation = new Operation.Builder(READ_RESOURCE_OPERATION,
+            Operation fedOp = new Operation.Builder(READ_RESOURCE_OPERATION,
                     FEDERATION_TEMPLATE.resolve(statementContext, federation)).param(RECURSIVE, true).build();
-            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            Operation sdOp = new Operation.Builder(READ_CHILDREN_NAMES_OPERATION,
+                    AddressTemplate.of("{selected.profile}/subsystem=security").resolve(statementContext))
+                    .param(CHILD_TYPE, "security-domain")
+                    .build();
+            dispatcher.execute(new DMRAction(new Composite(fedOp, sdOp)), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(final DMRResponse dmrResponse) {
                     ModelNode response = dmrResponse.get();
@@ -158,9 +164,12 @@ public class FederationPresenter
                     if (response.isFailure()) {
                         Log.error("Failed to read federation " + federation, response.getFailureDescription());
                     } else {
-                        ModelNode modelNode = response.get(RESULT);
-                        identityProvider = modelNode.get("identity-provider").asProperty().getName();
-                        getView().update(modelNode);
+                        ModelNode fedNode = response.get(RESULT).get("step-1").get(RESULT);
+                        identityProvider = fedNode.get("identity-provider").asProperty().getName();
+                        List<ModelNode> sdNodes = response.get(RESULT).get("step-2").get(RESULT).asList();
+
+                        getView().update(fedNode, Ordering.natural().immutableSortedCopy(
+                                FluentIterable.from(sdNodes).transform(ModelNode::asString)));
                     }
                 }
             });
