@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # western
-array=( UIConstants_de.properties UIConstants_fr.properties UIConstants_es.properties UIConstants_pt_BR.properties \
-        UIMessages_de.properties UIMessages_fr.properties UIMessages_es.properties UIMessages_pt_BR.properties )
+array=( UIConstants_de.properties UIConstants_es.properties UIConstants_fr.properties UIConstants_pt_BR.properties \
+        UIMessages_de.properties UIMessages_es.properties UIMessages_fr.properties UIMessages_pt_BR.properties )
 for i in "${array[@]}"
 do
 	echo "src/main/java/org/jboss/as/console/client/core/$i"
