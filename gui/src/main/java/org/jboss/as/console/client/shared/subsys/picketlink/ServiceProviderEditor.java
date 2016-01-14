@@ -21,20 +21,20 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,6 +47,7 @@ class ServiceProviderEditor implements IsWidget {
     final StatementContext statementContext;
     final ResourceDescription resourceDescription;
 
+    ComboBoxItem securityDomains;
     ModelNodeFormBuilder.FormAssets formAssets;
 
     ServiceProviderEditor(final ServiceProviderPresenter presenter,
@@ -70,8 +71,12 @@ class ServiceProviderEditor implements IsWidget {
     }
 
     Widget formPanel() {
+        securityDomains = new ComboBoxItem("security-domain", "Security Domain");
+        securityDomains.setRequired(false);
+
         formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("security-domain", attributeDescription -> securityDomains)
                 .setResourceDescription(resourceDescription)
                 .setSecurityContext(securityContext).build();
         formAssets.getForm().setToolsCallback(new FormCallback() {
@@ -93,7 +98,8 @@ class ServiceProviderEditor implements IsWidget {
         return formPanel;
     }
 
-    void update(ModelNode serviceProvider) {
-        formAssets.getForm().edit(serviceProvider);
+    void update(ModelNode serviceProvider, final List<String> securityDomains) {
+        this.securityDomains.setValueMap(securityDomains);
+        this.formAssets.getForm().edit(serviceProvider);
     }
 }

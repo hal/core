@@ -22,6 +22,8 @@
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -61,6 +63,7 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -72,6 +75,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -113,6 +117,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     private final StatementContext statementContext;
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final CrudOperationDelegate crud;
+    private final List<String> securityDomains;
 
 
     // ------------------------------------------------------ presenter lifecycle
@@ -130,6 +135,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
         this.statementContext = statementContext;
         this.descriptionRegistry = descriptionRegistry;
         this.crud = new CrudOperationDelegate(statementContext, dispatcher);
+        this.securityDomains = new ArrayList<>();
     }
 
     @Override
@@ -180,10 +186,14 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     void launchAddFederationDialog() {
         ResourceDescription resourceDescription = StaticResourceDescription
                 .from(PICKET_LINK_RESOURCES.newFederationDescription());
+        ComboBoxItem securityDomains = new ComboBoxItem("security-domain", "Security Domain");
+        securityDomains.setRequired(true);
+        securityDomains.setValueMap(this.securityDomains);
 
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Federation"));
         ModelNodeFormBuilder.FormAssets assets = new ModelNodeFormBuilder()
                 .setResourceDescription(resourceDescription)
+                .addFactory("security-domain", attributeDescription -> securityDomains)
                 .setSecurityContext(securityContext)
                 .unsorted()
                 .build();
@@ -250,11 +260,15 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
 
     void readFederations() {
         ResourceAddress address = ROOT_TEMPLATE.resolve(statementContext);
-        Operation operation = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
+        Operation fedOp = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
                 .param(CHILD_TYPE, "federation")
                 .param("recursive-depth", 1)
                 .build();
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        Operation sdOp = new Operation.Builder(READ_CHILDREN_NAMES_OPERATION,
+                AddressTemplate.of("{selected.profile}/subsystem=security").resolve(statementContext))
+                .param(CHILD_TYPE, "security-domain")
+                .build();
+        dispatcher.execute(new DMRAction(new Composite(fedOp, sdOp)), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(final DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -263,7 +277,11 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
                     Log.error("Failed to load federations", response.getFailureDescription());
                     getView().updateFederations(Collections.<Property>emptyList());
                 } else {
-                    List<Property> federations = response.get(RESULT).asPropertyList();
+                    List<Property> federations = response.get(RESULT).get("step-1").get(RESULT).asPropertyList();
+                    List<ModelNode> sdNodes = response.get(RESULT).get("step-2").get(RESULT).asList();
+                    securityDomains.clear();
+                    securityDomains.addAll(Ordering.natural().immutableSortedCopy(
+                            FluentIterable.from(sdNodes).transform(ModelNode::asString)));
                     getView().updateFederations(federations);
                 }
             }
@@ -290,6 +308,10 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     // ------------------------------------------------------ crud service provider
 
     void launchAddServiceProviderDialog(final String federation) {
+        ComboBoxItem securityDomains = new ComboBoxItem("security-domain", "Security Domain");
+        securityDomains.setRequired(true);
+        securityDomains.setValueMap(this.securityDomains);
+
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Service Provider"));
         ResourceDescription resourceDescription = descriptionRegistry.lookup(SERVICE_PROVIDER_TEMPLATE);
         //noinspection Duplicates
@@ -322,7 +344,9 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
                     public void onCancel() {
                         dialog.hide();
                     }
-                }).include();
+                })
+                .addFactory("security-domain", attributeDescription -> securityDomains)
+                .include();
 
         dialog.setWidth(640);
         dialog.setHeight(480);
