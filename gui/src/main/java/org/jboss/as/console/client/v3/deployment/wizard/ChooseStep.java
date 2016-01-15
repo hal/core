@@ -88,7 +88,7 @@ public class ChooseStep extends WizardStep<Context, State> {
         LabelElement label = Browser.getDocument().createLabelElement();
         label.setHtmlFor(radioButton.getElement().getFirstChildElement().getId());
         label.getClassList().add("label-desc");
-        label.setInnerText(description);
+        label.setTextContent(description);
         radioButton.getElement().appendChild((Node)label);
     }
 

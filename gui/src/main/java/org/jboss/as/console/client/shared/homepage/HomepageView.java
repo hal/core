@@ -72,21 +72,21 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
         if (community) {
             header = new Elements.Builder()
                     .div().css("eap-home-title")
-                    .h(1).innerText("WildFly").end()
+                    .h(1).textContent("WildFly").end()
                     .end().build();
         } else {
             // @formatter:off
             Elements.Builder headerBuilder = new Elements.Builder()
                 .div().css("eap-home-title")
                     .p()
-                        .span().innerText(constants.homepage_new_to_eap() + " ").end()
+                        .span().textContent(constants.homepage_new_to_eap() + " ").end()
                         .a()
                             .css("clickable")
                             .rememberAs("tour")
-                            .innerText(constants.homepage_take_a_tour())
+                            .textContent(constants.homepage_take_a_tour())
                         .end()
                     .end()
-                    .h(1).innerText("Red Hat Jboss Enterprise Application Platform").end()
+                    .h(1).textContent("Red Hat Jboss Enterprise Application Platform").end()
                 .end();
             // @formatter:on
             wireTour(headerBuilder.referenceFor("tour"));
@@ -234,14 +234,14 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                 .end()
                 .div().css("eap-home-module-container")
                     .div().css("eap-home-module-header")
-                        .h(2).innerText(constants.homepage_help_need_help()).end()
+                        .h(2).textContent(constants.homepage_help_need_help()).end()
                     .end()
                     .div().css("eap-home-module-col")
-                        .p().innerText(constants.homepage_help_general_resources()).end()
+                        .p().textContent(constants.homepage_help_general_resources()).end()
                         .ul().rememberAs("generalResources").end()
                     .end()
                     .div().css("eap-home-module-col")
-                        .p().innerText(constants.homepage_help_get_help()).end()
+                        .p().textContent(constants.homepage_help_get_help()).end()
                         .ul().rememberAs("getHelp").end()
                     .end()
                 .end()
@@ -319,7 +319,7 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
     }
 
     private Element helpLink(final String href, final String text) {
-        return new Elements.Builder().li().a().attr("href", href).innerText(text).end().end().build();
+        return new Elements.Builder().li().a().attr("href", href).textContent(text).end().end().build();
     }
 
     native void wireTour(Element element) /*-{
