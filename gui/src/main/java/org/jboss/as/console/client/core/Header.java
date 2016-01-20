@@ -52,7 +52,6 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.bootstrap.cors.BootstrapServerSetup;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
-import org.jboss.as.console.client.csp.CustomerSupportLauncher;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
@@ -94,7 +93,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
-    private CustomerSupportLauncher cspLauncher;
     private SearchTool searchTool;
     private LayoutPanel bottom;
     private LayoutPanel outerLayout;
@@ -234,13 +232,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         Widget messageCenter = messageCenterView.asWidget();
         tools.add(messageCenter);
         messageCenter.getElement().getParentElement().addClassName("first");
-
-        // redhat support plugin
-        if (featureSet.isCSPEnabled()) {
-            this.cspLauncher = new CustomerSupportLauncher(placeManager);
-            tools.add(cspLauncher.asWidget());
-
-        }
 
         // global search
         if (featureSet.isSearchEnabled()) {
@@ -545,10 +536,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 }
             }
         }
-
-        if(cspLauncher!=null)
-            cspLauncher.highlight(name);
-
     }
 
     public void toggleNavigation(boolean enableApplicationView) {

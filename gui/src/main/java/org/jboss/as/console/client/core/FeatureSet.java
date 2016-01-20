@@ -33,7 +33,8 @@ public class FeatureSet {
     private final BootstrapContext bootstrapContext;
 
     @Inject
-    public FeatureSet(final ProductConfig productConfig, BootstrapContext bootstrapContext) {this.productConfig = productConfig;
+    public FeatureSet(final ProductConfig productConfig, BootstrapContext bootstrapContext) {
+        this.productConfig = productConfig;
         this.bootstrapContext = bootstrapContext;
     }
 
@@ -42,12 +43,7 @@ public class FeatureSet {
     }
 
     public boolean isProfileCloneEnabled() {
-
-        return bootstrapContext.getMajorVersion()>3;
-    }
-
-    public boolean isCSPEnabled() {
-        return productConfig.getProfile() == ProductConfig.Profile.PRODUCT;
+        return bootstrapContext.getMajorVersion() > 3;
     }
 
     public boolean hasDeploymentEnabledAttrs() {

@@ -75,8 +75,6 @@ import org.jboss.as.console.client.core.settings.SettingsPresenter;
 import org.jboss.as.console.client.core.settings.SettingsPresenterViewImpl;
 import org.jboss.as.console.client.core.settings.SettingsPresenterWidget;
 import org.jboss.as.console.client.core.settings.SettingsView;
-import org.jboss.as.console.client.csp.CSPPresenter;
-import org.jboss.as.console.client.csp.CSPView;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupView;
 import org.jboss.as.console.client.domain.hosts.ColumnHostView;
@@ -702,11 +700,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 NoServerPresenter.MyView.class,
                 NoServerView.class,
                 NoServerPresenter.MyProxy.class);
-
-        bindPresenter(CSPPresenter.class,
-                CSPPresenter.MyView.class,
-                CSPView.class,
-                CSPPresenter.MyProxy.class);
 
         bindPresenter(HttpPresenter.class,
                 HttpPresenter.MyView.class,

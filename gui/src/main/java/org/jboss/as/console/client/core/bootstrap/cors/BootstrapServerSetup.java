@@ -154,14 +154,12 @@ public class BootstrapServerSetup {
         String domainApi = localBaseUrl + "management";
         String uploadApi = localBaseUrl + "management-upload";
         String logoutApi = localBaseUrl + "logout";
-        String cspApi = context.isSameOrigin() ? localBaseUrl + "console/csp" : getBaseUrl() + "/csp";
         String guidedTourApi = context.isSameOrigin() ? localBaseUrl + "console/tour" : getBaseUrl() + "/tour";
 
         System.out.println("Domain API Endpoint: " + domainApi);
         context.setProperty(DOMAIN_API, domainApi);
         context.setProperty(UPLOAD_API, uploadApi);
         context.setProperty(LOGOUT_API, logoutApi);
-        context.setProperty(CSP_API, cspApi);
         context.setProperty(GUIDED_TOUR, guidedTourApi);
     }
 

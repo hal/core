@@ -97,12 +97,6 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.hal</groupId>
-            <artifactId>redhat-support-plugin</artifactId>
-            <classifier>resources</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.hal</groupId>
             <artifactId>hal-guided-tour</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -192,12 +186,6 @@
                                 <groupId>org.jboss.as</groupId>
                                 <artifactId>jboss-as-console-resources</artifactId>
                                 <type>war</type>
-                            </overlay>
-                            <overlay>
-                                <groupId>org.jboss.hal</groupId>
-                                <artifactId>redhat-support-plugin</artifactId>
-                                <type>jar</type>
-                                <classifier>resources</classifier>
                             </overlay>
                             <overlay>
                                 <groupId>org.jboss.hal</groupId>
