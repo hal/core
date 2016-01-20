@@ -47,7 +47,6 @@ import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.core.settings.ModelVersions;
 import org.jboss.as.console.client.core.settings.SettingsPresenter;
 import org.jboss.as.console.client.core.settings.SettingsPresenterWidget;
-import org.jboss.as.console.client.csp.CSPPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
@@ -129,8 +128,8 @@ import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
-import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
 import org.jboss.as.console.client.shared.subsys.picketlink.FederationPresenter;
+import org.jboss.as.console.client.shared.subsys.picketlink.PicketLinkFinder;
 import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
@@ -383,8 +382,6 @@ public interface CoreUI {
     AsyncProvider<DeploymentScannerPresenter> getDeploymentScannerPresenter();
 
     Dispatcher getCircuitDispatcher();
-
-    AsyncProvider<CSPPresenter> getCSPPresenter();
 
     CoreGUIContext getCoreGUIContext();
 
