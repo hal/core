@@ -20,6 +20,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -498,10 +499,10 @@ public class FinderColumn<T> implements SecurityContextAware {
         final MenuBar popupMenuBar = new MenuBar(true);
         popupMenuBar.setStyleName("dropdown-menu");
 
-        int i=0;
+        int numerOfElements=0;
         for (final MenuDelegate menuitem : accessibleMenuItems) {
 
-            if(i>0) {     // skip the "default" action
+            if(numerOfElements>0) {     // skip the "default" action
                 MenuItem cmd = new MenuItem(menuitem.render(object), true, new Command() {
 
                     @Override
@@ -520,17 +521,26 @@ public class FinderColumn<T> implements SecurityContextAware {
 
                 popupMenuBar.addItem(cmd);
             }
-            i++;
+            numerOfElements++;
         }
 
         popupMenuBar.setVisible(true);
-
-
         popupPanel.setWidget(popupMenuBar);
-        int left = anchor.getAbsoluteLeft()+5;
-        int top = anchor.getAbsoluteTop() + 22;
 
-        popupPanel.setPopupPosition(left, top);
+        // the last items in column may exceed window height
+        boolean exceedsWindowHeight = (anchor.getAbsoluteTop()+(numerOfElements*27)) > Window.getClientHeight();
+
+        if(!exceedsWindowHeight) {
+            int left = anchor.getAbsoluteLeft() + 5;
+            int top = anchor.getAbsoluteTop() + 22;
+            popupPanel.setPopupPosition(left, top);
+        }
+        else {
+            int left = anchor.getAbsoluteLeft() + 5;
+            int top = anchor.getAbsoluteTop() - (numerOfElements*27)- 5;
+            popupPanel.setPopupPosition(left, top);
+        }
+
         popupPanel.setAutoHideEnabled(true);
         if(tooltip!=null) tooltip.cancel();
         popupPanel.show();
