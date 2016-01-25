@@ -97,6 +97,8 @@ public class ColumnProfileView extends SuspendableViewImpl
     private LayoutPanel contentCanvas;
     private ProfileMgmtPresenter presenter;
 
+    private boolean locked = false;
+
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
@@ -561,16 +563,17 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     @Override
     public void setInSlot(Object slot, IsWidget content) {
-
+        this.locked = true;
         if (slot == ProfileMgmtPresenter.TYPE_MainContent) {
             if(content!=null) {
                 Widget w = content.asWidget();
-                w.getElement().setAttribute("presenter-view", "true");
+                contentCanvas.getElement().setAttribute("presenter-view", "true");
                 setContent(w);
             }
             else
                 contentCanvas.clear();
         }
+        this.locked = false;
     }
 
     private void setContent(IsWidget newContent) {
@@ -741,13 +744,17 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     @Override
     public void setPreview(final SafeHtml html) {
+
+        if(locked) return;
+
         if (
-                (contentCanvas.getWidgetCount()>0  && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view"))
+                (contentCanvas.getWidgetCount()>0  && !contentCanvas.getElement().hasAttribute("presenter-view"))
                         || (contentCanvas.getWidgetCount() ==0)
                 ) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));
+                contentCanvas.getElement().removeAttribute("presenter-view");
             });
         }
     }

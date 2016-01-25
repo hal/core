@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -25,6 +26,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
@@ -64,6 +66,8 @@ public class ColumnHostView extends SuspendableViewImpl
     private HostMgmtPresenter presenter;
 
     private ColumnManager columnManager;
+
+    private boolean locked;
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\" title='{1}'>{1}</div>")
@@ -576,15 +580,16 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void setInSlot(Object slot, IsWidget content) {
+        this.locked = true;
         if (slot == HostMgmtPresenter.TYPE_MainContent) {
             if(content!=null) {
-                Widget w = content.asWidget();
-                w.getElement().setAttribute("presenter-view", "true");
-                setContent(w);
+                contentCanvas.getElement().setAttribute("presenter-view", "true");
+                setContent(content);
             }
             else
                 contentCanvas.clear();
         }
+        this.locked = false;
     }
 
     private void setContent(IsWidget newContent) {
@@ -623,13 +628,16 @@ public class ColumnHostView extends SuspendableViewImpl
     @Override
     public void preview(SafeHtml html) {
 
+        if(locked) return;
+
         if (
-                (contentCanvas.getWidgetCount()>0  && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view"))
-                    || (contentCanvas.getWidgetCount() ==0)
+                (contentCanvas.getWidgetCount()>0  && !(contentCanvas.getElement().hasAttribute("presenter-view")))
+                    || (contentCanvas.getWidgetCount()==0)
                 ) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));
+                contentCanvas.getElement().removeAttribute("presenter-view");
             });
         }
     }
