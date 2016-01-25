@@ -58,6 +58,12 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
         void updateParticpantsFrom(List<TXParticipant> records);
     }
 
+    private static final String ACTION = "action";
+    private static final String RELOAD = "reload";
+    private static final String DELETE = "delete";
+    private static final String REFRESH = "refresh";
+    private static final String RECOVER = "recover";
+    private static final String PROBE = "probe";
 
     private DispatchAsync dispatcher;
     private EntityAdapter<TXRecord> entityAdapter;
@@ -91,7 +97,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
             @Override
             public void execute() {
                 getView().clear();
-                refresh();
+                refresh(ACTION);
             }
         });
     }
@@ -99,7 +105,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
     @Override
     protected void onReset() {
         super.onReset();
-        refresh();
+        refresh(RELOAD);
     }
 
     @Override
@@ -107,7 +113,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
         revealStrategy.revealInRuntimeParent(this);
     }
 
-    public void refresh() {
+    public void refresh(String type) {
 
         // clear at first
         getView().clear();
@@ -149,7 +155,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
-                            onProbe(false);
+                            Console.info(Console.MESSAGES.successful(type + " operation"));
                         }
                     });
                 }
@@ -210,7 +216,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(address);
-        operation.get(OP).set("delete");
+        operation.get(OP).set(DELETE);
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
@@ -223,7 +229,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
-                    refresh();
+                    refresh(DELETE);
                 }
 
             }
@@ -240,7 +246,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(address);
-        operation.get(OP).set("refresh");
+        operation.get(OP).set(REFRESH);
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
@@ -253,7 +259,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
-                    refresh();
+                    refresh(REFRESH);
                 }
             }
         });
@@ -268,7 +274,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(address);
-        operation.get(OP).set("recover");
+        operation.get(OP).set(RECOVER);
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
@@ -281,20 +287,20 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
-                    refresh();
+                    refresh(RECOVER);
                 }
             }
         });
     }
 
-    public void onProbe(final boolean refresh) {
+    public void onProbe() {
         ModelNode address = RuntimeBaseAddress.get();
         address.add("subsystem","transactions");
         address.add("log-store","log-store");
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(address);
-        operation.get(OP).set("probe");
+        operation.get(OP).set(PROBE);
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
@@ -307,9 +313,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
-                    Console.info(Console.MESSAGES.successful("Probe operation"));
-                    if(refresh)
-                        refresh();
+                    refresh(PROBE);
                 }
             }
         });
