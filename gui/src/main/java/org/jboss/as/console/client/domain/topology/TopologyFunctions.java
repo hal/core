@@ -321,4 +321,71 @@ public final class TopologyFunctions {
             }
         }
     }
+
+    public static class EffectivePortOffset implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+
+        public EffectivePortOffset(final DispatchAsync dispatcher) {
+            this.dispatcher = dispatcher;
+        }
+
+        @Override
+        public void execute(Control<FunctionContext> control) {
+            final ModelNode node = new ModelNode();
+            node.get(ADDRESS).setEmptyList();
+            node.get(OP).set(COMPOSITE);
+            List<ModelNode> steps = new LinkedList<>();
+
+            int step = 1;
+            final Map<String, ServerInstance> stepToServer = new HashMap<>();
+            final Map<String, HostInfo> stepToHost = new HashMap<>();
+            final List<HostInfo> hosts = control.getContext().get(HOSTS_KEY);
+            for (HostInfo hostInfo : hosts) {
+                for (ServerInstance serverInstance : hostInfo.getServerInstances()) {
+                    if (serverInstance.isRunning() && !serverInstance.getSocketBindings().isEmpty()) {
+                        String socketBindingGroup = serverInstance.getSocketBindings().keySet().iterator().next();
+                        ModelNode portOffsetOp = new ModelNode();
+                        portOffsetOp.get(OP).set(READ_RESOURCE_OPERATION);
+                        portOffsetOp.get(ADDRESS).add("host", hostInfo.getName());
+                        portOffsetOp.get(ADDRESS).add("server", serverInstance.getName());
+                        portOffsetOp.get(ADDRESS).add("socket-binding-group", socketBindingGroup);
+
+                        steps.add(portOffsetOp);
+                        String stepKey = "step-" + step;
+                        stepToHost.put(stepKey, hostInfo);
+                        stepToServer.put(stepKey, serverInstance);
+                        step++;
+                    }
+                }
+            }
+
+
+            node.get(STEPS).set(steps);
+            dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
+                @Override
+                public void onSuccess(final ModelNode response) {
+                    ModelNode result = response.get(RESULT);
+                    if (result.isDefined()) {
+                        for (String stepKey : result.keys()) {
+                            ModelNode stepResult = result.get(stepKey).get(RESULT);
+
+                            if (!stepResult.isDefined() || !stepResult.hasDefined("port-offset"))
+                                continue;
+
+                            String portOffset = stepResult.get("port-offset").asString();
+                            ServerInstance stepServer = stepToServer.get(stepKey);
+                            HostInfo hostInfo = stepToHost.get(stepKey);
+                            for (Server server : hostInfo.getServerConfigs()) {
+                                if (server.getName().equals(stepServer.getName())) {
+                                    server.setEffectivePortOffset(portOffset);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
 }

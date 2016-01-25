@@ -103,6 +103,7 @@ public interface UIConstants extends Constants {
     String common_label_disable();
     String common_label_done();
     String common_label_edit();
+    String common_label_effectivePortOffset();
     String common_label_enable();
     String common_label_enOrDisable();
     String common_label_exclude();
