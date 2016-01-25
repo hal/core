@@ -40,6 +40,7 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
+    private final DispatchAsync dispatcher;
 
     private Widget subsysColWidget;
     private Widget statusColWidget;
@@ -96,10 +98,11 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private static final SubsystemTemplate SUBSYSTEM_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
     @Inject
-    public DomainRuntimeView(final PlaceManager placeManager) {
+    public DomainRuntimeView(final PlaceManager placeManager, DispatchAsync dispatcher) {
         super();
 
         this.placeManager = placeManager;
+        this.dispatcher = dispatcher;
         contentCanvas = new LayoutPanel();
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
@@ -308,6 +311,13 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     PreviewState.warn(html, "Server needs to be restarted");
                 } else if (data.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
+                } else if (data.getServerState() == SrvState.RUNNING) {
+                    String id = "port-offset-" + data.getGroup() + "-" + data.getName();
+                    html.appendHtmlConstant("<p>")
+                            .appendEscaped("Port offset: ")
+                            .appendHtmlConstant("<span id=\"" + id + "\">").appendHtmlConstant("</span>")
+                            .appendHtmlConstant("</p>");
+                    new ReadPortOffsetOp(dispatcher).execute(data, id);
                 }
 
                 html.appendHtmlConstant("</div>");
