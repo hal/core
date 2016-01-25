@@ -86,7 +86,7 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                             .textContent(constants.homepage_take_a_tour())
                         .end()
                     .end()
-                    .h(1).textContent("Red Hat Jboss Enterprise Application Platform").end()
+                    .h(1).textContent("Red Hat JBoss Enterprise Application Platform").end()
                 .end();
             // @formatter:on
             wireTour(headerBuilder.referenceFor("tour"));
