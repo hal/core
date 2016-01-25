@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -15,7 +14,6 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
@@ -59,10 +57,15 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
 
     public interface MyView extends View {
+
         void setPresenter(DataSourceMetricPresenter presenter);
+
         void clearSamples();
+
         void setDatasources(List<DataSource> datasources, boolean isXA);
+
         void setDSPoolMetric(Metric poolMetric, boolean isXA);
+
         void setDSCacheMetric(Metric metric, boolean isXA);
     }
 
@@ -82,7 +85,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     @Inject
     public DataSourceMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,  DispatchAsync dispatcher, Dispatcher circuit,
+            PlaceManager placeManager, DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
             ServerStore serverStore, BeanFactory factory) {
         super(eventBus, view, proxy, circuit);
@@ -147,7 +150,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                if(isVisible()) refreshDatasources();
+                if (isVisible()) { refreshDatasources(); }
             }
         });
     }
@@ -165,22 +168,18 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
     public void setSelectedDS(DataSource currentSelection, boolean xa) {
 
-        if(!currentSelection.isEnabled())
-        {
+        if (!currentSelection.isEnabled()) {
             Console.error(Console.MESSAGES.subsys_jca_err_ds_notEnabled(currentSelection.getName()));
             getView().clearSamples();
             return;
         }
 
-        if(xa) {
+        if (xa) {
             this.selectedXA = currentSelection;
-            if(selectedXA!=null)
-                loadMetrics(true);
-        }
-        else {
+            if (selectedXA != null) { loadMetrics(true); }
+        } else {
             this.selectedDS = currentSelection;
-            if(selectedDS!=null)
-                loadMetrics(false);
+            if (selectedDS != null) { loadMetrics(false); }
         }
     }
 
@@ -192,12 +191,11 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     private void loadDSPoolMetrics(final boolean isXA) {
 
         DataSource target = isXA ? selectedXA : selectedDS;
-        if(null==target)
-            throw new RuntimeException("DataSource selection is null!");
+        if (null == target) { throw new RuntimeException("DataSource selection is null!"); }
 
         getView().clearSamples();
 
-        String subresource = isXA ? "xa-data-source": "data-source";
+        String subresource = isXA ? "xa-data-source" : "data-source";
         String name = target.getName();
 
         ModelNode operation = new ModelNode();
@@ -214,12 +212,9 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("Datasource Metrics"), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     ModelNode result = response.get(RESULT).asObject();
 
                     long avail = result.get("AvailableCount").asLong();
@@ -227,7 +222,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                     long max = result.get("MaxUsedCount").asLong();
 
                     Metric poolMetric = new Metric(
-                            avail,active,max
+                            avail, active, max
                     );
 
                     getView().setDSPoolMetric(poolMetric, isXA);
@@ -239,12 +234,11 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     private void loadDSCacheMetrics(final boolean isXA) {
 
         DataSource target = isXA ? selectedXA : selectedDS;
-        if(null==target)
-            throw new RuntimeException("DataSource selection is null!");
+        if (null == target) { throw new RuntimeException("DataSource selection is null!"); }
 
         getView().clearSamples();
 
-        String subresource = isXA ? "xa-data-source": "data-source";
+        String subresource = isXA ? "xa-data-source" : "data-source";
         String name = target.getName();
 
         ModelNode operation = new ModelNode();
@@ -261,12 +255,9 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("Datasource Metrics"), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     ModelNode result = response.get(RESULT).asObject();
 
                     long size = result.get("PreparedStatementCacheAccessCount").asLong();
@@ -274,7 +265,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                     long miss = result.get("PreparedStatementCacheMissCount").asLong();
 
                     Metric metric = new Metric(
-                            size,hit,miss
+                            size, hit, miss
                     );
 
                     getView().setDSCacheMetric(metric, isXA);
@@ -284,7 +275,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     }
 
     public void verifyConnection(final String dsName, boolean isXA) {
-        String subresource = isXA ? "xa-data-source": "data-source";
+        String subresource = isXA ? "xa-data-source" : "data-source";
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
@@ -305,11 +296,11 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                 ResponseWrapper<Boolean> wrapped = new ResponseWrapper<Boolean>(!result.isFailure(), result);
 
                 if (wrapped.getUnderlying()) {
-                    verifyResult = new VerifyResult(true,
+                    verifyResult = new VerifyResult(true, false,
                             Console.MESSAGES.verify_datasource_successful_message(dsName));
                 } else {
-                    verifyResult = new VerifyResult(false, Console.MESSAGES.verify_datasource_failed_message(dsName),
-                            result.getFailureDescription());
+                    verifyResult = new VerifyResult(false, false,
+                            Console.MESSAGES.verify_datasource_failed_message(dsName), result.getFailureDescription());
                 }
                 show(verifyResult);
             }
@@ -323,7 +314,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     public void flush(final String dsName, final String flushOp, boolean isXA) {
 
 
-        String subresource = isXA ? "xa-data-source": "data-source";
+        String subresource = isXA ? "xa-data-source" : "data-source";
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
@@ -336,13 +327,10 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed(
                             Console.MESSAGES.flushConnectionsError(dsName)), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Log.info("Successfully executed flush operation ':" + flushOp + "'");
                     Console.info(Console.MESSAGES.successful(
                             Console.MESSAGES.flushConnectionsSuccess(dsName)));

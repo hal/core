@@ -47,6 +47,9 @@ import java.util.List;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * Please note that in domain mode if the datasource is created in order to verify it, you need to remove it by your
+ * own! So please clean up after yourself.
+ *
  * @author Harald Pehl
  */
 public class VerifyConnectionOp {
@@ -54,25 +57,32 @@ public class VerifyConnectionOp {
     public static class VerifyResult {
 
         private final boolean successful;
+        private final boolean created;
         private final String message;
         private final String details;
 
         public VerifyResult(Throwable failure) {
-            this(false, Console.CONSTANTS.verify_datasource_internal_error(), failure.getMessage());
+            this(false, false, Console.CONSTANTS.verify_datasource_internal_error(), failure.getMessage());
         }
 
-        public VerifyResult(final boolean successful, final String message) {
-            this(successful, message, null);
+        public VerifyResult(final boolean successful, final boolean created, final String message) {
+            this(successful, created, message, null);
         }
 
-        public VerifyResult(final boolean successful, final String message, final String details) {
+        public VerifyResult(final boolean successful, final boolean created, final String message,
+                final String details) {
             this.successful = successful;
+            this.created = created;
             this.message = message;
             this.details = details;
         }
 
         public boolean wasSuccessful() {
             return successful;
+        }
+
+        public boolean wasCreated() {
+            return created;
         }
 
         public String getMessage() {
@@ -118,12 +128,13 @@ public class VerifyConnectionOp {
                 public void onSuccess(final ResponseWrapper<Boolean> result) {
                     if (result.getUnderlying()) {
                         control.getContext()
-                                .push(new VerifyResult(true, Console.MESSAGES.verify_datasource_successful_message(
-                                        dataSource.getName())));
+                                .push(new VerifyResult(true, wasCreated(control.getContext()),
+                                        Console.MESSAGES.verify_datasource_successful_message(dataSource.getName())));
                     } else {
                         control.getContext()
-                                .push(new VerifyResult(false, Console.MESSAGES.verify_datasource_failed_message(
-                                        dataSource.getName()), result.getResponse().toString()));
+                                .push(new VerifyResult(false, wasCreated(control.getContext()),
+                                        Console.MESSAGES.verify_datasource_failed_message(dataSource.getName()),
+                                        result.getResponse().toString()));
                     }
                     control.proceed();
                 }
@@ -182,8 +193,9 @@ public class VerifyConnectionOp {
                     ModelNode result = response.get();
                     if (!result.hasDefined(OUTCOME) || result.isFailure()) {
                         control.getContext()
-                                .push(new VerifyResult(false, Console.MESSAGES.verify_datasource_failed_message(
-                                        dataSource.getName()), result.toString()));
+                                .push(new VerifyResult(false, wasCreated(control.getContext()),
+                                        Console.MESSAGES.verify_datasource_failed_message(dataSource.getName()),
+                                        result.toString()));
                         if (existing) {
                             control.abort();
                         } else {
@@ -191,8 +203,8 @@ public class VerifyConnectionOp {
                         }
                     } else {
                         control.getContext()
-                                .push(new VerifyResult(true, Console.MESSAGES.verify_datasource_successful_message(
-                                        dataSource.getName())));
+                                .push(new VerifyResult(true, wasCreated(control.getContext()),
+                                        Console.MESSAGES.verify_datasource_successful_message(dataSource.getName())));
                         control.proceed();
                     }
                 }
@@ -248,7 +260,8 @@ public class VerifyConnectionOp {
                 control.proceed();
             } else {
                 control.getContext()
-                        .push(new VerifyResult(false, Console.CONSTANTS.verify_datasource_no_running_servers()));
+                        .push(new VerifyResult(false, wasCreated(control.getContext()),
+                                Console.CONSTANTS.verify_datasource_no_running_servers()));
                 control.abort();
             }
         }
@@ -267,6 +280,7 @@ public class VerifyConnectionOp {
 
         @Override
         public void execute(final Control<FunctionContext> control) {
+
             if ("".equals(dataSource.getUsername())) { dataSource.setUsername(null); }
             if ("".equals(dataSource.getPassword())) { dataSource.setPassword(null); }
             if ("".equals(dataSource.getSecurityDomain())) { dataSource.setSecurityDomain(null); }
@@ -282,10 +296,12 @@ public class VerifyConnectionOp {
                 @Override
                 public void onSuccess(ResponseWrapper<Boolean> result) {
                     if (result.getUnderlying()) {
+                        control.getContext().set(CREATED_KEY, true);
                         control.proceed();
                     } else {
                         control.getContext()
-                                .push(new VerifyResult(false, Console.CONSTANTS.verify_datasource_dependent_error(),
+                                .push(new VerifyResult(false, false,
+                                        Console.CONSTANTS.verify_datasource_dependent_error(),
                                         Console.MESSAGES.addingFailed("Datasource " + dataSource.getName())));
                         control.abort();
                     }
@@ -300,44 +316,11 @@ public class VerifyConnectionOp {
     }
 
 
-    private class RemoveFunction implements Function<FunctionContext> {
+    private static final String CREATED_KEY = "org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.created";
 
-        private final DataSource dataSource;
-        private final boolean xa;
-
-        public RemoveFunction(final DataSource dataSource, final boolean xa) {
-            this.dataSource = dataSource;
-            this.xa = xa;
-        }
-
-        @Override
-        public void execute(final Control<FunctionContext> control) {
-            AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
-                @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().push(new VerifyResult(caught));
-                    control.abort();
-                }
-
-                @Override
-                public void onSuccess(final Boolean result) {
-                    if (result) {
-                        control.proceed();
-                    } else {
-                        control.getContext()
-                                .push(new VerifyResult(false, Console.CONSTANTS.verify_datasource_dependent_error(),
-                                        Console.MESSAGES.deletionFailed("Datasource " + dataSource.getName())));
-                    }
-                }
-            };
-            if (xa) {
-                dataSourceStore.deleteXADataSource((XADataSource) dataSource, callback);
-            } else {
-                dataSourceStore.deleteDataSource(dataSource, callback);
-            }
-        }
+    private static boolean wasCreated(FunctionContext context) {
+        return context.get(CREATED_KEY) != null && context.<Boolean>get(CREATED_KEY);
     }
-
 
     private final DataSourceStore dataSourceStore;
     private final DispatchAsync dispatcher;
@@ -360,7 +343,7 @@ public class VerifyConnectionOp {
 
         if (existing && !dataSource.isEnabled()) {
             // Verifying makes only sense for enabled datasources!
-            callback.onSuccess(new VerifyResult(false, Console.CONSTANTS.verify_datasource_disabled()));
+            callback.onSuccess(new VerifyResult(false, false, Console.CONSTANTS.verify_datasource_disabled()));
         } else {
             // Setup a list of functions depending on the operation mode and existence of the datasource
             List<Function<FunctionContext>> functions = new LinkedList<Function<FunctionContext>>();
@@ -369,10 +352,9 @@ public class VerifyConnectionOp {
                     // that's the easiest case - just verify the existing datasource
                     functions.add(new VerifyStandaloneFunction(dataSource, xa, true));
                 } else {
-                    // create - verify - remove
+                    // create and verify
                     functions.add(new CreateFunction(dataSource, xa));
                     functions.add(new VerifyStandaloneFunction(dataSource, xa, false));
-                    functions.add(new RemoveFunction(dataSource, xa));
                 }
             } else {
                 // in domain mode verifying a datasource requires a running server
@@ -383,10 +365,9 @@ public class VerifyConnectionOp {
                 if (existing) {
                     functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, true));
                 } else {
-                    // create - verify - remove
+                    // create and verify
                     functions.add(new CreateFunction(dataSource, xa));
                     functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, false));
-                    functions.add(new RemoveFunction(dataSource, xa));
                 }
             }
 

@@ -23,13 +23,11 @@ package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.as.console.client.widgets.forms.items.NonRequiredTextBoxItem;
-import org.jboss.ballroom.client.widgets.forms.ButtonItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
@@ -58,18 +56,10 @@ public class ConnectionStep<T extends DataSource> extends WizardStep<Context<T>,
         }};
         NonRequiredTextBoxItem domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
 
-        ButtonItem testBtn = new ButtonItem("testConnection", "", Console.CONSTANTS.subsys_jca_dataSource_verify());
-        testBtn.addClickHandler(clickEvent -> {
-            FormValidation validation = form.validate();
-            if (!validation.hasErrors()) {
-                wizard.verifyConnection(form.getUpdatedEntity(), context.xa, false);
-            }
-        });
-
         if (context.xa) {
-            form.setFields(user, pass, domain, testBtn);
+            form.setFields(user, pass, domain);
         } else {
-            form.setFields(connectionUrl, user, pass, domain, testBtn);
+            form.setFields(connectionUrl, user, pass, domain);
         }
 
         FlowPanel body = new FlowPanel();

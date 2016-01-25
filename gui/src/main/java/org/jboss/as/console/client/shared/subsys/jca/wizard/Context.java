@@ -44,6 +44,7 @@ class Context<T extends DataSource> {
     final FormHelpPanel.AddressCallback jdbcDriverHelp;
     DataSourceTemplate<T> selectedTemplate;
     JDBCDriver driver;
+    boolean dataSourceCreatedByTest;
 
     Context(BeanFactory beanFactory, boolean standalone, boolean xa) {
         this.beanFactory = beanFactory;
@@ -61,6 +62,7 @@ class Context<T extends DataSource> {
             address.add("jdbc-driver", "*");
             return address;
         };
+        this.dataSourceCreatedByTest = false;
     }
 
     void start() {

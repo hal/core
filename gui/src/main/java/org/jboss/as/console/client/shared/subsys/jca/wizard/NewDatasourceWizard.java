@@ -21,12 +21,19 @@
  */
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.v3.widgets.wizard.Wizard;
@@ -37,15 +44,41 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.as.console.client.shared.subsys.jca.wizard.State.*;
+import static org.jboss.ballroom.client.widgets.forms.FormItem.VALUE_SEMANTICS.UNDEFINED;
 
 /**
  * @author Harald Pehl
  */
 public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>, State> {
 
+    static class ModifyAfterTestCallback implements AsyncCallback<ResponseWrapper<Boolean>> {
+
+        private final String dataSource;
+
+        ModifyAfterTestCallback(final String dataSource) {this.dataSource = dataSource;}
+
+        @Override
+        public void onFailure(final Throwable throwable) {
+            Log.error(
+                    "Unable to modify datasource " + dataSource + " after it was created by 'Test connection' button: " + throwable
+                            .getMessage());
+        }
+
+        @Override
+        public void onSuccess(final ResponseWrapper<Boolean> booleanResponseWrapper) {
+            if (!booleanResponseWrapper.getUnderlying()) {
+                Log.error(
+                        "Unable to modify datasource " + dataSource + " after it was created by 'Test connection' button");
+            }
+        }
+    }
+
+
     private final DataSourceFinder presenter;
+    private final DataSourceStore dataSourceStore;
 
     public NewDatasourceWizard(final DataSourceFinder presenter,
+            final DataSourceStore dataSourceStore,
             final BootstrapContext bootstrapContext,
             final BeanFactory beanFactory,
             final DataSourceTemplates templates,
@@ -55,6 +88,7 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         super(xa ? "new_xa_datasource" : "new_datasource",
                 new Context<>(beanFactory, bootstrapContext.isStandalone(), xa));
         this.presenter = presenter;
+        this.dataSourceStore = dataSourceStore;
 
         addStep(CHOOSE_TEMPLATE, new ChooseTemplateStep<>(this, templates));
         addStep(NAMES, new NamesStep<>(this, existingDataSources, xa ?
@@ -67,6 +101,7 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         addStep(CONNECTION, new ConnectionStep<>(this, xa ?
                 Console.CONSTANTS.subsys_jca_xadataSource_step4() :
                 Console.CONSTANTS.subsys_jca_dataSource_step3()));
+        addStep(TEST, new TestConnectionStep<>(this));
     }
 
     @Override
@@ -87,6 +122,8 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
             case CONNECTION:
                 previous = context.xa ? PROPERTIES : DRIVER;
                 break;
+            case TEST:
+                previous = CONNECTION;
         }
         return previous;
     }
@@ -108,6 +145,9 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
                 next = CONNECTION;
                 break;
             case CONNECTION:
+                next = TEST;
+                break;
+            case TEST:
                 break;
         }
         return next;
@@ -119,6 +159,9 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         if (dataSource.getPoolName() == null || dataSource.getPoolName().length() == 0) {
             context.dataSource().setPoolName(dataSource.getName() + "_Pool");
         }
+
+        // Modifying basic attributes like name and/or JNDI bindings after the DS was created by 'Test connection' is
+        // not supported!
     }
 
     void applyDriver(JDBCDriver driver) {
@@ -129,6 +172,14 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         context.dataSource().setDriverClass(driver.getDriverClass());
         context.dataSource().setMajorVersion(driver.getMajorVersion());
         context.dataSource().setMinorVersion(driver.getMinorVersion());
+
+        if (context.dataSourceCreatedByTest) {
+            ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder();
+            recordChange(builder, "driverName", driver.getName());
+            recordChange(builder, "majorVersion", driver.getMajorVersion());
+            recordChange(builder, "minorVersion", driver.getMinorVersion());
+            modifyAfterTest(context.dataSource().getName(), builder.build());
+        }
     }
 
     void applyProperties(final List<PropertyRecord> properties) {
@@ -137,24 +188,65 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         }
         context.asXADataSource().getProperties().clear();
         context.asXADataSource().getProperties().addAll(ensureUniqueProperty(properties));
-    }
 
-    void verifyConnection(final T connection, final boolean xa, final boolean existing) {
-        mergeAttributes(connection);
-        presenter.verifyConnection(context.dataSource(), xa, existing);
+        // Modifying properties after the DS was created by 'Test connection' is not supported!
+        // It's considered as an edge case which does not justify the effort to calculate new, modified or removed
+        // properties and build the related DMR operations.
     }
 
     void applyConnection(final T connection) {
         mergeAttributes(connection);
+
+        if (context.dataSourceCreatedByTest) {
+            ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder();
+            if (!context.xa) {
+                recordChange(builder, "connectionUrl", connection.getConnectionUrl());
+            }
+            recordChange(builder, "username", connection.getUsername());
+            recordChange(builder, "password", connection.getPassword());
+            if (connection.getSecurityDomain() != null) {
+                recordChange(builder, "securityDomain", connection.getSecurityDomain());
+            }
+            modifyAfterTest(context.dataSource().getName(), builder.build());
+
+        }
+    }
+
+    void verifyConnection(Scheduler.ScheduledCommand onCreated) {
+        presenter.verifyConnection(context.dataSource(), context.xa, context.dataSourceCreatedByTest, onCreated);
     }
 
     @Override
     protected void finish() {
         super.finish();
         if (context.xa) {
-            presenter.onCreateXADatasource(context.asXADataSource());
+            presenter.onCreateXADatasource(context.asXADataSource(), context.dataSourceCreatedByTest);
         } else {
-            presenter.onCreateDatasource(context.dataSource());
+            presenter.onCreateDatasource(context.dataSource(), context.dataSourceCreatedByTest);
+        }
+    }
+
+    @Override
+    protected void cancel() {
+        super.cancel();
+        if (context.dataSourceCreatedByTest) {
+            // cleanup
+            AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    Console.error(Console.CONSTANTS.cannotRemoveDataSourceAfterTest(), throwable.getMessage());
+                }
+
+                @Override
+                public void onSuccess(final Boolean aBoolean) {
+
+                }
+            };
+            if (context.xa) {
+                dataSourceStore.deleteXADataSource(context.asXADataSource(), callback);
+            } else {
+                dataSourceStore.deleteDataSource(context.dataSource(), callback);
+            }
         }
     }
 
@@ -189,6 +281,34 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         context.dataSource().setUsername(connection.getUsername());
         context.dataSource().setPassword(connection.getPassword());
         context.dataSource().setSecurityDomain(connection.getSecurityDomain());
+    }
+
+    private void recordChange(final ImmutableMap.Builder<String, Object> builder, final String name,
+            final Object value) {
+        if (value instanceof String) {
+            if (Strings.emptyToNull((String) value) == null) {
+                builder.put(name, UNDEFINED);
+            } else {
+                builder.put(name, value);
+            }
+        } else {
+            if (value == null) {
+                builder.put(name, UNDEFINED);
+            } else {
+                builder.put(name, value);
+            }
+        }
+    }
+
+    private void modifyAfterTest(final String dataSource, final Map<String, Object> changedValues) {
+        if (!changedValues.isEmpty()) {
+            ModifyAfterTestCallback callback = new ModifyAfterTestCallback(dataSource);
+            if (context.xa) {
+                dataSourceStore.updateDataSource(dataSource, changedValues, callback);
+            } else {
+                dataSourceStore.updateDataSource(dataSource, changedValues, callback);
+            }
+        }
     }
 }
 
