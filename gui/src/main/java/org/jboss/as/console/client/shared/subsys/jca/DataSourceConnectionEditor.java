@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
@@ -75,12 +73,8 @@ public class DataSourceConnectionEditor {
 
         form.setEnabled(false);
 
-        ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                presenter.verifyConnection(form.getEditedEntity(), false, true);
-            }
-        });
+        ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(),
+                clickEvent -> presenter.verifyConnection(form.getEditedEntity()));
 
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
 

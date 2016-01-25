@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -47,6 +48,8 @@ import org.jboss.gwt.flow.client.Outcome;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jboss.ballroom.client.widgets.forms.FormItem.VALUE_SEMANTICS.UNDEFINED;
+
 /**
  * @author Heiko Braun
  */
@@ -82,11 +85,15 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
 
     public interface MyView extends View {
+
         void setPresenter(DataSourceFinder presenter);
+
         void setPreview(SafeHtml html);
+
         void updateFrom(List<DataSource> list);
 
         void updateDataSources(List<DataSource> datasources);
+
         void updateXADataSources(List<XADataSource> xaDatasources);
 
         void showVerifyConncectionResult(String name, VerifyConnectionOp.VerifyResult result);
@@ -97,9 +104,10 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Inject
     public DataSourceFinder(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-                            DispatchAsync dispatcher, RevealStrategy revealStrategy, DataSourceStore dataSourceStore,
-                            DataSourceTemplates dataSourceTemplates, BeanFactory beanFactory,
-                            DriverRegistry driverRegistry,  BootstrapContext bootstrap, CurrentProfileSelection currentProfileSelection) {
+            DispatchAsync dispatcher, RevealStrategy revealStrategy, DataSourceStore dataSourceStore,
+            DataSourceTemplates dataSourceTemplates, BeanFactory beanFactory,
+            DriverRegistry driverRegistry, BootstrapContext bootstrap,
+            CurrentProfileSelection currentProfileSelection) {
 
         super(eventBus, view, proxy);
 
@@ -116,8 +124,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     protected void onReset() {
-        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
-        {
+        if (placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken())) {
             getView().resetFirstColumn();
             loadDatasources();
             loadXADatasources();
@@ -138,10 +145,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     public void onRefresh(String dsName, boolean isXa) {
-        if(isXa)
-            loadXADatasources();
-        else
-            loadDatasources();
+        if (isXa) { loadXADatasources(); } else { loadDatasources(); }
     }
 
     public void loadDatasources() {
@@ -198,10 +202,9 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     protected void revealInParent() {
-        if(Console.getBootstrapContext().isStandalone())
+        if (Console.getBootstrapContext().isStandalone()) {
             RevealContentEvent.fire(this, ServerMgmtApplicationPresenter.TYPE_MainContent, this);
-        else
-            RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
+        } else { RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this); }
     }
 
     public void closeDialoge() {
@@ -210,17 +213,18 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     public void onPreview(PreviewEvent event) {
-        if(isVisible())
-            getView().setPreview(event.getHtml());
+        if (isVisible()) { getView().setPreview(event.getHtml()); }
     }
 
     public void launchNewDatasourceWizard() {
-        new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources,drivers, false)
+        new NewDatasourceWizard<>(this, dataSourceStore, bootstrap, beanFactory, dataSourceTemplates, datasources,
+                drivers, false)
                 .open(Console.MESSAGES.createTitle("Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 100);
     }
 
     public void launchNewXADatasourceWizard() {
-        new NewDatasourceWizard<>(this, bootstrap, beanFactory, dataSourceTemplates, datasources, drivers, true)
+        new NewDatasourceWizard<>(this, dataSourceStore, bootstrap, beanFactory, dataSourceTemplates, datasources,
+                drivers, true)
                 .open(Console.MESSAGES.createTitle("XA Datasource"), Wizard.DEFAULT_WIDTH, Wizard.DEFAULT_HEIGHT + 100);
     }
 
@@ -240,61 +244,82 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         });
     }
 
-    public void onCreateDatasource(final DataSource datasource) {
-        // HAL-617 / WFLY-4750
-        datasource.setEnabled(true);
-
-        // TODO find a proper way to deal with this
-        if("".equals(datasource.getUsername()))
-            datasource.setUsername(null);
-        if("".equals(datasource.getPassword()))
-            datasource.setPassword(null);
-        if("".equals(datasource.getSecurityDomain()))
-            datasource.setSecurityDomain(null);
-
-        // HAL-397
-        datasource.setCcm(true);
-        datasource.setJta(true);
-
-        dataSourceStore.createDataSource(datasource, new SimpleCallback<ResponseWrapper<Boolean>>() {
-
+    public void onCreateDatasource(final DataSource datasource, final boolean dataSourceCreatedByTest) {
+        SimpleCallback<ResponseWrapper<Boolean>> callback = new SimpleCallback<ResponseWrapper<Boolean>>() {
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
                 if (result.getUnderlying()) {
-                    Console.info(Console.MESSAGES.added("Datasource ")+ datasource.getName());
+                    Console.info(Console.MESSAGES.added("Datasource ") + datasource.getName());
                     loadDatasources();
+                } else {
+                    Console.error(Console.MESSAGES.addingFailed("Datasource " + datasource.getName()),
+                            result.getResponse().toString());
                 }
-                else
-                    Console.error(Console.MESSAGES.addingFailed("Datasource " + datasource.getName()), result.getResponse().toString());
             }
-        });
+        };
 
+        if (!dataSourceCreatedByTest) {
+            datasource.setEnabled(true); // HAL-617 / WFLY-4750
+            datasource.setCcm(true); // HAL-397
+            datasource.setJta(true); // HAL-397
+
+            // TODO find a proper way to deal with this
+            if ("".equals(datasource.getUsername())) { datasource.setUsername(null); }
+            if ("".equals(datasource.getPassword())) { datasource.setPassword(null); }
+            if ("".equals(datasource.getSecurityDomain())) { datasource.setSecurityDomain(null); }
+
+            dataSourceStore.createDataSource(datasource, callback);
+
+        } else {
+            ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
+                    .put("enabled", true)
+                    .put("ccm", true)
+                    .put("jta", true);
+
+            if ("".equals(datasource.getUsername())) { builder.put("username", UNDEFINED); }
+            if ("".equals(datasource.getPassword())) { builder.put("password", UNDEFINED); }
+            if ("".equals(datasource.getSecurityDomain())) { builder.put("securityDomain", UNDEFINED); }
+
+            dataSourceStore.updateDataSource(datasource.getName(), builder.build(), callback);
+        }
     }
 
-    public void onCreateXADatasource(final XADataSource updatedEntity) {
-        // HAL-617 / WFLY-4750
-        updatedEntity.setEnabled(true);
-
-        if("".equals(updatedEntity.getUsername()))
-            updatedEntity.setUsername(null);
-        if("".equals(updatedEntity.getPassword()))
-            updatedEntity.setPassword(null);
-        if("".equals(updatedEntity.getSecurityDomain()))
-            updatedEntity.setSecurityDomain(null);
-
-        updatedEntity.setCcm(true);
-
-        dataSourceStore.createXADataSource(updatedEntity, new SimpleCallback<ResponseWrapper<Boolean>>() {
+    public void onCreateXADatasource(final XADataSource updatedEntity, final boolean dataSourceCreatedByTest) {
+        SimpleCallback<ResponseWrapper<Boolean>> callback = new SimpleCallback<ResponseWrapper<Boolean>>() {
             @Override
             public void onSuccess(ResponseWrapper<Boolean> response) {
-                if (response.getUnderlying())
+                if (response.getUnderlying()) {
                     Console.info(Console.MESSAGES.added("XA Datasource " + updatedEntity.getName()));
-                else
-                    Console.error(Console.MESSAGES.addingFailed("XA Datasource " + updatedEntity.getName()), response.getResponse().toString());
+                } else {
+                    Console.error(Console.MESSAGES.addingFailed("XA Datasource " + updatedEntity.getName()),
+                            response.getResponse().toString());
+                }
 
                 loadXADatasources();
             }
-        });
+        };
+
+        if (!dataSourceCreatedByTest) {
+            updatedEntity.setEnabled(true); // HAL-617 / WFLY-4750
+            updatedEntity.setCcm(true);
+
+            if ("".equals(updatedEntity.getUsername())) { updatedEntity.setUsername(null); }
+            if ("".equals(updatedEntity.getPassword())) { updatedEntity.setPassword(null); }
+            if ("".equals(updatedEntity.getSecurityDomain())) { updatedEntity.setSecurityDomain(null); }
+
+            dataSourceStore.createXADataSource(updatedEntity, callback);
+
+        } else {
+            ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
+                    .put("enabled", true)
+                    .put("ccm", true);
+
+            if ("".equals(updatedEntity.getUsername())) { builder.put("userName", UNDEFINED); }
+            if ("".equals(updatedEntity.getPassword())) { builder.put("password", UNDEFINED); }
+            if ("".equals(updatedEntity.getSecurityDomain())) { builder.put("securityDomain", UNDEFINED); }
+
+            dataSourceStore.updateXADataSource(updatedEntity.getName(), builder.build(), callback);
+        }
     }
 
 
@@ -321,7 +346,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
             public void onSuccess(Boolean success) {
 
                 if (success) {
-                    Console.info(Console.MESSAGES.deleted("XA Datasource "+ entity.getName()));
+                    Console.info(Console.MESSAGES.deleted("XA Datasource " + entity.getName()));
                 } else {
                     Console.error(Console.MESSAGES.deletionFailed("XA Datasource " + entity.getName()));
                 }
@@ -338,11 +363,14 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
                 boolean enabled = entity.isEnabled();
-                String text = enabled ? Console.MESSAGES.successDisabled("Datasource " + entity.getName()) :Console.MESSAGES.successEnabled("Datasource " + entity.getName()) ;
+                String text = enabled ? Console.MESSAGES
+                        .successDisabled("Datasource " + entity.getName()) : Console.MESSAGES
+                        .successEnabled("Datasource " + entity.getName());
                 if (result.getUnderlying()) {
                     Console.info(text);
                 } else {
-                    Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(), result.getResponse().toString());
+                    Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(),
+                            result.getResponse().toString());
                 }
 
                 loadDatasources();
@@ -351,17 +379,19 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     }
 
     public void onDisableXA(final XADataSource entity, boolean doEnable) {
-        dataSourceStore.enableXADataSource(entity, doEnable, new SimpleCallback<ResponseWrapper<Boolean>>()
-        {
+        dataSourceStore.enableXADataSource(entity, doEnable, new SimpleCallback<ResponseWrapper<Boolean>>() {
 
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
                 boolean enabled = entity.isEnabled();
-                String text = enabled ? Console.MESSAGES.successDisabled("XA datasource " + entity.getName()) : Console.MESSAGES.successEnabled("XA datasource " + entity.getName()) ;
+                String text = enabled ? Console.MESSAGES
+                        .successDisabled("XA datasource " + entity.getName()) : Console.MESSAGES
+                        .successEnabled("XA datasource " + entity.getName());
                 if (result.getUnderlying()) {
                     Console.info(text);
                 } else {
-                    Console.error(Console.MESSAGES.modificationFailed("Datasource " + entity.getName()), result.getResponse().toString());
+                    Console.error(Console.MESSAGES.modificationFailed("Datasource " + entity.getName()),
+                            result.getResponse().toString());
                 }
 
                 loadXADatasources();
@@ -373,13 +403,17 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         window.hide();
     }
 
-    public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing) {
+    public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing,
+            Scheduler.ScheduledCommand onCreated) {
         VerifyConnectionOp vop = new VerifyConnectionOp(dataSourceStore, dispatcher, beanFactory,
                 currentProfileSelection.getName());
         vop.execute(dataSource, xa, existing, new SimpleCallback<VerifyConnectionOp.VerifyResult>() {
             @Override
             public void onSuccess(final VerifyConnectionOp.VerifyResult result) {
                 getView().showVerifyConncectionResult(dataSource.getName(), result);
+                if (result.wasCreated()) {
+                    Scheduler.get().scheduleDeferred(onCreated);
+                }
             }
         });
     }

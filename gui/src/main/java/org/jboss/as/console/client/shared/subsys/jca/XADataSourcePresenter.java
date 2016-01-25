@@ -321,10 +321,10 @@ public class XADataSourcePresenter extends Presenter<XADataSourcePresenter.MyVie
         propertyWindow.hide();
     }
 
-    public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing) {
+    public void verifyConnection(final DataSource dataSource) {
         VerifyConnectionOp vop = new VerifyConnectionOp(dataSourceStore, dispatcher, beanFactory,
                 currentProfileSelection.getName());
-        vop.execute(dataSource, xa, existing, new SimpleCallback<VerifyResult>() {
+        vop.execute(dataSource, true, true, new SimpleCallback<VerifyResult>() {
             @Override
             public void onSuccess(final VerifyResult result) {
                 getView().showVerifyConncectionResult(dataSource.getName(), result);

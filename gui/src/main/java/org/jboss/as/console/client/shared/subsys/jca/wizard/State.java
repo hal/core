@@ -25,5 +25,5 @@ package org.jboss.as.console.client.shared.subsys.jca.wizard;
  * @author Harald Pehl
  */
 enum State {
-    CHOOSE_TEMPLATE, NAMES, DRIVER, PROPERTIES, CONNECTION
+    CHOOSE_TEMPLATE, NAMES, DRIVER, PROPERTIES, CONNECTION, TEST
 }

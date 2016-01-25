@@ -164,6 +164,8 @@ public interface UIMessages extends Messages {
     String successfullyRemoved(String resource);
     String successfullyRemovedMessagingProvider(String name);
     String successfullyRemovedServer(String serverName);
+    SafeHtml testConnectionDomainDescription();
+    SafeHtml testConnectionStandaloneDescription();
     String topology_description();
     String transaction_log_description();
     String unassignAssignment(String name);

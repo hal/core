@@ -72,6 +72,7 @@ public interface UIConstants extends Constants {
     String cannotCreateChildResource();
     String cannotLoadSubsystems();
     String cannotReadDeploymentScanner();
+    String cannotRemoveDataSourceAfterTest();
     String cannotUploadDeployment();
     String chooseDeploymentScanner();
     String chooseFromContentRepository();
