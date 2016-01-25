@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -406,6 +407,7 @@ public class FinderColumn<T> implements SecurityContextAware {
                 // preview events
                 PlaceManager placeManager = Console.MODULES.getPlaceManager();
                 if (selectedObject != null) {
+
 
                     previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
                         @Override
