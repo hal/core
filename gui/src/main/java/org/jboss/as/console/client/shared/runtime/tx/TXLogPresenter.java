@@ -223,6 +223,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
+                    Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_delete()));
                     refresh();
                 }
 
@@ -253,6 +254,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
+                    Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_refresh()));
                     refresh();
                 }
             }
@@ -281,6 +283,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
+                    Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_recover()));
                     refresh();
                 }
             }
@@ -307,9 +310,10 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 }
                 else
                 {
-                    Console.info(Console.MESSAGES.successful("Probe operation"));
-                    if(refresh)
+                    if(refresh) {
+                        Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_probe()));
                         refresh();
+                    }
                 }
             }
         });
