@@ -21,6 +21,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
@@ -301,7 +302,7 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     @FunctionalInterface
     public interface Disclose {
-      boolean isDisclosed();
+        boolean isDisclosed();
     }
 
     private void toggleRowLevelTools(Disclose fn) {
@@ -398,31 +399,42 @@ public class FinderColumn<T> implements SecurityContextAware {
         // different selected object trigger preview
         // preview and place management sometimes compete, hence the deferred event
         // see also DefaultPlacemanager#doRevealPlace() when the callback returns
-        Scheduler.get().scheduleFixedDelay(() -> {
 
-            boolean reschedulePreviewEvents = FinderColumn.this.previewLock;
-
-            if(!reschedulePreviewEvents) {
-                // preview events
-                PlaceManager placeManager = Console.MODULES.getPlaceManager();
-                if (selectedObject != null) {
+        Timer t = new Timer() { // used to delay the first invocation
+            @Override
+            public void run() {
 
 
-                    previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
-                        @Override
-                        public void onSuccess(SafeHtml content) {
-                            PreviewEvent.fire(placeManager, content);
+                Scheduler.get().scheduleFixedDelay(() -> {
+
+                    boolean reschedulePreviewEvents = FinderColumn.this.previewLock;
+
+                    if(!reschedulePreviewEvents) {
+                        // preview events
+                        PlaceManager placeManager = Console.MODULES.getPlaceManager();
+                        if (selectedObject != null) {
+
+
+                            previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
+                                @Override
+                                public void onSuccess(SafeHtml content) {
+                                    PreviewEvent.fire(placeManager, content);
+                                }
+                            });
                         }
-                    });
-                }
+                    }
+
+                    if(reschedulePreviewEvents)
+                        System.out.println("Preview event will be re-scheduled: "+FinderColumn.this.title);
+
+                    return reschedulePreviewEvents; // if locked this fn get re-scheduled
+
+                }, 100);
+
             }
+        };
 
-            if(reschedulePreviewEvents)
-                System.out.println("Preview event will be re-scheduled: "+FinderColumn.this.title);
-
-            return reschedulePreviewEvents; // if locked this fn get re-scheduled
-
-        }, 100);
+        t.schedule(100);
 
     }
 
@@ -653,7 +665,7 @@ public class FinderColumn<T> implements SecurityContextAware {
             @Override
             protected void onLoad() {
 
-                 // security context state changes
+                // security context state changes
                 SECURITY_SERVICE.registerWidget(id, FinderColumn.this);
             }
 
@@ -859,7 +871,7 @@ public class FinderColumn<T> implements SecurityContextAware {
 
     @Override
     public void setFilter(String resourceAddress) {
-           // not used atm
+        // not used atm
     }
 
     @Override
