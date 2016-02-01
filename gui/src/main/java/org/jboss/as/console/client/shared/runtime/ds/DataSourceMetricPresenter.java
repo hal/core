@@ -286,7 +286,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                show(new VerifyResult(caught));
+                show(new VerifyResult(caught, false));
             }
 
             @Override

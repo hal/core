@@ -61,8 +61,8 @@ public class VerifyConnectionOp {
         private final String message;
         private final String details;
 
-        public VerifyResult(Throwable failure) {
-            this(false, false, Console.CONSTANTS.verify_datasource_internal_error(), failure.getMessage());
+        public VerifyResult(final Throwable failure, final boolean created) {
+            this(false, created, Console.CONSTANTS.verify_datasource_internal_error(), failure.getMessage());
         }
 
         public VerifyResult(final boolean successful, final boolean created, final String message) {
@@ -116,7 +116,7 @@ public class VerifyConnectionOp {
             dataSourceStore.verifyConnection(dataSource.getName(), xa, new AsyncCallback<ResponseWrapper<Boolean>>() {
                 @Override
                 public void onFailure(final Throwable caught) {
-                    control.getContext().push(new VerifyResult(caught));
+                    control.getContext().push(new VerifyResult(caught, wasCreated(control.getContext())));
                     if (existing) {
                         control.abort();
                     } else {
@@ -184,7 +184,7 @@ public class VerifyConnectionOp {
             dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
                 @Override
                 public void onFailure(final Throwable caught) {
-                    control.getContext().push(new VerifyResult(caught));
+                    control.getContext().push(new VerifyResult(caught, wasCreated(control.getContext())));
                     if (existing) { control.abort(); } else { control.proceed(); }
                 }
 
@@ -289,7 +289,7 @@ public class VerifyConnectionOp {
             final AsyncCallback<ResponseWrapper<Boolean>> callback = new AsyncCallback<ResponseWrapper<Boolean>>() {
                 @Override
                 public void onFailure(final Throwable caught) {
-                    control.getContext().push(new VerifyResult(caught));
+                    control.getContext().push(new VerifyResult(caught, false));
                     control.abort();
                 }
 
