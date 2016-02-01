@@ -208,7 +208,6 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
                 recordChange(builder, "securityDomain", connection.getSecurityDomain());
             }
             modifyAfterTest(context.dataSource().getName(), builder.build());
-
         }
     }
 
