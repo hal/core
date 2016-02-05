@@ -160,6 +160,7 @@ public interface UIConstants extends Constants {
     String common_label_success();
     String common_label_systemProperties();
     String common_label_type();
+    String common_label_unassign();
     String common_label_user();
     String common_label_users();
     String common_label_value();
