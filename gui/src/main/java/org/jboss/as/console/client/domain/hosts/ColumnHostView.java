@@ -31,7 +31,6 @@ import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -168,12 +167,8 @@ public class ColumnHostView extends SuspendableViewImpl
                 }, NameTokens.HostMgmtPresenter);
 
         groups.setShowSize(true);
-
-        groups.setFilter(new ColumnFilter.Predicate<ServerGroupRecord>() {
-            @Override
-            public boolean matches(ServerGroupRecord item, String token) {
-                return item.getName().contains(token);
-            }
+        groups.setFilter((item, token) -> {
+            return item.getName().contains(token);
         });
 
         groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",

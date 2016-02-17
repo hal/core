@@ -21,7 +21,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
@@ -44,7 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.CaseFormat.*;
+import static com.google.common.base.CaseFormat.LOWER_HYPHEN;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 
 /**
  * @author Heiko Braun
@@ -235,6 +235,7 @@ public class ColumnServerView extends SuspendableViewImpl
                 },NameTokens.ServerProfile);
 
         subsystems.setShowSize(true);
+        subsystems.setFilter((item, token) -> item.getTitle().toLowerCase().contains(token.toLowerCase()));
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override

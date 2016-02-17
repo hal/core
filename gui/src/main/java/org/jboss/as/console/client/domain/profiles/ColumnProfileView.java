@@ -23,7 +23,6 @@ import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -384,7 +383,10 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(SubsystemLink item) {
                         return item.getToken()+"_"+item.getKey();
                     }
-                }, NameTokens.ProfileMgmtPresenter).setShowSize(true);
+                }, NameTokens.ProfileMgmtPresenter);
+
+        subsystems.setShowSize(true);
+        subsystems.setFilter((item, token) -> item.getTitle().toLowerCase().contains(token.toLowerCase()));
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override
