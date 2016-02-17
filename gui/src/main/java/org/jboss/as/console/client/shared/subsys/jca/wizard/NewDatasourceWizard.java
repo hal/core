@@ -101,7 +101,8 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
         addStep(CONNECTION, new ConnectionStep<>(this, xa ?
                 Console.CONSTANTS.subsys_jca_xadataSource_step4() :
                 Console.CONSTANTS.subsys_jca_dataSource_step3()));
-        addStep(TEST, new TestConnectionStep<>(this));
+//        addStep(TEST, new TestConnectionStep<>(this));
+        addStep(SUMMARY, new SummaryStep<>(this));
     }
 
     @Override
@@ -122,7 +123,9 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
             case CONNECTION:
                 previous = context.xa ? PROPERTIES : DRIVER;
                 break;
-            case TEST:
+//            case TEST:
+//                previous = CONNECTION;
+            case SUMMARY:
                 previous = CONNECTION;
         }
         return previous;
@@ -145,9 +148,11 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
                 next = CONNECTION;
                 break;
             case CONNECTION:
-                next = TEST;
+                next = SUMMARY;
                 break;
-            case TEST:
+//            case TEST:
+//                break;
+            case SUMMARY:
                 break;
         }
         return next;

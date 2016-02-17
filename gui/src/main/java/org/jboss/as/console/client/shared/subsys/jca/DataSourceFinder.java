@@ -411,7 +411,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
             @Override
             public void onSuccess(final VerifyConnectionOp.VerifyResult result) {
                 getView().showVerifyConncectionResult(dataSource.getName(), result);
-                if (result.wasCreated()) {
+                if (result.wasCreated() && onCreated != null) {
                     Scheduler.get().scheduleDeferred(onCreated);
                 }
             }
