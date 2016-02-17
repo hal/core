@@ -2,6 +2,7 @@ package org.jboss.as.console.client.v3.stores.domain;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.dmr.client.ModelNode;
@@ -109,9 +110,12 @@ public class HostStore extends ChangeSupport {
         op.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
         op.get(CHILD_TYPE).set("host");
 
+        Footer.PROGRESS_ELEMENT.reset();
+
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
+                Footer.PROGRESS_ELEMENT.finish();
                 callback.onFailure(caught);
             }
 
@@ -119,6 +123,7 @@ public class HostStore extends ChangeSupport {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if (response.isFailure()) {
+                    Footer.PROGRESS_ELEMENT.finish();
                     callback.onFailure(new RuntimeException("Failed to synchronize host model: " + response.getFailureDescription()));
                 } else {
                     List<ModelNode> items = response.get(RESULT).asList();
@@ -127,12 +132,15 @@ public class HostStore extends ChangeSupport {
                         hostNames.add(item.asString());
                     }
 
+                    Footer.PROGRESS_ELEMENT.finish();
+
                     // synchronize servers
                     synchronizeServerModel(hostNames, callback);
                 }
             }
 
         });
+
     }
 
     class ServerFn implements Function<Topology> {
@@ -205,7 +213,7 @@ public class HostStore extends ChangeSupport {
             }
         };
 
-        new Async().waterfall(new Topology(), outcome, functions.toArray(new Function[functions.size()]));
+        new Async(Footer.PROGRESS_ELEMENT).waterfall(new Topology(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
     @Process(actionType = RefreshHosts.class)

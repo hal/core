@@ -828,6 +828,10 @@ public class FinderColumn<T> implements SecurityContextAware {
             updateTitle();
         }
 
+        /*
+            TODO: Not needed and should be removed with the selectDefault parameter
+            We keep it for now to document the initial parameters purpose
+
         if(selectDefault && records.size()>0)
         {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -836,7 +840,7 @@ public class FinderColumn<T> implements SecurityContextAware {
                     selectionModel.setSelected(records.get(0), true);
                 }
             });
-        }
+        }*/
     }
 
     /**

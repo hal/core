@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -132,6 +133,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         void setPresenter(HostMgmtPresenter presenter);
         void updateHosts(String selectedHost, Set<String> hostNames);
         void updateServerGroups(List<ServerGroupRecord> result);
+
+        void updateBrowseItems();
+
         void preview(SafeHtml html);
 
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
@@ -212,15 +216,17 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         });
 
         // switching between host/group views
-        serverStore.addChangeHandler(FilterType.class, action -> {
+        /*serverStore.addChangeHandler(FilterType.class, action -> {
+
+            Log.error("Update hosts due to FilterType action :"+serverStore.getFilter());
 
             if (!isVisible()) return;
 
             if(serverStore.getFilter().equals(FilterType.HOST))
                 getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
             else
-                loadServerGroups();
-        });
+                circuit.dispatch(new RefreshServerGroups());
+        });*/
 
         serverStore.addChangeHandler(GroupSelection.class,
                 action -> {
@@ -260,19 +266,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         // and wil cause the finder to collapse
     }
 
-    private void loadServerGroups() {
-
-        circuit.dispatch(new RefreshServerGroups());
-    }
-
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        refreshState();
-    }
-
-    public void refreshState() {
-        circuit.dispatch(new RefreshHosts());
-        loadServerGroups();
+        getView().updateBrowseItems();
     }
 
     @Override
@@ -353,7 +349,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                circuit.dispatch(new RefreshServerGroups());
             }
         });
     }
@@ -368,7 +364,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+
+                circuit.dispatch(new RefreshServerGroups());
             }
         });
     }
@@ -445,7 +442,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                                 Console.info("Successfully copied server-group '" + newGroup.getName() + "'");
                             }
 
-                            loadServerGroups();
+                            circuit.dispatch(new RefreshServerGroups());
                         }
                     });
 

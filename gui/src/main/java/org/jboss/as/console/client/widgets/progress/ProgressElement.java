@@ -52,6 +52,9 @@ public class ProgressElement extends Widget implements Progress {
 
     @Override
     public void reset(final int mx) {
+
+        Document.get().getBody().addClassName("loading-cursor");
+
         value = 0;
         max = mx;
         determinate = max > 1; // if there's just one step, choose none-determinate state
@@ -78,6 +81,7 @@ public class ProgressElement extends Widget implements Progress {
 
     @Override
     public void finish() {
+        Document.get().getBody().removeClassName("loading-cursor");
         setVisible(false);
     }
 }
