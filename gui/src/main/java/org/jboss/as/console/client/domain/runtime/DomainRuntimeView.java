@@ -30,7 +30,6 @@ import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -263,6 +262,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 }, presenter.getProxy().getNameToken());
 
         serverColumn.setShowSize(true);
+        serverColumn.setFilter((item, token) -> {
+            return item.getName().contains(token);
+        });
 
         serverColumn.setValueProvider(new ValueProvider<Server>() {
             @Override
@@ -462,13 +464,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 }, MenuDelegate.Role.Operation)
                         .setOperationAddress("/{implicit.host}/server-config=*","restart")
         );
-
-        serverColumn.setFilter(new ColumnFilter.Predicate<Server>() {
-            @Override
-            public boolean matches(Server item, String token) {
-                return item.getName().contains(token);
-            }
-        });
 
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {
             @Override
