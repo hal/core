@@ -513,13 +513,8 @@ public class ColumnServerView extends SuspendableViewImpl
                 (contentCanvas.getWidgetCount()>0  && !contentCanvas.getWidget(0).getElement().hasAttribute("presenter-view"))
                         || (contentCanvas.getWidgetCount() ==0)
                 ) {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
                     contentCanvas.clear();
                     contentCanvas.add(new HTML(html));
-                }
-            });
         }
 
     }

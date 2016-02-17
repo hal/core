@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -38,13 +39,23 @@ public class ServerGroupStore extends ChangeSupport {
     }
 
     private void refresh(final Dispatcher.Channel channel) {
+
+        Footer.PROGRESS_ELEMENT.reset();
+
         dao.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> result) {
 
                 ServerGroupStore.this.groups = result;
 
+                Footer.PROGRESS_ELEMENT.finish();
                 channel.ack();
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Footer.PROGRESS_ELEMENT.finish();
+                channel.nack(caught);
             }
         });
     }

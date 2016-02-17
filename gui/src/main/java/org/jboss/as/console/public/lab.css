@@ -1020,3 +1020,7 @@ h3,
     display: block;
     margin: 4px 0 0 24px;
 }
+
+.loading-cursor {
+    cursor: progress!important;
+}

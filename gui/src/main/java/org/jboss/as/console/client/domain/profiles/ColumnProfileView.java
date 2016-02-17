@@ -751,11 +751,11 @@ public class ColumnProfileView extends SuspendableViewImpl
                 (contentCanvas.getWidgetCount()>0  && !contentCanvas.getElement().hasAttribute("presenter-view"))
                         || (contentCanvas.getWidgetCount() ==0)
                 ) {
-            Scheduler.get().scheduleDeferred(() -> {
+
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));
                 contentCanvas.getElement().removeAttribute("presenter-view");
-            });
+
         }
     }
 

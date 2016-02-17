@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -19,19 +18,18 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
-import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -44,6 +42,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +59,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private final Widget groupsColWidget;
     private final FinderColumn<FinderItem> browseColumn;
     private final PreviewContentFactory contentFactory;
+    private final ArrayList<FinderItem> browseItems = new ArrayList<>();
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -133,7 +133,10 @@ public class ColumnHostView extends SuspendableViewImpl
         hosts.setTopMenuItems(new MenuDelegate<String>("Refresh", new ContextualCommand<String>() {
             @Override
             public void executeOn(String item) {
-                presenter.refreshState();
+                columnManager.reduceColumnsTo(1);
+                clearNestedPresenter();
+                browseItems.get(0).getCmd().execute();
+
             }
         }, MenuDelegate.Role.Navigation));
 
@@ -239,50 +242,45 @@ public class ColumnHostView extends SuspendableViewImpl
         browseColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+
+                clearNestedPresenter();
                 columnManager.reduceColumnsTo(1);
+
                 if (browseColumn.hasSelectedItem()) {
                     columnManager.updateActiveSelection(browseWidget);
-
-                    //clearNestedPresenter();
-
-                    /*presenter.getPlaceManager().revealPlace(
-                            new PlaceRequest(NameTokens.HostMgmtPresenter)
-                    );*/
-
                     browseColumn.getSelectedItem().getCmd().execute();
                 }
-                else {
-                    clearNestedPresenter();
-                }
+
             }
         });
 
-        List<FinderItem> defaults = new ArrayList<>();
-        defaults.add(
+        browseItems.add(
                 new FinderItem(
                         "Hosts",
                         new Command() {
                             @Override
                             public void execute() {
                                 columnManager.appendColumn(hostColWidget);
+                                hosts.updateFrom(Collections.EMPTY_LIST);
                                 Console.getCircuit().dispatch(new FilterType(FilterType.HOST));
+                                Console.getCircuit().dispatch(new RefreshHosts());
                             }
                         },
                         true)
         );
 
-        defaults.add(
+        browseItems.add(
                 new FinderItem(
                         "Server Groups", new Command() {
                     @Override
                     public void execute() {
                         columnManager.appendColumn(groupsColWidget);
+                        groups.updateFrom(Collections.EMPTY_LIST);
                         Console.getCircuit().dispatch(new FilterType(FilterType.GROUP));
+                        Console.getCircuit().dispatch(new RefreshServerGroups());
                     }
                 }, true)
         );
-
-        browseColumn.updateFrom(defaults);
 
         layout.add(contentCanvas);
 
@@ -545,6 +543,11 @@ public class ColumnHostView extends SuspendableViewImpl
 
     }
 
+    public void updateBrowseItems() {
+        browseColumn.updateFrom(browseItems);
+    }
+
+
     private void openNestedPresenter(String token) {
         PlaceManager placeManager = presenter.getPlaceManager();
         List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
@@ -634,11 +637,11 @@ public class ColumnHostView extends SuspendableViewImpl
                 (contentCanvas.getWidgetCount()>0  && !(contentCanvas.getElement().hasAttribute("presenter-view")))
                     || (contentCanvas.getWidgetCount()==0)
                 ) {
-            Scheduler.get().scheduleDeferred(() -> {
+
                 contentCanvas.clear();
                 contentCanvas.add(new HTML(html));
                 contentCanvas.getElement().removeAttribute("presenter-view");
-            });
+
         }
     }
 
