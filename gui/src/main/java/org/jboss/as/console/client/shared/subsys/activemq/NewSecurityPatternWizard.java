@@ -63,7 +63,7 @@ public class NewSecurityPatternWizard {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("security-setting", "*");
             address.add("role", "*");
             return address;

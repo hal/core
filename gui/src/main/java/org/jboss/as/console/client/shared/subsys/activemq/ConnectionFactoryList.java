@@ -1,13 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.CFConnectionsForm;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultCFForm;
@@ -45,14 +43,16 @@ public class ConnectionFactoryList {
         factoryProvider = new ListDataProvider<>();
         factoryProvider.addDataDisplay(factoryTable);
 
-        Column<ActivemqConnectionFactory, String> nameColumn = new Column<ActivemqConnectionFactory, String>(new TextCell()) {
+        Column<ActivemqConnectionFactory, String> nameColumn = new Column<ActivemqConnectionFactory, String>(
+                new TextCell()) {
             @Override
             public String getValue(ActivemqConnectionFactory object) {
                 return object.getName();
             }
         };
 
-        Column<ActivemqConnectionFactory, String> jndiColumn = new Column<ActivemqConnectionFactory, String>(new TextCell()) {
+        Column<ActivemqConnectionFactory, String> jndiColumn = new Column<ActivemqConnectionFactory, String>(
+                new TextCell()) {
             @Override
             public String getValue(ActivemqConnectionFactory object) {
                 return object.getJndiName();
@@ -63,19 +63,20 @@ public class ConnectionFactoryList {
         factoryTable.addColumn(jndiColumn, "JNDI");
 
         // defaultAttributes
-        DefaultCFForm defaultAttributes = new DefaultCFForm(new FormToolStrip.FormCallback<ActivemqConnectionFactory>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.saveConnnectionFactory(getSelectedFactory().getName(), changeset);
-            }
+        DefaultCFForm defaultAttributes = new DefaultCFForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqConnectionFactory>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.saveConnnectionFactory(getSelectedFactory().getName(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqConnectionFactory entity) {
+                    @Override
+                    public void onDelete(ActivemqConnectionFactory entity) {
 
-            }
-        });
+                    }
+                });
 
-        CFConnectionsForm connectionAttributes = new CFConnectionsForm(
+        CFConnectionsForm connectionAttributes = new CFConnectionsForm(presenter,
                 new FormToolStrip.FormCallback<ActivemqConnectionFactory>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {

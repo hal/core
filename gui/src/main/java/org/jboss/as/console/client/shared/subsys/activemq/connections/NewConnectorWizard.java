@@ -30,7 +30,7 @@ public class NewConnectorWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        ConnectorForm form = new ConnectorForm(new FormToolStrip.FormCallback<ActivemqConnector>() {
+        ConnectorForm form = new ConnectorForm(presenter, new FormToolStrip.FormCallback<ActivemqConnector>() {
             @Override
             public void onSave(Map<String, Object> changeset) {}
 

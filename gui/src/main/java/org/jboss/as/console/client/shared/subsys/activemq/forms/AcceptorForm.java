@@ -71,7 +71,7 @@ public class AcceptorForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("hornetq", "*");
+            address.add("server", "*");
             address.add(type.getResource(), "*");
             return address;
         }, form);

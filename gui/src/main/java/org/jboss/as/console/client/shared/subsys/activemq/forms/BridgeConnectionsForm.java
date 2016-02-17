@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -19,10 +20,13 @@ import org.jboss.dmr.client.ModelNode;
 public class BridgeConnectionsForm {
 
     private Form<ActivemqBridge> form = new Form<>(ActivemqBridge.class);
+    private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqBridge> callback;
     private boolean provideTools = true;
 
-    public BridgeConnectionsForm(FormToolStrip.FormCallback<ActivemqBridge> callback) {
+    public BridgeConnectionsForm(final MsgConnectionsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqBridge> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         form.setNumColumns(2);
     }
@@ -41,7 +45,7 @@ public class BridgeConnectionsForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("bridge", "*");
             return address;
         }, form);

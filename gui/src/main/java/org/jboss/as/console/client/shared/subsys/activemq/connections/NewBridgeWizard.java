@@ -31,7 +31,7 @@ public class NewBridgeWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        DefaultBridgeForm form = new DefaultBridgeForm(new FormToolStrip.FormCallback<ActivemqBridge>() {
+        DefaultBridgeForm form = new DefaultBridgeForm(presenter, new FormToolStrip.FormCallback<ActivemqBridge>() {
             @Override
             public void onSave(Map<String, Object> changeset) {}
 

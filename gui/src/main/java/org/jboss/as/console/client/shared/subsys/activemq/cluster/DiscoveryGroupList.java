@@ -54,15 +54,16 @@ public class DiscoveryGroupList {
         factoryTable.addColumn(nameColumn, "Name");
 
         // defaultAttributes
-        defaultAttributes = new DiscoveryGroupForm(new FormToolStrip.FormCallback<ActivemqDiscoveryGroup>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.saveDiscoveryGroup(getSelectedEntity().getName(), changeset);
-            }
+        defaultAttributes = new DiscoveryGroupForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqDiscoveryGroup>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.saveDiscoveryGroup(getSelectedEntity().getName(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqDiscoveryGroup entity) {}
-        });
+                    @Override
+                    public void onDelete(ActivemqDiscoveryGroup entity) {}
+                });
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(

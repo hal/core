@@ -1056,7 +1056,7 @@ public class MsgDestinationsPresenter
 
         window.trapWidget(
                 new AddResourceDialog(
-                        "{selected.profile}/subsystem=messaging-activemq/hornetq=*",
+                        "{selected.profile}/subsystem=messaging-activemq/server=*",
                         Console.MODULES.getSecurityFramework()
                                 .getSecurityContext(NameTokens.ActivemqMessagingPresenter),
                         MsgDestinationsPresenter.this

@@ -18,6 +18,7 @@ import java.util.Map;
  * @date 4/4/12
  */
 public class NewDiscoveryGroupWizard {
+
     private MsgClusteringPresenter presenter;
     private List<String> names;
 
@@ -30,13 +31,14 @@ public class NewDiscoveryGroupWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final DiscoveryGroupForm form = new DiscoveryGroupForm(new FormToolStrip.FormCallback<ActivemqDiscoveryGroup>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {}
+        final DiscoveryGroupForm form = new DiscoveryGroupForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqDiscoveryGroup>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {}
 
-            @Override
-            public void onDelete(ActivemqDiscoveryGroup entity) {}
-        }, true);
+                    @Override
+                    public void onDelete(ActivemqDiscoveryGroup entity) {}
+                }, true);
 
         form.setSocketBindings(names);
         layout.add(form.asWidget());
@@ -44,8 +46,8 @@ public class NewDiscoveryGroupWizard {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     Form<ActivemqDiscoveryGroup> actualForm = form.getForm();
-                    FormValidation validation = actualForm .validate();
-                    if(!validation.hasErrors()) {
+                    FormValidation validation = actualForm.validate();
+                    if (!validation.hasErrors()) {
                         ActivemqDiscoveryGroup entity = actualForm.getUpdatedEntity();
                         presenter.onCreateDiscoveryGroup(entity);
                     }

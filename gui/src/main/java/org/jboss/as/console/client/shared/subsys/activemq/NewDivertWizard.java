@@ -31,7 +31,7 @@ public class NewDivertWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        DivertForm divertForm = new DivertForm(
+        DivertForm divertForm = new DivertForm(presenter,
                 new FormToolStrip.FormCallback<ActivemqDivert>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {}

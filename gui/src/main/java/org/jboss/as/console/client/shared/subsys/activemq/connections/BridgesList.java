@@ -1,14 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.BridgeConnectionsForm;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultBridgeForm;
@@ -73,17 +71,18 @@ public class BridgesList {
         factoryTable.addColumn(toColumn, "Forward");
 
         // defaultAttributes
-        defaultAttributes = new DefaultBridgeForm(new FormToolStrip.FormCallback<ActivemqBridge>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.onSaveBridge(getSelectedEntity().getName(), changeset);
-            }
+        defaultAttributes = new DefaultBridgeForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqBridge>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.onSaveBridge(getSelectedEntity().getName(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqBridge entity) {}
-        });
+                    @Override
+                    public void onDelete(ActivemqBridge entity) {}
+                });
 
-        BridgeConnectionsForm connectionAttributes = new BridgeConnectionsForm(
+        BridgeConnectionsForm connectionAttributes = new BridgeConnectionsForm(presenter,
                 new FormToolStrip.FormCallback<ActivemqBridge>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
@@ -150,7 +149,8 @@ public class BridgesList {
 
     @SuppressWarnings("unchecked")
     public ActivemqBridge getSelectedEntity() {
-        SingleSelectionModel<ActivemqBridge> selectionModel = (SingleSelectionModel<ActivemqBridge>) factoryTable.getSelectionModel();
+        SingleSelectionModel<ActivemqBridge> selectionModel = (SingleSelectionModel<ActivemqBridge>) factoryTable
+                .getSelectionModel();
         return selectionModel.getSelectedObject();
     }
 }

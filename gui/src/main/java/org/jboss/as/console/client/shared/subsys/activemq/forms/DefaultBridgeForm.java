@@ -6,6 +6,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -29,6 +30,7 @@ import java.util.List;
 public class DefaultBridgeForm {
 
     private Form<ActivemqBridge> form = new Form<>(ActivemqBridge.class);
+    private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqBridge> callback;
     private boolean provideTools = true;
     private boolean isCreate = false;
@@ -36,14 +38,16 @@ public class DefaultBridgeForm {
     private TextBoxItem discoveryGroup;
     private ListItem connectors;
 
-    public DefaultBridgeForm(FormToolStrip.FormCallback<ActivemqBridge> callback) {
+    public DefaultBridgeForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqBridge> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         form.setNumColumns(2);
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
-    public DefaultBridgeForm(FormToolStrip.FormCallback<ActivemqBridge> callback, boolean provideTools) {
+    public DefaultBridgeForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqBridge> callback, boolean provideTools) {
+        this.presenter = presenter;
         this.callback = callback;
         this.provideTools = provideTools;
         form.setNumColumns(2);
@@ -92,7 +96,7 @@ public class DefaultBridgeForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("bridge", "*");
             return address;
         }, form);

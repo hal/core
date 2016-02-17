@@ -67,7 +67,7 @@ public class NewQueueWizard {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("jms-queue", "*");
             return address;
         }, form);

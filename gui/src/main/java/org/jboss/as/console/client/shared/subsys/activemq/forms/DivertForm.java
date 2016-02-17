@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -25,16 +26,21 @@ public class DivertForm {
 
     Form<ActivemqDivert> form = new Form<>(ActivemqDivert.class);
     boolean isCreate = false;
+    private final MsgDestinationsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqDivert> callback;
     private MultiWordSuggestOracle oracle;
 
-    public DivertForm(FormToolStrip.FormCallback<ActivemqDivert> callback) {
+    public DivertForm(MsgDestinationsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqDivert> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
-    public DivertForm(FormToolStrip.FormCallback<ActivemqDivert> callback, boolean create) {
+    public DivertForm(MsgDestinationsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqDivert> callback, boolean create) {
+        this.presenter = presenter;
         this.callback = callback;
         isCreate = create;
         oracle = new MultiWordSuggestOracle();
@@ -66,7 +72,7 @@ public class DivertForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("divert", "*");
             return address;
         }, form);
