@@ -134,7 +134,8 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
             }
             Window.setTitle(title.toString());*/
 
-            new LoadMainApp(context, MODULES.getPlaceManager(), MODULES.getTokenFormatter()).execute();
+            ProductConfig productConfig = GWT.create(ProductConfig.class);
+            new LoadMainApp(productConfig, context, MODULES.getPlaceManager(), MODULES.getTokenFormatter()).execute();
         }
     }
 

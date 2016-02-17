@@ -4,11 +4,15 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.History;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
+import elemental.client.Browser;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.jboss.as.console.client.ProductConfig.Profile.PRODUCT;
 
 /**
  * Either loads the default place or one specified from external context (URL tokens)
@@ -39,9 +43,14 @@ public class LoadMainApp implements ScheduledCommand {
 
     private final PlaceManager placeManager;
     private final TokenFormatter formatter;
+    private final ProductConfig productConfig;
     private final BootstrapContext bootstrapContext;
 
-    public LoadMainApp(BootstrapContext bootstrapContext, PlaceManager placeManager, TokenFormatter formatter) {
+    public LoadMainApp(ProductConfig productConfig,
+            BootstrapContext bootstrapContext,
+            PlaceManager placeManager,
+            TokenFormatter formatter) {
+        this.productConfig = productConfig;
         this.bootstrapContext = bootstrapContext;
         this.placeManager = placeManager;
         this.formatter = formatter;
@@ -60,6 +69,8 @@ public class LoadMainApp implements ScheduledCommand {
             placeManager.revealDefaultPlace();
         }*/
 
+        String title = productConfig.getProfile() == PRODUCT ? "JBoss EAP" : "WildFly";
+        Browser.getDocument().setTitle(title + " Management");
         // TODO (hbraun): disabled until we now how this should work on a finder access (relative url's)
         placeManager.revealDefaultPlace();
     }
