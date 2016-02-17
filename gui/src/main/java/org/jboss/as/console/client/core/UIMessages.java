@@ -68,6 +68,7 @@ public interface UIMessages extends Messages {
     String createResource(String type);
     String createTitle(String itemName);
     String datasourceDescription();
+    SafeHtml datasourceSummaryDescription();
     String deleteConfirm(String name);
     String deleted(String name);
     String deleteServerConfig();

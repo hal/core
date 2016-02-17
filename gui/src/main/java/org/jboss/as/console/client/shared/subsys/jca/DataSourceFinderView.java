@@ -18,7 +18,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -262,7 +261,16 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     public String render(DataSource data) {
                         return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
                     }
-                }
+                },
+
+                new MenuDelegate<>(Console.CONSTANTS.subsys_jca_dataSource_verify(),
+                        new ContextualCommand<DataSource>() {
+                            @Override
+                            public void executeOn(final DataSource item) {
+                                presenter.verifyConnection(item, false, true, null);
+                            }
+                        },
+                        MenuDelegate.Role.Operation)
         );
 
         // -------------
@@ -378,7 +386,16 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                     public String render(XADataSource data) {
                         return data.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
                     }
-                }
+                },
+
+                new MenuDelegate<>(Console.CONSTANTS.subsys_jca_dataSource_verify(),
+                        new ContextualCommand<XADataSource>() {
+                            @Override
+                            public void executeOn(final XADataSource item) {
+                                presenter.verifyConnection(item, true, true, null);
+                            }
+                        },
+                        MenuDelegate.Role.Operation)
         );
 
         typeColWidget = typeColumn.asWidget();

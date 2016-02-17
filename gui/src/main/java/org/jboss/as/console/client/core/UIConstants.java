@@ -486,6 +486,7 @@ public interface UIConstants extends Constants {
     String subsys_jca_dataSource_step1();
     String subsys_jca_dataSource_step2();
     String subsys_jca_dataSource_step3();
+    String subsys_jca_dataSource_summary();
     String subsys_jca_dataSource_verify();
     String subsys_jca_dataSource_xaprop_help();
     String subsys_jca_dataSources_desc();
