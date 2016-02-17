@@ -22,6 +22,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -224,7 +225,11 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public String rowCss(StandaloneServer server) {
 
                         String css = "";
-                        if(server.isRequiresReload())
+                        if(server.getConfigState().equals(SrvState.RELOAD_REQUIRED))
+                        {
+                            css = "warn";
+                        }
+                        else if(server.getConfigState().equals(SrvState.RESTART_REQUIRED))
                         {
                             css = "warn";
                         }
@@ -288,8 +293,11 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
                 html.appendEscaped("Server name: ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
                 html.appendHtmlConstant("<p/>");
-                if (server.isRequiresReload()) {
+                if (server.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
+                }
+                else if (server.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
+                    PreviewState.warn(html, "This server needs to be restarted.");
                 }
                 else if(server.getSuspendState() == SuspendState.SUSPENDED)
                 {
@@ -307,7 +315,18 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<StandaloneServer>() {
             @Override
             public SafeHtml render(StandaloneServer data) {
-                String message = data.isRequiresReload() ? "does require a reload!" : "is running appropriately.";
+                String message = null;
+
+                if(data.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
+                    message = "does require a reload!";
+                }
+                else if(data.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
+                    message = "needs to be restarted!";
+                }
+                else {
+                    message = "is running appropriately.";
+                }
+
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
                 /*if (!data.isRequiresReload())
                     sb.appendHtmlConstant("<i class=\"icon-ok\" style='color:#3F9C35'></i>&nbsp;");
@@ -315,7 +334,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     sb.appendHtmlConstant("<i class=\"icon-warning-sign\" style='color:#CC0000'></i>&nbsp;");*/
                 sb.appendEscaped("Server ").appendEscaped(message);
 
-                if(!data.isRequiresReload() && data.getSuspendState()==SuspendState.SUSPENDED)
+                if(!data.getConfigState().equals(SrvState.RELOAD_REQUIRED) && data.getSuspendState()==SuspendState.SUSPENDED)
                     sb.appendEscaped(", but suspended");
 
                 return sb.toSafeHtml();
