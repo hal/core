@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -25,16 +26,21 @@ public class DiscoveryGroupForm {
 
     Form<ActivemqDiscoveryGroup> form = new Form<>(ActivemqDiscoveryGroup.class);
     boolean isCreate = false;
+    private final MsgClusteringPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback;
     private MultiWordSuggestOracle oracle;
 
-    public DiscoveryGroupForm(FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback) {
+    public DiscoveryGroupForm(MsgClusteringPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
-    public DiscoveryGroupForm(FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback, boolean create) {
+    public DiscoveryGroupForm(MsgClusteringPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback, boolean create) {
+        this.presenter = presenter;
         isCreate = create;
         if (!isCreate) { this.callback = callback; }
         oracle = new MultiWordSuggestOracle();
@@ -55,7 +61,7 @@ public class DiscoveryGroupForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("discovery-group", "*");
             return address;
         }, form);

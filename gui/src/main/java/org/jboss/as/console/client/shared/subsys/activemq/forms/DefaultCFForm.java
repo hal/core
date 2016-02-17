@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
@@ -22,16 +23,21 @@ import org.jboss.dmr.client.ModelNode;
 public class DefaultCFForm {
 
     private Form<ActivemqConnectionFactory> form = new Form<>(ActivemqConnectionFactory.class);
+    private final MsgDestinationsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqConnectionFactory> callback;
     private boolean provideTools = true;
     private boolean isCreate = false;
 
-    public DefaultCFForm(FormToolStrip.FormCallback<ActivemqConnectionFactory> callback) {
+    public DefaultCFForm(MsgDestinationsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqConnectionFactory> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         form.setNumColumns(2);
     }
 
-    public DefaultCFForm(FormToolStrip.FormCallback<ActivemqConnectionFactory> callback, boolean provideTools) {
+    public DefaultCFForm(MsgDestinationsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqConnectionFactory> callback, boolean provideTools) {
+        this.presenter = presenter;
         this.callback = callback;
         this.provideTools = provideTools;
         form.setNumColumns(2);
@@ -75,7 +81,7 @@ public class DefaultCFForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("connection-factory", "*");
             return address;
         }, form);

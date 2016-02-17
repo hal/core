@@ -121,7 +121,7 @@ public class TopicList {
         final FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("jms-topic", "*");
             return address;
         }, form);

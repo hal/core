@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
@@ -29,19 +30,14 @@ public class ConnectorForm {
     Form<ActivemqConnector> form = new Form<>(ActivemqConnector.class);
     private ConnectorType type = null;
     boolean isCreate = false;
+    private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqConnector> callback;
     private MultiWordSuggestOracle oracle;
 
-    public ConnectorForm(FormToolStrip.FormCallback<ActivemqConnector> callback, ConnectorType type) {
+    public ConnectorForm(MsgConnectionsPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqConnector> callback, ConnectorType type) {
+        this.presenter = presenter;
         this.callback = callback;
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
-        this.type = type;
-    }
-
-    public ConnectorForm(FormToolStrip.FormCallback<ActivemqConnector> callback, ConnectorType type, boolean create) {
-        this.callback = callback;
-        isCreate = create;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
         this.type = type;
@@ -69,7 +65,7 @@ public class ConnectorForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add(type.getResource(), "*");
             return address;
         }, form);

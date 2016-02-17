@@ -1,14 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.ClusterConnectionForm;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
@@ -46,7 +44,8 @@ public class ClusterConnectionList {
         factoryProvider = new ListDataProvider<>();
         factoryProvider.addDataDisplay(factoryTable);
 
-        Column<ActivemqClusterConnection, String> nameColumn = new Column<ActivemqClusterConnection, String>(new TextCell()) {
+        Column<ActivemqClusterConnection, String> nameColumn = new Column<ActivemqClusterConnection, String>(
+                new TextCell()) {
             @Override
             public String getValue(ActivemqClusterConnection object) {
                 return object.getName();
@@ -56,17 +55,18 @@ public class ClusterConnectionList {
         factoryTable.addColumn(nameColumn, "Name");
 
         // defaultAttributes
-        defaultAttributes = new ClusterConnectionForm(new FormToolStrip.FormCallback<ActivemqClusterConnection>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.saveClusterConnection(getSelectedEntity().getName(), changeset);
-            }
+        defaultAttributes = new ClusterConnectionForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqClusterConnection>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.saveClusterConnection(getSelectedEntity().getName(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqClusterConnection entity) {
+                    @Override
+                    public void onDelete(ActivemqClusterConnection entity) {
 
-            }
-        });
+                    }
+                });
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(

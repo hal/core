@@ -28,7 +28,7 @@ public class NewCFWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        DefaultCFForm defaultAttributes = new DefaultCFForm(
+        DefaultCFForm defaultAttributes = new DefaultCFForm(presenter,
                 new FormToolStrip.FormCallback<ActivemqConnectionFactory>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {}

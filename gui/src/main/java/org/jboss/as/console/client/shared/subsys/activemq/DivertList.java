@@ -1,14 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DivertForm;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
@@ -85,15 +83,16 @@ public class DivertList {
                             }
                         })));
 
-        divertForm = new DivertForm(new FormToolStrip.FormCallback<ActivemqDivert>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.onSaveDivert(getSelectedEntity().getRoutingName(), changeset);
-            }
+        divertForm = new DivertForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqDivert>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.onSaveDivert(getSelectedEntity().getRoutingName(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqDivert entity) {}
-        });
+                    @Override
+                    public void onDelete(ActivemqDivert entity) {}
+                });
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
@@ -127,7 +126,8 @@ public class DivertList {
 
     @SuppressWarnings("unchecked")
     public ActivemqDivert getSelectedEntity() {
-        SingleSelectionModel<ActivemqDivert> selectionModel = (SingleSelectionModel<ActivemqDivert>) table.getSelectionModel();
+        SingleSelectionModel<ActivemqDivert> selectionModel = (SingleSelectionModel<ActivemqDivert>) table
+                .getSelectionModel();
         return selectionModel.getSelectedObject();
     }
 }

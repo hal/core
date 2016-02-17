@@ -79,7 +79,7 @@ public class ConnectorList {
                             }
                         })));
 
-        connectorForm = new ConnectorForm(new FormToolStrip.FormCallback<ActivemqConnector>() {
+        connectorForm = new ConnectorForm(presenter, new FormToolStrip.FormCallback<ActivemqConnector>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
                 presenter.onSaveConnector(getSelectedEntity(), changeset);

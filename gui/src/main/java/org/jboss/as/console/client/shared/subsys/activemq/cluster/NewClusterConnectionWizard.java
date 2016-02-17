@@ -18,6 +18,7 @@ import java.util.Map;
  * @date 4/4/12
  */
 public class NewClusterConnectionWizard {
+
     private MsgClusteringPresenter presenter;
     private List<String> names;
 
@@ -30,13 +31,14 @@ public class NewClusterConnectionWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final ClusterConnectionForm form = new ClusterConnectionForm(new FormToolStrip.FormCallback<ActivemqClusterConnection>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {}
+        final ClusterConnectionForm form = new ClusterConnectionForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqClusterConnection>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {}
 
-            @Override
-            public void onDelete(ActivemqClusterConnection entity) {}
-        }, true);
+                    @Override
+                    public void onDelete(ActivemqClusterConnection entity) {}
+                }, true);
 
         form.setSocketBindings(names);
         layout.add(form.asWidget());
@@ -44,8 +46,8 @@ public class NewClusterConnectionWizard {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     Form<ActivemqClusterConnection> actualForm = form.getForm();
-                    FormValidation validation = actualForm .validate();
-                    if(!validation.hasErrors()) {
+                    FormValidation validation = actualForm.validate();
+                    if (!validation.hasErrors()) {
                         ActivemqClusterConnection entity = actualForm.getUpdatedEntity();
                         presenter.onCreateClusterConnection(entity);
                     }

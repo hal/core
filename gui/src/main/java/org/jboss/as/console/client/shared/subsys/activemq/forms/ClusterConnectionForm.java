@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -26,16 +27,21 @@ public class ClusterConnectionForm {
 
     Form<ActivemqClusterConnection> form = new Form<>(ActivemqClusterConnection.class);
     boolean isCreate = false;
+    private final MsgClusteringPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqClusterConnection> callback;
     private MultiWordSuggestOracle oracle;
 
-    public ClusterConnectionForm(FormToolStrip.FormCallback<ActivemqClusterConnection> callback) {
+    public ClusterConnectionForm(MsgClusteringPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqClusterConnection> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
-    public ClusterConnectionForm(FormToolStrip.FormCallback<ActivemqClusterConnection> callback, boolean create) {
+    public ClusterConnectionForm(MsgClusteringPresenter presenter,
+            FormToolStrip.FormCallback<ActivemqClusterConnection> callback, boolean create) {
+        this.presenter = presenter;
         isCreate = create;
         if (!isCreate) { this.callback = callback; }
         oracle = new MultiWordSuggestOracle();
@@ -55,7 +61,7 @@ public class ClusterConnectionForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("cluster-connection", "*");
             return address;
         }, form);
