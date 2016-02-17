@@ -21,6 +21,7 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
@@ -240,7 +241,7 @@ public class StandaloneRuntimePresenter
                         // clear reload state
                         getEventBus().fireEvent(new ReloadEvent());
 
-                        getView().updateServer(new StandaloneServer(false, SuspendState.UNKOWN));
+                        getView().updateServer(new StandaloneServer(SrvState.UNDEFINED, SuspendState.UNKOWN));
                     }
 
                     callback.onSuccess(keepRunning);
@@ -271,8 +272,11 @@ public class StandaloneRuntimePresenter
                     ModelNode model = response.get(RESULT);
 
                     boolean isRunning = model.get("server-state").asString().equalsIgnoreCase("RUNNING");
+
+                    SrvState srvState = SrvState.valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase());
+
                     StandaloneServer server = new StandaloneServer(
-                            !isRunning,
+                            srvState,
                             SuspendState.valueOf(model.get("suspend-state").asString())
                     );
 

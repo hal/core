@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 
 /**
@@ -7,17 +8,16 @@ import org.jboss.as.console.client.domain.model.SuspendState;
  * @since 16/06/15
  */
 public class StandaloneServer {
-    boolean requiresReload;
+    private final SrvState configState;
     private final SuspendState suspendState;
 
-    public StandaloneServer(boolean requiresReload, SuspendState suspendState) {
-
-        this.requiresReload = requiresReload;
+    public StandaloneServer(SrvState state, SuspendState suspendState) {
+        this.configState = state;
         this.suspendState = suspendState;
     }
 
     public boolean isRequiresReload() {
-        return requiresReload;
+        return false;
     }
 
     public SuspendState getSuspendState() {
@@ -26,5 +26,9 @@ public class StandaloneServer {
 
     public String getTitle() {
         return "Standalone Server";
+    }
+
+    public SrvState getConfigState() {
+        return configState;
     }
 }
