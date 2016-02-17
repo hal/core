@@ -104,7 +104,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("JMS Destinations", NameTokens.JmsMetricPresenter);
         PlaceLink activemq = new PlaceLink("Messaging - ActiveMQ", NameTokens.ActivemqMetricPresenter);
-        PlaceLink web = new PlaceLink("HTTP", NameTokens.HttpMetrics);
+        PlaceLink web = new PlaceLink("HTTP - Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
         PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
