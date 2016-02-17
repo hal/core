@@ -133,7 +133,7 @@ public class UnassignContentDialog implements IsWidget {
         root.add(pager);
 
         return new TrappedFocusPanel(new WindowContentBuilder(root,
-                new DialogueOptions(Console.CONSTANTS.common_label_assign(),
+                new DialogueOptions(Console.CONSTANTS.common_label_unassign(),
                         event -> {
                             Set<String> selectedSet = selectionModel.getSelectedSet();
                             if (selectedSet.isEmpty()) {
