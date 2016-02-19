@@ -186,10 +186,10 @@ public class SecurityDomainsPresenter
         });
     }
 
-    public void updateDomainSelection(final SecurityDomain domain) {
+    public void updateDomainSelection(final String domain) {
         // load sub-elements which are not automatically loaded by the framework
         ModelNode operation = createOperation(READ_RESOURCE_OPERATION);
-        operation.get(ADDRESS).add(SECURITY_DOMAIN, domain.getName());
+        operation.get(ADDRESS).add(SECURITY_DOMAIN, domain);
         operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -207,7 +207,7 @@ public class SecurityDomainsPresenter
 
                             @Override
                             public void setInView(List<AuthorizationPolicyProvider> modules, boolean resourceExists) {
-                                getView().setAuthorizationPolicyProviders(domain.getName(), modules, resourceExists);
+                                getView().setAuthorizationPolicyProviders(domain, modules, resourceExists);
                             }
                         });
 
@@ -220,7 +220,7 @@ public class SecurityDomainsPresenter
 
                             @Override
                             public void setInView(List<AuthenticationLoginModule> modules, boolean resourceExists) {
-                                getView().setAuthenticationLoginModules(domain.getName(), modules, resourceExists);
+                                getView().setAuthenticationLoginModules(domain, modules, resourceExists);
                             }
                         });
 
@@ -233,7 +233,7 @@ public class SecurityDomainsPresenter
 
                             @Override
                             public void setInView(List<MappingModule> modules, boolean resourceExists) {
-                                getView().setMappingModules(domain.getName(), modules, resourceExists);
+                                getView().setMappingModules(domain, modules, resourceExists);
                             }
                         });
 
@@ -245,14 +245,14 @@ public class SecurityDomainsPresenter
 
                             @Override
                             public void setInView(List<GenericSecurityDomainData> modules, boolean resourceExists) {
-                                getView().setAuditModules(domain.getName(), modules, resourceExists);
+                                getView().setAuditModules(domain, modules, resourceExists);
                             }
                         });
             }
         });
     }
 
-    private <T extends GenericSecurityDomainData> void loadGeneric(ModelNode model, SecurityDomain domain, String type, String attrName, Class<T> cls,
+    private <T extends GenericSecurityDomainData> void loadGeneric(ModelNode model, String domain, String type, String attrName, Class<T> cls,
                                                                    CustomLoadHandler<T> customHandler) {
         List<T> modules = new ArrayList<T>();
         boolean resourceExists = false;
@@ -376,7 +376,7 @@ public class SecurityDomainsPresenter
 
 
         dispatcher.execute(new DMRAction(operation),
-                new SimpleDMRResponseHandler(REMOVE,
+                new SimpleDMRResponseHandlerWithDomain(domainName, REMOVE,
                         attrName, domainName, new Command() {
                     @Override
                     public void execute() {
@@ -440,7 +440,7 @@ public class SecurityDomainsPresenter
         composite.get(STEPS).set(steps);
 
         dispatcher.execute(new DMRAction(composite),
-                new SimpleDMRResponseHandler(WRITE_ATTRIBUTE_OPERATION,
+                new SimpleDMRResponseHandlerWithDomain(domainName, WRITE_ATTRIBUTE_OPERATION,
                         attrName, domainName, new Command() {
                     @Override
                     public void execute() {
@@ -448,7 +448,6 @@ public class SecurityDomainsPresenter
                     }
                 }));
     }
-
 
     public void getDescription(String type, final DescriptionCallBack callback) {
         ModelNode operation = createOperation(READ_RESOURCE_DESCRIPTION_OPERATION);
@@ -487,5 +486,26 @@ public class SecurityDomainsPresenter
 
     public interface DescriptionCallBack {
         public void setDescription(ModelNode desc);
+    }
+
+    class SimpleDMRResponseHandlerWithDomain extends SimpleDMRResponseHandler {
+        private String domainName;
+
+        public SimpleDMRResponseHandlerWithDomain(String domainName, String operationName, String entityName, String id,
+                Command callback) {
+            super(operationName, entityName, id, callback);
+            this.domainName = domainName;
+        }
+
+        @Override
+        public void onSuccess(DMRResponse result) {
+            super.onSuccess(result);
+            ModelNode response = result.get();
+            if (!response.isFailure()) {
+                updateDomainSelection(domainName);
+                getView().loadSecurityDomain(domainName);
+                getView().refresh();
+            }
+        }
     }
 }

@@ -120,7 +120,7 @@ public class SecurityDomainsView extends AbstractEntityView<SecurityDomain>
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                presenter.updateDomainSelection(getCurrentSelection());
+                presenter.updateDomainSelection(getCurrentSelection().getName());
             }
         });
 
