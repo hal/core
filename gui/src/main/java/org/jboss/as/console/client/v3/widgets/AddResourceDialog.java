@@ -63,13 +63,26 @@ public class AddResourceDialog implements IsWidget {
     private final Callback callback;
     private ModelNodeForm form;
     private Map<String, FormItemFactory> factories = new LinkedHashMap<>();
+    private ModelNodeFormBuilder builder;
 
     public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback) {
         this.securityContext = securityContext;
         this.resourceDescription = resourceDescription;
         this.callback = callback;
+        this.builder = new ModelNodeFormBuilder()
+                .setCreateMode(true)
+                .setResourceDescription(resourceDescription)
+                .setRequiredOnly(true)
+                .setSecurityContext(securityContext);
     }
 
+    public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback,
+            ModelNodeFormBuilder builder) {
+        this.securityContext = securityContext;
+        this.resourceDescription = resourceDescription;
+        this.callback = callback;
+        this.builder = builder;
+    }
 
     public AddResourceDialog addFactory(String attribute, FormItemFactory factory) {
         factories.put(attribute, factory);
@@ -83,12 +96,6 @@ public class AddResourceDialog implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setCreateMode(true)
-                .setResourceDescription(resourceDescription)
-                .setRequiredOnly(true)
-                .setSecurityContext(securityContext);
-
         for (Map.Entry<String, FormItemFactory> entry : factories.entrySet()) {
             builder.addFactory(entry.getKey(), entry.getValue());
         }
