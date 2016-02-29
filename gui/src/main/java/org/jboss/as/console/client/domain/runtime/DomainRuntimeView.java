@@ -109,7 +109,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("Messaging", NameTokens.JmsMetricPresenter);
         PlaceLink activemq = new PlaceLink("Messaging - ActiveMQ", NameTokens.ActivemqMetricPresenter);
-        PlaceLink web = new PlaceLink("Undertow", NameTokens.HttpMetrics);
+        PlaceLink web = new PlaceLink("Web/HTTP - Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
         PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
