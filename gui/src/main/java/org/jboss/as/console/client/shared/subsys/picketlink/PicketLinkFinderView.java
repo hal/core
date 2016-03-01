@@ -151,8 +151,8 @@ public class PicketLinkFinderView extends SuspendableViewImpl implements PicketL
                         }, Navigation),
                 new MenuDelegate<>(Console.CONSTANTS.common_label_delete(),
                         (ContextualCommand<Property>) item -> {
-                            if (federationsColumn.hasSelectedItem()) {
-                                Property selectedItem = federationsColumn.getSelectedItem();
+                            if (serviceProviderColumn.hasSelectedItem()) {
+                                Property selectedItem = serviceProviderColumn.getSelectedItem();
                                 Feedback.confirm(Console.MESSAGES.deleteTitle("Service Provider"),
                                         Console.MESSAGES.deleteConfirm(selectedItem.getName()),
                                         isConfirmed -> {
