@@ -25,9 +25,9 @@ public class ColumnFilter<T> {
     private CellTable<T> delegate;
     private final Predicate predicate;
     private List<T> origValues = Collections.EMPTY_LIST;
-    private boolean isFilterActive = false;
     private LayoutPanel panel;
     private TextBox textBox;
+    private String currentFilterExpression = null;
 
     public ColumnFilter(SingleSelectionModel<T> selection, CellTable<T> delegate, Predicate predicate) {
         this.selection = selection;
@@ -37,7 +37,7 @@ public class ColumnFilter<T> {
         delegate.addRowCountChangeHandler(new RowCountChangeEvent.Handler() {
             @Override
             public void onRowCountChange(RowCountChangeEvent event) {
-                if (!isFilterActive) {
+                if (!isFilterActive()) {
                     origValues = delegate.getVisibleItems();
                 }
             }
@@ -50,30 +50,21 @@ public class ColumnFilter<T> {
         textBox = new TextBox();
         textBox.setMaxLength(30);
         textBox.setVisibleLength(20);
-        textBox.addKeyUpHandler(new KeyUpHandler() {
+        textBox.addKeyUpHandler(keyUpEvent -> {
 
-            private String prevValue = null;
+            String token = textBox.getText();
+            if (token != null
+                    && !token.equals("")) {
 
-            @Override
-            public void onKeyUp(KeyUpEvent keyUpEvent) {
-
-                String token = textBox.getText();
-                if (token != null
-                        && !token.equals("")) {
-
-                    if (!token.equals(prevValue)) {  // prevent keyUp w/o value change
-                        prevValue = token;
-                        selection.clear();
-                        isFilterActive = true;
-                        applyFilter(token);
-                    }
-
-                } else {
-                    prevValue = null;
+                if (!token.equals(currentFilterExpression)) {  // prevent keyUp w/o value change
+                    currentFilterExpression = token;
                     selection.clear();
-                    clear();
-                    isFilterActive = false;
+                    applyFilter(token);
                 }
+
+            } else {
+                selection.clear();
+                clear();
             }
         });
 
@@ -104,11 +95,17 @@ public class ColumnFilter<T> {
 
     public void clear() {
         textBox.setText("");
+        this.currentFilterExpression = null;
+
         delegate.setRowCount(origValues.size(), true);
         delegate.setRowData(0, origValues);
     }
 
     public interface Predicate<T> {
         boolean matches(T item, String token);
+    }
+
+    private boolean isFilterActive() {
+        return this.currentFilterExpression != null;
     }
 }
