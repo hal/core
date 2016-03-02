@@ -73,15 +73,17 @@ public class ConnectorServiceList {
                             }
                         })));
 
-        connectorServiceForm = new ConnectorServiceForm(new FormToolStrip.FormCallback<ActivemqConnectorService>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {
-                presenter.onSaveConnectorService(getSelectedEntity(), changeset);
-            }
+        connectorServiceForm = new ConnectorServiceForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqConnectorService>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.onSaveConnectorService(getSelectedEntity(), changeset);
+                    }
 
-            @Override
-            public void onDelete(ActivemqConnectorService entity) {}
-        });
+                    @Override
+                    public void onDelete(ActivemqConnectorService entity) {
+                    }
+                });
 
         properties = new PropertyEditor(presenter, true);
 

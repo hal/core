@@ -77,7 +77,7 @@ public class AcceptorList {
                             }
                         })));
 
-        acceptorForm = new AcceptorForm(new FormToolStrip.FormCallback<ActivemqAcceptor>() {
+        acceptorForm = new AcceptorForm(presenter, new FormToolStrip.FormCallback<ActivemqAcceptor>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
                 presenter.onSaveAcceptor(getSelectedEntity(), changeset);
