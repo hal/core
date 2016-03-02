@@ -30,13 +30,16 @@ public class NewAcceptorWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final AcceptorForm form = new AcceptorForm(new FormToolStrip.FormCallback<ActivemqAcceptor>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {}
+        final AcceptorForm form = new AcceptorForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqAcceptor>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                    }
 
-            @Override
-            public void onDelete(ActivemqAcceptor entity) {}
-        }, type);
+                    @Override
+                    public void onDelete(ActivemqAcceptor entity) {
+                    }
+                }, type);
 
         form.setIsCreate(true);
         layout.add(form.asWidget());

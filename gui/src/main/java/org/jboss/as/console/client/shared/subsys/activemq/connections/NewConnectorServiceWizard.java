@@ -28,13 +28,16 @@ public class NewConnectorServiceWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final ConnectorServiceForm form = new ConnectorServiceForm(new FormToolStrip.FormCallback<ActivemqConnectorService>() {
-            @Override
-            public void onSave(Map<String, Object> changeset) {}
+        final ConnectorServiceForm form = new ConnectorServiceForm(presenter,
+                new FormToolStrip.FormCallback<ActivemqConnectorService>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                    }
 
-            @Override
-            public void onDelete(ActivemqConnectorService entity) {}
-        });
+                    @Override
+                    public void onDelete(ActivemqConnectorService entity) {
+                    }
+                });
 
         form.setIsCreate(true);
         layout.add(form.asWidget());
