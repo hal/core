@@ -306,6 +306,7 @@ public class ModelNodeFormBuilder {
                     switch (type) {
                         case BOOLEAN:
                             formItem = new CheckBoxItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case DOUBLE:
