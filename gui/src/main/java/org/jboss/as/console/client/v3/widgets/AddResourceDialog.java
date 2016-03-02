@@ -33,7 +33,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder.FormItemFactory;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -58,11 +57,11 @@ public class AddResourceDialog implements IsWidget {
         void onCancel();
     }
 
-    private final SecurityContext securityContext;
-    private final ResourceDescription resourceDescription;
-    private final Callback callback;
-    private ModelNodeForm form;
+    private SecurityContext securityContext;
+    private ResourceDescription resourceDescription;
+    private Callback callback;
     private Map<String, FormItemFactory> factories = new LinkedHashMap<>();
+    private ModelNodeFormBuilder.FormAssets assets;
 
     public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback) {
         this.securityContext = securityContext;
@@ -70,43 +69,54 @@ public class AddResourceDialog implements IsWidget {
         this.callback = callback;
     }
 
+    public AddResourceDialog(ModelNodeFormBuilder.FormAssets assets, Callback callback) {
+        this.assets = assets;
+        this.callback = callback;
+    }
 
     public AddResourceDialog addFactory(String attribute, FormItemFactory factory) {
+        if (assets != null) {
+            throw new IllegalStateException("Form already initialized");
+        }
         factories.put(attribute, factory);
         return this;
     }
 
     public AddResourceDialog include(String... attributes) {
+        if (assets != null) {
+            throw new IllegalStateException("Form already initialized");
+        }
         this.includes = attributes;
         return this;
     }
 
     @Override
     public Widget asWidget() {
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setCreateMode(true)
-                .setResourceDescription(resourceDescription)
-                .setRequiredOnly(true)
-                .setSecurityContext(securityContext);
+        if (assets == null) {
+            ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
+                    .setCreateMode(true)
+                    .setResourceDescription(resourceDescription)
+                    .setRequiredOnly(true)
+                    .setSecurityContext(securityContext);
 
-        for (Map.Entry<String, FormItemFactory> entry : factories.entrySet()) {
-            builder.addFactory(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, FormItemFactory> entry : factories.entrySet()) {
+                builder.addFactory(entry.getKey(), entry.getValue());
+            }
+
+            if(includes!=null)
+                builder.include(includes);
+
+            assets = builder.build();
+            assets.getForm().setEnabled(true);
         }
 
-        if(includes!=null)
-            builder.include(includes);
-
-        ModelNodeFormBuilder.FormAssets assets = builder.build();
-        form = assets.getForm();
-        form.setEnabled(true);
-
-        if (form.hasWritableAttributes()) {
+        if (assets.getForm().hasWritableAttributes()) {
             DialogueOptions options = new DialogueOptions(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    FormValidation validation = form.validate();
+                    FormValidation validation = assets.getForm().validate();
                     if (!validation.hasErrors()) {
-                        callback.onAdd(form.getUpdatedEntity());
+                        callback.onAdd(assets.getForm().getUpdatedEntity());
                     }
                 }
             }, new ClickHandler() {
@@ -118,7 +128,7 @@ public class AddResourceDialog implements IsWidget {
 
             VerticalPanel layout = new VerticalPanel();
             layout.setStyleName("fill-layout-width window-content");
-            Widget formWidget = form.asWidget();
+            Widget formWidget = assets.getForm().asWidget();
             ModelNode opDescription = resourceDescription.get("operations").get("add").get("description");
             ContentDescription text = new ContentDescription(opDescription.asString());
             layout.add(text);
@@ -141,6 +151,8 @@ public class AddResourceDialog implements IsWidget {
     }
 
     public void clearValues() {
-        form.clearValues();
+        if (assets != null) {
+            assets.getForm().clearValues();
+        }
     }
 }
