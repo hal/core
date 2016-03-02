@@ -23,7 +23,9 @@ package org.jboss.as.console.client.core;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import org.jboss.as.console.client.rbac.Constraints;
+import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
@@ -62,6 +64,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final List<Input> input;
+    private String locale = Preferences.get(Preferences.Key.LOCALE, "en");
 
     public ReadRequiredResources(DispatchAsync dispatcher, StatementContext statementContext) {
         this.dispatcher = dispatcher;
@@ -77,6 +80,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
         operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
         operation.get(OPERATIONS).set(true);
         operation.get(ACCESS_CONTROL).set(COMBINED_DESCRIPTIONS);
+        operation.get(LOCALE).set(locale);
         if (recursive) {
             operation.get("recursive-depth").set(2); // Workaround: Some browsers choke on two big payload size
         }
