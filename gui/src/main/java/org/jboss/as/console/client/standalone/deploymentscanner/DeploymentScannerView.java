@@ -112,6 +112,13 @@ public class DeploymentScannerView extends SuspendableViewImpl implements Deploy
             }
         };
         table.addColumn(pathColumn, "Path");
+        TextColumn<Property> relativeToColumn = new TextColumn<Property>() {
+            @Override
+            public String getValue(Property node) {
+                return node.getValue().get("relative-to").asString();
+            }
+        };
+        table.addColumn(relativeToColumn, "Relative to");
         dataProvider.addDataDisplay(table);
         table.setSelectionModel(selectionModel);
 

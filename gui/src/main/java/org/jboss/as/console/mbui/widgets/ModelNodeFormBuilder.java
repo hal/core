@@ -40,7 +40,7 @@ import static java.util.Arrays.asList;
  */
 public class ModelNodeFormBuilder {
 
-    private ModelNodeForm form;
+    protected ModelNodeForm form;
     private SecurityContext securityContext;
     private String address;
     private ModelNode modelDescription;
@@ -51,7 +51,7 @@ public class ModelNodeFormBuilder {
     private boolean runtimeAttributes = true;
     private boolean configAttributes = true;
     private boolean requiredOnly;
-    private boolean createMode;
+    protected boolean createMode;
     private boolean unsorted = false;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
@@ -438,6 +438,18 @@ public class ModelNodeFormBuilder {
         }
 
         // distinguish required and optional fields (createMode)
+        setFieldsToForm(requiredItems, optionalItems, numWritable);
+
+        // form meta data
+        form.setDefaults(defaultValues);
+        form.setHasWritableAttributes(numWritable > 0);
+
+        FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
+        formAssets.setUnsupportedTypes(unsupportedTypes);
+        return formAssets;
+    }
+
+    protected void setFieldsToForm(LinkedList<FormItem> requiredItems, LinkedList<FormItem> optionalItems, int numWritable) {
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
             if (createMode) {
@@ -453,17 +465,10 @@ public class ModelNodeFormBuilder {
 
             form.setFields(requiredItems.toArray(new FormItem[]{}));
 
+
             if (optionalItems.size() > 0)
-                form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(), optionalItems.toArray(new FormItem[]{}));
+                form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(), optionalItems.toArray(new FormItem[] {}));
         }
-
-        // form meta data
-        form.setDefaults(defaultValues);
-        form.setHasWritableAttributes(numWritable > 0);
-
-        FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
-        formAssets.setUnsupportedTypes(unsupportedTypes);
-        return formAssets;
     }
 
     private boolean isRequired(ModelNode attributeDescription) {

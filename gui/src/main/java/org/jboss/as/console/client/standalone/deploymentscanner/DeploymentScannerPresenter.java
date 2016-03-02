@@ -21,7 +21,6 @@
  */
 package org.jboss.as.console.client.standalone.deploymentscanner;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -33,7 +32,6 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
@@ -42,10 +40,13 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -54,6 +55,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -166,14 +168,15 @@ public class DeploymentScannerPresenter
                         public void onCancel() {
                             window.hide();
                         }
-                    });
+            }, new CustomerModelNodeFormBuilder().setCreateMode(true).setResourceDescription(resourceDescription)
+                    .setRequiredOnly(false).setSecurityContext(securityContext)).include("path", "relative-to");
         } else {
             addResourceDialog.clearValues();
         }
 
-        window = new DefaultWindow("Worker");
-        window.setWidth(480);
-        window.setHeight(360);
+        window = new DefaultWindow(Console.MESSAGES.createTitle(SCANNER_TEMPLATE.getResourceType().toUpperCase()));
+        window.setWidth(640);
+        window.setHeight(480);
         window.setWidget(addResourceDialog);
         window.setGlassEnabled(true);
         window.center();
@@ -219,5 +222,34 @@ public class DeploymentScannerPresenter
                 reload();
             }
         });
+    }
+
+    class CustomerModelNodeFormBuilder extends ModelNodeFormBuilder {
+        @Override
+        public void setFieldsToForm(LinkedList<FormItem> requiredItems, LinkedList<FormItem> optionalItems, int numWritable) {
+
+            // distinguish required and optional fields (createMode)
+            if (requiredItems.isEmpty()) {
+                // no required fields explicitly given, treat all fields as required
+                if (createMode) {
+                    optionalItems.addFirst(new TextBoxItem("name", "Name", true));
+                    numWritable++;
+                }
+                form.setFields(optionalItems.toArray(new FormItem[] {}));
+            } else {
+                if (createMode) {
+                    requiredItems.addFirst(new TextBoxItem("name", "Name", true));
+                    numWritable++;
+                }
+
+                form.setFields(requiredItems.toArray(new FormItem[] {}));
+
+                if (optionalItems.size() > 0) {
+                    form.setFields(requiredItems.toArray(new FormItem[] {}), optionalItems.toArray(new FormItem[] {}));
+                } else {
+                    form.setFields(requiredItems.toArray(new FormItem[] {}));
+                }
+            }
+        }
     }
 }
