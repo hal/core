@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
 import org.jboss.as.console.client.shared.subsys.activemq.model.AcceptorType;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
@@ -27,6 +28,7 @@ import java.util.List;
 public class AcceptorForm {
 
     Form<ActivemqAcceptor> form = new Form<>(ActivemqAcceptor.class);
+    private final MsgConnectionsPresenter presenter;
     private AcceptorType type = null;
 
     boolean isCreate = false;
@@ -34,14 +36,16 @@ public class AcceptorForm {
 
     private MultiWordSuggestOracle oracle;
 
-    public AcceptorForm(FormToolStrip.FormCallback<ActivemqAcceptor> callback, AcceptorType type) {
+    public AcceptorForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqAcceptor> callback, AcceptorType type) {
+        this.presenter = presenter;
         this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
         this.type = type;
     }
 
-    public AcceptorForm(FormToolStrip.FormCallback<ActivemqAcceptor> callback, AcceptorType type, boolean create) {
+    public AcceptorForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqAcceptor> callback, AcceptorType type, boolean create) {
+        this.presenter = presenter;
         this.callback = callback;
         isCreate = create;
         oracle = new MultiWordSuggestOracle();
@@ -71,7 +75,7 @@ public class AcceptorForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add(type.getResource(), "*");
             return address;
         }, form);
