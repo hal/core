@@ -404,9 +404,9 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if(ModelAdapter.wasSuccess(response))
-                    Console.info("Created socket binding group "+newGroup);
+                    Console.info("Created socket binding group " + newGroup.getName());
                 else
-                    Console.error("Failed to created socket binding group " + newGroup, response.toString());
+                    Console.error("Failed to created socket binding group " + newGroup.getName(), response.toString());
 
                 reload();
             }
