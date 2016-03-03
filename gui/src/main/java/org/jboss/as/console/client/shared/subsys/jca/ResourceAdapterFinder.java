@@ -12,6 +12,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -27,9 +28,11 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelNodeUtil;
@@ -47,6 +50,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyView, ResourceAdapterFinder.MyProxy>
         implements PreviewEvent.Handler {
+
+    static final String ARCHIVE_FIELD = "archive";
+    static final String MODULE_FIELD = "module";
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -160,44 +166,59 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
                 securityFramework.getSecurityContext(getProxy().getNameToken());
 
         final ResourceDescription resourceDescription = descriptionRegistry.lookup(BASE_ADDRESS);
-
         final DefaultWindow dialog = new DefaultWindow("New Resource Adapter");
-        AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
-                new AddResourceDialog.Callback() {
+        ModelNodeFormBuilder.FormAssets resourceAdapterAssets = new ModelNodeFormBuilder()
+            .setCreateMode(true)
+            .setRequiredOnly(true)
+            .setConfigOnly()
+            .include(ARCHIVE_FIELD,MODULE_FIELD, "transaction-support")
+            .setResourceDescription(resourceDescription)
+            .setSecurityContext(securityContext)
+            .build();
+
+        resourceAdapterAssets.getForm().setEnabled(true);
+
+        AddResourceDialog addDialog = new AddResourceDialog(resourceAdapterAssets, resourceDescription, new AddResourceDialog.Callback() {
+            @Override
+            public void onAdd(ModelNode payload) {
+                dialog.hide();
+
+                final ResourceAddress fqAddress =
+                        BASE_ADDRESS.resolve(statementContext, payload.get("name").asString());
+
+                payload.get(OP).set(ADD);
+                payload.get(ADDRESS).set(fqAddress);
+
+                dispatcher.execute(new DMRAction(payload), new SimpleCallback<DMRResponse>() {
+
                     @Override
-                    public void onAdd(ModelNode payload) {
-                        dialog.hide();
-
-                        final ResourceAddress fqAddress =
-                                BASE_ADDRESS.resolve(statementContext, payload.get("name").asString());
-
-                        payload.get(OP).set(ADD);
-                        payload.get(ADDRESS).set(fqAddress);
-
-                        dispatcher.execute(new DMRAction(payload), new SimpleCallback<DMRResponse>() {
-
-                            @Override
-                            public void onFailure(Throwable caught) {
-                                super.onFailure(caught);
-                                loadAdapter();
-                            }
-
-                            @Override
-                            public void onSuccess(DMRResponse dmrResponse) {
-                                Console.info("Successfully added "+fqAddress);
-                                loadAdapter();
-                            }
-                        });
-
-
+                    public void onFailure(Throwable caught) {
+                        super.onFailure(caught);
+                        loadAdapter();
                     }
 
                     @Override
-                    public void onCancel() {
-                        dialog.hide();
+                    public void onSuccess(DMRResponse dmrResponse) {
+                        Console.info("Successfully added " + payload.get("name").asString());
+                        loadAdapter();
                     }
-                })
-                .include("archive","module", "transaction-support");
+                });
+            }
+
+            @Override
+            public void onCancel() {
+                dialog.hide();
+            }
+        });
+        resourceAdapterAssets.getForm().addFormValidator((formItems, outcome) -> {
+            FormItem<String> archiveItem = formItem(formItems, ARCHIVE_FIELD);
+            FormItem<String> moduleItem = formItem(formItems, MODULE_FIELD);
+            if (archiveItem.isUndefined() && moduleItem.isUndefined()) {
+                moduleItem.setErrMessage("Please set either module or archive.");
+                moduleItem.setErroneous(true);
+                outcome.addError(MODULE_FIELD);
+            }
+        });
 
         dialog.setWidth(640);
         dialog.setHeight(480);
@@ -209,6 +230,17 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
     public void closeDialoge() {
         window.hide();
     }
+
+    @SuppressWarnings("unchecked")
+    private <T> FormItem<T> formItem(List<FormItem> formItems, String name) {
+        for (FormItem formItem : formItems) {
+            if (name.equals(formItem.getName())) {
+                return formItem;
+            }
+        }
+        return null;
+    }
+
 
     public void onDelete(final Property ra) {
 
