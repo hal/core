@@ -1,12 +1,10 @@
 package org.jboss.as.console.client.tools;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -26,8 +24,9 @@ public class FormView {
 
     private ModelBrowser presenter;
     private ModelNode currentAddress;
+    private SecurityContext securityContext;
     private VerticalPanel formContainer;
-    private LRUCache<String, ModelNodeFormBuilder.FormAssets> widgetCache = new LRUCache<String, ModelNodeFormBuilder.FormAssets>(10);
+    private LRUCache<String, ModelNodeFormBuilder.FormAssets> widgetCache = new LRUCache<>(10);
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
@@ -45,10 +44,11 @@ public class FormView {
     {
         formContainer.clear();
         currentAddress = address;
+        this.securityContext = securityContext;
 
 
         String cacheKey = AddressUtils.asKey(address, true);
-        ModelNodeFormBuilder.FormAssets formAssets = null;
+        ModelNodeFormBuilder.FormAssets formAssets;
         if(widgetCache.containsKey(cacheKey))
         {
             // retrieve from cache
@@ -76,9 +76,11 @@ public class FormView {
         // some resources only provide runtime attributes, hence the form might be empty
         if(!isPlaceholder && formAssets.getForm().getFormItemNames().size()>0) {
             // only provide tools when writable attributes are present
-            if (formAssets.getForm().hasWritableAttributes())
+            if (formAssets.getForm().hasWritableAttributes() && hasWritePrivilege()) {
                 formAssets.getForm().setToolsCallback(new AddressableFormCallback(address));
-
+            } else {
+                formAssets.getForm().setToolsCallback(null); // reset callback, so that "Edit" button is not displayed
+            }
 
             formContainer.add(formAssets.getForm());
 
@@ -103,6 +105,10 @@ public class FormView {
             formContainer.add(new HTML(Console.CONSTANTS.noConfigurableAttributes()));
         }
 
+    }
+
+    private boolean hasWritePrivilege() {
+        return securityContext.getWritePrivilege(AddressUtils.asKey(currentAddress, true)).isGranted();
     }
 
     public void clearDisplay()
