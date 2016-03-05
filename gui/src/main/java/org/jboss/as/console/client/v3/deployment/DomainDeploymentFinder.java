@@ -36,6 +36,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -75,7 +76,9 @@ import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
@@ -339,8 +342,8 @@ public class DomainDeploymentFinder
                 Console.MESSAGES.contentFailedToUnassignFromServerGroups(content.getName()), false));
     }
 
-    public void launchReplaceContentWizard() {
-        replaceWizard.open();
+    public void launchReplaceContentWizard(Content content) {
+        replaceWizard.open(content);
     }
 
     public void removeContent(final Content content, boolean unmanaged) {

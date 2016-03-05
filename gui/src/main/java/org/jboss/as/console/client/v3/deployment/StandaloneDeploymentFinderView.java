@@ -126,7 +126,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
         deploymentColumn.setMenuItems(
                 new MenuDelegate<>(Console.CONSTANTS.common_label_view(), item -> presenter.showDetails(), Navigation),
                 enableDisableDelegate,
-                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceDeploymentWizard(), Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceDeploymentWizard(item), Operation),
                 new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item -> presenter.verifyRemoveDeployment(item), Operation)
         );
 
