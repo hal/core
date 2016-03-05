@@ -24,7 +24,6 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -37,13 +36,12 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -78,7 +76,9 @@ import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
@@ -335,8 +335,8 @@ public class DomainDeploymentFinder
                 Console.MESSAGES.contentFailedToUnassignFromServerGroups(content.getName())));
     }
 
-    public void launchReplaceContentWizard() {
-        replaceWizard.open();
+    public void launchReplaceContentWizard(Content content) {
+        replaceWizard.open(content);
     }
 
     public void removeContent(final Content content, boolean unmanaged) {

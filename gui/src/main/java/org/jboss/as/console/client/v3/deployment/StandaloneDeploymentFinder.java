@@ -21,17 +21,19 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.annotations.ContentSlot;
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CHILD_TYPE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_CHILDREN_RESOURCES_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RECURSIVE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
@@ -55,11 +57,17 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.ContentSlot;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 
 /**
  * @author Harald Pehl
@@ -171,8 +179,8 @@ public class StandaloneDeploymentFinder
         }
     }
 
-    public void launchReplaceDeploymentWizard() {
-        replaceWizard.open();
+    public void launchReplaceDeploymentWizard(Content content) {
+        replaceWizard.open(content);
     }
 
     public void verifyEnableDisableDeployment(final Deployment deployment) {
