@@ -21,7 +21,6 @@
  */
 package org.jboss.as.console.client.standalone.deploymentscanner;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -33,7 +32,6 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
@@ -42,6 +40,7 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -154,7 +153,18 @@ public class DeploymentScannerPresenter
         if (addResourceDialog == null) {
             SecurityContext securityContext = securityFramework.getSecurityContext(getProxy().getNameToken());
             ResourceDescription resourceDescription = resourceDescriptionRegistry.lookup(SCANNER_TEMPLATE);
-            addResourceDialog = new AddResourceDialog(securityContext, resourceDescription,
+            ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+                    .setCreateMode(true)
+                    .setConfigOnly()
+                    .setRequiredOnly(false)
+                    .includeOptionals(false)
+                    .include("path", "relative-to")
+                    .setResourceDescription(resourceDescription)
+                    .setSecurityContext(securityContext)
+                    .build();
+            formAssets.getForm().setEnabled(true);
+
+            addResourceDialog = new AddResourceDialog(formAssets, resourceDescription,
                     new AddResourceDialog.Callback() {
                         @Override
                         public void onAdd(final ModelNode payload) {
