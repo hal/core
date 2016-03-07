@@ -4,7 +4,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
-import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshSocketBindings;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -85,25 +84,27 @@ public class SocketBindingStore extends ChangeSupport {
                         List<Property> tokens = group.get(ModelDescriptionConstants.ADDRESS).asPropertyList();
                         String groupName = tokens.get(tokens.size()-1).getValue().asString();
                         String defaultInterface = group.get("default-interface").asString();
+                        ModelNode bindingsNode = group.get(ModelDescriptionConstants.RESULT).get("socket-binding");
+                        if (bindingsNode.isDefined()) {
+                            List<Property> bindings = bindingsNode.asPropertyList();
+                            for (Property binding : bindings) {
 
-                        List<Property> bindings = group.get(ModelDescriptionConstants.RESULT).get("socket-binding").asPropertyList();
-                        for (Property binding : bindings) {
+                                SocketBinding socketBinding = entityAdapter.fromDMR(binding.getValue());
+                                socketBinding.setGroup(groupName);
+                                socketBinding.setDefaultInterface(
+                                        socketBinding.getInterface() != null ?
+                                                socketBinding.getInterface() : defaultInterface
+                                );
+                                socketBinding.setDefaultInterface(defaultInterface);
 
-                            SocketBinding socketBinding = entityAdapter.fromDMR(binding.getValue());
-                            socketBinding.setGroup(groupName);
-                            socketBinding.setDefaultInterface(
-                                    socketBinding.getInterface() != null ?
-                                            socketBinding.getInterface() : defaultInterface
-                            );
-                            socketBinding.setDefaultInterface(defaultInterface);
-
-                            if(null==SocketBindingStore.this.bindings.get(groupName))
-                            {
-                                SocketBindingStore.this.bindings.put(groupName, new ArrayList<SocketBinding>());
+                                if(null==SocketBindingStore.this.bindings.get(groupName))
+                                {
+                                    SocketBindingStore.this.bindings.put(groupName, new ArrayList<>());
+                                }
+                                SocketBindingStore.this.bindings.get(groupName).add(socketBinding);
                             }
-
-                            SocketBindingStore.this.bindings.get(groupName).add(socketBinding);
-
+                        } else {
+                            SocketBindingStore.this.bindings.put(groupName, new ArrayList<>());
                         }
                     }
                     channel.ack();

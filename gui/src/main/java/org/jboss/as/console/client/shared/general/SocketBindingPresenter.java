@@ -409,6 +409,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error("Failed to created socket binding group " + newGroup.getName(), response.toString());
 
                 reload();
+                refreshStore();
             }
         });
     }
