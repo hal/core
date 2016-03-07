@@ -53,6 +53,7 @@ public class ModelNodeFormBuilder {
     private boolean requiredOnly;
     private boolean createMode;
     private boolean unsorted = false;
+    private boolean includeOptionals = true; // only important if createMode == true
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -118,6 +119,10 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
+    public ModelNodeFormBuilder includeOptionals(boolean includeOptionals) {
+        this.includeOptionals = includeOptionals;
+        return this;
+    }
 
     public ModelNodeFormBuilder exclude(String... attributeName) {
         if (attributeName != null && attributeName.length !=  0) {
@@ -395,7 +400,7 @@ public class ModelNodeFormBuilder {
 
                 if (formItem != null) {
                     if (createMode) {
-                        if (isRequired)
+                        if (isRequired && includeOptionals)
                             requiredItems.add(formItem);
                         else
                             optionalItems.add(formItem);
