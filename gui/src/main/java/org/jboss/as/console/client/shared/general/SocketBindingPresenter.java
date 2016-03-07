@@ -608,6 +608,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Socket binding Group " + group), response.getFailureDescription());
 
+                refreshStore();
                 loadBindingGroups();
             }
         });
@@ -708,6 +709,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             @Override
             public void onSuccess(List<ModelNode> context) {
                 closeDialoge();
+                refreshStore();
                 loadBindingGroups();
             }
         }, read, write);
