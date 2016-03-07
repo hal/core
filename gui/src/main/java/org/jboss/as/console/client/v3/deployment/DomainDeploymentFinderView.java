@@ -23,7 +23,6 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -38,8 +37,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -273,7 +270,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         .setOperationAddress("/deployment=*", "add"),
                 new MenuDelegate<Content>(Console.CONSTANTS.unassign(), item -> presenter.launchUnassignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "remove"),
-                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceContentWizard(), Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceContentWizard(item), Operation),
                 new MenuDelegate<Content>(Console.CONSTANTS.common_label_delete(), item -> {
                     if (!item.getAssignments().isEmpty()) {
                         String serverGroups = "\t- " + Joiner.on("\n\t- ").join(
