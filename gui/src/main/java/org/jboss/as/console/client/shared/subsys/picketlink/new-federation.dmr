@@ -12,6 +12,11 @@
             "description" => "The name of Identity Provider.",
             "nillable" => false
         },
+        "external" => {
+            "type" => BOOLEAN,
+            "description" => "Indicates if it is a Remote IDP.",
+            "nillable" => true
+        },
         "security-domain" => {
             "type" => STRING,
             "description" => "Security Domain for the Identity Provider.",
