@@ -180,5 +180,6 @@ public interface UIMessages extends Messages {
     String wantToStartServerGroup(String name);
     String wantToStopServerGroup(String name);
     String xaDatasourceDescription();
+    String domainMandatoryForNonExternalProvider();
     // @formatter:on
 }
