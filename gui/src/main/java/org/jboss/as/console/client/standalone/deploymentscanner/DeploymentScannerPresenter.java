@@ -164,19 +164,18 @@ public class DeploymentScannerPresenter
                     .build();
             formAssets.getForm().setEnabled(true);
 
-            addResourceDialog = new AddResourceDialog(formAssets, resourceDescription,
-                    new AddResourceDialog.Callback() {
-                        @Override
-                        public void onAdd(final ModelNode payload) {
-                            window.hide();
-                            addDeploymentScanner(payload.get(NAME).asString(), payload);
-                        }
+            addResourceDialog = new AddResourceDialog(formAssets, new AddResourceDialog.Callback() {
+                @Override
+                public void onAdd(final ModelNode payload) {
+                    window.hide();
+                    addDeploymentScanner(payload.get(NAME).asString(), payload);
+                }
 
-                        @Override
-                        public void onCancel() {
-                            window.hide();
-                        }
-                    });
+                @Override
+                public void onCancel() {
+                    window.hide();
+                }
+            });
         } else {
             addResourceDialog.clearValues();
         }
