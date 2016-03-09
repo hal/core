@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectorService;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -23,18 +24,21 @@ import java.util.Collections;
 public class ConnectorServiceForm {
 
     Form<ActivemqConnectorService> form = new Form<>(ActivemqConnectorService.class);
+    private final MsgConnectionsPresenter presenter;
     boolean isCreate = false;
     private FormToolStrip.FormCallback<ActivemqConnectorService> callback;
     private MultiWordSuggestOracle oracle;
 
 
-    public ConnectorServiceForm(FormToolStrip.FormCallback<ActivemqConnectorService> callback) {
+    public ConnectorServiceForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqConnectorService> callback) {
+        this.presenter = presenter;
         this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
-    public ConnectorServiceForm(FormToolStrip.FormCallback<ActivemqConnectorService> callback, boolean create) {
+    public ConnectorServiceForm(MsgConnectionsPresenter presenter, FormToolStrip.FormCallback<ActivemqConnectorService> callback, boolean create) {
+        this.presenter = presenter;
         this.callback = callback;
         isCreate = create;
         oracle = new MultiWordSuggestOracle();
@@ -55,7 +59,7 @@ public class ConnectorServiceForm {
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
-            address.add("server", "*");
+            address.add("server", presenter.getCurrentServer());
             address.add("connector-service", "*");
             return address;
         }, form);
