@@ -22,6 +22,7 @@ package org.jboss.as.console.client.shared.general;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
@@ -29,6 +30,7 @@ import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
@@ -125,14 +127,14 @@ public class SocketList {
         detailToolStrip.providesDeleteOp(false);
 
         // ---
-
-
-
         TextItem nameItem = new TextItem("name", "Name");
         TextItem interfaceItem = new TextItem("interface", "Interface");
+        interfaceItem.setEnabled(true);
         //TextItem defaultInterface = new TextItem("defaultInterface", "Default Interface");
         NumberBoxItem portItem = new NumberBoxItem("port", "Port");
-        StatusItem fixedPort = new StatusItem("fixedPort", "Fixed Port?");
+        portItem.setEnabled(true);
+        CheckBoxItem fixedPort = new CheckBoxItem("fixedPort", "Fixed Port");
+        fixedPort.setEnabled(true);
 
         TextBoxItem multicastItem = new TextBoxItem("multiCastAddress", "Multicast Address") {
             @Override
