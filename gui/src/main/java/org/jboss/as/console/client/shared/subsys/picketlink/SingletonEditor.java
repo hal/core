@@ -101,6 +101,6 @@ abstract class SingletonEditor implements IsWidget {
 
     void reset() {
         formAssets.getForm().clearValues();
-        formAssets.getForm().edit(new ModelNode());
+        formAssets.getForm().editTransient(new ModelNode());
     }
 }
