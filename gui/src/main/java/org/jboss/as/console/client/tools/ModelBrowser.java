@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ReadRequiredResources;
 import org.jboss.as.console.client.core.RequiredResourcesContext;
+import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityContextImpl;
 import org.jboss.as.console.client.shared.util.LRUCache;
@@ -439,11 +440,39 @@ public class ModelBrowser implements IsWidget {
     }
 
     /**
-     * Remove a child resource
+     * Checks permissions and removes a child resource
      * @param address
      * @param selection
      */
     public void onRemoveChildResource(final ModelNode address, final ModelNode selection) {
+        final ModelNode fqAddress = AddressUtils.toFqAddress(address, selection.asString());
+
+        _loadMetaData(fqAddress, new ResourceData(true), new Outcome<ResourceData>() {
+                    @Override
+                    public void onFailure(ResourceData context) {
+                        Console.error("Failed to load metadata for " + address.asString());
+                    }
+
+                    @Override
+                    public void onSuccess(ResourceData context) {
+                        String resourceAddress = AddressUtils.asKey(fqAddress, true);
+                        if (context.securityContext.getWritePrivilege(resourceAddress).isGranted()) {
+                            _onRemoveChildResource(address, selection);
+                        } else {
+                            Feedback.alert(Console.CONSTANTS.unauthorized(), Console.CONSTANTS.unauthorizedRemove());
+                        }
+                    }
+                }
+        );
+
+    }
+
+    /**
+     * Remove a child resource
+     * @param address
+     * @param selection
+     */
+    private void _onRemoveChildResource(final ModelNode address, final ModelNode selection) {
 
         final ModelNode fqAddress = AddressUtils.toFqAddress(address, selection.asString());
 
@@ -487,11 +516,10 @@ public class ModelBrowser implements IsWidget {
      */
     public void onPrepareAddChildResource(final ModelNode address, final boolean isSingleton) {
 
-
         _loadMetaData(address, new ResourceData(true), new Outcome<ResourceData>() {
                     @Override
                     public void onFailure(ResourceData context) {
-
+                        Console.error("Failed to load metadata for " + address.asString());
                     }
 
                     @Override
