@@ -238,7 +238,7 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
             AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
                 @Override
                 public void onFailure(final Throwable throwable) {
-                    Console.error(Console.CONSTANTS.cannotRemoveDataSourceAfterTest(), throwable.getMessage());
+//                    Console.error(Console.CONSTANTS.cannotRemoveDataSourceAfterTest(), throwable.getMessage());
                 }
 
                 @Override
