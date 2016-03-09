@@ -44,8 +44,8 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         dataSource.setJndiName("java:/H2DS");
         dataSource.setDriverName("h2");
         dataSource.setConnectionUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
-        dataSource.setUsername("admin");
-        dataSource.setPassword("admin");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("sa");
         dataSource.setBackgroundValidation(false);
         setup.add(new DataSourceTemplate<>("h2", H2, dataSource, driver));
 
@@ -56,8 +56,8 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setJndiName("java:/H2XADS");
         xaDataSource.setDriverName("h2");
         xaDataSource.setProperties(properties("URL", "jdbc:h2:mem:test"));
-        xaDataSource.setUsername("admin");
-        xaDataSource.setPassword("admin");
+        xaDataSource.setUsername("sa");
+        xaDataSource.setPassword("sa");
         xaDataSource.setBackgroundValidation(false);
         setup.add(new DataSourceTemplate<>("h2-xa", H2, xaDataSource, driver));
 
