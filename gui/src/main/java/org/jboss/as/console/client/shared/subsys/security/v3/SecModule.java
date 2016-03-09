@@ -102,6 +102,7 @@ public class SecModule {
                                 SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
                                 MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
                                 oracle.setDefaultSuggestionsFromText(codes);
+                                oracle.addAll(codes);
                                 item.setOracle(oracle);
                                 return item;
                             }
