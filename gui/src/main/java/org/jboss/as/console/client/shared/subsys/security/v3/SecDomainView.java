@@ -126,6 +126,7 @@ public class SecDomainView extends SuspendableViewImpl implements SecDomainPrese
         authModules.add("AdvancedLdap");
         authModules.add("AdvancedADLdap");
         authModules.add("UsersRoles");
+        Collections.sort(authModules);
 
         final List<String> policyModules  = new LinkedList<>();
         policyModules.add("DenyAll");
@@ -155,8 +156,7 @@ public class SecDomainView extends SuspendableViewImpl implements SecDomainPrese
         panel.addPage("Audit", auditHandler.asWidget());
         panel.addPage("ACL", aclHandler.asWidget());
         panel.addPage("Mapping", mappingHandler.asWidget());
-        panel.addPage("Identity Trust", trustHandler.asWidget()
-        );
+        panel.addPage("Identity Trust", trustHandler.asWidget());
 
         // default page
         panel.showPage(0);
