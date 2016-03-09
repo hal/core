@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.picketlink;
 
+import com.google.common.collect.Iterables;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,6 +32,9 @@ import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
@@ -79,6 +83,7 @@ class IdentityProviderEditor implements IsWidget {
                 .addFactory("security-domain", attributeDescription -> securityDomains)
                 .setResourceDescription(resourceDescription)
                 .setSecurityContext(securityContext).build();
+        formAssets.getForm().addFormValidator(new IdentityProviderFormValidator());
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeSet) {
@@ -101,5 +106,36 @@ class IdentityProviderEditor implements IsWidget {
     void update(ModelNode identityProvider, final List<String> securityDomains) {
         this.securityDomains.setValueMap(securityDomains);
         this.formAssets.getForm().edit(identityProvider);
+    }
+
+
+    /**
+     * Validates that security domain is set for non-external identity provider
+     */
+    public static class IdentityProviderFormValidator implements FormValidator {
+
+        @Override
+        public void validate(List<FormItem> formItems, FormValidation outcome) {
+            FormItem securityDomain = findItem("security-domain", formItems);
+            FormItem external = findItem("external", formItems);
+
+            if (securityDomain == null || external == null) {
+                return;
+            }
+
+            if (!Boolean.TRUE.equals(external.getValue())
+                    && (securityDomain.isUndefined() || "".equals(securityDomain.getValue()))) {
+                String origErrMessage = securityDomain.getErrMessage();
+                securityDomain.setErrMessage(Console.MESSAGES.domainMandatoryForNonExternalProvider());
+                securityDomain.setErroneous(true);
+                securityDomain.setErrMessage(origErrMessage);
+                outcome.addError("security-domain");
+            }
+        }
+
+        @SuppressWarnings("StaticPseudoFunctionalStyleMethod")
+        private FormItem findItem(String name, List<FormItem> formItems) {
+            return Iterables.find(formItems, formItem -> name.equals(formItem.getName()));
+        }
     }
 }

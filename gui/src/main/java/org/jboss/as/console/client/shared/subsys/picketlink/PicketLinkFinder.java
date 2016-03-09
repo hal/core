@@ -187,7 +187,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
         ResourceDescription resourceDescription = StaticResourceDescription
                 .from(PICKET_LINK_RESOURCES.newFederationDescription());
         ComboBoxItem securityDomains = new ComboBoxItem("security-domain", "Security Domain");
-        securityDomains.setRequired(true);
+        securityDomains.setRequired(false);
         securityDomains.setValueMap(this.securityDomains);
 
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Federation"));
@@ -198,6 +198,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
                 .unsorted()
                 .build();
         assets.getForm().setEnabled(true);
+        assets.getForm().addFormValidator(new IdentityProviderEditor.IdentityProviderFormValidator());
 
         DialogueOptions options = new DialogueOptions(
                 event -> {
@@ -214,6 +215,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
                         Operation addIdentityProvider = new Operation.Builder(ADD,
                                 IDENTITY_PROVIDER_TEMPLATE.resolve(statementContext, name, ip))
                                 .param("security-domain", payload.get("security-domain").asString())
+                                .param("external", payload.get("external").asBoolean())
                                 .param("url", payload.get("url").asString())
                                 .build();
                         dispatcher.execute(new DMRAction(new Composite(addFederation, addIdentityProvider)),
