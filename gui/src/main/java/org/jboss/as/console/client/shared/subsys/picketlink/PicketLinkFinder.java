@@ -37,6 +37,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
@@ -118,6 +119,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final CrudOperationDelegate crud;
     private final List<String> securityDomains;
+    private final PlaceManager placeManager;
 
 
     // ------------------------------------------------------ presenter lifecycle
@@ -126,7 +128,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     public PicketLinkFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final DispatchAsync dispatcher, final BootstrapContext bootstrapContext,
             final SecurityFramework securityFramework, final StatementContext statementContext,
-            final ResourceDescriptionRegistry descriptionRegistry) {
+            final ResourceDescriptionRegistry descriptionRegistry, final PlaceManager placeManager) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
@@ -136,6 +138,7 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
         this.descriptionRegistry = descriptionRegistry;
         this.crud = new CrudOperationDelegate(statementContext, dispatcher);
         this.securityDomains = new ArrayList<>();
+        this.placeManager = placeManager;
     }
 
     @Override
@@ -158,7 +161,9 @@ public class PicketLinkFinder extends Presenter<PicketLinkFinder.MyView, PicketL
     @Override
     protected void onReset() {
         super.onReset();
-        readFederations();
+        if (!placeManager.getCurrentPlaceRequest().getParameterNames().contains("backButton")) { // keep selection of type column, if user us returning from federation view
+            readFederations();
+        }
     }
 
 
