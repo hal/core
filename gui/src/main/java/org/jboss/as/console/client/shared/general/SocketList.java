@@ -29,10 +29,10 @@ import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.StatusItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -125,14 +125,14 @@ public class SocketList {
         detailToolStrip.providesDeleteOp(false);
 
         // ---
-
-
-
         TextItem nameItem = new TextItem("name", "Name");
-        TextItem interfaceItem = new TextItem("interface", "Interface");
+        TextItem interfaceItem = new TextItem("interface", "Interface", false);
+        interfaceItem.setEnabled(true);
         //TextItem defaultInterface = new TextItem("defaultInterface", "Default Interface");
         NumberBoxItem portItem = new NumberBoxItem("port", "Port");
-        StatusItem fixedPort = new StatusItem("fixedPort", "Fixed Port?");
+        portItem.setEnabled(true);
+        CheckBoxItem fixedPort = new CheckBoxItem("fixedPort", "Fixed Port");
+        fixedPort.setEnabled(true);
 
         TextBoxItem multicastItem = new TextBoxItem("multiCastAddress", "Multicast Address") {
             @Override
