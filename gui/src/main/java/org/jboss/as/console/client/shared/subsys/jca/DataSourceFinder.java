@@ -14,6 +14,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -124,7 +125,9 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     protected void onReset() {
-        if (placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken())) {
+        PlaceRequest currentPlaceRequest = placeManager.getCurrentPlaceRequest();
+        if (currentPlaceRequest.matchesNameToken(getProxy().getNameToken())
+                && !currentPlaceRequest.getParameterNames().contains("backButton")) { // keep selection of type column, if user us returning from DS view
             getView().resetFirstColumn();
             loadDatasources();
             loadXADatasources();
