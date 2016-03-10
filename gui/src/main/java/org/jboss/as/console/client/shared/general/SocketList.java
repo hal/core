@@ -22,7 +22,6 @@ package org.jboss.as.console.client.shared.general;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
@@ -34,7 +33,6 @@ import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.StatusItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -128,7 +126,7 @@ public class SocketList {
 
         // ---
         TextItem nameItem = new TextItem("name", "Name");
-        TextItem interfaceItem = new TextItem("interface", "Interface");
+        TextItem interfaceItem = new TextItem("interface", "Interface", false);
         interfaceItem.setEnabled(true);
         //TextItem defaultInterface = new TextItem("defaultInterface", "Default Interface");
         NumberBoxItem portItem = new NumberBoxItem("port", "Port");
