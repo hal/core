@@ -19,6 +19,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
@@ -41,6 +42,7 @@ import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -127,6 +129,7 @@ public class DomainRuntimePresenter
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
     private final ServerGroupDAO serverGroupDAO;
+    private final ReloadState reloadState;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
@@ -134,7 +137,7 @@ public class DomainRuntimePresenter
                                   ServerGroupDAO serverGroupDAO, Header header,
                                   Dispatcher circuit, ServerStore serverStore,
                                   HostInformationStore hostInfoStore, DispatchAsync dispatcher,
-                                  ServerGroupStore serverGroupStore, CoreGUIContext statementContext) {
+                                  ServerGroupStore serverGroupStore, CoreGUIContext statementContext, ReloadState reloadState) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, TYPE_MainContent);
 
@@ -149,6 +152,7 @@ public class DomainRuntimePresenter
         this.dispatcher = dispatcher;
         this.serverGroupStore = serverGroupStore;
         this.statementContext = statementContext;
+        this.reloadState = reloadState;
     }
 
     @Override
@@ -355,6 +359,7 @@ public class DomainRuntimePresenter
             public void onSuccess() {
                 Console.info("Server "+op.name() + " succeeded: Server "+server);
                 circuit.dispatch(new RefreshServer());
+                reloadState.reset();
             }
 
             @Override
