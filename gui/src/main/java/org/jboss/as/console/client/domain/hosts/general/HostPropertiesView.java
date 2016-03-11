@@ -47,7 +47,7 @@ public class HostPropertiesView extends DisposableViewImpl implements HostProper
                 .setHeadline("Host Property Declarations")
                 .setDescription(Console.CONSTANTS.host_properties_desc());
 
-        propertyEditor = new PropertyEditor(presenter, true);
+        propertyEditor = new PropertyEditor(presenter, false);
         layout.addContent("", propertyEditor.asWidget());
 
         return layout.build();

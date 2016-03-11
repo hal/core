@@ -31,10 +31,13 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
@@ -222,6 +225,8 @@ public class PropertyEditor {
                 return String.valueOf(object.isBootTime());
             }
         };
+        bootColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        valueColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         // Add the columns.
         propertyTable.addColumn(keyColumn, Console.CONSTANTS.common_label_key());
