@@ -72,7 +72,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
             }
         });
 
-        propertyEditor = new PropertyEditor(presenter, true);
+        propertyEditor = new PropertyEditor(presenter, false);
         //propertyEditor.setOperationAddress("/{implicit.host}/server-config={selected.server}/system-property=*", "add");
 
 
