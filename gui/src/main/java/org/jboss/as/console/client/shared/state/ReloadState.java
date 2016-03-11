@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.state;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -10,7 +9,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;

@@ -103,20 +103,28 @@ public class ServerGroupOpV3 extends TopologyOp {
                             ModelNode stepResult = step.getValue();
                             if (stepResult.get(RESULT).isDefined()) {
                                 String status = stepResult.get(RESULT).asString();
+                                boolean disabled = "disabled".equalsIgnoreCase(status);
+                                boolean stopped = "stopped".equalsIgnoreCase(status);
+                                boolean started = "started".equalsIgnoreCase(status);
                                 switch (op) {
                                     case START:
                                     case RESTART:
-                                        lifecycleReached = "started".equalsIgnoreCase(status);
+                                        lifecycleReached = started;
+                                        lifecycleReached |= disabled;
+                                        lifecycleReached |= stopped;
                                         break;
                                     case STOP:
-                                        lifecycleReached = "stopped".equalsIgnoreCase(status);
+                                        lifecycleReached = stopped;
+                                        lifecycleReached |= disabled;
                                         break;
                                     case SUSPEND:
                                     case RESUME:
                                         lifecycleReached = true;
                                         break;
                                     case RELOAD:
-                                        lifecycleReached = "started".equalsIgnoreCase(status);
+                                        lifecycleReached = started;
+                                        lifecycleReached |= disabled;
+                                        lifecycleReached |= stopped;
                                         break;
                                     case KILL:
                                         // not supported for server groups
