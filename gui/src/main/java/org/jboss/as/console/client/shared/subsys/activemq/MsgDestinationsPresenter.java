@@ -581,15 +581,14 @@ public class MsgDestinationsPresenter
         proto.get(ADDRESS).add("server", getCurrentServer());
         proto.get(ADDRESS).add("jms-queue", name);
 
-        // selector hack
-        //if(changedValues.containsKey("selector") && changedValues.get("selector").equals(""))
-        //    changedValues.put("selector", "undefined");
+        // selector hack, selector is read-only
+        changedValues.remove("selector");
 
         ModelNode operation = queueAdapter.fromChangeset(changedValues, proto);
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                caught.printStackTrace();
+                Console.error(Console.MESSAGES.saveFailed("queue " + name), caught.getMessage());
             }
 
             @Override

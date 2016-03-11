@@ -23,11 +23,14 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
+import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -43,6 +46,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -122,6 +126,8 @@ public class QueueList {
                 return false;
             }
         };
+        durable.setEnabled(false);
+        selector.setEnabled(false);
 
         form.setFields(name, jndi, durable, selector);
         form.bind(queueTable);
@@ -134,7 +140,20 @@ public class QueueList {
             return address;
         }, form);
 
-        // HAL-347
+        // this is enough to AbstractForm to add the Edit button, as the form adds the callback 
+        FormToolStrip<ActivemqQueue> formTools = new FormToolStrip<>(
+                form,
+                new FormToolStrip.FormCallback<ActivemqQueue>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.onSaveQueue(form.getEditedEntity().getName(), changeset);
+                    }
+
+                    @Override
+                    public void onDelete(ActivemqQueue entity) {}
+                }
+        );
+
         layout.add(new ContentGroupLabel("Queues are read-only after creation"));
         layout.add(helpPanel.asWidget());
         layout.add(form.asWidget());
