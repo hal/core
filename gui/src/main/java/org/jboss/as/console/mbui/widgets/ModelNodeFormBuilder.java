@@ -16,6 +16,7 @@ import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -363,7 +364,8 @@ public class ModelNodeFormBuilder {
                                 for (ModelNode value : allowed)
                                     allowedValues.add(value.asString());
 
-                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label);
+                                final boolean isNillable = attrDesc.hasDefined(ModelDescriptionConstants.NILLABLE) && attrDesc.get(ModelDescriptionConstants.NILLABLE).asBoolean();
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);
                                 combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
                                 combo.setRequired(isRequired);
