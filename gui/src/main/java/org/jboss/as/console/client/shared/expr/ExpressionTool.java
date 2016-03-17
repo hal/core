@@ -91,8 +91,6 @@ public class ExpressionTool implements Tool {
 
         window.setGlassEnabled(true);
 
-        window.addCloseHandler(closeEvent -> Console.getPlaceManager().navigateBack());
-
         return window;
     }
 
