@@ -174,13 +174,16 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                      */
                     //placeManager.revealPlace(places.get(0));
 
-                    List<PlaceRequest> previousPLaces = new ArrayList<PlaceRequest>();
-                    int i=0;
-                    for (PlaceRequest place : places) {
-                        if(i<places.size()-1)
-                            previousPLaces.add(place);
-                        i++;
+                    List<PlaceRequest> previousPLaces = new ArrayList<>();
+                    int i;
+                    for (i = 0; i < places.size() - 1; i++) {
+                        previousPLaces.add(places.get(i));
                     }
+                    // add "backButton" parameter to the place request, to indicate that finder presenter can keep it's selection
+                    PlaceRequest lastPlace = previousPLaces.get(i - 1);
+                    previousPLaces.set(i - 1, new PlaceRequest.Builder(lastPlace)
+                            .with("backButton", "")
+                            .build());
                     placeManager.revealPlaceHierarchy(previousPLaces);
 
                     //placeManager.navigateBack();
