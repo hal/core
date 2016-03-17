@@ -36,6 +36,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
@@ -60,6 +61,7 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.presenter.Finder;
@@ -70,7 +72,6 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.SocketBindingStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.CreateServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.actions.DeleteServerGroup;
-import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
@@ -153,6 +154,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private final HostStore hostStore;
     private HandlerRegistration hostHandler;
     private List<ProfileRecord> existingProfiles;
+    private final ReloadState reloadState;
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
@@ -160,7 +162,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                              UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
                              ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore,
-                             CoreGUIContext statementContext) {
+                             CoreGUIContext statementContext, ReloadState reloadState) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter,
                 TYPE_MainContent);
@@ -178,6 +180,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.serverGroupStore = serverGroupStore;
         this.socketBindingStore = socketBindingStore;
         this.statementContext = statementContext;
+        this.reloadState = reloadState;
     }
 
     @Override
@@ -460,8 +463,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     public void onGroupLifecycle(final String group, final LifecycleOperation op) {
         onGroupLifecycle(group, Collections.EMPTY_MAP, op);
-
     }
+
     public void onGroupLifecycle(final String group, Map<String, Object> params, final LifecycleOperation op) {
 
         // parametrized lifecycle operations
@@ -472,6 +475,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             public void onSuccess() {
                 Console.info("Server Group "+ op.name() + " succeeded");
                 circuit.dispatch(new RefreshServer());
+                Log.debug("HostMgmtPresenter reloadState null ? " + (reloadState == null ));
+                reloadState.reset();
             }
 
             @Override
