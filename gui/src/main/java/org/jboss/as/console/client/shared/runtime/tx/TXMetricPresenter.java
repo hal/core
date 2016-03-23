@@ -135,6 +135,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
                     ));
 
                     getView().setRollbackMetric(new Metric(
+                            metrics.getNumApplicationRollback() + metrics.getNumResourceRollback(),
                             metrics.getNumApplicationRollback(),
                             metrics.getNumResourceRollback()
                     ));
