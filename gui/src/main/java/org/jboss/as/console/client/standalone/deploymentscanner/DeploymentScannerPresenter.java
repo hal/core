@@ -164,7 +164,7 @@ public class DeploymentScannerPresenter
                     .build();
             formAssets.getForm().setEnabled(true);
 
-            addResourceDialog = new AddResourceDialog(formAssets, new AddResourceDialog.Callback() {
+            addResourceDialog = new AddResourceDialog(formAssets, resourceDescription, new AddResourceDialog.Callback() {
                 @Override
                 public void onAdd(final ModelNode payload) {
                     window.hide();

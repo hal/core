@@ -69,8 +69,10 @@ public class AddResourceDialog implements IsWidget {
         this.callback = callback;
     }
 
-    public AddResourceDialog(ModelNodeFormBuilder.FormAssets assets, Callback callback) {
+    public AddResourceDialog(ModelNodeFormBuilder.FormAssets assets, ResourceDescription resourceDescription,
+            Callback callback) {
         this.assets = assets;
+        this.resourceDescription = resourceDescription;
         this.callback = callback;
     }
 
