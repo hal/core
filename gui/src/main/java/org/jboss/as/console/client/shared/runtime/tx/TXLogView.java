@@ -127,33 +127,19 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         });
         tools.addToolButtonRight(removeButton);
 
-        // lazy load the participant details
-        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                TXRecord selection = getSelectedRecord();
-                if(selection!=null)
-                {
-                    presenter.onLoadParticipants(selection);
-                }
+        table.getSelectionModel().addSelectionChangeHandler(selectionChangeEvent -> {
+            TXRecord selection = getSelectedRecord();
+            if (null!=selection) {
+                // lazy load the participant details
+                presenter.onLoadParticipants(selection);
+                removeButton.setEnabled(true);
+            } else {
+                // handle deselection
+                participantsPanel.clear();
+                recordForm.clearValues();
+                removeButton.setEnabled(false);
             }
         }) ;
-
-
-        // handle deselection
-        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                TXRecord selection = getSelectedRecord();
-                if(null==selection)
-                {
-                    participantsPanel.clear();
-                    recordForm.clearValues();
-                }
-            }
-        });
-
-
 
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_probe(), new ClickHandler() {
             @Override
@@ -189,6 +175,7 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
     public void clear() {
         dataProvider.getList().clear();
         dataProvider.flush();
+        ((SingleSelectionModel) table.getSelectionModel()).clear();
         participantsPanel.clear();
     }
 
