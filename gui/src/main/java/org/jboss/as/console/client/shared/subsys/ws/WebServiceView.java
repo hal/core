@@ -40,6 +40,8 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
@@ -94,16 +96,30 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
         tabLayoutpanel.add(endpointHandlerPages.asWidget(), "Endpoint Configuration", true);
         tabLayoutpanel.add(clientHandlerPages.asWidget(), "Client Configuration", true);
         tabLayoutpanel.selectTab(0);
+        tabLayoutpanel.addSelectionHandler(new SelectionHandler<Integer>() {
+
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                if (1 == event.getSelectedItem()) {
+                    endpointConfigEditor.notifyDefaultSelection();
+                } else if (2 == event.getSelectedItem()) {
+                    clientConfigEditor.notifyDefaultSelection();
+                }
+            }
+        });
+
 
         return tabLayoutpanel;
     }
+
+    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");
 
     private void createEndpointConfiguration() {
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
         ResourceDescription endpointResourceDescription = descriptionRegistry.lookup(WebServicesStore.ENDPOINT_CONFIG_ADDRESS);
         endpointConfigEditor = new ConfigEditorWS(dispatcher, circuit, securityContext, statementContext,
-                WebServicesStore.ENDPOINT_CONFIG_ADDRESS, endpointResourceDescription, "Endpoint Config", presenter);
+                WebServicesStore.ENDPOINT_CONFIG_ADDRESS, endpointResourceDescription, "Endpoint Configuration", presenter);
 
         // ------ pre/post handler for endpoint configuration
         AddressTemplate preHandlerEndpointAddress = WebServicesStore.ENDPOINT_CONFIG_ADDRESS.append("pre-handler-chain=*");
@@ -130,7 +146,7 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
 
         ResourceDescription clientResourceDescription = descriptionRegistry.lookup(WebServicesStore.CLIENT_CONFIG_ADDRESS);
         clientConfigEditor = new ConfigEditorWS(dispatcher, circuit, securityContext, statementContext,
-                WebServicesStore.CLIENT_CONFIG_ADDRESS, clientResourceDescription, "Client Config", presenter);
+                WebServicesStore.CLIENT_CONFIG_ADDRESS, clientResourceDescription, "Client Configuration", presenter);
 
         // ------ pre/post handler for client configuration
         AddressTemplate preHandlerClientAddress = WebServicesStore.CLIENT_CONFIG_ADDRESS.append("pre-handler-chain=*");

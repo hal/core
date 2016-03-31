@@ -87,6 +87,9 @@ public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.My
     private final WebServicesStore webservicesStore;
     private final PlaceManager placeManager;
 
+    // the endpoint/client configuration selected in ConfigEditorWS
+    private String configName;
+
     @Inject
     public WebServicePresenter(
             EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
@@ -193,12 +196,12 @@ public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.My
 
     @Override
     public void onPropertyRemoved(PropertyRemovedEvent event) {
-        refresh(extractConfigAddress(event.getAddressTemplate(), event.getAttribute()));
+        refresh(extractConfigAddress(event.getAddressTemplate(), configName));
     }
 
     @Override
     public void onPropertyAdded(PropertyAddedEvent event) {
-        refresh(extractConfigAddress(event.getAddressTemplate(), event.getAttribute()));
+        refresh(extractConfigAddress(event.getAddressTemplate(), configName));
     }
 
     private void refresh(AddressTemplate resourceAddress) {
@@ -207,6 +210,10 @@ public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.My
 
     public PlaceManager getPlaceManager() {
         return placeManager;
+    }
+
+    public void setConfigName(String configName) {
+        this.configName = configName;
     }
 
     void setHandler(Property selection, AddressTemplate addressTemplate) {
