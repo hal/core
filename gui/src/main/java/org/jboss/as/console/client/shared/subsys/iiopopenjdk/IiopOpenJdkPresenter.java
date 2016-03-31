@@ -100,8 +100,8 @@ public class IiopOpenJdkPresenter extends Presenter<IiopOpenJdkPresenter.MyView,
 
         // property management is not handled by the store, but using MapAttributePropertyManager
         // so register handlers to get notified about property modifications
-        addRegisteredHandler(PropertyAddedEvent.TYPE, this);
-        addRegisteredHandler(PropertyRemovedEvent.TYPE, this);
+        addVisibleHandler(PropertyAddedEvent.TYPE, this);
+        addVisibleHandler(PropertyRemovedEvent.TYPE, this);
 
         getView().setPresenter(this);
     }

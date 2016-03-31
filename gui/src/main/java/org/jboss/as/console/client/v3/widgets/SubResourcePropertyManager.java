@@ -21,19 +21,20 @@
  */
 package org.jboss.as.console.client.v3.widgets;
 
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.dmr.client.Property;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.useware.kernel.gui.behaviour.StatementContext;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
  * An implementation for {@link PropertyManager} which expects the properties to be sub resources of
@@ -54,10 +55,12 @@ public class SubResourcePropertyManager implements PropertyManager {
 
     private final AddressTemplate addressTemplate;
     private final CrudOperationDelegate operationDelegate;
+    private final StatementContext statementContext;
 
     public SubResourcePropertyManager(final AddressTemplate addressTemplate,
             StatementContext statementContext, DispatchAsync dispatcher) {
         this.addressTemplate = addressTemplate;
+        this.statementContext = statementContext;
         this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
     }
 
@@ -103,7 +106,13 @@ public class SubResourcePropertyManager implements PropertyManager {
                     public void onSuccess(AddressTemplate addressTemplate, String name) {
                         closeAddDialog(addDialog);
                         onAddSuccess(property);
-                        Console.getEventBus().fireEvent(new PropertyAddedEvent(addressTemplate, property));
+                        ResourceAddress resolve = addressTemplate.resolve(statementContext, name);
+                        String elemName = null;
+                        if (resolve != null && resolve.get(1) != null && resolve.get(1).get(0) != null)
+                            elemName = resolve.get(1).get(0).asString();
+                        if ("undefined".equals(elemName))
+                            elemName = null;
+                        Console.getEventBus().fireEvent(new PropertyAddedEvent(addressTemplate, elemName, property));
                     }
 
                     @Override
@@ -170,7 +179,13 @@ public class SubResourcePropertyManager implements PropertyManager {
             @Override
             public void onSuccess(AddressTemplate addressTemplate, String name) {
                 onRemoveSuccess(property);
-                Console.getEventBus().fireEvent(new PropertyRemovedEvent(addressTemplate, property));
+                ResourceAddress resolve = addressTemplate.resolve(statementContext, name);
+                String elemName = null;
+                if (resolve != null && resolve.get(1) != null && resolve.get(1).get(0) != null)
+                    elemName = resolve.get(1).get(0).asString();
+                if ("undefined".equals(elemName))
+                    elemName = null;
+                Console.getEventBus().fireEvent(new PropertyRemovedEvent(addressTemplate, elemName, property));
             }
 
             @Override

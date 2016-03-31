@@ -530,8 +530,10 @@ public interface UIConstants extends Constants {
     String subsys_web_desc();
     String subsys_web_socketInUse();
     String subsys_ws_desc();
+    String subsys_ws_endpoint();
     String subsys_ws_endpoint_desc();
     String subsys_ws_provider();
+    String subsys_ws_remove_handler();
     String subsystemsDescription();
     String subys_tx_desc();
     String subys_tx_metric_desc();
