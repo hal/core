@@ -172,8 +172,13 @@
     font-family: "Lucida Sans Unicode","Lucida Grande",sans-serif;
     font-size: 20px !important;
     font-weight: 300;
+    max-width: 840px;
 }
 
+.node-header > span {
+    white-space: nowrap;
+    display: inline-block;
+}
 
 .node-header * td {
     color: #4D5258;
