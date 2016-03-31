@@ -175,6 +175,7 @@ class ConfigEditorWS implements IsWidget {
                 Property property = selectionModel.getSelectedObject();
                 if (property != null) {
                     updateDetail(property.getValue());
+                    presenter.setConfigName(getSelection().getName());
                 } else {
                     clearDetail();
                 }
@@ -301,5 +302,9 @@ class ConfigEditorWS implements IsWidget {
                         }
                     }
                 });
+    }
+
+    public void notifyDefaultSelection() {
+        presenter.setConfigName(getSelection().getName());
     }
 }
