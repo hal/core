@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -94,7 +95,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected void onNext(ApplyContext context) {
         errorMessages.setVisible(false);
-        context.filename = context.fileUpload.getFilename();
+        context.filename = SafeHtmlUtils.fromString(context.fileUpload.getFilename()).asString();
         if (context.filename == null || context.filename.length() == 0) {
             errorMessages.setVisible(true);
         } else {

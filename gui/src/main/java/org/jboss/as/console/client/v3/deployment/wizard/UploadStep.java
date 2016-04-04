@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.common.base.Strings;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -76,7 +77,7 @@ public class UploadStep extends WizardStep<Context, State> {
 
     @Override
     protected boolean onNext(final Context context) {
-        String filename = fileUpload.getFilename();
+        String filename = SafeHtmlUtils.fromString(fileUpload.getFilename()).asString();
         if (Strings.isNullOrEmpty(filename)) {
             wizard.showError(Console.CONSTANTS.pleaseChooseFile());
             return false;
