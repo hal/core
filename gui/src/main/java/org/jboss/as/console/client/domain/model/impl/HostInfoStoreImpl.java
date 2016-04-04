@@ -944,4 +944,52 @@ public class HostInfoStoreImpl implements HostInformationStore {
             }
         });
     }
+
+    public void reloadHost(String host, final AsyncCallback<Boolean> callback) {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("reload");
+        operation.get(ADDRESS).add("host", host);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+        });
+
+    }
+    public void restartHost(String host, final AsyncCallback<Boolean> callback) {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("shutdown");
+        operation.get("restart").set(true);
+        operation.get(ADDRESS).add("host", host);
+
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+        });
+    }
 }
