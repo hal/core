@@ -642,6 +642,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         }
                     });
 
+                } else {
+                    columnManager.reduceColumnsTo(2);
                 }
             }
         });
