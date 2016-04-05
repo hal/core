@@ -94,11 +94,12 @@ public class ColumnFilter<T> {
     }
 
     public void clear() {
-        textBox.setText("");
-        this.currentFilterExpression = null;
-
         delegate.setRowCount(origValues.size(), true);
         delegate.setRowData(0, origValues);
+
+        // the currentFilterExpression needs to be reset after the delegate change to avoid overriding origValues by the rowCountChangeHandler
+        textBox.setText("");
+        this.currentFilterExpression = null;
     }
 
     public interface Predicate<T> {
