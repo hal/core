@@ -191,14 +191,12 @@ public class BulletGraphView implements Sampler {
             });
         }
 
-
-        for(int i=0; i<columns.length;i++)
-        {
-            grid.setText(i, 0, columns[i].label);
-            grid.setText(i, 1, metric.get(i));
-        }
-
-
+        Scheduler.get().scheduleDeferred(() -> { // defer so the values aren't rewritten by renderDefault() triggered from asWidget()
+            for (int i = 0; i < columns.length; i++) {
+                grid.setText(i, 0, columns[i].label);
+                grid.setText(i, 1, metric.get(i));
+            }
+        });
     }
 
     private JsArrayGeneric<Bullet> distinctColumnStrategy(Metric metric) {
