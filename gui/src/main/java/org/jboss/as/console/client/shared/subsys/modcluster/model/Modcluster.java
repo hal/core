@@ -43,6 +43,10 @@ public interface Modcluster {
     public boolean isAutoEnableContexts();
     public void setAutoEnableContexts(boolean autoEnableContexts);
 
+    @Binding(detypedName="connector")
+    public String getConnector();
+    public void setConnector(String connector);
+
     @Binding(detypedName="excluded-contexts")
     public String getExcludedContexts();
     public void setExcludedContexts(String excludedContexts);
