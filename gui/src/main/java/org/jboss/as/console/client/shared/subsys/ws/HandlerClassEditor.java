@@ -59,7 +59,9 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 /**
  * Specific editor for the handler class of pre/post handler of endpoint/client configuration.
- *
+ * 
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
  */
 public class HandlerClassEditor implements IsWidget {
 
@@ -78,12 +80,7 @@ public class HandlerClassEditor implements IsWidget {
     HandlerClassEditor(AddressTemplate operationAddress, Dispatcher circuit, SecurityContext securityContext,
             ResourceDescription resourceDescription) {
 
-        this.nameProvider = new ProvidesKey<Property>() {
-            @Override
-            public Object getKey(Property property) {
-                return property.getName();
-            }
-        };
+        this.nameProvider = Property::getName;
 
         this.operationAddress = operationAddress;
         this.securityContext = securityContext;
@@ -118,12 +115,7 @@ public class HandlerClassEditor implements IsWidget {
             }
         };
         ColumnSortEvent.ListHandler<Property> sortHandler = new ColumnSortEvent.ListHandler<>(dataProvider.getList());
-        sortHandler.setComparator(nameColumn, new Comparator<Property>() {
-            @Override
-            public int compare(Property o1, Property o2) {
-                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-            }
-        });
+        sortHandler.setComparator(nameColumn, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
         table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
         table.addColumn(classColumn, "Handler class");
         table.setColumnWidth(nameColumn, 40, Style.Unit.PCT);
@@ -133,27 +125,19 @@ public class HandlerClassEditor implements IsWidget {
 
         // tools
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                onAdd();
-            }
-        });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                final Property selection = selectionModel.getSelectedObject();
-                if (selection != null) {
-                    Feedback.confirm(Console.CONSTANTS.subsys_ws_remove_handler(), Console.MESSAGES.deleteConfirm("handler class "  + selection.getName()),
-                            new Feedback.ConfirmationHandler() {
-                                @Override
-                                public void onConfirmation(boolean isConfirmed) {
-                                    if (isConfirmed) {
-                                        circuit.dispatch(new DeleteHandler(resolvedOperationAddress, selection.getName()));
-                                    }
+        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> onAdd());
+        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+            final Property selection = selectionModel.getSelectedObject();
+            if (selection != null) {
+                Feedback.confirm(Console.CONSTANTS.subsys_ws_remove_handler(), Console.MESSAGES.deleteConfirm("handler class "  + selection.getName()),
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    circuit.dispatch(new DeleteHandler(resolvedOperationAddress, selection.getName()));
                                 }
-                            });
-                }
+                            }
+                        });
             }
         });
         addButton.setOperationAddress(operationAddress.getTemplate(), ModelDescriptionConstants.ADD);
@@ -172,12 +156,7 @@ public class HandlerClassEditor implements IsWidget {
     public void update(List<Property> handlerClasses) {
         table.setRowCount(handlerClasses.size(), true);
 
-        Collections.sort(handlerClasses, new Comparator<Property>() {
-            @Override
-            public int compare(Property o1, Property o2) {
-                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-            }
-        });
+        Collections.sort(handlerClasses, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
 
         List<Property> dataList = dataProvider.getList();
         dataList.clear(); // cannot call setList() as that breaks the sort handler

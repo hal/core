@@ -26,6 +26,10 @@ import java.util.Map;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.UpdateAction;
 
+/**
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
+ */
 public class UpdateHandler extends UpdateAction {
     public UpdateHandler(AddressTemplate addressTemplate, String instanceName, Map<String, Object> changedValues) {
         super(addressTemplate, instanceName, changedValues);

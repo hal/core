@@ -96,23 +96,17 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
         tabLayoutpanel.add(endpointHandlerPages.asWidget(), "Endpoint Configuration", true);
         tabLayoutpanel.add(clientHandlerPages.asWidget(), "Client Configuration", true);
         tabLayoutpanel.selectTab(0);
-        tabLayoutpanel.addSelectionHandler(new SelectionHandler<Integer>() {
-
-            @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                if (1 == event.getSelectedItem()) {
-                    endpointConfigEditor.notifyDefaultSelection();
-                } else if (2 == event.getSelectedItem()) {
-                    clientConfigEditor.notifyDefaultSelection();
-                }
+        tabLayoutpanel.addSelectionHandler(event -> {
+            if (1 == event.getSelectedItem()) {
+                endpointConfigEditor.notifyDefaultSelection();
+            } else if (2 == event.getSelectedItem()) {
+                clientConfigEditor.notifyDefaultSelection();
             }
         });
 
 
         return tabLayoutpanel;
     }
-
-    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");
 
     private void createEndpointConfiguration() {
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
@@ -124,13 +118,13 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
         // ------ pre/post handler for endpoint configuration
         AddressTemplate preHandlerEndpointAddress = WebServicesStore.ENDPOINT_CONFIG_ADDRESS.append("pre-handler-chain=*");
         ResourceDescription preHandlerEndpointResourceDescription = endpointResourceDescription.getChildDescription("pre-handler-chain");
-        preHandlerEndpointEditor = new HandlerEditor(dispatcher, circuit, securityContext, statementContext,
-                preHandlerEndpointAddress, preHandlerEndpointResourceDescription, presenter);
+        preHandlerEndpointEditor = new HandlerEditor(circuit, securityContext,
+                preHandlerEndpointAddress, preHandlerEndpointResourceDescription);
 
         AddressTemplate postHandlerEndpointAddress = WebServicesStore.ENDPOINT_CONFIG_ADDRESS.append("post-handler-chain=*");
         ResourceDescription postHandlerEndpointResourceDescription = endpointResourceDescription.getChildDescription("post-handler-chain");
-        postHandlerEndpointEditor = new HandlerEditor(dispatcher, circuit, securityContext, statementContext,
-                postHandlerEndpointAddress, postHandlerEndpointResourceDescription, presenter);
+        postHandlerEndpointEditor = new HandlerEditor(circuit, securityContext,
+                postHandlerEndpointAddress, postHandlerEndpointResourceDescription);
 
         // PagedView for endpoint config. It is the left column page
         endpointHandlerPages = new PagedView();
@@ -151,13 +145,13 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
         // ------ pre/post handler for client configuration
         AddressTemplate preHandlerClientAddress = WebServicesStore.CLIENT_CONFIG_ADDRESS.append("pre-handler-chain=*");
         ResourceDescription preHandlerClientResourceDescription = clientResourceDescription.getChildDescription("pre-handler-chain");
-        preHandlerClientEditor = new HandlerEditor(dispatcher, circuit, securityContext, statementContext,
-                preHandlerClientAddress, preHandlerClientResourceDescription, presenter);
+        preHandlerClientEditor = new HandlerEditor(circuit, securityContext,
+                preHandlerClientAddress, preHandlerClientResourceDescription);
 
         AddressTemplate postHandlerClientAddress = WebServicesStore.CLIENT_CONFIG_ADDRESS.append("post-handler-chain=*");
         ResourceDescription postHandlerClientResourceDescription = clientResourceDescription.getChildDescription("post-handler-chain");
-        postHandlerClientEditor = new HandlerEditor(dispatcher, circuit, securityContext, statementContext,
-                postHandlerClientAddress, postHandlerClientResourceDescription, presenter);
+        postHandlerClientEditor = new HandlerEditor(circuit, securityContext,
+                postHandlerClientAddress, postHandlerClientResourceDescription);
 
         // PagedView for client config. It is the left column page
         clientHandlerPages = new PagedView();
@@ -231,7 +225,7 @@ public class WebServiceView extends SuspendableViewImpl implements WebServicePre
     public void updateConfig(AddressTemplate addressTemplate, ModelNode currentConfig) {
 
         String configName = null;
-        // update the editor endpoint/client config properties
+        // update the editor endpoint/client configuration properties
         switch (addressTemplate.getResourceType()) {
             case WebServicesStore.ENDPOINT_CONFIG:
                 endpointConfigEditor.updateDetail(currentConfig);

@@ -25,7 +25,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -48,12 +47,8 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.useware.kernel.gui.behaviour.StatementContext;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -61,9 +56,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
+/**
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
+ */
 class HandlerEditor implements IsWidget {
 
     protected final SecurityContext securityContext;
@@ -79,21 +77,16 @@ class HandlerEditor implements IsWidget {
     private HandlerClassEditor handlerClassEditor;
     private String configName;
 
-    public HandlerEditor(DispatchAsync dispatcher, Dispatcher circuit, SecurityContext securityContext,
-            StatementContext statementContext, AddressTemplate addressTemplate,
-            ResourceDescription resourceDescription, WebServicePresenter presenter) {
+    public HandlerEditor(Dispatcher circuit, SecurityContext securityContext,
+                         AddressTemplate addressTemplate,
+                         ResourceDescription resourceDescription) {
 
         this.securityContext = securityContext;
         this.resourceDescription = resourceDescription;
         this.circuit = circuit;
         this.addressTemplate = addressTemplate;
 
-        ProvidesKey<Property> providesKey = new ProvidesKey<Property>() {
-            @Override
-            public Object getKey(Property item) {
-                return item.getName();
-            }
-        };
+        ProvidesKey<Property> providesKey = Property::getName;
 
         table = new DefaultCellTable<>(5, providesKey);
         dataProvider = new ListDataProvider<>(providesKey);
@@ -106,18 +99,10 @@ class HandlerEditor implements IsWidget {
     public Widget asWidget() {
 
         ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                onAdd();
-            }
-        }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if (selectionModel.getSelectedObject() != null) {
-                    onRemove(selectionModel.getSelectedObject().getName());
-                }
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), event -> onAdd()));
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+            if (selectionModel.getSelectedObject() != null) {
+                onRemove(selectionModel.getSelectedObject().getName());
             }
         }));
 
@@ -146,15 +131,12 @@ class HandlerEditor implements IsWidget {
             }
         });
 
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Property property = selectionModel.getSelectedObject();
-                if (property != null) {
-                    updateHandlerList(property);
-                } else {
-                    clearDetail();
-                }
+        selectionModel.addSelectionChangeHandler(event -> {
+            Property property = selectionModel.getSelectedObject();
+            if (property != null) {
+                updateHandlerList();
+            } else {
+                clearDetail();
             }
         });
 
@@ -187,12 +169,7 @@ class HandlerEditor implements IsWidget {
     protected void updateMaster(String configName, final ModelNode currentConfig, String resourceType) {
         List<Property> models = currentConfig.get(resourceType).asPropertyList();
 
-        Collections.sort(models, new Comparator<Property>() {
-            @Override
-            public int compare(Property o1, Property o2) {
-                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
-            }
-        });
+        Collections.sort(models, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
 
         this.configName = configName;
         headlineWidget.setText(configName);
@@ -202,11 +179,11 @@ class HandlerEditor implements IsWidget {
             handlerClassEditor.clearValues();
         } else {
             table.selectDefaultEntity();
-            updateHandlerList(getSelection());
+            updateHandlerList();
         }
     }
 
-    private void updateHandlerList(Property property) {
+    private void updateHandlerList() {
         ModelNode handlerItem = selectionModel.getSelectedObject().getValue();
         formAssets.getForm().edit(handlerItem);
         handlerClassEditor.updateOperationAddressNames(configName, getSelection().getName());
@@ -250,13 +227,10 @@ class HandlerEditor implements IsWidget {
     protected void onRemove(final String name) {
         Feedback.confirm(Console.MESSAGES.deleteTitle(name),
                 Console.MESSAGES.deleteConfirm("pre handler " + " '" + name + "'"),
-                new Feedback.ConfirmationHandler() {
-                    @Override
-                    public void onConfirmation(boolean isConfirmed) {
-                        if (isConfirmed) {
-                            AddressTemplate preHandlerResource = addressTemplate.replaceWildcards(configName);
-                            circuit.dispatch(new DeleteHandler(preHandlerResource, name));
-                        }
+                isConfirmed -> {
+                    if (isConfirmed) {
+                        AddressTemplate preHandlerResource = addressTemplate.replaceWildcards(configName);
+                        circuit.dispatch(new DeleteHandler(preHandlerResource, name));
                     }
                 });
     }

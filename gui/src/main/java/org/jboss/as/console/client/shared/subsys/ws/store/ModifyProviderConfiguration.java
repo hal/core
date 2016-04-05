@@ -25,6 +25,10 @@ import java.util.Map;
 
 import org.jboss.gwt.circuit.Action;
 
+/**
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
+ */
 public class ModifyProviderConfiguration implements Action {
 
     private final Map<String, Object> changedValues;

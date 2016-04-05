@@ -23,6 +23,10 @@ package org.jboss.as.console.client.shared.subsys.ws.store;
 
 import org.jboss.gwt.circuit.Action;
 
+/**
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
+ */
 public class InitWebServices implements Action {
 
 }
