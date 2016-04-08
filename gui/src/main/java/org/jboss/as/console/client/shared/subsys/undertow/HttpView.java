@@ -2,7 +2,6 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
@@ -66,6 +65,11 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     @Override
     public void setConfig(ModelNode data) {
         subsystemView.updateFrom(data);
+    }
+
+    @Override
+    public void selectModifiedHost(String hostname) {
+        hostView.selectModifiedHost(hostname);
     }
 
     @Override

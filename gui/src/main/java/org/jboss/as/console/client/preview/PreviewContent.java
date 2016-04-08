@@ -203,4 +203,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("content/undertow_subsystem.html")
     ExternalTextResource undertow_subsystem();
+
+    @Source("content/undertow_filters.html")
+    ExternalTextResource undertow_filters();
 }

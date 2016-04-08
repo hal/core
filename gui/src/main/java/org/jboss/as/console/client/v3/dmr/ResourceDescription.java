@@ -48,7 +48,7 @@ public class ResourceDescription extends ModelNode {
     }
 
     public boolean hasAttributes() {
-        return hasDefined(ATTRIBUTES);
+        return hasDefined(ATTRIBUTES) && !get(ATTRIBUTES).asList().isEmpty();
     }
 
     public boolean hasAccessControl() {

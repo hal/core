@@ -134,11 +134,7 @@ import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPrese
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinder;
-import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.*;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
@@ -388,6 +384,7 @@ public interface CoreUI {
     AsyncProvider<HttpPresenter> getHttpPresenter();
     AsyncProvider<ServletPresenter> getServletPresenter();
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
+    AsyncProvider<FilterPresenter> getFilterPresenter();
     AsyncProvider<HttpMetricPresenter> getHttpMetricPresenter();
 
 

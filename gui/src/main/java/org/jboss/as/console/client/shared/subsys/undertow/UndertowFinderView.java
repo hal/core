@@ -36,12 +36,18 @@ import java.util.List;
  */
 public class UndertowFinderView extends SuspendableViewImpl implements UndertowFinder.MyView {
 
+    public static final String SERVLET_JSP_ITEM = "Servlet/JSP";
+    public static final String HTTP_ITEM = "HTTP";
+    public static final String FILTERS_ITEM = "Filters";
+    
     private UndertowFinder presenter;
     private LayoutPanel previewCanvas;
     private SplitLayoutPanel layout;
     private final PlaceManager placeManager;
     private final PreviewContentFactory previewContentFactory;
     private FinderColumn<FinderItem> links;
+    
+//    private static String SERVLET_JSP_ITEM = ""
 
     private ColumnManager columnManager;
     private Widget linksCol;
@@ -67,12 +73,9 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
 
     @Override
     public void setPreview(SafeHtml html) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                previewCanvas.clear();
-                previewCanvas.add(new HTML(html));
-            }
+        Scheduler.get().scheduleDeferred(() -> {
+            previewCanvas.clear();
+            previewCanvas.add(new HTML(html));
         });
     }
 
@@ -114,29 +117,23 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
         links.setPreviewFactory(new PreviewFactory<FinderItem>() {
             @Override
             public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
-                if ("Servlet/JSP".equals(data.getTitle())) {
+                if (SERVLET_JSP_ITEM.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.jsp_servlet(), callback);
-                } else if ("HTTP".equals(data.getTitle())) {
+                } else if (HTTP_ITEM.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.http(), callback);
+                } else if (FILTERS_ITEM.equals(data.getTitle())) {
+                    previewContentFactory.createContent(PreviewContent.INSTANCE.undertow_filters(), callback);
                 }
             }
         });
 
-        links.setMenuItems(new MenuDelegate<FinderItem>(Console.CONSTANTS.common_label_view(), new ContextualCommand<FinderItem>() {
-            @Override
-            public void executeOn(FinderItem item) {
-                item.getCmd().execute();
-            }
-        }));
+        links.setMenuItems(new MenuDelegate<>(Console.CONSTANTS.common_label_view(), item -> item.getCmd().execute()));
 
-        links.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                if(links.hasSelectedItem())
-                {
-                    FinderItem item = links.getSelectedItem();
-                    columnManager.updateActiveSelection(linksCol);
-                }
+        links.addSelectionChangeHandler(event -> {
+            if(links.hasSelectedItem())
+            {
+                FinderItem item = links.getSelectedItem();
+                columnManager.updateActiveSelection(linksCol);
             }
         });
 
@@ -149,18 +146,9 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
 
 
         List<FinderItem> settings = new ArrayList<>();
-        settings.add(new FinderItem("Servlet/JSP", new Command() {
-            @Override
-            public void execute() {
-                placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ServletPresenter));
-            }
-        }, false));
-        settings.add(new FinderItem("HTTP", new Command() {
-            @Override
-            public void execute() {
-                placeManager.revealRelativePlace(new PlaceRequest(NameTokens.HttpPresenter));
-            }
-        }, false));
+        settings.add(new FinderItem(SERVLET_JSP_ITEM, () -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ServletPresenter)), false));
+        settings.add(new FinderItem(HTTP_ITEM, () -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.HttpPresenter)), false));
+        settings.add(new FinderItem(FILTERS_ITEM, () -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.UndertowFilters)), false));
 
         links.updateFrom(settings);
         return layout;
