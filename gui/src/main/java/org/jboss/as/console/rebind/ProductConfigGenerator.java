@@ -155,9 +155,9 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // console.version - optional
+        // hal.version - optional
         // If this is not built using the HAL release stream, this property is undefined
-        String consoleVersion = failSafeGetProperty(propertyOracle, "console.version", null);
+        String consoleVersion = failSafeGetProperty(propertyOracle, "hal.version", null);
         sourceWriter.println("public String getConsoleVersion() { ");
         sourceWriter.indent();
         if (consoleVersion == null) {
