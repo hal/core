@@ -20,6 +20,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -246,6 +247,11 @@ public class StandaloneRuntimePresenter
 
                     callback.onSuccess(keepRunning);
                 }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.getMessageCenter().notify(new Message("Waiting for the server to reload", caught.getMessage(), Message.Severity.Warning));
             }
         });
     }
