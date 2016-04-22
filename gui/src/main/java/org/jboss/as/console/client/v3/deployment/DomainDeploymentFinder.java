@@ -24,7 +24,6 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -42,8 +41,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -88,6 +85,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 /**
  * @author Harald Pehl
  */
+@SuppressWarnings("WeakerAccess")
 public class DomainDeploymentFinder
         extends DeploymentFinder<DomainDeploymentFinder.MyView, DomainDeploymentFinder.MyProxy> {
 
@@ -115,16 +113,18 @@ public class DomainDeploymentFinder
     // ------------------------------------------------------ inner classes
 
 
-    class ContentCallback implements AsyncCallback<DMRResponse> {
+    private class ContentCallback implements AsyncCallback<DMRResponse> {
 
         final Content content;
         private final String success;
         private final String error;
+        private final boolean unmanaged;
 
-        ContentCallback(final Content content, final String success, String error) {
+        ContentCallback(final Content content, final String success, String error, boolean unmanaged) {
             this.content = content;
             this.success = success;
             this.error = error;
+            this.unmanaged = unmanaged;
         }
 
         @Override
@@ -139,7 +139,11 @@ public class DomainDeploymentFinder
                 Console.error(error, result.getFailureDescription());
             } else {
                 Console.info(success);
-                loadContentRepository();
+                if (unmanaged) {
+                    loadUnassignedContent();
+                } else {
+                    loadContentRepository();
+                }
             }
         }
     }
@@ -201,7 +205,7 @@ public class DomainDeploymentFinder
         this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
                     Console.info(Console.MESSAGES.deploymentSuccessfullyReplaced(context.upload.getName()));
-                    loadAssignments(context.serverGroup);
+                    loadContentRepository();
                 });
 
         this.statementContext = statementContext;
@@ -281,7 +285,7 @@ public class DomainDeploymentFinder
         }
     }
 
-    public void launchAssignContentDialog(Content content) {
+    public void launchAssignContentDialog(Content content, boolean unmanaged) {
         Set<String> assignedServerGroupNames = Sets.newHashSet(
                 Lists.transform(content.getAssignments(), Assignment::getServerGroup));
         Set<String> serverGroupNames = Sets.newHashSet(
@@ -290,11 +294,11 @@ public class DomainDeploymentFinder
         if (serverGroupNames.isEmpty()) {
             Console.warning(Console.MESSAGES.contentAlreadyAssigned(content.getName()));
         } else {
-            assignContentDialog.open(content, Ordering.natural().immutableSortedCopy(serverGroupNames));
+            assignContentDialog.open(content, Ordering.natural().immutableSortedCopy(serverGroupNames), unmanaged);
         }
     }
 
-    public void assignContent(Content content, Set<String> serverGroups, boolean enable) {
+    public void assignContent(Content content, Set<String> serverGroups, boolean enable, boolean unmanaged) {
         List<Operation> operations = new ArrayList<>();
         for (String serverGroup : serverGroups) {
             ResourceAddress address = new ResourceAddress()
@@ -308,7 +312,7 @@ public class DomainDeploymentFinder
         }
         dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
                 Console.MESSAGES.contentSuccessfullyAssignedToServerGroups(content.getName()),
-                Console.MESSAGES.contentFailedToAssignToServerGroups(content.getName())));
+                Console.MESSAGES.contentFailedToAssignToServerGroups(content.getName()), unmanaged));
     }
 
     public void launchUnassignContentDialog(Content content) {
@@ -332,7 +336,7 @@ public class DomainDeploymentFinder
         }
         dispatcher.execute(new DMRAction(new Composite(operations)), new ContentCallback(content,
                 Console.MESSAGES.contentSuccessfullyUnassignedFromServerGroups(content.getName()),
-                Console.MESSAGES.contentFailedToUnassignFromServerGroups(content.getName())));
+                Console.MESSAGES.contentFailedToUnassignFromServerGroups(content.getName()), false));
     }
 
     public void launchReplaceContentWizard() {
