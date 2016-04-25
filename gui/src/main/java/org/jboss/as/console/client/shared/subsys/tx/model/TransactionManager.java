@@ -14,7 +14,7 @@ public interface TransactionManager {
     int getDefaultTimeout();
     void setDefaultTimeout(int t);
 
-    @Binding(detypedName = "enable-statistics", expr = true)
+    @Binding(detypedName = "statistics-enabled", expr = true)
     boolean isEnableStatistics();
     void setEnableStatistics(boolean b);
 
