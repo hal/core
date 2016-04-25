@@ -180,7 +180,17 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
     @Override
     public void updateDeployments(Iterable<Deployment> deployments) {
-        deploymentColumn.updateFrom(Lists.newArrayList(deployments));
+        Deployment oldDeployment = deploymentColumn.getSelectedItem();
+        Deployment newDeployment = null;
+
+        if (oldDeployment != null) {
+            for (Deployment d : deployments) {
+                if (d.getName().equals(oldDeployment.getName())) {
+                    newDeployment = d;
+                }
+            }
+        }
+        deploymentColumn.updateFrom(Lists.newArrayList(deployments), newDeployment);
     }
 
 
