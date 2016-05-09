@@ -87,6 +87,14 @@ public class PatchInfoTable implements IsWidget, PatchManagementElementId {
                 return record.getId();
             }
         };
+        
+        TextColumn<PatchInfo> patchStreamColumn = new TextColumn<PatchInfo>() {
+            @Override
+            public String getValue(PatchInfo record) {
+                return record.getIdentityName();
+            }
+        };
+        
         TextColumn<PatchInfo> dateColumn = new TextColumn<PatchInfo>() {
             @Override
             public String getValue(PatchInfo record) {
@@ -100,6 +108,7 @@ public class PatchInfoTable implements IsWidget, PatchManagementElementId {
             }
         };
         table.addColumn(idColumn, "ID");
+        table.addColumn(patchStreamColumn, Console.CONSTANTS.common_label_patch_stream());
         table.addColumn(dateColumn, Console.CONSTANTS.common_label_date());
         table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
 

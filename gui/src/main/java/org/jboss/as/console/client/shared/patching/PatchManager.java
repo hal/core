@@ -36,8 +36,10 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.jboss.gwt.flow.client.Progress;
+import org.jboss.dmr.client.Property;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class PatchManager {
 
     @Inject
     public PatchManager(final DispatchAsync dispatcher, final BootstrapContext bootstrapContext,
-                        final HostStore hostStore, BeanFactory beanFactory) {
+            final HostStore hostStore, BeanFactory beanFactory) {
         this.dispatcher = dispatcher;
         this.standalone = bootstrapContext.isStandalone();
         this.hostStore = hostStore;
@@ -110,7 +112,7 @@ public class PatchManager {
     }
 
     public void getPatchInfo(final PatchInfo patch, final AsyncCallback<PatchInfo> callback) {
-        ModelNode patchInfoOp = baseAddress();
+        ModelNode patchInfoOp = baseAddressForStream(getHost(), patch.getIdentityName());
         patchInfoOp.get(OP).set("patch-info");
         patchInfoOp.get("patch-id").set(patch.getId());
 
@@ -153,7 +155,7 @@ public class PatchManager {
     }
 
     public void rollback(final PatchInfo patchInfo, final boolean resetConfiguration, final boolean overrideAll,
-                         final AsyncCallback<Void> callback) {
+            final AsyncCallback<Void> callback) {
         ModelNode rollbackOp = baseAddress();
         rollbackOp.get(OP).set("rollback");
         rollbackOp.get("patch-id").set(patchInfo.getId());
@@ -178,20 +180,24 @@ public class PatchManager {
         });
     }
 
-    private PatchInfo historyToPatchInfo(final ModelNode node) {
+    private PatchInfo historyToPatchInfo(final String identity, final ModelNode node) {
         PatchInfo patchInfo = beanFactory.patchInfo().as();
         patchInfo.setId(node.get("patch-id").asString());
         patchInfo.setType(node.get("type").asString());
         patchInfo.setAppliedAt(node.get("applied-at").asString());
-        patchInfo.setIdentityName("");
+        patchInfo.setIdentityName(identity);
         patchInfo.setIdentityVersion("");
         patchInfo.setDescription("");
         patchInfo.setLink("");
         return patchInfo;
     }
 
+    String getHost() {
+        return standalone ? STANDALONE_HOST : hostStore.getSelectedHost();
+    }
+
     ModelNode baseAddress() {
-        return standalone ? baseAddress(STANDALONE_HOST) : baseAddress(hostStore.getSelectedHost());
+        return baseAddress(getHost());
     }
 
     ModelNode baseAddress(String host) {
@@ -203,6 +209,14 @@ public class PatchManager {
         return node;
     }
 
+    ModelNode baseAddressForStream(final String host, final String patchStream) {
+        ModelNode node = new ModelNode();
+        if (!host.equals(STANDALONE_HOST)) {
+            node.get(ADDRESS).add("host", host);
+        }
+        node.get(ADDRESS).add("core-service", "patching").add("patch-stream", patchStream);
+        return node;
+    }
 
     private class ReadPatches implements Function<List<Patches>> {
 
@@ -214,84 +228,102 @@ public class PatchManager {
 
         @Override
         public void execute(final Control<List<Patches>> control) {
-            ModelNode comp = new ModelNode();
-            comp.get(ADDRESS).setEmptyList();
-            comp.get(OP).set(COMPOSITE);
-            List<ModelNode> steps = new LinkedList<ModelNode>();
+            // read: patch-streams and latest patch,
+            //	NOTE: latest patch == applied to product, it does not include
+            // other streams!
+            final ModelNode readResourceOperation = baseAddress();
+            readResourceOperation.get(OP).set(READ_RESOURCE_OPERATION);
+            readResourceOperation.get(INCLUDE_RUNTIME).set(true);
+            dispatcher.execute(new DMRAction(readResourceOperation), new AsyncCallback<DMRResponse>() {
 
-            ModelNode historyOp = baseAddress(host);
-            historyOp.get(OP).set("show-history");
-            steps.add(historyOp);
-
-            ModelNode latestPatchOp = baseAddress(host);
-            latestPatchOp.get(OP).set(READ_RESOURCE_OPERATION);
-            latestPatchOp.get(INCLUDE_RUNTIME).set(true);
-            steps.add(latestPatchOp);
-
-            comp.get(STEPS).set(steps);
-
-            dispatcher.execute(new DMRAction(comp), new AsyncCallback<DMRResponse>() {
-                @Override
-                public void onFailure(final Throwable caught) {
+                public void onFailure(Throwable caught) {
                     Console.warning(Console.CONSTANTS.patch_manager_error(), caught.getMessage());
                     addPatches(control, new Patches(host));
                     control.proceed();
                 }
 
-                @Override
-                public void onSuccess(final DMRResponse response) {
-                    Patches patches = new Patches(host);
-                    ModelNode result = response.get();
-                    if (!result.hasDefined(OUTCOME) || result.isFailure()) {
-                        Console.error(Console.CONSTANTS.patch_manager_error(), result.getFailureDescription());
-                    } else {
-                        ModelNode stepsResult = result.get(RESULT);
-                        ModelNode historyStep = stepsResult.get("step-1");
-                        ModelNode historyNode = historyStep.get(RESULT);
-                        if (historyNode.isDefined()) {
-                            for (ModelNode node : historyNode.asList()) {
-                                patches.add(historyToPatchInfo(node));
-                            }
-                        }
-
-                        ModelNode latestPatchStep = stepsResult.get("step-2");
-                        ModelNode latestPatchNode = latestPatchStep.get(RESULT);
-                        if (latestPatchNode.isDefined()) {
-                            String id = null;
-                            ModelNode patchesNode = latestPatchNode.get("patches");
-                            if (patchesNode.isDefined()) {
-                                List<ModelNode> idList = patchesNode.asList();
-                                if (!idList.isEmpty()) {
-                                    id = idList.get(0).asString(); // TODO first == latest?
-                                }
-                            }
-                            if (id == null) {
-                                id = latestPatchNode.get("cumulative-patch-id").asString();
-                            }
-                            patches.setLatest(id);
-
-                            String version = latestPatchNode.get("version").asString();
-                            if (patches.getLatest() != null) {
-                                patches.getLatest().setVersion(version);
-                            }
-                        }
-
-                        ModelNode headersNode = result.get("response-headers");
-                        if (headersNode.isDefined()) {
-                            ModelNode stateNode = headersNode.get("process-state");
-                            patches.setRestartRequired("restart-required".equals(stateNode.asString()));
-                        } else {
-                            patches.setRestartRequired(false);
+                public void onSuccess(DMRResponse result) {
+                    final ModelNode readResult = result.get().get(RESULT);
+                    final String host = getHost();
+                    final Patches patches = new Patches(host);
+                    //extract latest patch
+                    final ModelNode patchesNode = readResult.get("patches");
+                    String id = null;
+                    if (patchesNode.isDefined()) {
+                        List<ModelNode> idList = patchesNode.asList();
+                        if (!idList.isEmpty()) {
+                            id = idList.get(0).asString(); // TODO first == latest?
                         }
                     }
-                    addPatches(control, patches);
-                    control.proceed();
+                    if (id == null) {
+                        id = readResult.get("cumulative-patch-id").asString();
+                    }
+                    patches.setLatest(id);
+                    String version = readResult.get("version").asString();
+                    if (patches.getLatest() != null) {
+                        patches.getLatest().setVersion(version);
+                    }
+
+                    ModelNode headersNode = readResult.get("response-headers");
+                    if (headersNode.isDefined()) {
+                        ModelNode stateNode = headersNode.get("process-state");
+                        patches.setRestartRequired("restart-required".equals(stateNode.asString()));
+                    } else {
+                        patches.setRestartRequired(false);
+                    }
+
+                    //read patch streams and issue comp command to read
+                    //patch list per stream.
+                    final String[] patchStreams = sort(readResult.get("patch-stream").asPropertyList());
+                    final ModelNode comp = new ModelNode();
+                    comp.get(ADDRESS).setEmptyList();
+                    comp.get(OP).set(COMPOSITE);
+                    List<ModelNode> steps = new LinkedList<ModelNode>();
+                    for (String stream : patchStreams) {
+                        final ModelNode steppedOp = baseAddressForStream(host, stream);
+                        steppedOp.get(OP).set("show-history");
+                        steppedOp.get("include-runtime").set(true);
+                        steps.add(steppedOp);
+                    }
+                    comp.get(STEPS).set(steps);
+                    dispatcher.execute(new DMRAction(comp), new AsyncCallback<DMRResponse>() {
+
+                        public void onFailure(Throwable caught) {
+                            Console.warning(Console.CONSTANTS.patch_manager_error(), caught.getMessage());
+                            addPatches(control, new Patches(host));
+                            control.proceed();
+                        }
+
+                        public void onSuccess(DMRResponse result) {
+                            final ModelNode compResult = result.get().get(RESULT);
+                            for (int index = 0; index < patchStreams.length; index++) {
+                                List<ModelNode> streamPatches = compResult.get("step-" + (index + 1)).get(RESULT)
+                                        .asList();
+                                for (ModelNode patch : streamPatches) {
+                                    patches.add(historyToPatchInfo(patchStreams[index], patch));
+                                }
+                            }
+                            addPatches(control, patches);
+                            control.proceed();
+                        }
+
+                    });
                 }
+
             });
         }
 
         private void addPatches(Control<List<Patches>> control, Patches patches) {
             control.getContext().add(patches);
+        }
+
+        private String[] sort(List<Property> list) {
+            String[] streams = new String[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                streams[i] = list.get(i).getName();
+            }
+            Arrays.sort(streams);
+            return streams;
         }
     }
 }
