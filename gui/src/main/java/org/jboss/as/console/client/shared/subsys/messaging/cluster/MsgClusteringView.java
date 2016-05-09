@@ -44,7 +44,7 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
 
         panel.addPage("Broadcast", broadcastGroupList.asWidget()) ;
         panel.addPage("Discovery", discoveryGroupList.asWidget()) ;
-        panel.addPage("Connections", clusterConnectionList.asWidget()) ;
+        panel.addPage("Cluster Connections", clusterConnectionList.asWidget()) ;
 
 
         // default page
