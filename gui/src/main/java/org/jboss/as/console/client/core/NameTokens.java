@@ -163,6 +163,7 @@ public class NameTokens {
     public static final String SecDomain = "security_domain";
     public static final String UndertowFinder = "undertow-subsystem";
     public static final String AccessControlFinder = "rbac";
+    public static final String SSOAccessControlFinder = "sso-rbac";
     public static final String DataSourceFinder = "ds-finder";
     public static final String XADataSourcePresenter = "xads";
     public static final String ResourceAdapterFinder = "ra-finder";

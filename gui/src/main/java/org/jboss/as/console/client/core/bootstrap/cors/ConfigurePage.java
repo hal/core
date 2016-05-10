@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.core.bootstrap.cors;
 
-import com.google.gwt.core.client.GWT;
+import java.util.Arrays;
+import java.util.List;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -11,16 +13,16 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
-import org.jboss.ballroom.client.widgets.forms.*;
+import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.ListBoxItem;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Harald Pehl
@@ -81,14 +83,14 @@ class ConfigurePage implements IsWidget {
                 FormValidation formValidation = form.validate();
                 if (!formValidation.hasErrors()) {
                     final BootstrapServer server = form.getUpdatedEntity();
-                    serverSetup.pingServer(server, new AsyncCallback<Void>() {
+                    serverSetup.pingServer(server, new AsyncCallback<SSOChecker>() {
                         @Override
                         public void onFailure(final Throwable caught) {
                             status(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                         }
 
                         @Override
-                        public void onSuccess(final Void result) {
+                        public void onSuccess(final SSOChecker result) {
                             status(StatusMessage.success(Console.CONSTANTS.bs_interface_success()));
                         }
                     });

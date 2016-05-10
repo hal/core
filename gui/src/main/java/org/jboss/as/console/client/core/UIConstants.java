@@ -481,6 +481,9 @@ public interface UIConstants extends Constants {
     String startServerGroup();
     String statisticsEnabledError();
     String stopServerGroup();
+    String sso_access_control_description();
+    String sso_access_control_service_title();
+    String sso_access_control_user_profile();
     String subsys_configadmin_add();
     String subsys_configadmin_editPID();
     String subsys_configadmin_header();

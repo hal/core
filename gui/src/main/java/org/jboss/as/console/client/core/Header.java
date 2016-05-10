@@ -19,6 +19,13 @@
 
 package org.jboss.as.console.client.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
 import com.google.common.base.CharMatcher;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
@@ -61,13 +68,6 @@ import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbMgr;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
 import static org.jboss.as.console.client.StringUtils.ELLIPSIS;
@@ -299,7 +299,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
-                                    new LogoutCmd().execute();
+                                    new LogoutCmd(bootstrap.isSsoEnabled()).execute();
                                 }
                             }
                         }

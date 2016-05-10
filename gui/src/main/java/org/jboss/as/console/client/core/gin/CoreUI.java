@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
+import org.jboss.as.console.client.administration.accesscontrol.ui.SSOAccessControlPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
@@ -374,6 +375,7 @@ public interface CoreUI {
     AsyncProvider<PicketLinkFinder> getPicketLinkFinder();
     AsyncProvider<FederationPresenter> getFederationPresenter();
     AsyncProvider<ServiceProviderPresenter> getServiceProviderPresenter();
+    AsyncProvider<SSOAccessControlPresenter> getSSOAccessControlPresenter();
 
     // Administration
     AsyncProvider<AccessControlFinder> getRbacFinder();

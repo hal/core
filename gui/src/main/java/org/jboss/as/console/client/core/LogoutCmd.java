@@ -1,11 +1,11 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.tools.SSOUtils;
 
 /**
  * @author Heiko Braun
@@ -14,9 +14,11 @@ import org.jboss.as.console.client.Console;
 public class LogoutCmd implements Command {
 
     private final EventBus bus;
+    private boolean ssoEnabled;
 
-    public LogoutCmd() {
+    public LogoutCmd(boolean ssoEnabled) {
         this.bus = Console.MODULES.getEventBus();
+        this.ssoEnabled = ssoEnabled;
     }
 
     @Override
@@ -28,7 +30,10 @@ public class LogoutCmd implements Command {
             @Override
             public void execute() {
                 String logoutUrl = Console.getBootstrapContext().getLogoutUrl();
-                clearMsie();
+                if (ssoEnabled) {
+                    logoutUrl = SSOUtils.getSsoLogoutUrl();
+                }
+                clearMsie(); 
                 Window.Location.replace(logoutUrl);
             }
         });

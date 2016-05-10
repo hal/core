@@ -35,6 +35,8 @@ import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.ResourceLoader;
 import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.as.console.client.administration.accesscontrol.ui.AccessControlView;
+import org.jboss.as.console.client.administration.accesscontrol.ui.SSOAccessControlPresenter;
+import org.jboss.as.console.client.administration.accesscontrol.ui.SSOAccessControlView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogView;
 import org.jboss.as.console.client.analytics.AnalyticsProvider;
@@ -847,6 +849,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 GenericSubsystemView.class,
                 GenericSubsystemPresenter.MyProxy.class);
 
+        bindPresenter(SSOAccessControlPresenter.class,
+                SSOAccessControlPresenter.MyView.class,
+                SSOAccessControlView.class,
+                SSOAccessControlPresenter.MyProxy.class);
 
         // ------------------------------------------------------ circuit
 

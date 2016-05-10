@@ -19,6 +19,9 @@
 
 package org.jboss.as.console.client;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -54,9 +57,6 @@ import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.flow.client.Outcome;
-
-import java.util.EnumSet;
-import java.util.Map;
 
 /**
  * Main application entry point. Executes several initialisation phases.
@@ -111,7 +111,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
             }
             if (403 == status) {
                 // authorisation error (lack of privileges)
-                new InsufficientPrivileges().execute();
+                new InsufficientPrivileges(context.isSsoEnabled()).execute();
             } else {
                 // unknown error
                 HTMLPanel explanation = new HTMLPanel("<div style='padding-top:150px;padding-left:120px;'><h2>" + CONSTANTS

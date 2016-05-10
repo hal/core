@@ -45,14 +45,14 @@ public class BootstrapServerSetup {
             // Connect to a server given as a request parameter
             final BootstrapServer server = new BootstrapServerStore().get(connect);
             if (server != null) {
-                pingServer(server, new AsyncCallback<Void>() {
+                pingServer(server, new AsyncCallback<SSOChecker>() {
                     @Override
                     public void onFailure(Throwable throwable) {
                         openDialog();
                     }
 
                     @Override
-                    public void onSuccess(Void whatever) {
+                    public void onSuccess(SSOChecker whatever) {
                         onConnect(server);
                     }
                 });
@@ -62,6 +62,19 @@ public class BootstrapServerSetup {
 
         } else {
             final String baseUrl = getBaseUrl();
+
+            checkSsoEnabled(baseUrl, new AsyncCallback<SSOChecker>() {
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    // do nothing
+                }
+
+                @Override
+                public void onSuccess(final SSOChecker ssoChecker) {
+                    context.setSsoEnabled(ssoChecker.isSsoEnabled());
+                }
+            });
+            
             // Test whether this console is served from a WildFly / EAP instance
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "/management");
             requestBuilder.setCallback(new RequestCallback() {
@@ -97,7 +110,30 @@ public class BootstrapServerSetup {
         dialog.open();
     }
 
-    void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
+    void pingServer(final BootstrapServer server, final AsyncCallback<SSOChecker> callback) {
+        String serverUrl = getServerUrl(server);
+        // 1st check if SSO is enabled
+        checkSsoEnabled(serverUrl, new AsyncCallback<SSOChecker>() {
+            @Override
+            public void onFailure(final Throwable throwable) {
+                Log.info("pingServer - fail to check sso keycloak adapter - fallback to /management");
+                pingServerManagement(server, callback);
+            }
+
+            @Override
+            public void onSuccess(final SSOChecker ssoChecker) {
+                if (ssoChecker.isSsoEnabled()) {
+                    Log.info("pingServer - sso IS ENABLED, go to App.html");
+                    callback.onSuccess(ssoChecker);
+                } else {
+                    Log.info("pingServer - sso is NOT enabled, fallback to /management");
+                    pingServerManagement(server, callback);
+                }
+            }
+        });
+    }
+    
+    void pingServerManagement(final BootstrapServer server, final AsyncCallback<SSOChecker> callback) {
         final String managementEndpoint = getServerUrl(server) + "/management";
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, managementEndpoint);
         requestBuilder.setIncludeCredentials(true);
@@ -127,6 +163,38 @@ public class BootstrapServerSetup {
         }
     }
 
+    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
+    
+    void checkSsoEnabled(String serverUrl, final AsyncCallback<SSOChecker> callback) {
+        final String keycloakAdapterEndpoint = serverUrl + "/keycloak/adapter/wildfly-console";
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, keycloakAdapterEndpoint);
+        requestBuilder.setCallback(new RequestCallback() {
+            
+            @Override
+            public void onResponseReceived(final Request request, final Response response) {
+                int statusCode = response.getStatusCode();
+                SSOChecker ssoChecker = new SSOChecker();
+                ssoChecker.setSsoEnabled(statusCode == 200);
+                callback.onSuccess(ssoChecker);
+            }
+
+            @Override
+            public void onError(final Request request, final Throwable exception) {
+                Log.error("sso keycloak adapter get error: '" + keycloakAdapterEndpoint + "': " + exception.getMessage());
+                callback.onFailure(new IllegalStateException());
+            }
+        });
+        try {
+            requestBuilder.send();
+        } catch (RequestException e) {
+            Log.error("Failed to check sso enabled '" + keycloakAdapterEndpoint + "': " + e.getMessage());
+            callback.onFailure(new IllegalStateException());
+        }
+    }
+
+    /**
+     * Valid to call only for /management endpoints, not valid for SSO to Keycloak
+     */
     void onConnect(BootstrapServer server) {
         // store selected server
         new BootstrapServerStore().storeSelection(server);

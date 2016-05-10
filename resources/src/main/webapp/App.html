@@ -14,5 +14,41 @@
 
 <!-- pre load images-->
 <div style="visibility:hidden"><img src="images/loading_lite.gif"/></div>
+<script>
+    var consoleBaseUrl = window.location.href;
+    consoleBaseUrl = consoleBaseUrl.substring(0, consoleBaseUrl.indexOf("/console"));
+    var configUrl = consoleBaseUrl + "/keycloak/adapter/wildfly-console";
+
+    var req = new XMLHttpRequest();
+    req.open('GET', configUrl, true);
+    req.setRequestHeader('Accept', 'application/json');
+
+    req.onreadystatechange = function () {
+        if (req.readyState == 4) {
+            if (req.status == 200) {
+                var config = JSON.parse(req.responseText);
+                var authServerUrl = config['auth-server-url'];
+
+                var script = document.createElement('script');
+                script.src = authServerUrl + "/js/keycloak.js";
+                script.onload = function () {
+                    window.keycloak = Keycloak(configUrl);
+                    var initOptions = {
+                        onLoad: 'login-required'
+                    };
+                    window.keycloak.init(initOptions).success(function(authenticated) {
+                    }).error(function() {
+                    });
+                    setInterval(function() { window.keycloak.updateToken(5).success(function() {
+                    }).error(function() {
+                    }); }, 10000);
+                };
+                document.head.appendChild(script);
+            }
+        }
+    };
+
+    req.send();
+</script>
 </body>
 </html>
