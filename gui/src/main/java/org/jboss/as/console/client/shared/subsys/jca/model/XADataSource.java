@@ -19,11 +19,11 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
+import java.util.List;
+
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -75,4 +75,9 @@ public interface XADataSource extends DataSource {
     @Binding(detypedName = "recovery-plugin-class-name")
     String getRecoveryPluginClassName();
     void setRecoveryPluginClassName(String s);
+
+    @Binding(detypedName = "spy")
+    Boolean isSpy();
+    void setSpy(Boolean b);
+
 }
