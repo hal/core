@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -32,8 +34,6 @@ import org.jboss.ballroom.client.widgets.forms.StatusItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -82,8 +82,9 @@ public class XADataSourceDetails {
         StatusItem enabledFlagItem = new StatusItem("enabled", "Is enabled?");
         CheckBoxItem stats = new CheckBoxItem("statisticsEnabled", "Statistics enabled?");
         TextBoxItem driverItem = new TextBoxItem("driverName", "Driver");
+        CheckBoxItem spy = new CheckBoxItem("spy", "SPY");
 
-        form.setFields(nameItem, jndiItem, enabledFlagItem, stats, driverItem);
+        form.setFields(nameItem, jndiItem, enabledFlagItem, stats, driverItem, spy);
 
         form.setEnabled(false); // currently not editable
 
