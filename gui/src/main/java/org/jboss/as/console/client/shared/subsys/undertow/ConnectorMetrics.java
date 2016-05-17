@@ -121,7 +121,7 @@ public class ConnectorMetrics {
         final String subaddress = isXA ? "xa-data-source":"data-source";
         final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
             @Override
-            public ModelNode getAddress() {
+            public ModelNode getQueueAddress() {
                 ModelNode address = new ModelNode();
                 address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
                 address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "datasources");
@@ -212,7 +212,7 @@ public class ConnectorMetrics {
 
         final HelpSystem.AddressCallback addressCallback2 = new HelpSystem.AddressCallback() {
             @Override
-            public ModelNode getAddress() {
+            public ModelNode getQueueAddress() {
                 ModelNode address = new ModelNode();
                 address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
                 address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "datasources");

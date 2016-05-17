@@ -19,22 +19,23 @@
 
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAddressingPattern;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqMessagingProvider;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -44,6 +45,7 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
 
     private MsgDestinationsPresenter presenter;
 
+    private CoreQueueEditor coreQueueEditor;
     private JMSEditor jmsEditor;
     private ConnectionFactoryList connectionFactories;
     private SecurityDetails securitySettings;
@@ -60,13 +62,15 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
 
         PagedView panel = new PagedView(true);
 
+        coreQueueEditor = new CoreQueueEditor(presenter);
         jmsEditor = new JMSEditor(presenter);
         connectionFactories = new ConnectionFactoryList(presenter);
         securitySettings = new SecurityDetails(presenter);
         addressingSettings = new AddressingDetails(presenter);
         divertList = new DivertList(presenter);
 
-        panel.addPage("Queues/Topics", jmsEditor.asWidget()) ;
+        panel.addPage("Core Queues", coreQueueEditor.asWidget()) ;
+        panel.addPage("JMS Queues/Topics", jmsEditor.asWidget()) ;
         panel.addPage("Connection Factories", connectionFactories.asWidget()) ;
         panel.addPage("Security Settings", securitySettings.asWidget()) ;
         panel.addPage("Address Settings", addressingSettings.asWidget()) ;
@@ -95,12 +99,17 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
     }
 
     @Override
-    public void setQueues(List<ActivemqQueue> queues) {
+    public void setJMSQueues(List<ActivemqJMSQueue> queues) {
         jmsEditor.setQueues(queues);
     }
 
     @Override
-    public void setTopics(List<ActivemqJMSEndpoint> topics) {
+    public void setQueues(List<ActivemqCoreQueue> queues) {
+        coreQueueEditor.setQueues(queues);
+    }
+
+    @Override
+    public void setJMSTopics(List<ActivemqJMSEndpoint> topics) {
         jmsEditor.setTopics(topics);
     }
 

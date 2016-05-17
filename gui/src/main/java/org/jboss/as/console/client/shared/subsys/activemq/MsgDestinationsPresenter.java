@@ -19,6 +19,11 @@
 
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -43,12 +48,13 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAddressingPattern;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSTopic;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqMessagingProvider;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqTopic;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -66,11 +72,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -93,11 +94,12 @@ public class MsgDestinationsPresenter
         void setProvider(List<Property> names);
         void setSelectedProvider(String selectedProvider);
         void setDiverts(List<ActivemqDivert> diverts);
+        void setQueues(List<ActivemqCoreQueue> queues);
     }
 
     public interface JMSView {
-        void setQueues(List<ActivemqQueue> queues);
-        void setTopics(List<ActivemqJMSEndpoint> topics);
+        void setJMSQueues(List<ActivemqJMSQueue> queues);
+        void setJMSTopics(List<ActivemqJMSEndpoint> topics);
         void setConnectionFactories(List<ActivemqConnectionFactory> factories);
         void enableEditQueue(boolean b);
         void enableEditTopic(boolean b);
@@ -120,8 +122,9 @@ public class MsgDestinationsPresenter
     private EntityAdapter<ActivemqAddressingPattern> addressingAdapter;
     private EntityAdapter<ActivemqConnectionFactory> factoryAdapter;
     private EntityAdapter<ActivemqDivert> divertAdapter;
-    private EntityAdapter<ActivemqQueue> queueAdapter;
-    private EntityAdapter<ActivemqTopic> topicAdapter;
+    private EntityAdapter<ActivemqJMSQueue> jmsQueueAdapter;
+    private EntityAdapter<ActivemqJMSTopic> topicAdapter;
+    private EntityAdapter<ActivemqCoreQueue> queueAdapter;
 
     private String currentServer;
     private LoadJMSCmd loadJMSCmd;
@@ -152,8 +155,9 @@ public class MsgDestinationsPresenter
 
         this.factoryAdapter = new EntityAdapter<>(ActivemqConnectionFactory.class, metaData);
         this.divertAdapter = new EntityAdapter<>(ActivemqDivert.class, metaData);
-        this.queueAdapter = new EntityAdapter<>(ActivemqQueue.class, metaData);
-        this.topicAdapter = new EntityAdapter<>(ActivemqTopic.class, metaData);
+        this.jmsQueueAdapter = new EntityAdapter<>(ActivemqJMSQueue.class, metaData);
+        this.topicAdapter = new EntityAdapter<>(ActivemqJMSTopic.class, metaData);
+        this.queueAdapter= new EntityAdapter<>(ActivemqCoreQueue.class, metaData);
 
         this.loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
     }
@@ -560,8 +564,9 @@ public class MsgDestinationsPresenter
             @Override
             public void onSuccess(AggregatedJMSModel result) {
                 getJMSView().setConnectionFactories(result.getFactories());
-                getJMSView().setQueues(result.getQueues());
-                getJMSView().setTopics(result.getTopics());
+                getJMSView().setJMSQueues(result.getJMSQueues());
+                getJMSView().setJMSTopics(result.getTopics());
+                getView().setQueues(result.getQueues());
             }
         });
     }
@@ -570,7 +575,7 @@ public class MsgDestinationsPresenter
         getJMSView().enableEditQueue(true);
     }
 
-    public void onSaveQueue(final String name, Map<String, Object> changedValues) {
+    public void onSaveJMSQueue(final String name, Map<String, Object> changedValues) {
         getJMSView().enableEditQueue(false);
 
         if (changedValues.isEmpty()) { return; }
@@ -584,7 +589,7 @@ public class MsgDestinationsPresenter
         // selector hack, selector is read-only
         changedValues.remove("selector");
 
-        ModelNode operation = queueAdapter.fromChangeset(changedValues, proto);
+        ModelNode operation = jmsQueueAdapter.fromChangeset(changedValues, proto);
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
@@ -605,7 +610,7 @@ public class MsgDestinationsPresenter
         });
     }
 
-    public void onCreateQueue(final ActivemqQueue entity) {
+    public void onCreateJMSQueue(final ActivemqJMSQueue entity) {
         closeDialogue();
 
         ModelNode queue = new ModelNode();
@@ -642,7 +647,41 @@ public class MsgDestinationsPresenter
         });
     }
 
-    public void onDeleteQueue(final ActivemqQueue entity) {
+    public void onCreateCoreQueue(final ActivemqCoreQueue entity) {
+        closeDialogue();
+
+        ModelNode queue = new ModelNode();
+        queue.get(OP).set(ADD);
+        queue.get(ADDRESS).set(Baseadress.get());
+        queue.get(ADDRESS).add("subsystem", "messaging-activemq");
+        queue.get(ADDRESS).add("server", getCurrentServer());
+        queue.get(ADDRESS).add("queue", entity.getName());
+
+        queue.get("durable").set(entity.isDurable());
+
+        if (entity.getQueueAddress() != null && !entity.getQueueAddress().equals("")) {
+            queue.get("queue-address").set(entity.getQueueAddress());
+        }
+        if (entity.getFilter() != null && !entity.getFilter().equals("")) {
+            queue.get("filter").set(entity.getFilter());
+        }
+
+        dispatcher.execute(new DMRAction(queue), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                boolean successful = response.get(OUTCOME).asString().equals(SUCCESS);
+                if (successful) {
+                    Console.info(Console.MESSAGES.added("Queue " + entity.getName()));
+                } else {
+                    Console.error(Console.MESSAGES.addingFailed("Queue " + entity.getName()), response.toString());
+                }
+                scheduler.scheduleDeferred(MsgDestinationsPresenter.this::loadJMSConfig);
+            }
+        });
+    }
+
+    public void onDeleteJMSQueue(final ActivemqJMSQueue entity) {
         ModelNode operation = new ModelNode();
         operation.get(OP).set(REMOVE);
         operation.get(ADDRESS).set(Baseadress.get());
@@ -665,12 +704,45 @@ public class MsgDestinationsPresenter
         });
     }
 
-    public void launchNewQueueDialogue() {
+    public void onDeleteCoreQueue(final ActivemqCoreQueue entity) {
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set(REMOVE);
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging-activemq");
+        operation.get(ADDRESS).add("server", getCurrentServer());
+        operation.get(ADDRESS).add("queue", entity.getName());
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                boolean successful = response.get(OUTCOME).asString().equals(SUCCESS);
+                if (successful) {
+                    Console.info(Console.MESSAGES.deleted("Queue " + entity.getName()));
+                } else {
+                    Console.error(Console.MESSAGES.deletionFailed("Queue " + entity.getName()), response.toString());
+                }
+                loadJMSConfig();
+            }
+        });
+    }
+
+    public void launchNewJMSQueueDialogue() {
         window = new DefaultWindow(Console.MESSAGES.createTitle("JMS Queue"));
         window.setWidth(480);
         window.setHeight(360);
         window.addCloseHandler(event -> {});
-        window.trapWidget(new NewQueueWizard(this).asWidget());
+        window.trapWidget(new NewJMSQueueWizard(this).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void launchNewCoreQueueDialogue() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Core Queue"));
+        window.setWidth(480);
+        window.setHeight(360);
+        window.addCloseHandler(event -> {});
+        window.trapWidget(new NewCoreQueueWizard(this).asWidget());
         window.setGlassEnabled(true);
         window.center();
     }
@@ -1012,7 +1084,7 @@ public class MsgDestinationsPresenter
             @Override
             public void onSuccess(AggregatedJMSModel result) {
                 final List<String> names = new ArrayList<>();
-                for (ActivemqQueue queue : result.getQueues()) {
+                for (ActivemqJMSQueue queue : result.getJMSQueues()) {
                     names.add(queue.getName());
                 }
                 for (ActivemqJMSEndpoint topic : result.getTopics()) {

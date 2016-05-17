@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -32,7 +37,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectorService;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -50,11 +55,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -877,7 +877,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
                 final List<String> names = new ArrayList<>();
 
-                for (ActivemqQueue queue : result.getQueues()) {
+                for (ActivemqJMSQueue queue : result.getJMSQueues()) {
                     names.add(queue.getName());
                 }
 
