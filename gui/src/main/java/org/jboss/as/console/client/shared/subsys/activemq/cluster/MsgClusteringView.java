@@ -4,9 +4,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcastGroup;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.Property;
@@ -72,7 +70,7 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
     }
 
     @Override
-    public void setDiscoveryGroups(List<ActivemqDiscoveryGroup> groups) {
+    public void setDiscoveryGroups(List<Property> groups) {
         discoveryGroupList.setDiscoveryGroups(groups);
     }
 

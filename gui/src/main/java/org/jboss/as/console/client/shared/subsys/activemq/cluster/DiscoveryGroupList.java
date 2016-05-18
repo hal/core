@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
-import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -9,16 +8,16 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DiscoveryGroupForm;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.client.shared.subsys.activemq.forms.DiscoveryGroupFormValidator;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -26,49 +25,46 @@ import java.util.Map;
  */
 public class DiscoveryGroupList {
 
+    public static final AddressTemplate BASE_ADDRESS =
+                        AddressTemplate.of("{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/discovery-group=*");
+    private final SingleSelectionModel<Property> selectionModel;
+    private final DefaultCellTable<Property> table;
+    private final ListDataProvider<Property> dataProvider;
+
     private ContentHeaderLabel serverName;
-    private DefaultCellTable<ActivemqDiscoveryGroup> factoryTable;
-    private ListDataProvider<ActivemqDiscoveryGroup> factoryProvider;
     private MsgClusteringPresenter presenter;
     private DiscoveryGroupForm defaultAttributes;
 
     public DiscoveryGroupList(MsgClusteringPresenter presenter) {
         this.presenter = presenter;
+
+        this.table = new DefaultCellTable<>(8);
+        this.dataProvider = new ListDataProvider<>();
+        this.dataProvider.addDataDisplay(table);
+        this.selectionModel = new SingleSelectionModel<>();
+        this.table.setSelectionModel(this.selectionModel);
     }
 
     @SuppressWarnings("unchecked")
     Widget asWidget() {
         serverName = new ContentHeaderLabel();
 
-        factoryTable = new DefaultCellTable<>(10, ActivemqDiscoveryGroup::getName);
-        factoryProvider = new ListDataProvider<>();
-        factoryProvider.addDataDisplay(factoryTable);
-
-        Column<ActivemqDiscoveryGroup, String> nameColumn = new Column<ActivemqDiscoveryGroup, String>(new TextCell()) {
+        TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
-            public String getValue(ActivemqDiscoveryGroup object) {
-                return object.getName();
+            public String getValue(Property node) {
+                return node.getName();
             }
         };
 
-        factoryTable.addColumn(nameColumn, "Name");
+        table.addColumn(nameColumn, "Name");
 
         // defaultAttributes
-        defaultAttributes = new DiscoveryGroupForm(presenter,
-                new FormToolStrip.FormCallback<ActivemqDiscoveryGroup>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.saveDiscoveryGroup(getSelectedEntity().getName(), changeset);
-                    }
-
-                    @Override
-                    public void onDelete(ActivemqDiscoveryGroup entity) {}
-                });
+        defaultAttributes = new DiscoveryGroupForm(presenter);
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(
                 new ToolButton(Console.CONSTANTS.common_label_add(),
-                        clickEvent -> presenter.launchNewDiscoveryGroupWizard()));
+                        clickEvent -> presenter.onLaunchAddResourceDialog(BASE_ADDRESS, new DiscoveryGroupFormValidator())));
 
         tools.addToolButtonRight(
                 new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
@@ -85,21 +81,34 @@ public class DiscoveryGroupList {
                 .setHeadlineWidget(serverName)
                 .setDescription(
                         Console.CONSTANTS.clusterConnectionDescription())
-                .setMaster("DiscoveryGroups", factoryTable)
+                .setMaster("DiscoveryGroups", table)
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());
 
-        defaultAttributes.getForm().bind(factoryTable);
+        defaultAttributes.getForm().bind(table);
+
+        table.getSelectionModel().addSelectionChangeHandler(selectionChangeEvent -> {
+            Property selection = selectionModel.getSelectedObject();
+            if(selection!=null)
+            {
+                defaultAttributes.setData(selection);
+            }
+            else
+            {
+                defaultAttributes.getForm().clearValues();
+            }
+        });
+
         defaultAttributes.getForm().setEnabled(false);
 
         return layout.build();
     }
 
-    public void setDiscoveryGroups(List<ActivemqDiscoveryGroup> DiscoveryGroups) {
-        factoryProvider.setList(DiscoveryGroups);
+    public void setDiscoveryGroups(List<Property> DiscoveryGroups) {
+        dataProvider.setList(DiscoveryGroups);
         serverName.setText("DiscoveryGroups: Provider " + presenter.getCurrentServer());
 
-        factoryTable.selectDefaultEntity();
+        table.selectDefaultEntity();
 
         // populate oracle
         presenter.loadExistingSocketBindings(new AsyncCallback<List<String>>() {
@@ -114,9 +123,8 @@ public class DiscoveryGroupList {
     }
 
     @SuppressWarnings("unchecked")
-    public ActivemqDiscoveryGroup getSelectedEntity() {
-        SingleSelectionModel<ActivemqDiscoveryGroup> selectionModel = (SingleSelectionModel<ActivemqDiscoveryGroup>) factoryTable
-                .getSelectionModel();
+    public Property getSelectedEntity() {
+        SingleSelectionModel<Property> selectionModel = (SingleSelectionModel<Property>) table.getSelectionModel();
         return selectionModel.getSelectedObject();
     }
 }

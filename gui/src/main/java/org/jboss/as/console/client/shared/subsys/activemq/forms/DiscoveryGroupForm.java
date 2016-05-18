@@ -1,22 +1,19 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.layout.FormLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.shared.subsys.activemq.cluster.DiscoveryGroupList;
 import org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextItem;
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.dmr.client.Property;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -24,72 +21,46 @@ import java.util.List;
  */
 public class DiscoveryGroupForm {
 
-    Form<ActivemqDiscoveryGroup> form = new Form<>(ActivemqDiscoveryGroup.class);
     boolean isCreate = false;
     private final MsgClusteringPresenter presenter;
-    private FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback;
-    private MultiWordSuggestOracle oracle;
+    private ModelNodeFormBuilder.FormAssets formAssets;
+    private Property data;
 
-    public DiscoveryGroupForm(MsgClusteringPresenter presenter,
-            FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback) {
-        this.presenter = presenter;
-        this.callback = callback;
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
-    }
 
-    public DiscoveryGroupForm(MsgClusteringPresenter presenter,
-            FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback, boolean create) {
+    public DiscoveryGroupForm(MsgClusteringPresenter presenter) {
         this.presenter = presenter;
-        isCreate = create;
-        if (!isCreate) { this.callback = callback; }
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
     public Widget asWidget() {
-        buildForm();
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.ActivemqMsgClusteringPresenter);
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(DiscoveryGroupList.BASE_ADDRESS);
 
-        if (isCreate) {
-            form.setNumColumns(1);
-        } else {
+        formAssets = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(definition)
+                .setSecurityContext(securityContext)
+                .build();
 
-            form.setNumColumns(2);
-            form.setEnabled(false);
-        }
+        formAssets.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(Map changeset) {
+                presenter.onSaveResource(DiscoveryGroupList.BASE_ADDRESS, DiscoveryGroupForm.this.data.getName(), changeset);
+            }
 
-        FormHelpPanel helpPanel = new FormHelpPanel(() -> {
-            ModelNode address = Baseadress.get();
-            address.add("subsystem", "messaging-activemq");
-            address.add("server", presenter.getCurrentServer());
-            address.add("discovery-group", "*");
-            return address;
-        }, form);
+            @Override
+            public void onCancel(Object entity) {
+                formAssets.getForm().cancel();
+            }
+        });
 
-        FormLayout formLayout = new FormLayout()
-                .setForm(form)
-                .setHelp(helpPanel);
+        formAssets.getForm().addFormValidator(new DiscoveryGroupFormValidator());
 
-        if (!isCreate) {
-            FormToolStrip<ActivemqDiscoveryGroup> formTools = new FormToolStrip<>(form, callback);
-            formLayout.setTools(formTools);
-        }
-
-        return formLayout.build();
+        return formAssets.asWidget();
     }
 
-    private void buildForm() {
-        FormItem name;
-
-        if (isCreate) { name = new TextBoxItem("name", "Name"); } else { name = new TextItem("name", "Name"); }
-        NumberBoxItem initialWait = new NumberBoxItem("initialWaitTimeout", "Initial Wait Timeout");
-        NumberBoxItem refresh = new NumberBoxItem("refreshTimeout", "Refresh Timeout");
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
-        if (isCreate) { form.setFields(name, socket); } else { form.setFields(name, socket, initialWait, refresh); }
-    }
-
-    public Form<ActivemqDiscoveryGroup> getForm() {
-        return form;
+    public void setData(Property data) {
+        this.data = data;
+        formAssets.getForm().edit(data.getValue());
     }
 
     public void setIsCreate(boolean create) {
@@ -97,7 +68,12 @@ public class DiscoveryGroupForm {
     }
 
     public void setSocketBindings(List<String> socketBindings) {
-        this.oracle.clear();
-        this.oracle.addAll(socketBindings);
+        // the suggestions aren't populated yet
+//        this.oracle.clear();
+//        this.oracle.addAll(socketBindings);
+    }
+
+    public ModelNodeForm getForm() {
+        return formAssets.getForm();
     }
 }
