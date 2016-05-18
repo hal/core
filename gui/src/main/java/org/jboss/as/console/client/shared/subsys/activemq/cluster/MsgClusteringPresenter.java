@@ -25,14 +25,18 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscover
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -78,7 +82,8 @@ public class MsgClusteringPresenter
     @NameToken(NameTokens.ActivemqMsgClusteringPresenter)
     @RequiredResources(resources = {
             "{selected.profile}/subsystem=messaging-activemq/server=*",
-            "{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/broadcast-group=*"
+            "{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/broadcast-group=*",
+            "{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/discovery-group=*"
     }
     )
     @SearchIndex(keywords = {"jms", "messaging", "cluster", "broadcast", "discovery"})
@@ -89,7 +94,7 @@ public class MsgClusteringPresenter
         void setProvider(List<Property> result);
         void setSelectedProvider(String currentServer);
         void setBroadcastGroups(List<Property> groups);
-        void setDiscoveryGroups(List<ActivemqDiscoveryGroup> groups);
+        void setDiscoveryGroups(List<Property> model);
         void setClusterConnection(List<ActivemqClusterConnection> groups);
     }
     // @formatter:on
@@ -243,14 +248,7 @@ public class MsgClusteringPresenter
                             response.getFailureDescription());
                 } else {
                     List<Property> model = response.get(RESULT).asPropertyList();
-                    List<ActivemqDiscoveryGroup> groups = new ArrayList<>();
-                    for (Property prop : model) {
-                        ModelNode node = prop.getValue();
-                        ActivemqDiscoveryGroup entity = discGroupAdapter.fromDMR(node);
-                        entity.setName(prop.getName());
-                        groups.add(entity);
-                    }
-                    getView().setDiscoveryGroups(groups);
+                    getView().setDiscoveryGroups(model);
                 }
             }
         });
@@ -445,25 +443,6 @@ public class MsgClusteringPresenter
                     Console.info(Console.MESSAGES.modified("Broadcast Group " + name));
                 }
                 loadDiscoveryGroups();
-            }
-        });
-    }
-
-    public void launchNewDiscoveryGroupWizard() {
-        loadExistingSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                Console.error(Console.MESSAGES.failed("Loading socket bindings"), throwable.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<String> names) {
-                window = new DefaultWindow(Console.MESSAGES.createTitle("Discovery Group"));
-                window.setWidth(480);
-                window.setHeight(450);
-                window.trapWidget(new NewDiscoveryGroupWizard(MsgClusteringPresenter.this, names).asWidget());
-                window.setGlassEnabled(true);
-                window.center();
             }
         });
     }
@@ -718,30 +697,52 @@ public class MsgClusteringPresenter
     }
 
     public void onLaunchAddResourceDialog(AddressTemplate address) {
+        onLaunchAddResourceDialog(address, null);
+    }
+
+    public void onLaunchAddResourceDialog(AddressTemplate address, FormValidator validator) {
         String type = address.getResourceType();
 
         window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
         window.setWidth(480);
         window.setHeight(360);
 
-        window.setWidget(
-                new org.jboss.as.console.client.v3.widgets.AddResourceDialog(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
-                        descriptionRegistry.lookup(address),
-                        new org.jboss.as.console.client.v3.widgets.AddResourceDialog.Callback() {
-                            @Override
-                            public void onAdd(ModelNode payload) {
-                                window.hide();
-                                operationDelegate.onCreateResource(
-                                        address, payload.get("name").asString(), payload, defaultOpCallbacks);
-                            }
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken());
+        ResourceDescription resourceDescription = descriptionRegistry.lookup(address);
 
-                            @Override
-                            public void onCancel() {
-                                window.hide();
-                            }
-                        }
-                )
+        ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+                .setCreateMode(true)
+                .setConfigOnly()
+                .setRequiredOnly(false)
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext)
+                .build();
+
+        if (validator != null) {
+            formAssets.getForm().addFormValidator(validator);
+        }
+
+        formAssets.getForm().setEnabled(true);
+
+        final org.jboss.as.console.client.v3.widgets.AddResourceDialog addResourceDialog = new org.jboss.as.console.client.v3.widgets.AddResourceDialog(
+                formAssets, resourceDescription,
+                new org.jboss.as.console.client.v3.widgets.AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        window.hide();
+                        operationDelegate.onCreateResource(
+                                address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }
+        );
+
+        window.setWidget(
+                addResourceDialog
         );
 
         window.setGlassEnabled(true);
