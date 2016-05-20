@@ -3,7 +3,7 @@ package org.jboss.as.console.client.tools;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -39,7 +39,7 @@ public class PageHeader {
         header.clear();
 
         final List<Property> path = address.asPropertyList();
-        HorizontalPanel nav = new HorizontalPanel();
+        FlowPanel nav = new FlowPanel();
         nav.addStyleName("node-header");
 
         if(path.isEmpty())
