@@ -23,6 +23,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcas
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -31,8 +32,10 @@ import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -724,10 +727,22 @@ public class MsgClusteringPresenter
         window.setWidth(480);
         window.setHeight(360);
 
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken());
+        ResourceDescription resourceDescription = descriptionRegistry.lookup(address);
+
+        ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+                                    .setCreateMode(true)
+                                    .setConfigOnly()
+                                    .setRequiredOnly(false)
+                                    .includeOptionals(false)
+                                    .include("connectors", "broadcast-period", "jgroups-channel", "jgroups-stack", "socket-binding")
+                                    .setResourceDescription(resourceDescription)
+                                    .setSecurityContext(securityContext)
+                                    .build();
+                            formAssets.getForm().setEnabled(true);
+
         window.setWidget(
-                new org.jboss.as.console.client.v3.widgets.AddResourceDialog(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
-                        descriptionRegistry.lookup(address),
+                new org.jboss.as.console.client.v3.widgets.AddResourceDialog(formAssets, resourceDescription,
                         new org.jboss.as.console.client.v3.widgets.AddResourceDialog.Callback() {
                             @Override
                             public void onAdd(ModelNode payload) {
