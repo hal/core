@@ -204,4 +204,8 @@ public interface DataSource {
     Boolean isAllowMultipleUsers();
     void setAllowMultipleUsers(Boolean b);
 
+    @Binding(detypedName = "spy")
+    Boolean isSpy();
+    void setSpy(Boolean b);
+
 }
