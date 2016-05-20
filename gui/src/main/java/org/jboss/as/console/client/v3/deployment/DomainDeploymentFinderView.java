@@ -23,8 +23,8 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
@@ -38,8 +38,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -59,6 +57,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.jboss.as.console.client.widgets.nav.v3.FinderColumn.FinderId.DEPLOYMENT;
 import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Navigation;
@@ -74,6 +73,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
     private ColumnManager columnManager;
+    private PreviewContentFactory contentFactory;
 
     private BrowseByColumn browseByColumn;
     private Widget browseByColumnWidget;
@@ -93,6 +93,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
     public DomainDeploymentFinderView(final PlaceManager placeManager, final DispatchAsync dispatcher,
             final Dispatcher circuit, final PreviewContentFactory contentFactory) {
 
+        this.contentFactory = contentFactory;
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(layout, DEPLOYMENT);
@@ -269,7 +270,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         contentColumn = new ContentColumn(Console.CONSTANTS.allContent(), columnManager,
                 new MenuDelegate<Content>(Console.CONSTANTS.common_label_add(), item -> presenter.launchAddContentWizard(), Operation)
                         .setOperationAddress("/deployment=*", "add"),
-                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item), Operation)
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item, false), Operation)
                         .setOperationAddress("/deployment=*", "add"),
                 new MenuDelegate<Content>(Console.CONSTANTS.unassign(), item -> presenter.launchUnassignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "remove"),
@@ -299,7 +300,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         //noinspection Convert2MethodRef
         unassignedColumn = new ContentColumn(Console.CONSTANTS.unassigned(), columnManager,
                 null,
-                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item), Operation)
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_assign(), item -> presenter.launchAssignContentDialog(item, true), Operation)
                         .setOperationAddress("/deployment=*", "add"),
                 new MenuDelegate<Content>(Console.CONSTANTS.common_label_delete(), item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.deleteTitle(item.getName()),
@@ -396,6 +397,15 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         });
     }
 
+    private void setPreview(final ExternalTextResource externalTextResource) {
+        contentFactory.createContent(externalTextResource, new SimpleCallback<SafeHtml>() {
+            @Override
+            public void onSuccess(SafeHtml safeHtml) {
+                setPreview(safeHtml);
+            }
+        });
+    }
+
     @Override
     public void toggleScrolling(final boolean enforceScrolling, final int requiredWidth) {
         columnManager.toogleScrolling(enforceScrolling, requiredWidth);
@@ -427,11 +437,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
     @Override
     public void updateContentRepository(final Iterable<Content> content) {
         contentColumn.updateFrom(Lists.newArrayList(content));
+        setPreview(PreviewContent.INSTANCE.content_repository());
     }
 
     @Override
     public void updateUnassigned(final Iterable<Content> unassigned) {
         unassignedColumn.updateFrom(Lists.newArrayList(unassigned));
+        setPreview(PreviewContent.INSTANCE.unassigned_content());
     }
 
     @Override
@@ -441,6 +453,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
     @Override
     public void updateAssignments(final Iterable<Assignment> assignments) {
-        assignmentColumn.updateFrom(Lists.newArrayList(assignments));
+        List<Assignment> assignmentList = Lists.newArrayList(assignments);
+        assignmentColumn.updateFrom(assignmentList);
+        setPreview(Templates.serverGroupPreview(serverGroupColumn.getSelectedItem(), assignmentList.size()));
     }
 }
