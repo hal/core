@@ -506,6 +506,9 @@ public class ColumnProfileView extends SuspendableViewImpl
                             }
                     );
 
+                } else {
+                    clearNestedPresenter();
+                    columnManager.reduceColumnsTo(2);
                 }
             }
         });
