@@ -25,16 +25,7 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.ws.store.CreateConfig;
-import org.jboss.as.console.client.shared.subsys.ws.store.CreateHandler;
-import org.jboss.as.console.client.shared.subsys.ws.store.DeleteConfig;
-import org.jboss.as.console.client.shared.subsys.ws.store.DeleteHandler;
-import org.jboss.as.console.client.shared.subsys.ws.store.InitWebServices;
-import org.jboss.as.console.client.shared.subsys.ws.store.ModifyProviderConfiguration;
-import org.jboss.as.console.client.shared.subsys.ws.store.ReadConfig;
-import org.jboss.as.console.client.shared.subsys.ws.store.ReadHandler;
-import org.jboss.as.console.client.shared.subsys.ws.store.UpdateHandler;
-import org.jboss.as.console.client.shared.subsys.ws.store.WebServicesStore;
+import org.jboss.as.console.client.shared.subsys.ws.store.*;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.widgets.AddressableResourceView;
 import org.jboss.as.console.client.v3.widgets.PropertyAddedEvent;
@@ -137,6 +128,14 @@ public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.My
         } else if (action instanceof DeleteConfig) {
             AddressTemplate addressTemplate = ((DeleteConfig) action).getAddressTemplate();
             getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+            
+        } else if (action instanceof ReadAllEndpointConfig) {
+            AddressTemplate addressTemplate = ((ReadAllEndpointConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+
+        } else if (action instanceof ReadAllClientConfig) {
+            AddressTemplate addressTemplate = ((ReadAllClientConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
 
         // pre-handler
         } else if (action instanceof CreateHandler) {
@@ -181,31 +180,35 @@ public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.My
 
     // properties management
 
-    // the endpoint/client config name, it is set in SubResourcePropertyManager
-    private AddressTemplate extractConfigAddress(AddressTemplate addressTemplate, String configName) {
-        // we need to strip the /property=* from the address template and reload only the endpoint/client config selection
-        // retrieve only the /subsystem=webservices address
-        AddressTemplate rootResourceAddress = addressTemplate.subTemplate(0, 2);
-        // retrieve only the endpoint/client config, to get its resource type
-        AddressTemplate configAddress = addressTemplate.subTemplate(0, 3);
-
-        // assemble the address template for the endpoint/client config
-        configAddress = rootResourceAddress.append(configAddress.getResourceType() + "=" + configName);
-        return configAddress;
-    }
 
     @Override
     public void onPropertyRemoved(PropertyRemovedEvent event) {
-        refresh(extractConfigAddress(event.getAddressTemplate(), configName));
+        refresh(event.getAddressTemplate());
     }
 
     @Override
     public void onPropertyAdded(PropertyAddedEvent event) {
-        refresh(extractConfigAddress(event.getAddressTemplate(), configName));
+        refresh(event.getAddressTemplate());
     }
 
-    private void refresh(AddressTemplate resourceAddress) {
-        circuit.dispatch(new ReadConfig(resourceAddress));
+    /**
+     * For each property modification, all endpoint/client configurations must be reloaded, 
+     * because each view editor manages a list of endpoint/client configurations, so
+     * the list must be reloaded.
+     * 
+     * @param addressTemplate The resource template containing the property=* suffix.
+     */
+    private void refresh(AddressTemplate addressTemplate) {
+        addressTemplate = addressTemplate.subTemplate(0, 3);
+        switch (addressTemplate.getResourceType()) {
+            case WebServicesStore.ENDPOINT_CONFIG:
+                circuit.dispatch(new ReadAllEndpointConfig(addressTemplate));
+                break;
+            case WebServicesStore.CLIENT_CONFIG:
+                circuit.dispatch(new ReadAllClientConfig(addressTemplate));
+                break;
+        }
+        
     }
 
     public PlaceManager getPlaceManager() {

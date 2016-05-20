@@ -60,7 +60,10 @@ import com.google.inject.Inject;
  * <li>Child resources of {@code selected.profile}/subsystem=webservices/endpoint-config=*} (CRUD)</li>
  * </ul>
  *
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
  */
+
 @Store
 public class WebServicesStore extends ChangeSupport {
 
@@ -180,14 +183,14 @@ public class WebServicesStore extends ChangeSupport {
                 });
     }
 
-    // ------------------------------------------------------ read unique endpoint/client config
+    // ------------------------------------------------------ read a single endpoint/client configuration
 
     @Process(actionType = ReadConfig.class)
     public void readConfig(final ReadConfig action, final Dispatcher.Channel channel) {
         readConfig(action.getAddressTemplate(), channel);
     }
 
-    // ------------------------------------------------------ crud endpoint/client config
+    // ------------------------------------------------------ create/delete endpoint/client configuration
 
     @Process(actionType = CreateConfig.class)
     public void createConfig(final CreateConfig action, final Dispatcher.Channel channel) {
@@ -201,6 +204,16 @@ public class WebServicesStore extends ChangeSupport {
                 channel);
     }
 
+    @Process(actionType = ReadAllEndpointConfig.class)
+    public void readAllEndpointConfig(final ReadAllEndpointConfig action, final Dispatcher.Channel channel) {
+        read(action.getAddressTemplate().getResourceType(), getModelsFor(action.getAddressTemplate()), channel);
+    }
+
+    @Process(actionType = ReadAllClientConfig.class)
+    public void readAllClientConfig(final ReadAllClientConfig action, final Dispatcher.Channel channel) {
+        read(action.getAddressTemplate().getResourceType(), getModelsFor(action.getAddressTemplate()), channel);
+    }    
+    
     // ------------------------------------------------------ pre/post handlers
 
     @Process(actionType = CreateHandler.class)
@@ -215,6 +228,7 @@ public class WebServicesStore extends ChangeSupport {
                 @Override
                 public void onSuccess(AddressTemplate addressTemplate, String name) {
                     lastModifiedInstance = action.getInstanceName();
+                    // we must strip the pre-handler-chain suffix to reload a single configuration. 
                     readConfig(action.getAddressTemplate().subTemplate(0, 3), channel);
                 }
             });
@@ -237,6 +251,7 @@ public class WebServicesStore extends ChangeSupport {
                 @Override
                 public void onSuccess(AddressTemplate addressTemplate1, String name) {
                     lastModifiedInstance = action.getInstanceName();
+                    // we must strip the pre-handler-chain suffix to reload a single configuration.
                     readConfig(action.getAddressTemplate().subTemplate(0, 3), channel);
                 }
             });
@@ -254,12 +269,13 @@ public class WebServicesStore extends ChangeSupport {
                 @Override
                 public void onSuccess(AddressTemplate addressTemplate, String name) {
                     lastModifiedInstance = null;
+                    // we must strip the pre-handler-chain suffix to reload a single configuration.
                     readConfig(action.getAddressTemplate().subTemplate(0, 3), channel);
                 }
             });
     }
 
-    // ------------------------------------------------------ generic create, read, update, delete
+    // ------------------------------------------------------ generic create, read, update, delete 
 
     private void create(final AddressTemplate addressTemplate, final String instanceName, final ModelNode newModel,
                         final List<Property> list, final Dispatcher.Channel channel) {
@@ -320,7 +336,6 @@ public class WebServicesStore extends ChangeSupport {
                             response.getFailureDescription()));
                 } else {
                     ModelNode result = response.get(RESULT);
-//                    LOG.info("readConfig: result: " + result.asString());
                     currentConfig = result;
                     channel.ack();
                 }

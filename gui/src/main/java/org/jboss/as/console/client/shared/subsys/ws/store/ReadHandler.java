@@ -24,6 +24,10 @@ package org.jboss.as.console.client.shared.subsys.ws.store;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.ReadAction;
 
+/**
+ * @author Claudio Miranda <claudio@redhat.com>
+ * @date 3/31/2016
+ */
 public class ReadHandler extends ReadAction {
     public ReadHandler(AddressTemplate addressTemplate) {
         super(addressTemplate);
