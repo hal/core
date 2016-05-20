@@ -443,7 +443,7 @@
     padding-right: 5px;
 }
 
-.nav-hover .cellTableSelectedRowCell .nav-menu {
+.cellTableSelectedRowCell .nav-menu {
     display: inherit;
 }
 

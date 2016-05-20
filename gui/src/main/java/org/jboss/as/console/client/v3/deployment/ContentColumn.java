@@ -61,7 +61,7 @@ public class ContentColumn extends FinderColumn<Content> {
                 new ProvidesKey<Content>() {
                     @Override
                     public Object getKey(final Content item) {
-                        return item.getName();
+                        return item.getName() + ":" + item.getAssignments().size();
                     }
                 },
                 NameTokens.DomainDeploymentFinder,

@@ -843,6 +843,24 @@ public class FinderColumn<T> implements SecurityContextAware {
         }*/
     }
 
+    public void updateFrom(final List<T> records, T selectedItem) {
+        if (selectedItem == null) {
+            updateFrom(records);
+            return;
+        }
+
+        if(filter!=null) filter.clear();
+
+        selectionModel.setSelected(selectedItem, true);
+        triggerPreviewEvent();
+
+        dataProvider.setList(records);
+
+        if(!plain) {
+            updateTitle();
+        }
+    }
+
     /**
      * renderer for the column content
      * @param <T>
