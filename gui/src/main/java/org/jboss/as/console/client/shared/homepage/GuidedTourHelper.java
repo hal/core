@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.homepage;
 
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.PopupPanel;
 import elemental.events.KeyboardEvent;
@@ -48,6 +49,14 @@ class GuidedTourHelper {
         tourFrame.setHeight("100%");
 
         guidedTour = new PopupPanel(true, true) {
+            {
+                Window.addResizeHandler(resizeEvent -> {
+                    if (isShowing()) {
+                        center();
+                    }
+                });
+            }
+
             @Override
             protected void onPreviewNativeEvent(Event.NativePreviewEvent event) {
                 if (Event.ONKEYUP == event.getTypeInt()) {
