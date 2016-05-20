@@ -1,127 +1,176 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2010, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.as.console.client.shared.subsys.ws;
 
-import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.HasPresenter;
+import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.ws.store.*;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.widgets.AddressableResourceView;
+import org.jboss.as.console.client.v3.widgets.PropertyAddedEvent;
+import org.jboss.as.console.client.v3.widgets.PropertyAddedEvent.PropertyAddedHandler;
+import org.jboss.as.console.client.v3.widgets.PropertyRemovedEvent;
+import org.jboss.as.console.client.v3.widgets.PropertyRemovedEvent.PropertyRemovedHandler;
+import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
+
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
  * @date 6/10/11
  */
-public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, WebServicePresenter.MyProxy> {
-
-
+public class WebServicePresenter extends CircuitPresenter<WebServicePresenter.MyView, WebServicePresenter.MyProxy> implements PropertyAddedHandler, PropertyRemovedHandler {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServicePresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=webservices"})
-    @SearchIndex(keywords = {"web", "wsdl", "soap", "client-config", "endpoint-config"})
+    @RequiredResources(
+            resources = {
+                    "{selected.profile}/subsystem=webservices",
+                    "{selected.profile}/subsystem=webservices/endpoint-config=*",
+                    "{selected.profile}/subsystem=webservices/endpoint-config=*/pre-handler-chain=*",
+                    "{selected.profile}/subsystem=webservices/endpoint-config=*/post-handler-chain=*",
+                    "{selected.profile}/subsystem=webservices/client-config=*",
+                    "{selected.profile}/subsystem=webservices/client-config=*/pre-handler-chain=*",
+                    "{selected.profile}/subsystem=webservices/client-config=*/post-handler-chain=*"
+            })
     public interface MyProxy extends Proxy<WebServicePresenter>, Place {
     }
 
-    public interface MyView extends View {
-        void setPresenter(WebServicePresenter presenter);
-        void reset();
-        void updateFrom(ModelNode modelNode);
+    public interface MyView extends View, AddressableResourceView, HasPresenter<WebServicePresenter> {
+        void updateConfig(AddressTemplate addressTemplate, ModelNode currentConfig);
+        void navigateHandlerView();
     }
 
-    private final CrudOperationDelegate operationDelegate;
-    private SecurityFramework securityFramework;
-    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
-    private DispatchAsync dispatcher;
-    private RevealStrategy revealStrategy;
+    private final Dispatcher circuit;
+    private final RevealStrategy revealStrategy;
+    private final WebServicesStore webservicesStore;
+    private final PlaceManager placeManager;
 
-    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
-        @Override
-        public void onSuccess(AddressTemplate address, String name) {
-            Console.info(Console.MESSAGES.successfullyModifiedResource(address.toString()));
-            loadProvider();
-        }
-
-        @Override
-        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
-        }
-    };
-
+    // the endpoint/client configuration selected in ConfigEditorWS
+    private String configName;
 
     @Inject
     public WebServicePresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher,
-            RevealStrategy revealStrategy,
-            SecurityFramework securityFramework,
-            ResourceDescriptionRegistry resourceDescriptionRegistry, CoreGUIContext statementContext) {
-        super(eventBus, view, proxy);
+            EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
+            RevealStrategy revealStrategy, WebServicesStore webservicesStore,
+            PlaceManager placeManager) {
 
-        this.dispatcher = dispatcher;
+        super(eventBus, view, proxy, circuit);
+        this.circuit = circuit;
         this.revealStrategy = revealStrategy;
-        this.securityFramework = securityFramework;
-        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
-        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
+        this.webservicesStore = webservicesStore;
+        this.placeManager = placeManager;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onBind() {
         super.onBind();
+
+        addChangeHandler(webservicesStore);
+
+        // property management is not handled by the store, but using SubResourcePropertyManager
+        // so register handlers to get notified about property modifications
+        addVisibleHandler(PropertyAddedEvent.TYPE, this);
+        addVisibleHandler(PropertyRemovedEvent.TYPE, this);
+
         getView().setPresenter(this);
     }
 
+    @Override
+    protected void onAction(Action action) {
+        if (action instanceof InitWebServices) {
+            getView().update(WebServicesStore.WS_SUBSYSTEM, webservicesStore.getProviderConfiguration());
+            getView().update(WebServicesStore.ENDPOINT_CONFIG_ADDRESS, webservicesStore.getEndpointConfig());
+            getView().update(WebServicesStore.CLIENT_CONFIG_ADDRESS, webservicesStore.getClientConfig());
+
+        } else if (action instanceof ModifyProviderConfiguration) {
+            getView().update(WebServicesStore.WS_SUBSYSTEM, webservicesStore.getProviderConfiguration());
+
+        // endpoint/client config
+        } else if (action instanceof CreateConfig) {
+            AddressTemplate addressTemplate = ((CreateConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+            getView().select(addressTemplate, webservicesStore.getLastModifiedInstance());
+
+        } else if (action instanceof DeleteConfig) {
+            AddressTemplate addressTemplate = ((DeleteConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+            
+        } else if (action instanceof ReadAllEndpointConfig) {
+            AddressTemplate addressTemplate = ((ReadAllEndpointConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+
+        } else if (action instanceof ReadAllClientConfig) {
+            AddressTemplate addressTemplate = ((ReadAllClientConfig) action).getAddressTemplate();
+            getView().update(addressTemplate, webservicesStore.getModelsFor(addressTemplate));
+
+        // pre-handler
+        } else if (action instanceof CreateHandler) {
+            AddressTemplate addressTemplate = ((CreateHandler) action).getAddressTemplate();
+            ModelNode currentConfig = webservicesStore.getCurrentConfig();
+            getView().updateConfig(addressTemplate, currentConfig);
+
+        } else if (action instanceof ReadHandler) {
+            AddressTemplate addressTemplate = ((ReadHandler) action).getAddressTemplate();
+            ModelNode currentConfig = webservicesStore.getCurrentConfig();
+            getView().updateConfig(addressTemplate, currentConfig);
+            getView().navigateHandlerView();
+
+        } else if (action instanceof UpdateHandler) {
+            AddressTemplate addressTemplate = ((UpdateHandler) action).getAddressTemplate();
+            ModelNode currentConfig = webservicesStore.getCurrentConfig();
+            getView().updateConfig(addressTemplate, currentConfig);
+
+        } else if (action instanceof DeleteHandler) {
+            AddressTemplate addressTemplate = ((DeleteHandler) action).getAddressTemplate();
+            ModelNode currentConfig = webservicesStore.getCurrentConfig();
+            getView().updateConfig(addressTemplate, currentConfig);
+
+        } else if (action instanceof ReadConfig) {
+            AddressTemplate addressTemplate = ((ReadConfig) action).getAddressTemplate();
+            ModelNode currentConfig = webservicesStore.getCurrentConfig();
+            getView().updateConfig(addressTemplate, currentConfig);
+
+        }
+    }
 
     @Override
     protected void onReset() {
         super.onReset();
-
-        loadProvider();
-    }
-
-    private void loadProvider() {
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "webservices");
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Log.error("Failed to load web service provider", response.getFailureDescription());
-                    getView().reset();
-                } else {
-                    getView().updateFrom(response.get(RESULT));
-                }
-
-            }
-        });
+        circuit.dispatch(new InitWebServices());
     }
 
     @Override
@@ -129,16 +178,50 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
         revealStrategy.revealInParent(this);
     }
 
-    public SecurityFramework getSecurityFramework() {
-        return securityFramework;
+    // properties management
+
+
+    @Override
+    public void onPropertyRemoved(PropertyRemovedEvent event) {
+        refresh(event.getAddressTemplate());
     }
 
-    public ResourceDescriptionRegistry getDescriptionRegistry() {
-        return resourceDescriptionRegistry;
+    @Override
+    public void onPropertyAdded(PropertyAddedEvent event) {
+        refresh(event.getAddressTemplate());
     }
 
-    public void onSaveResource(final AddressTemplate address, Map<String, Object> changeset) {
-        operationDelegate.onSaveResource(address, null, changeset, defaultOpCallbacks);
+    /**
+     * For each property modification, all endpoint/client configurations must be reloaded, 
+     * because each view editor manages a list of endpoint/client configurations, so
+     * the list must be reloaded.
+     * 
+     * @param addressTemplate The resource template containing the property=* suffix.
+     */
+    private void refresh(AddressTemplate addressTemplate) {
+        addressTemplate = addressTemplate.subTemplate(0, 3);
+        switch (addressTemplate.getResourceType()) {
+            case WebServicesStore.ENDPOINT_CONFIG:
+                circuit.dispatch(new ReadAllEndpointConfig(addressTemplate));
+                break;
+            case WebServicesStore.CLIENT_CONFIG:
+                circuit.dispatch(new ReadAllClientConfig(addressTemplate));
+                break;
+        }
+        
+    }
+
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
+
+    public void setConfigName(String configName) {
+        this.configName = configName;
+    }
+
+    void setHandler(Property selection, AddressTemplate addressTemplate) {
+        AddressTemplate configAddress = addressTemplate.replaceWildcards(selection.getName());
+        circuit.dispatch(new ReadHandler(configAddress));
     }
 
 }

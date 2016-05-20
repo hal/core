@@ -33,6 +33,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -45,6 +46,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -251,7 +253,7 @@ public class PropertyEditor implements IsWidget {
         sortHandler.setComparator(keyColumn, new Comparator<Property>() {
             @Override
             public int compare(Property o1, Property o2) {
-                return o1.getName().compareTo(o2.getName());
+                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
             }
         });
         table.addColumn(keyColumn, Console.CONSTANTS.common_label_key());
@@ -311,6 +313,13 @@ public class PropertyEditor implements IsWidget {
     public void update(List<Property> properties) {
         table.setRowCount(properties.size(), true);
 
+        Collections.sort(properties, new Comparator<Property>() {
+            @Override
+            public int compare(Property o1, Property o2) {
+                return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+            }
+        });
+        
         List<Property> dataList = dataProvider.getList();
         dataList.clear(); // cannot call setList() as that breaks the sort handler
         dataList.addAll(properties);
