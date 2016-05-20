@@ -1,13 +1,17 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.dmr.client.ModelNode;
@@ -17,10 +21,10 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RECURSIVE;
 
 /**
  * @author Heiko Braun
@@ -61,10 +65,11 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
                     ModelNode payload = response.get("result").asObject();
 
                     List<ActivemqConnectionFactory> factories = parseFactories(payload);
-                    List<ActivemqQueue> queues = parseQueues(payload);
+                    List<ActivemqJMSQueue> jmsQueues = parseJMSQueues(payload);
                     List<ActivemqJMSEndpoint> topics = parseTopics(payload);
+                    List<ActivemqCoreQueue> queues = parseCoreQueues(payload);
 
-                    AggregatedJMSModel model = new AggregatedJMSModel(factories, queues, topics);
+                    AggregatedJMSModel model = new AggregatedJMSModel(factories, jmsQueues, topics, queues);
                     callback.onSuccess(model);
                 }
             }
@@ -102,14 +107,35 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
         return factoryModels;
     }
 
-    private List<ActivemqQueue> parseQueues(ModelNode response) {
-        List<ActivemqQueue> queues = new ArrayList<>();
+    private List<ActivemqCoreQueue> parseCoreQueues(ModelNode response) {
+        
+        List<ActivemqCoreQueue> queues = new ArrayList<>();
+        if (response.hasDefined("queue")) {
+            List<Property> propList = response.get("queue").asPropertyList();
+
+            for (Property prop : propList) {
+                ActivemqCoreQueue queue = factory.activemqCoreQueue().as();
+                queue.setName(prop.getName());
+                ModelNode propValue = prop.getValue();
+
+                if (propValue.hasDefined("durable")) { queue.setDurable(propValue.get("durable").asBoolean()); }
+                if (propValue.hasDefined("filter")) { queue.setFilter(propValue.get("filter").asString()); }
+                if (propValue.hasDefined("queue-address")) { queue.setQueueAddress(propValue.get("queue-address").asString()); }
+
+                queues.add(queue);
+            }
+        }
+        return queues;
+    }
+
+    private List<ActivemqJMSQueue> parseJMSQueues(ModelNode response) {
+        List<ActivemqJMSQueue> queues = new ArrayList<>();
 
         if (response.hasDefined("jms-queue")) {
             List<Property> propList = response.get("jms-queue").asPropertyList();
 
             for (Property prop : propList) {
-                ActivemqQueue queue = factory.activemqQueue().as();
+                ActivemqJMSQueue queue = factory.activemqQueue().as();
                 queue.setName(prop.getName());
 
                 ModelNode propValue = prop.getValue();

@@ -19,24 +19,19 @@
 
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import java.util.List;
+
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.ListItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -45,21 +40,17 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * @author Heiko Braun
+ * @author Claudio Miranda
  */
-public class QueueList {
+public class CoreQueueList {
 
-    private DefaultCellTable<ActivemqQueue> queueTable;
-    private ListDataProvider<ActivemqQueue> queueProvider;
+    private DefaultCellTable<ActivemqCoreQueue> queueTable;
+    private ListDataProvider<ActivemqCoreQueue> queueProvider;
 
     private MsgDestinationsPresenter presenter;
-    private Form<ActivemqQueue> form;
 
-    public QueueList(MsgDestinationsPresenter presenter) {
+    public CoreQueueList(MsgDestinationsPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -68,40 +59,44 @@ public class QueueList {
 
         VerticalPanel layout = new VerticalPanel();
 
-        form = new Form<>(ActivemqQueue.class);
+        Form<ActivemqCoreQueue> form = new Form<>(ActivemqCoreQueue.class);
 
         ToolStrip tableTools = new ToolStrip();
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(),
-                event -> presenter.launchNewQueueDialogue());
+                event -> presenter.launchNewCoreQueueDialogue());
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_queueList());
         tableTools.addToolButtonRight(addBtn);
 
         ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> Feedback.confirm(
                 Console.MESSAGES.deleteTitle("Queue"),
-                Console.MESSAGES.deleteConfirm("Queue"),
+                Console.MESSAGES.deleteConfirm("queue: " + form.getEditedEntity().getName()),
                 isConfirmed -> {
-                    if (isConfirmed) { presenter.onDeleteQueue(form.getEditedEntity()); }
+                    if (isConfirmed) { presenter.onDeleteCoreQueue(form.getEditedEntity()); }
                 }));
 
         tableTools.addToolButtonRight(removeBtn);
 
         layout.add(tableTools.asWidget());
 
-        queueTable = new DefaultCellTable<>(8, ActivemqJMSEndpoint::getEntries);
+        queueTable = new DefaultCellTable<>(8, ActivemqCoreQueue::getQueueAddress);
         queueProvider = new ListDataProvider<>();
         queueProvider.addDataDisplay(queueTable);
 
-        TextColumn<ActivemqQueue> nameColumn = new TextColumn<ActivemqQueue>() {
+        TextColumn<ActivemqCoreQueue> nameColumn = new TextColumn<ActivemqCoreQueue>() {
             @Override
-            public String getValue(ActivemqQueue record) {
+            public String getValue(ActivemqCoreQueue record) {
                 return record.getName();
             }
         };
-
-        JMSEndpointJndiColumn<ActivemqQueue> jndiColumn = new JMSEndpointJndiColumn<>();
+        TextColumn<ActivemqCoreQueue> addressColumn = new TextColumn<ActivemqCoreQueue>() {
+            @Override
+            public String getValue(ActivemqCoreQueue record) {
+                return record.getQueueAddress();
+            }
+        };
 
         queueTable.addColumn(nameColumn, "Name");
-        queueTable.addColumn(jndiColumn, "JNDI");
+        queueTable.addColumn(addressColumn, "Address");
 
         layout.add(queueTable);
 
@@ -112,47 +107,22 @@ public class QueueList {
         pager.getElement().setAttribute("style", "margin-bottom:15px;");
 
         TextItem name = new TextItem("name", "Name");
-        ListItem jndi = new JndiNamesItem("entries", "JNDI Names");
+        TextItem queueAddress = new TextItem("queueAddress", "Address");
+        TextItem filter = new TextItem("filter", "Filter");
+        CheckBoxItem durable = new CheckBoxItem("durable", "Durable");
 
-        CheckBoxItem durable = new CheckBoxItem("durable", "Durable?");
-        TextBoxItem selector = new TextBoxItem("selector", "Selector") {
-            @Override
-            public boolean isUndefined() {
-                return getValue().equals("");
-            }
-
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
-        durable.setEnabled(false);
-        selector.setEnabled(false);
-
-        form.setFields(name, jndi, durable, selector);
+        // Queues are read-only after creation
+        form.setFields(name, queueAddress, filter, durable);
         form.bind(queueTable);
+        form.setEnabled(false);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
             address.add("server", presenter.getCurrentServer());
-            address.add("jms-queue", "*");
+            address.add("queue", "*");
             return address;
         }, form);
-
-        // this is enough to AbstractForm to add the Edit button, as the form adds the callback 
-        FormToolStrip<ActivemqQueue> formTools = new FormToolStrip<>(
-                form,
-                new FormToolStrip.FormCallback<ActivemqQueue>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveQueue(form.getEditedEntity().getName(), changeset);
-                    }
-
-                    @Override
-                    public void onDelete(ActivemqQueue entity) {}
-                }
-        );
 
         layout.add(new ContentGroupLabel("Queues are read-only after creation"));
         layout.add(helpPanel.asWidget());
@@ -161,13 +131,8 @@ public class QueueList {
         return layout;
     }
 
-    void setQueues(List<ActivemqQueue> queues) {
+    void setQueues(List<ActivemqCoreQueue> queues) {
         queueProvider.setList(queues);
         queueTable.selectDefaultEntity();
-        form.setEnabled(false);
-    }
-
-    public void setEnabled(boolean b) {
-        form.setEnabled(b);
     }
 }

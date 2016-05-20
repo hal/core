@@ -1,10 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
-
 import java.util.List;
+
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 
 /**
  * @author Heiko Braun
@@ -13,27 +14,34 @@ import java.util.List;
 public class AggregatedJMSModel {
 
     private List<ActivemqConnectionFactory> factories;
-    private List<ActivemqQueue> queues;
+    private List<ActivemqJMSQueue> jmsQueues;
+    private List<ActivemqCoreQueue> coreQueues;
     private List<ActivemqJMSEndpoint> topics;
 
     public AggregatedJMSModel(
             List<ActivemqConnectionFactory> factories,
-            List<ActivemqQueue> queues,
-            List<ActivemqJMSEndpoint> topics) {
+            List<ActivemqJMSQueue> jmsQueues,
+            List<ActivemqJMSEndpoint> topics,
+            List<ActivemqCoreQueue> queues) {
         this.factories = factories;
-        this.queues = queues;
+        this.jmsQueues = jmsQueues;
         this.topics = topics;
+        this.coreQueues = queues;
     }
 
     public List<ActivemqConnectionFactory> getFactories() {
         return factories;
     }
 
-    public List<ActivemqQueue> getQueues() {
-        return queues;
+    public List<ActivemqJMSQueue> getJMSQueues() {
+        return jmsQueues;
     }
 
     public List<ActivemqJMSEndpoint> getTopics() {
         return topics;
+    }
+
+    public List<ActivemqCoreQueue> getQueues() {
+        return coreQueues;
     }
 }

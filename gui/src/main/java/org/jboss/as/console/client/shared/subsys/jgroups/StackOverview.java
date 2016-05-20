@@ -123,7 +123,7 @@ public class StackOverview {
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override
-            public ModelNode getAddress() {
+            public ModelNode getQueueAddress() {
                 ModelNode address = Baseadress.get();
                 address.add("subsystem", "mail");
                 address.add("mail-session", "*");

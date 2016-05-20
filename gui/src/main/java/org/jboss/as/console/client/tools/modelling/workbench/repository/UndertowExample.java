@@ -71,12 +71,12 @@ public class UndertowExample implements Sample {
                             .add(new Select(ns, "errorHandler", "ErrorHandlerSelection"))
                                 .mappedBy(
                                     new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page=*")
+                                        .setQueueAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page=*")
                                         .addAttributes("entity.key", "path")
                                 )
                             .add(new Container(ns, "undertow#errorHandlerAttributes", "Attributes",Form))
                                 .mappedBy(new DMRMapping()
-                                    .setAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page={selected.entity}")
+                                    .setQueueAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page={selected.entity}")
                                 )
                         .end()
                     .end()  */

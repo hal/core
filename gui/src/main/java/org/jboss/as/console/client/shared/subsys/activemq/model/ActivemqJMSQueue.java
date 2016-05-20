@@ -22,11 +22,13 @@ package org.jboss.as.console.client.shared.subsys.activemq.model;
 import org.jboss.as.console.client.widgets.forms.Address;
 
 /**
+ *  JMS Queue 
+ * 
  * @author Heiko Braun
  * @date 5/10/11
  */
 @Address("/subsystem=messaging-activemq/server={0}/jms-queue={1}")
-public interface ActivemqQueue extends ActivemqJMSEndpoint {
+public interface ActivemqJMSQueue extends ActivemqJMSEndpoint {
     boolean isDurable();
     void setDurable(boolean b);
 

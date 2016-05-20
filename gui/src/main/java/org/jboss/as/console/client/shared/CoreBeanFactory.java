@@ -61,15 +61,15 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterC
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectorService;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSTopic;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqMessagingProvider;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqTopic;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
-
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaBootstrapContext;
@@ -145,9 +145,10 @@ public interface CoreBeanFactory {
     AutoBean<ActivemqDiscoveryGroup> activemqDiscoveryGroup();
     AutoBean<ActivemqDivert> activemqDivert();
     AutoBean<ActivemqMessagingProvider> activemqMessagingProvider();
-    AutoBean<ActivemqQueue> activemqQueue();
+    AutoBean<ActivemqJMSQueue> activemqQueue();
     AutoBean<ActivemqSecurityPattern> activemqMessagingSecurity();
-    AutoBean<ActivemqTopic> activemqTopic();
+    AutoBean<ActivemqJMSTopic> activemqTopic();
+    AutoBean<ActivemqCoreQueue> activemqCoreQueue();
 
     AutoBean<Acceptor> acceptor();
     AutoBean<AddressingPattern> messagingAddress();

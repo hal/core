@@ -28,23 +28,20 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.widgets.ContentDescription;
 
 /**
- * @author Heiko Braun
- * @date 3/29/11
+ * @author Claudio Miranda
  */
-public class JMSEditor {
+public class CoreQueueEditor {
 
     private MsgDestinationsPresenter presenter;
-    private JMSTopicList topicList;
-    private JMSQueueList queueList;
+    private CoreQueueList queueList;
 
     private HTML serverName;
 
-    public JMSEditor(MsgDestinationsPresenter presenter) {
+    public CoreQueueEditor(MsgDestinationsPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -62,17 +59,14 @@ public class JMSEditor {
         serverName.setStyleName("content-header-label");
 
         panel.add(serverName);
-        panel.add(new ContentDescription("JMS Queue and Topic destinations."));
+        panel.add(new ContentDescription("Core Queue."));
 
         TabPanel bottomLayout = new TabPanel();
         bottomLayout.addStyleName("default-tabpanel");
         bottomLayout.addStyleName("master_detail-detail");
 
-        queueList = new JMSQueueList(presenter);
+        queueList = new CoreQueueList(presenter);
         bottomLayout.add(queueList.asWidget(), "Queues");
-
-        topicList = new JMSTopicList(presenter);
-        bottomLayout.add(topicList.asWidget(), "Topics");
 
         bottomLayout.selectTab(0);
 
@@ -81,21 +75,9 @@ public class JMSEditor {
         return layout;
     }
 
-
-    public void setTopics(List<ActivemqJMSEndpoint> topics) {
-        topicList.setTopics(topics);
-    }
-
-    public void setQueues(List<ActivemqJMSQueue> queues) {
+    public void setQueues(List<ActivemqCoreQueue> queues) {
         queueList.setQueues(queues);
-        serverName.setText("JMS Endpoints: Provider " + presenter.getCurrentServer());
+        serverName.setText("Core queue: Provider " + presenter.getCurrentServer());
     }
 
-    public void enableEditQueue(boolean b) {
-        queueList.setEnabled(b);
-    }
-
-    public void enableEditTopic(boolean b) {
-        topicList.setEnabled(b);
-    }
 }

@@ -398,7 +398,7 @@ public class ResourceAdapterPresenter
 
   /*  public void onDoFlush(ConnectionDefinition entity, String flushOp) {
 
-        ModelNode operation = connectionMetaData.getAddress().asResource(
+        ModelNode operation = connectionMetaData.getQueueAddress().asResource(
                 Baseadress.get(), selectedAdapter, entity.getName());
 
         operation.get(OP).set(flushOp);
@@ -419,7 +419,7 @@ public class ResourceAdapterPresenter
 
     // https://issues.jboss.org/browse/AS7-3259
    /* public void enOrDisbaleConnection(ConnectionDefinition selection) {
-        ModelNode operation = connectionMetaData.getAddress().asResource(
+        ModelNode operation = connectionMetaData.getQueueAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
 
@@ -442,7 +442,7 @@ public class ResourceAdapterPresenter
     }*/
 
    /* public void enOrDisbaleAdminObject(AdminObject selection) {
-        ModelNode operation = adminMetaData.getAddress().asResource(
+        ModelNode operation = adminMetaData.getQueueAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);

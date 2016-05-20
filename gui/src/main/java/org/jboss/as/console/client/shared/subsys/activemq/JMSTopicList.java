@@ -19,6 +19,9 @@
 
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -26,7 +29,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqTopic;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSTopic;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -38,22 +41,19 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Heiko Braun
  * @date 5/10/11
  */
-public class TopicList {
+public class JMSTopicList {
 
     private EndpointTable table;
     private ListDataProvider<ActivemqJMSEndpoint> endpointProvider;
 
     private MsgDestinationsPresenter presenter;
-    private Form<ActivemqTopic> form;
+    private Form<ActivemqJMSTopic> form;
 
-    public TopicList(MsgDestinationsPresenter presenter) {
+    public JMSTopicList(MsgDestinationsPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -61,20 +61,20 @@ public class TopicList {
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
 
-        form = new Form<>(ActivemqTopic.class);
+        form = new Form<>(ActivemqJMSTopic.class);
         form.setEnabled(false);
         form.setNumColumns(2);
 
-        FormToolStrip<ActivemqTopic> formTools = new FormToolStrip<>(
+        FormToolStrip<ActivemqJMSTopic> formTools = new FormToolStrip<>(
                 form,
-                new FormToolStrip.FormCallback<ActivemqTopic>() {
+                new FormToolStrip.FormCallback<ActivemqJMSTopic>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
                         presenter.onSaveTopic(form.getEditedEntity().getName(), form.getChangedValues());
                     }
 
                     @Override
-                    public void onDelete(ActivemqTopic entity) {}
+                    public void onDelete(ActivemqJMSTopic entity) {}
                 }
         );
 

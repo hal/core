@@ -23,8 +23,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSTopic;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
@@ -37,28 +38,37 @@ import org.jboss.dmr.client.ModelNode;
  * @author Heiko Braun
  * @date 5/12/11
  */
-public class NewTopicWizard {
+public class NewJMSQueueWizard {
 
     private MsgDestinationsPresenter presenter;
 
-    public NewTopicWizard(final MsgDestinationsPresenter presenter) {
+    public NewJMSQueueWizard(final MsgDestinationsPresenter presenter) {
         this.presenter = presenter;
     }
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("window-content");
-        Form<ActivemqJMSTopic> form = new Form<>(ActivemqJMSTopic.class);
+        layout.addStyleName("window-content");
+        Form<ActivemqJMSQueue> form = new Form<>(ActivemqJMSQueue.class);
 
         TextBoxItem name = new TextBoxItem("name", "Name");
         ListItem jndiName = new JndiNamesItem("entries", "JNDI Names");
-        form.setFields(name, jndiName);
+
+        CheckBoxItem durable = new CheckBoxItem("durable", "Durable?");
+        durable.setValue(true); // new queues are durable by default (AS7-4955)
+        TextBoxItem selector = new TextBoxItem("selector", "Selector") {
+            @Override
+            public boolean isRequired() {
+                return false;
+            }
+        };
+        form.setFields(name, jndiName, durable, selector);
 
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
             address.add("server", presenter.getCurrentServer());
-            address.add("jms-topic", "*");
+            address.add("jms-queue", "*");
             return address;
         }, form);
 
@@ -68,7 +78,7 @@ public class NewTopicWizard {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     FormValidation validation = form.validate();
-                    if (!validation.hasErrors()) { presenter.onCreateTopic(form.getUpdatedEntity()); }
+                    if (!validation.hasErrors()) { presenter.onCreateJMSQueue(form.getUpdatedEntity()); }
                 },
                 event -> presenter.closeDialogue()
         );

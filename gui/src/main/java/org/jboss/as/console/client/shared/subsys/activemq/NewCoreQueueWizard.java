@@ -23,52 +23,46 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
-import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 
 /**
- * @author Heiko Braun
- * @date 5/12/11
+ * @author Claudio Miranda
  */
-public class NewQueueWizard {
+public class NewCoreQueueWizard {
 
     private MsgDestinationsPresenter presenter;
 
-    public NewQueueWizard(final MsgDestinationsPresenter presenter) {
+    public NewCoreQueueWizard(final MsgDestinationsPresenter presenter) {
         this.presenter = presenter;
     }
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
-        Form<ActivemqQueue> form = new Form<>(ActivemqQueue.class);
+        Form<ActivemqCoreQueue> form = new Form<>(ActivemqCoreQueue.class);
 
         TextBoxItem name = new TextBoxItem("name", "Name");
-        ListItem jndiName = new JndiNamesItem("entries", "JNDI Names");
+        TextBoxItem queueAddress = new TextBoxItem("queueAddress", "Address");
+        TextBoxItem filter = new TextBoxItem("filter", "Filter", false);
 
         CheckBoxItem durable = new CheckBoxItem("durable", "Durable?");
         durable.setValue(true); // new queues are durable by default (AS7-4955)
-        TextBoxItem selector = new TextBoxItem("selector", "Selector") {
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
-        form.setFields(name, jndiName, durable, selector);
+        durable.setRequired(false);
+        form.setFields(name, queueAddress, filter, durable);
+        
 
         FormHelpPanel helpPanel = new FormHelpPanel(() -> {
             ModelNode address = Baseadress.get();
             address.add("subsystem", "messaging-activemq");
             address.add("server", presenter.getCurrentServer());
-            address.add("jms-queue", "*");
+            address.add("queue", "*");
             return address;
         }, form);
 
@@ -78,11 +72,13 @@ public class NewQueueWizard {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     FormValidation validation = form.validate();
-                    if (!validation.hasErrors()) { presenter.onCreateQueue(form.getUpdatedEntity()); }
+                    if (!validation.hasErrors()) {
+                        presenter.onCreateCoreQueue(form.getUpdatedEntity()); }
                 },
                 event -> presenter.closeDialogue()
         );
 
         return new WindowContentBuilder(layout, options).build();
     }
+
 }
