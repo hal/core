@@ -176,6 +176,8 @@ public interface UIMessages extends Messages {
     String verify_datasource_successful_message(String datasource);
     String wantToReloadServerGroup(String name);
     String wantToRestartServerGroup(String name);
+    String wantToReloadHost(String name);
+    String wantToRestartHost(String name);
     String wantToResumeServerGroup(String name);
     String wantToStartServerGroup(String name);
     String wantToStopServerGroup(String name);

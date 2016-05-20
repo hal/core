@@ -30,13 +30,8 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.client.proxy.*;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
@@ -46,36 +41,21 @@ import org.jboss.as.console.client.domain.GroupSuspendDialogue;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.groups.CopyGroupWizard;
 import org.jboss.as.console.client.domain.groups.NewServerGroupWizard;
-import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupDAO;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.*;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
+import org.jboss.as.console.client.domain.topology.HostControllerOpV3;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
 import org.jboss.as.console.client.domain.topology.ServerGroupOpV3;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
-import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.presenter.Finder;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.SocketBindingStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.CreateServerGroup;
-import org.jboss.as.console.client.v3.stores.domain.actions.DeleteServerGroup;
-import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
+import org.jboss.as.console.client.v3.stores.domain.*;
+import org.jboss.as.console.client.v3.stores.domain.actions.*;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
@@ -90,11 +70,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -126,6 +102,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             "opt://server-group=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"host", "jvm", "group", "server-group", "profile", "socket-binding"})
+//    @RequiredResources(resources = {"/{implicit.host}"})
     public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
     }
 
@@ -155,6 +132,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private HandlerRegistration hostHandler;
     private List<ProfileRecord> existingProfiles;
     private final ReloadState reloadState;
+    private final HostInformationStore hostInformationStore;
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
@@ -162,7 +140,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                              UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
                              ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore,
-                             CoreGUIContext statementContext, ReloadState reloadState) {
+                             CoreGUIContext statementContext, ReloadState reloadState, HostInformationStore hostInformationStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter,
                 TYPE_MainContent);
@@ -181,6 +159,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.socketBindingStore = socketBindingStore;
         this.statementContext = statementContext;
         this.reloadState = reloadState;
+        this.hostInformationStore = hostInformationStore;
     }
 
     @Override
@@ -238,6 +217,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                         @Override
                         public String resolve(AddressTemplate template) {
                             String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedGroup());
+                            LOG.info("resolved: " + resolved );
                             return resolved;
                         }
                     };
@@ -496,7 +476,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                 Console.error("Server " + op.name() + " failed", caught.getMessage());
                 circuit.dispatch(new RefreshServer());
             }
-        }, dispatcher, serverGroupDAO, group,  serverStore.getServerForGroup(group));
+        }, dispatcher, serverGroupDAO, group, serverStore.getServerForGroup(group));
 
         serverGroupOp.run();
 
@@ -515,6 +495,43 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         window.trapWidget(new GroupSuspendDialogue(this, group).asWidget());
         window.setGlassEnabled(true);
         window.center();
+
+    }
+
+    public void onHostControllerLifecycle(final String host, final LifecycleOperation op) {
+
+        // parametrized lifecycle operations
+        if(window!=null) window.hide();
+
+        HostControllerOpV3 serverGroupOp = new HostControllerOpV3(op, new LifecycleCallback() {
+            @Override
+            public void onSuccess() {
+                Console.info("Host controller "+ op.name() + " succeeded");
+                circuit.dispatch(new RefreshServer());
+                Log.debug("HostMgmtPresenter reloadState null ? " + (reloadState == null ));
+                reloadState.reset();
+            }
+
+            @Override
+            public void onTimeout() {
+                Console.warning("Request timeout");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onAbort() {
+                Console.warning("Request aborted.");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onError(Throwable caught) {
+                Console.error("Server " + op.name() + " failed", caught.getMessage());
+                circuit.dispatch(new RefreshServer());
+            }
+        }, dispatcher, hostInformationStore, host, serverStore.getServerForHost(host));
+
+        serverGroupOp.run();
 
     }
 

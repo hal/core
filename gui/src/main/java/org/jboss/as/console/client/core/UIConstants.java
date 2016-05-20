@@ -424,6 +424,7 @@ public interface UIConstants extends Constants {
     String reason();
     String reloadServerGroup();
     String reloadServerNow();
+    String reloadHost();
     String remoteSocketDescription();
     String removeProfile();
     String replace_me();
@@ -434,6 +435,7 @@ public interface UIConstants extends Constants {
     String resolveExpressionValues();
     String resource_already_exists();
     String restartServerGroup();
+    String restartHost();
     String resume();
     String resumeServerGroup();
     String runAs();

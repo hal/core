@@ -309,6 +309,7 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
+
         hosts.setMenuItems(
                 new MenuDelegate<String>(          // TODO permissions
                         "JVM", new ContextualCommand<String>() {
@@ -335,6 +336,42 @@ public class ColumnHostView extends SuspendableViewImpl
                         Console.getPlaceManager().revealRelativePlace(
                                 new PlaceRequest(NameTokens.HostInterfacesPresenter)
                         );
+                    }
+                }),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_reload(), new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Feedback.confirm(
+                                Console.CONSTANTS.reloadHost(),
+                                Console.MESSAGES.wantToReloadHost(host),
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onHostControllerLifecycle(host, LifecycleOperation.RELOAD);
+                                    }
+                                }
+                        );
+
+                    }
+                }),
+//                }, MenuDelegate.Role.Operation)
+//                        .setOperationAddress("/{implicit.host}", "reload"),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_restart(), new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Feedback.confirm(
+                                Console.CONSTANTS.restartHost(),
+                                Console.MESSAGES.wantToRestartHost(host),
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onHostControllerLifecycle(host, LifecycleOperation.RESTART);
+                                    }
+                                }
+                        );
+
                     }
                 })
 

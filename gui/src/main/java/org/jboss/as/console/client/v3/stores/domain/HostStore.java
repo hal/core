@@ -48,7 +48,7 @@ public class HostStore extends ChangeSupport {
     }
 
     public void init(final AsyncCallback<Set<String>> callback) {
-        synchonizeHosts(new AsyncCallback<Boolean>() {
+        synchronizeHosts(new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable caught) {
                 callback.onFailure(caught);
@@ -104,7 +104,7 @@ public class HostStore extends ChangeSupport {
 
     // ------------------------
 
-    private void synchonizeHosts(final AsyncCallback<Boolean> callback) {
+    private void synchronizeHosts(final AsyncCallback<Boolean> callback) {
         ModelNode op = new ModelNode();
         op.get(ADDRESS).setEmptyList();
         op.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
@@ -219,7 +219,7 @@ public class HostStore extends ChangeSupport {
     @Process(actionType = RefreshHosts.class)
     public void onRefreshHosts(final Dispatcher.Channel channel) {
 
-        synchonizeHosts(new AsyncCallback<Boolean>() {
+        synchronizeHosts(new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable caught) {
                 channel.nack(caught);

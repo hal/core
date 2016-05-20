@@ -59,4 +59,7 @@ public interface HostInformationStore {
     void loadJVMConfiguration(String host, Server server, AsyncCallback<Jvm> callback);
 
     void loadProperties(String host, Server server, AsyncCallback<List<PropertyRecord>> callback);
+
+    void reloadHost(String host, final AsyncCallback<Boolean> callback);
+    void restartHost(String host, final AsyncCallback<Boolean> callback);
 }
