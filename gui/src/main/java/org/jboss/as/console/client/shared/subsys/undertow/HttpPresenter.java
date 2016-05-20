@@ -20,6 +20,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
@@ -52,6 +53,9 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     private String currentServer;
     private DefaultWindow window;
+    
+    // the selected host in the host setting view.
+    private String selectedHost;
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
@@ -82,6 +86,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     "{selected.profile}/subsystem=undertow",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*",
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*/filter-ref=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/http-listener=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/https-listener=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/ajp-listener=*"
@@ -107,6 +112,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         void setHosts(List<Property> hosts);
 
         void setConfig(ModelNode data);
+
+        void selectModifiedHost(String hostname);
     }
 
     @Inject
@@ -195,7 +202,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     getView().setServer(response.get(RESULT).asPropertyList());
                     getView().setServerSelection(currentServer);
                 }
-
+                // navigating to a server, de-selects the previous selected host.
+                selectedHost = null;
             }
         });
     }
@@ -274,6 +282,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     getView().setAjpListener(failSafeGetCollection(data.get("ajp-listener")));
                     getView().setHttpsListener(failSafeGetCollection(data.get("https-listener")));
                     getView().setHosts(failSafeGetCollection(data.get("host")));
+                    if (selectedHost != null)
+                        getView().selectModifiedHost(selectedHost);
                 }
 
             }
@@ -289,7 +299,13 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     // -----------------------
 
+    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");
+    
     public void onLaunchAddResourceDialog(final AddressTemplate address) {
+        onLaunchAddResourceDialog(address, null);
+    }
+    
+    public void onLaunchAddResourceDialog(AddressTemplate address, String hostname) {
 
         String type = address.getResourceType();
 
@@ -297,29 +313,32 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         window.setWidth(480);
         window.setHeight(360);
 
-        window.setWidget(
-                new AddResourceDialog(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
-                        descriptionRegistry.lookup(address),
-                        new AddResourceDialog.Callback() {
-                            @Override
-                            public void onAdd(ModelNode payload) {
-                                window.hide();
-                                operationDelegate.onCreateResource(
-                                        address, payload.get("name").asString(), payload, defaultOpCallbacks);
-                            }
-
-                            @Override
-                            public void onCancel() {
-                                window.hide();
-                            }
-                        }
-                )
-        );
-
+        ResourceDescription lookup = descriptionRegistry.lookup(address);
+        if (hostname != null) 
+            address = address.replaceWildcards(hostname);
+        window.setWidget(newAddResourceDialog(lookup, address));
         window.setGlassEnabled(true);
         window.center();
 
+    }
+
+    private AddResourceDialog newAddResourceDialog(ResourceDescription resourceDescription, final AddressTemplate address) {
+        return new AddResourceDialog(
+                Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                resourceDescription,
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        window.hide();
+                        operationDelegate.onCreateResource(address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }
+        );
     }
 
     public void onRemoveResource(final AddressTemplate address, final String name) {
@@ -330,6 +349,10 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
 
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
+    }
+    
+    void setSelectedHost(String host) {
+        this.selectedHost = host;
     }
 
 }

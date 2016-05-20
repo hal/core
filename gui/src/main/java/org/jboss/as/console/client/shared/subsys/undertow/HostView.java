@@ -6,7 +6,6 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
@@ -19,6 +18,7 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -36,7 +36,11 @@ public class HostView {
     private final HttpPresenter presenter;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
+    private FilterRefEditor filterRefEditor;
     private List<Property> data;
+    private final SecurityContext securityContext;
+    private final ResourceDescription definition;
+    private final SingleSelectionModel<Property> selectionModel;
 
     public HostView(HttpPresenter presenter) {
         this.presenter = presenter;
@@ -44,6 +48,10 @@ public class HostView {
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
         this.table.setSelectionModel(new SingleSelectionModel<Property>());
+        securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
+        filterRefEditor = new FilterRefEditor(presenter, BASE_ADDRESS.append("filter-ref=*"), definition);
+        selectionModel = new SingleSelectionModel<>();
     }
 
     public Widget asWidget() {
@@ -81,8 +89,6 @@ public class HostView {
             }
         }));
 
-        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
-        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
@@ -114,22 +120,17 @@ public class HostView {
                 .setDescription("")
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Host Settings"), table)
-                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
+                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel)
+                .addDetail("Reference to Filter", filterRefEditor.asWidget());
 
 
-        final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Property server = selectionModel.getSelectedObject();
-                if(server!=null)
-                {
-                    formAssets.getForm().edit(server.getValue());
-                }
-                else
-                {
-                    formAssets.getForm().clearValues();
-                }
+        selectionModel.addSelectionChangeHandler(event -> {
+            Property hostname = selectionModel.getSelectedObject();
+            if (hostname != null) {
+                formAssets.getForm().edit(hostname.getValue());
+                updateFilterRefsFromModel();
+            } else {
+                formAssets.getForm().clearValues();
             }
         });
         table.setSelectionModel(selectionModel);
@@ -137,12 +138,48 @@ public class HostView {
     }
 
     private Property getCurrentSelection() {
-        Property selection = ((SingleSelectionModel<Property>) table.getSelectionModel()).getSelectedObject();
+        Property selection = selectionModel.getSelectedObject();
         return selection;
+    }
+    
+    private void updateFilterRefsFromModel() {
+        ModelNode handlerItem = selectionModel.getSelectedObject().getValue();
+        filterRefEditor.updateOperationAddressNames(getCurrentSelection().getName());
+        if (handlerItem.hasDefined("filter-ref")) {
+            List<Property> handlers = handlerItem.get("filter-ref").asPropertyList();
+            filterRefEditor.update(handlers);
+        } else {
+            filterRefEditor.clearValues();
+        }
+        
     }
 
     public void setData(List<Property> data) {
         dataProvider.setList(data);
+
+        if (data.isEmpty()) {
+            selectionModel.clear();
+            filterRefEditor.clearValues();
+        } else {
+            table.selectDefaultEntity();
+            updateFilterRefsFromModel();
+        }
+        
         table.selectDefaultEntity();
+    }
+
+    public void selectModifiedHost(String hostname) {
+        Property hit = null;
+        for (Property property : dataProvider.getList()) {
+            if (property.getName().equals(hostname)) {
+                hit = property;
+                break;
+            }
+        }
+        if (hit != null) {
+            selectionModel.setSelected(hit, true);
+        } else {
+            table.selectDefaultEntity();
+        }
     }
 }
