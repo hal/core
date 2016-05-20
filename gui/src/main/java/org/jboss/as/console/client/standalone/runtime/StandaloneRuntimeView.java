@@ -478,6 +478,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                         }
                     });
 
+                } else {
+                    columnManager.reduceColumnsTo(2);
                 }
             }
         });
