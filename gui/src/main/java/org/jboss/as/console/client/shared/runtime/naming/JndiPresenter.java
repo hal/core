@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
@@ -150,6 +151,12 @@ public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPr
                         getView().setJndiTree(cellTree, parser.getSelectionModel());
 
                 }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                super.onFailure(caught);
+                Console.error("Error " + caught.getMessage());
             }
         });
     }
