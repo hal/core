@@ -13,6 +13,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -109,7 +110,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         treeContainer.setStyleName("browser-view-nav");
 
         HorizontalPanel tools = new HorizontalPanel();
-        tools.getElement().setAttribute("style", "margin-left: 10px;");
+        tools.getElement().setAttribute("style", "margin-left: 10px; margin-top: 10px;");
 
         Button refresh = new DefaultButton("<i class='icon-undo'></i>");
         refresh.getElement().setAttribute("title", "Refresh Model");
@@ -154,14 +155,11 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 */
         ScrollPanel scroll = new ScrollPanel(treeContainer);
 
-        LayoutPanel lhs = new LayoutPanel();
+        DockLayoutPanel lhs = new DockLayoutPanel(Style.Unit.PX);
         lhs.setStyleName("fill-layout");
 
-        lhs.add(tools);
+        lhs.addNorth(tools, 40);
         lhs.add(scroll);
-
-        lhs.setWidgetTopHeight(tools, 10, Style.Unit.PX, 30, Style.Unit.PX);
-        lhs.setWidgetTopHeight(scroll, 41, Style.Unit.PX, 100, Style.Unit.PCT);
 
         layout.addWest(lhs, 300);
 
