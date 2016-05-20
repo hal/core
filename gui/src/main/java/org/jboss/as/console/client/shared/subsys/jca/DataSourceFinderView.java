@@ -179,7 +179,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 new ProvidesKey<DataSource>() {
                     @Override
                     public Object getKey(DataSource item) {
-                        return item.getName();
+                        return item.getName() + ":" + item.isEnabled();
                     }
                 }, presenter.getProxy().getNameToken())
         ;
@@ -470,12 +470,32 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
 
     @Override
     public void updateDataSources(List<DataSource> list) {
-        datasources.updateFrom(list);
+        DataSource oldDs = datasources.getSelectedItem();
+        DataSource newDs = null;
+        if (oldDs != null) {
+            for (DataSource ds : list) {
+                if (ds.getName().equals(oldDs.getName())) {
+                    newDs = ds;
+                    break;
+                }
+            }
+        }
+        datasources.updateFrom(list, newDs);
     }
 
     @Override
     public void updateXADataSources(List<XADataSource> list) {
-        xadatasources.updateFrom(list);
+        XADataSource oldXADs = xadatasources.getSelectedItem();
+        XADataSource newXADs = null;
+        if (oldXADs != null) {
+            for (XADataSource xds : list) {
+                if (xds.getName().equals(oldXADs.getName())) {
+                    newXADs = xds;
+                    break;
+                }
+            }
+        }
+        xadatasources.updateFrom(list, newXADs);
     }
 
     @Override

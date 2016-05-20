@@ -257,7 +257,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 new ProvidesKey<Server>() {
                     @Override
                     public Object getKey(Server item) {
-                        return item.getName() + item.getHostName();
+                        return item.getName() + item.getHostName() + ":" + item.getServerState();
                     }
                 }, presenter.getProxy().getNameToken());
 
@@ -699,7 +699,19 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     @Override
     public void updateServerList(List<Server> serverModel) {
         columnManager.reduceColumnsTo(1);
-        serverColumn.updateFrom(serverModel, false);
+
+        Server oldServer = serverColumn.getSelectedItem();
+        Server newServer = null;
+
+        if (oldServer != null) {
+            for (Server s : serverModel) {
+                if (s.getName().equals(oldServer.getName())) {
+                    newServer = s;
+                    break;
+                }
+            }
+        }
+        serverColumn.updateFrom(serverModel, newServer);
         //previewCanvas.clear();
     }
 

@@ -131,7 +131,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 new ProvidesKey<Assignment>() {
                     @Override
                     public Object getKey(final Assignment item) {
-                        return item.getName();
+                        return item.getName() + ":" + item.isEnabled();
                     }
                 },
                 NameTokens.DomainDeploymentFinder,
@@ -423,12 +423,32 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
     @Override
     public void updateContentRepository(final Iterable<Content> content) {
-        contentColumn.updateFrom(Lists.newArrayList(content));
+        Content oldContent = contentColumn.getSelectedItem();
+        Content newContent = null;
+
+        if (oldContent != null) {
+            for (Content c : content) {
+                if (c.getName().equals(oldContent.getName())) {
+                    newContent = c;
+                }
+            }
+        }
+        contentColumn.updateFrom(Lists.newArrayList(content), newContent);
     }
 
     @Override
     public void updateUnassigned(final Iterable<Content> unassigned) {
-        unassignedColumn.updateFrom(Lists.newArrayList(unassigned));
+        Content oldContent = unassignedColumn.getSelectedItem();
+        Content newContent = null;
+
+        if (oldContent != null) {
+            for (Content c : unassigned) {
+                if (c.getName().equals(oldContent.getName()) && !c.getAssignments().isEmpty()) {
+                    newContent = c;
+                }
+            }
+        }
+        unassignedColumn.updateFrom(Lists.newArrayList(unassigned), newContent);
     }
 
     @Override
@@ -438,6 +458,16 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
     @Override
     public void updateAssignments(final Iterable<Assignment> assignments) {
-        assignmentColumn.updateFrom(Lists.newArrayList(assignments));
+        Assignment oldAssignment = assignmentColumn.getSelectedItem();
+        Assignment newAssignment = null;
+
+        if (oldAssignment != null) {
+            for (Assignment a : assignments) {
+                if (a.getName().equals(oldAssignment.getName())) {
+                    newAssignment = a;
+                }
+            }
+        }
+        assignmentColumn.updateFrom(Lists.newArrayList(assignments), newAssignment);
     }
 }
