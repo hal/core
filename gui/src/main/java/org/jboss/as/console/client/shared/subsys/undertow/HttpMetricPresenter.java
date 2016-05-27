@@ -12,16 +12,15 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.RequiredResourcesContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
@@ -178,7 +177,7 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "undertow");
         operation.get(ADDRESS).add("server", currentServer);
         operation.get(INCLUDE_RUNTIME).set(true);
