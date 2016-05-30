@@ -70,6 +70,7 @@ public class AssignContentDialog implements IsWidget {
     private HTML errorMessages;
     private Label intro;
     private DefaultCellTable<String> table;
+    private boolean unmanaged;
 
     public AssignContentDialog(final DomainDeploymentFinder presenter) {
         this.presenter = presenter;
@@ -154,15 +155,16 @@ public class AssignContentDialog implements IsWidget {
                                 errorMessages.setVisible(true);
                             } else {
                                 close();
-                                presenter.assignContent(content, selectedSet, enable.getValue());
+                                presenter.assignContent(content, selectedSet, enable.getValue(), unmanaged);
                             }
                         },
                         Console.CONSTANTS.common_label_cancel(), event -> close()))
                 .build());
     }
 
-    public void open(final Content content, final List<String> serverGroups) {
+    public void open(final Content content, final List<String> serverGroups, boolean unmanaged) {
         this.content = content;
+        this.unmanaged = unmanaged;
 
         if (window == null) {
             window = new DefaultWindow(Console.CONSTANTS.assignContent());
