@@ -21,14 +21,19 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet.store;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.subsys.jberet.Job;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -39,9 +44,6 @@ import org.jboss.gwt.circuit.Dispatcher.Channel;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -58,17 +60,20 @@ public class JberetStore extends ChangeSupport {
 
         ChannelCallback(StatementContext context, final Channel channel) {
             this.context = context;
-            this.channel = channel;}
+            this.channel = channel;
+        }
 
         @Override
         public void onSuccess(final AddressTemplate address, final String name) {
-            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
+            Console.info(
+                    Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
             init(channel);
         }
 
         @Override
         public void onFailure(final AddressTemplate address, final String name, final Throwable t) {
-            Console.error(Console.MESSAGES.failedToModifyResource(address.resolve(statementContext, name).toString()), t.getMessage());
+            Console.error(Console.MESSAGES.failedToModifyResource(address.resolve(statementContext, name).toString()),
+                    t.getMessage());
             channel.nack(t);
         }
     }
@@ -85,7 +90,17 @@ public class JberetStore extends ChangeSupport {
 
     public static final String METRICS_ROOT = "{implicit.host}/{selected.server}/subsystem=batch-jberet";
     public static final AddressTemplate METRICS_ROOT_ADDRESS = AddressTemplate.of(METRICS_ROOT);
-    public static final AddressTemplate THREAD_POOL_METRICS_ADDRESS = AddressTemplate.of(METRICS_ROOT).append("thread-pool=*");
+    public static final AddressTemplate THREAD_POOL_METRICS_ADDRESS = AddressTemplate.of(METRICS_ROOT)
+            .append("thread-pool=*");
+
+    public static final String DEPLOYMENT = "{implicit.host}/{selected.server}/deployment=*/subsystem=batch-jberet";
+    public static final String SUBDEPLOYMENT = "{implicit.host}/{selected.server}/deployment=*/subdeployment=*/subsystem=batch-jberet";
+    public static final String JOB_DEPLOYMENT = "{implicit.host}/{selected.server}/deployment=*/subsystem=batch-jberet/job=*/execution=*";
+    public static final String JOB_SUBDEPLOYMENT = "{implicit.host}/{selected.server}/deployment=*/subdeployment=*/subsystem=batch-jberet/job=*/execution=*";
+    public static final AddressTemplate DEPLOYMENT_ADDRESS = AddressTemplate.of(DEPLOYMENT);
+    public static final AddressTemplate SUBDEPLOYMENT_ADDRESS = AddressTemplate.of(SUBDEPLOYMENT);
+    public static final AddressTemplate JOB_DEPLOYMENT_ADDRESS = AddressTemplate.of(JOB_DEPLOYMENT);
+    public static final AddressTemplate JOB_SUBDEPLOYMENT_ADDRESS = AddressTemplate.of(JOB_SUBDEPLOYMENT);
 
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
@@ -96,6 +111,7 @@ public class JberetStore extends ChangeSupport {
     private final List<Property> threadFactories;
     private final List<Property> threadPools;
     private final List<Property> threadPoolMetrics;
+    private final List<Job> jobsMetrics;
     private ModelNode currentThreadPoolMetric;
 
     @Inject
@@ -110,6 +126,7 @@ public class JberetStore extends ChangeSupport {
         this.threadFactories = new ArrayList<>();
         this.threadPools = new ArrayList<>();
         this.threadPoolMetrics = new ArrayList<>();
+        this.jobsMetrics = new ArrayList<>();
     }
 
 
@@ -180,7 +197,8 @@ public class JberetStore extends ChangeSupport {
 
     @Process(actionType = ModifyDefaults.class)
     public void modifyDefaults(final ModifyDefaults action, final Channel channel) {
-        operationDelegate.onSaveResource(ROOT_ADDRESS, null, action.getChangedValues(), new ChannelCallback(statementContext, channel));
+        operationDelegate.onSaveResource(ROOT_ADDRESS, null, action.getChangedValues(),
+                new ChannelCallback(statementContext, channel));
     }
 
 
@@ -189,7 +207,8 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddInMemoryRepository.class)
     public void addInMemoryRepository(final AddInMemoryRepository action, final Channel channel) {
         operationDelegate.onCreateResource(IN_MEMORY_REPOSITORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
+                action.getProperty().getName(), action.getProperty().getValue(),
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = RemoveInMemoryRepository.class)
@@ -204,7 +223,8 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddJdbcRepository.class)
     public void addJdbcRepository(final AddJdbcRepository action, final Channel channel) {
         operationDelegate.onCreateResource(JDBC_REPOSITORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
+                action.getProperty().getName(), action.getProperty().getValue(),
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyJdbcRepository.class)
@@ -225,7 +245,8 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddThreadFactory.class)
     public void addThreadFactory(final AddThreadFactory action, final Channel channel) {
         operationDelegate.onCreateResource(THREAD_FACTORY_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
+                action.getProperty().getName(), action.getProperty().getValue(),
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyThreadFactory.class)
@@ -246,7 +267,8 @@ public class JberetStore extends ChangeSupport {
     @Process(actionType = AddThreadPool.class)
     public void addThreadPool(final AddThreadPool action, final Channel channel) {
         operationDelegate.onCreateResource(THREAD_POOL_ADDRESS,
-                action.getProperty().getName(), action.getProperty().getValue(), new ChannelCallback(statementContext, channel));
+                action.getProperty().getName(), action.getProperty().getValue(),
+                new ChannelCallback(statementContext, channel));
     }
 
     @Process(actionType = ModifyThreadPool.class)
@@ -317,6 +339,212 @@ public class JberetStore extends ChangeSupport {
         });
     }
 
+    @Process(actionType = LoadJobsMetrics.class)
+    public void loadJobsMetrics(final LoadJobsMetrics action, Channel channel) {
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).setEmptyList();
+        operation.get(OP).set(COMPOSITE);
+
+        ResourceAddress address = DEPLOYMENT_ADDRESS.resolve(statementContext);
+        Operation opDeployments = new Operation.Builder(READ_RESOURCE_OPERATION, address)
+                .param(INCLUDE_RUNTIME, true)
+                .param(RECURSIVE, true)
+                .build();
+
+        address = SUBDEPLOYMENT_ADDRESS.resolve(statementContext);
+        Operation opSubDeployments = new Operation.Builder(READ_RESOURCE_OPERATION, address)
+                .param(INCLUDE_RUNTIME, true)
+                .param(RECURSIVE, true)
+                .build();
+
+        List<ModelNode> steps = new ArrayList<>();
+        steps.add(opDeployments);
+        steps.add(opSubDeployments);
+
+        operation.get(STEPS).set(steps);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode compositeResponse = response.get();
+
+                jobsMetrics.clear();
+
+                if (compositeResponse.isFailure()) {
+                    channel.nack(compositeResponse.getFailureDescription());
+                } else {
+                    ModelNode compositeResult = compositeResponse.get(RESULT);
+
+                    ModelNode mainResponse = compositeResult.get("step-1");
+                    ModelNode subdeploymentResponse = compositeResult.get("step-2");
+
+                    parseJobResults(mainResponse);
+                    parseJobResults(subdeploymentResponse);
+                    channel.ack();
+
+                }
+            }
+        });
+    }
+
+    private void parseJobResults(ModelNode response) {
+        ModelNode result = response.get(RESULT);
+        List<ModelNode> deploymentList = result.asList();
+        for (ModelNode deploymentNode : deploymentList) {
+            List<ModelNode> addressList = deploymentNode.get(ADDRESS).asList();
+            String deploymentName;
+            String subdeploymentName = "";
+            
+            if (addressList.size() == 3) {
+                // constains subdeployment
+                deploymentName = addressList.get(0).get(ModelDescriptionConstants.DEPLOYMENT).asString();
+                subdeploymentName = addressList.get(1).get(ModelDescriptionConstants.SUBDEPLOYMENT).asString();
+            } else {
+                deploymentName = addressList.get(0).get(ModelDescriptionConstants.DEPLOYMENT).asString();
+
+            }
+            ModelNode jobNode = deploymentNode.get(RESULT).get(ModelDescriptionConstants.JOB);
+            for (Property jobProperty : jobNode.asPropertyList()) {
+                String jobName = jobProperty.getName();
+                
+                // if the job had run, get the runtime attributes
+                if (jobProperty.getValue().get("instance-count").asInt() > 0) {
+                    
+                    for (Property ins : jobProperty.getValue().get("execution").asPropertyList()) {
+                        Job job = new Job(ins.getValue());
+                        job.setName(jobName);
+                        job.setExecutionId(ins.getName());
+                        job.setDeploymentName(deploymentName);
+                        job.setSubdeploymentName(subdeploymentName);
+                        jobsMetrics.add(job);
+                    }
+                } else {
+                    Job job = new Job(new ModelNode());
+                    job.setName(jobName);
+                    job.setDeploymentName(deploymentName);
+                    job.setSubdeploymentName(subdeploymentName);
+                    jobsMetrics.add(job);
+                }
+            }
+        }
+    }
+
+    @Process(actionType = StartJob.class)
+    void startJob(final StartJob action, Channel channel) {
+
+        ResourceAddress address;
+        if (action.getSubDeploymentName().length() == 0) {
+            address = DEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName())
+                .resolve(statementContext);
+        } else {
+            address = SUBDEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName(), action.getSubDeploymentName())
+                .resolve(statementContext);
+        }
+
+        Operation opJob = new Operation.Builder(START_JOB, address)
+            .param(JOB_XML_NAME, action.getJobName())
+            .build();
+
+        dispatcher.execute(new DMRAction(opJob), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+
+                if (result.isFailure()) {
+                    channel.nack(result.getFailureDescription());
+                } else {
+                    loadJobsMetrics(null, channel);
+                    channel.ack();
+                }
+            }
+        });
+    }
+    
+    @Process(actionType = StopJob.class)
+    void stopJob(final StopJob action, Channel channel) {
+
+        ResourceAddress address;
+        if (action.getSubDeploymentName().length() == 0) {
+            address = JOB_DEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName(), action.getJobName(), 
+                    action.getExecutionId())
+                .resolve(statementContext);
+        } else {
+            address = JOB_SUBDEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName(), action.getSubDeploymentName(), 
+                    action.getJobName(), action.getExecutionId())
+                .resolve(statementContext);
+        }
+
+        Operation opJob = new Operation.Builder(STOP_JOB, address)
+            .build();
+
+        dispatcher.execute(new DMRAction(opJob), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+
+                if (result.isFailure()) {
+                    channel.nack(result.getFailureDescription());
+                } else {
+                    loadJobsMetrics(null, channel);
+                    channel.ack();
+                }
+            }
+        });
+    }
+
+    @Process(actionType = RestartJob.class)
+    void restartJob(final RestartJob action, Channel channel) {
+
+        ResourceAddress address;
+        if (action.getSubDeploymentName().length() == 0) {
+            address = JOB_DEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName(), action.getJobName(), 
+                    action.getExecutionId())
+                .resolve(statementContext);
+        } else {
+            address = JOB_SUBDEPLOYMENT_ADDRESS.replaceWildcards(action.getDeploymentName(), action.getSubDeploymentName(), 
+                    action.getJobName(), action.getExecutionId())
+                .resolve(statementContext);
+        }
+
+        Operation opJob = new Operation.Builder(RESTART_JOB, address)
+            .build();
+
+        dispatcher.execute(new DMRAction(opJob), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+
+                if (result.isFailure()) {
+                    channel.nack(result.getFailureDescription());
+                } else {
+                    loadJobsMetrics(null, channel);
+                    channel.ack();
+                }
+            }
+        });
+    }
+
     @Process(actionType = ModifyComplexAttribute.class)
     public void onModifyComplexAttribute(ModifyComplexAttribute action, Channel channel) {
         ResourceAddress address = THREAD_POOL_ADDRESS.resolve(statementContext, action.getParentName());
@@ -327,7 +555,8 @@ public class JberetStore extends ChangeSupport {
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                new ChannelCallback(statementContext, channel).onFailure(THREAD_POOL_ADDRESS, action.getParentName(), caught);
+                new ChannelCallback(statementContext, channel)
+                        .onFailure(THREAD_POOL_ADDRESS, action.getParentName(), caught);
             }
 
             @Override
@@ -367,4 +596,9 @@ public class JberetStore extends ChangeSupport {
     public ModelNode getCurrentThreadPoolMetric() {
         return currentThreadPoolMetric;
     }
+
+    public List<Job> getJobsMetrics() {
+        return jobsMetrics;
+    }
+
 }
