@@ -79,6 +79,8 @@ public class ModelDescriptionConstants {
     public static final String INPUT_STREAM_INDEX = "input-stream-index";
     public static final String INTERFACE = "interface";
     public static final String IN_SERIES = "in-series";
+    public static final String JOB = "job";
+    public static final String JOB_XML_NAME = "job-xml-name";
     public static final String JVM = "jvm";
     public static final String JVM_TYPE = "type";
     public static final String LOCAL = "local";
@@ -141,6 +143,7 @@ public class ModelDescriptionConstants {
     public static final String RECURSIVE = "recursive";
     public static final String REQUIRED = "required";
     public static final String RESPONSE = "response";
+    public static final String RESTART_JOB = "restart-job";
     public static final String RESULT = "result";
     public static final String ROLES = "header_roles";
     public static final String ROLLBACK_ACROSS_GROUPS = "rollback-across-groups";
@@ -165,8 +168,11 @@ public class ModelDescriptionConstants {
     public static final String SOCKET_BINDING_GROUP_NAME = "socket-binding-group-name";
     public static final String SOCKET_BINDING_PORT_OFFSET = "socket-binding-port-offset";
     public static final String START = "start";
+    public static final String START_JOB = "start-job";
     public static final String STEPS = "steps";
+    public static final String STOP_JOB = "stop-job";
     public static final String STORAGE = "storage";
+    public static final String SUBDEPLOYMENT = "subdeployment";
     public static final String SUBSYSTEM = "subsystem";
     public static final String SUCCESS = "success";
     public static final String SYSTEM_PROPERTY = "system-property";
