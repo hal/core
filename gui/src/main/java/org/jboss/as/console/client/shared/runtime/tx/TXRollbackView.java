@@ -39,6 +39,7 @@ public class TXRollbackView implements Sampler {
     private Widget displayStrategy() {
 
         Column[] cols = new Column[] {
+                new NumberColumn("number-of-total-rollbacks","Total Failures").setBaseline(true),
                 new NumberColumn("number-of-application-rollbacks","Application Failures"),
                 new NumberColumn("number-of-resource-rollbacks","Resource Failures")
         };
