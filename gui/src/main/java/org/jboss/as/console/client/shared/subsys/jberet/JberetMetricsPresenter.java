@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet;
 
+import java.util.List;
+
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -33,15 +35,17 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jberet.store.JberetStore;
+import org.jboss.as.console.client.shared.subsys.jberet.store.LoadJobsMetrics;
 import org.jboss.as.console.client.shared.subsys.jberet.store.LoadThreadPoolMetrics;
 import org.jboss.as.console.client.shared.subsys.jberet.store.RefreshThreadPoolMetric;
+import org.jboss.as.console.client.shared.subsys.jberet.store.RestartJob;
+import org.jboss.as.console.client.shared.subsys.jberet.store.StartJob;
+import org.jboss.as.console.client.shared.subsys.jberet.store.StopJob;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.List;
 
 /**
  * @author Harald Pehl
@@ -52,12 +56,13 @@ public class JberetMetricsPresenter
     // @formatter:off
     @ProxyCodeSplit
     @NameToken(NameTokens.BatchJberetMetrics)
-    @RequiredResources(resources = JberetStore.METRICS_ROOT)
+    @RequiredResources(resources = {JberetStore.METRICS_ROOT, JberetStore.JOB_DEPLOYMENT})
     public interface MyProxy extends Proxy<JberetMetricsPresenter>, Place {}
 
     public interface MyView extends View, HasPresenter<JberetMetricsPresenter> {
         void refresh(ModelNode metric);
         void refresh(List<Property> metrics);
+        void refreshJobs(List<Job> metrics);
     }
     // @formatter:on
 
@@ -88,6 +93,14 @@ public class JberetMetricsPresenter
             getView().refresh(store.getThreadPoolMetrics());
         } else if (action instanceof RefreshThreadPoolMetric) {
             getView().refresh(store.getCurrentThreadPoolMetric());
+        } else if (action instanceof LoadJobsMetrics) {
+            getView().refreshJobs(store.getJobsMetrics());
+        } else if (action instanceof StartJob) {
+            getView().refreshJobs(store.getJobsMetrics());
+        } else if (action instanceof StopJob) {
+            getView().refreshJobs(store.getJobsMetrics());
+        } else if (action instanceof RestartJob) {
+            getView().refreshJobs(store.getJobsMetrics());
         }
     }
 
@@ -100,5 +113,6 @@ public class JberetMetricsPresenter
     protected void onReset() {
         super.onReset();
         circuit.dispatch(new LoadThreadPoolMetrics());
+        circuit.dispatch(new LoadJobsMetrics());
     }
 }

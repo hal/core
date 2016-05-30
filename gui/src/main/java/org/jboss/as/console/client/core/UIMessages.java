@@ -51,6 +51,7 @@ public interface UIMessages extends Messages {
     String AssignmentSuccessfullyUnassigned(String name);
     String assignRole();
     String available(String s);
+    String batch_cannot_restart(String executionId);
     String bs_interface_warning(String url);
     String chooseServerGroupsForAssigning(String name);
     String cloneProfile(String name);

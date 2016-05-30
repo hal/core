@@ -21,187 +21,68 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet.ui;
 
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.List;
+
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.client.shared.runtime.charts.Column;
-import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.jberet.JberetMetricsPresenter;
-import org.jboss.as.console.client.shared.subsys.jberet.store.JberetStore;
-import org.jboss.as.console.client.shared.subsys.jberet.store.RefreshThreadPoolMetric;
+import org.jboss.as.console.client.shared.subsys.jberet.Job;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.List;
-
-import static com.google.gwt.dom.client.Style.Float.RIGHT;
-import static com.google.gwt.dom.client.Style.Unit.PX;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
  * @author Harald Pehl
  */
 public class JberetMetricsView extends SuspendableViewImpl implements JberetMetricsPresenter.MyView {
 
-    private final static String[] METRIC_ATTRIBUTES = {
-            "active-count",
-            "completed-task-count",
-            "current-thread-count",
-            "largest-thread-count",
-            "queue-size",
-            "rejected-count",
-            "task-count",
-    };
-
-    private final Dispatcher circuit;
-    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
-    private final SecurityFramework securityFramework;
-    private JberetMetricsPresenter presenter;
-
-    private DefaultCellTable<Property> table;
-    private ListDataProvider<Property> dataProvider;
-    private SingleSelectionModel<Property> selectionModel;
-    private Column[] columns;
-    private Grid grid;
+    private ThreadPoolRuntimePanel threadPoolPanel;
+    private JobsRuntimePanel jobsPanel;
 
     @Inject
     public JberetMetricsView(final Dispatcher circuit, final ResourceDescriptionRegistry resourceDescriptionRegistry,
-            final SecurityFramework securityFramework) {
-        this.circuit = circuit;
-        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
-        this.securityFramework = securityFramework;
+            final SecurityFramework securityFramework, StatementContext statementContext) {
+
+        threadPoolPanel = new ThreadPoolRuntimePanel(circuit, resourceDescriptionRegistry, securityFramework);
+        jobsPanel = new JobsRuntimePanel(circuit, resourceDescriptionRegistry, securityFramework);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Widget createWidget() {
-        ProvidesKey<Property> providesKey = Property::getName;
-        table = new DefaultCellTable<>(5, providesKey);
-        dataProvider = new ListDataProvider<>(providesKey);
-        dataProvider.addDataDisplay(table);
-        selectionModel = new SingleSelectionModel<>(providesKey);
-        selectionModel.addSelectionChangeHandler(event -> {
-            Property selection = selectionModel.getSelectedObject();
-            if (selection != null) {
-                ModelNode metric = selection.getValue();
-                refresh(metric);
-            }
-        });
-        table.setSelectionModel(selectionModel);
-        TextColumn<Property> nameColumn = new TextColumn<Property>() {
-            @Override
-            public String getValue(Property node) {
-                return node.getName();
-            }
-        };
-        table.addColumn(nameColumn, "Name");
+        DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabs.addStyleName("default-tabpanel");
+        tabs.add(threadPoolPanel.asWidget(), "Batch");
+        tabs.add(jobsPanel.asWidget(), "Jobs");
+        tabs.selectTab(0);
 
-        DefaultPager pager = new DefaultPager();
-        pager.setDisplay(table);
-
-        VerticalPanel tableAndPager = new VerticalPanel();
-        tableAndPager.setStyleName("fill-layout-width");
-        tableAndPager.add(table);
-        tableAndPager.add(pager);
-
-        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
-        ResourceDescription rootDescription = resourceDescriptionRegistry.lookup(JberetStore.METRICS_ROOT_ADDRESS);
-        ResourceDescription threadPoolsDescription = rootDescription.getChildDescription("thread-pool");
-        ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
-                .setResourceDescription(threadPoolsDescription)
-                .setSecurityContext(securityContext)
-                .include(METRIC_ATTRIBUTES)
-                .build();
-        Widget help = formAssets.getHelp().asWidget();
-        help.getElement().getStyle().setMarginTop(40, PX);
-
-        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
-        refreshBtn.setStyleName("html-link");
-        refreshBtn.getElement().getStyle().setPaddingRight(10, PX);
-        refreshBtn.getElement().getStyle().setFloat(RIGHT);
-        refreshBtn.addClickHandler(event -> {
-            Property selection = selectionModel.getSelectedObject();
-            if (selection != null) {
-                circuit.dispatch(new RefreshThreadPoolMetric(selection.getName()));
-            }
-        });
-        HorizontalPanel header = new HorizontalPanel();
-        header.addStyleName("fill-layout-width");
-        header.add(new HTML("<h3 class='metric-label-embedded'>Thread Pool</h3>"));
-        header.add(refreshBtn);
-
-        columns = new Column[]{
-                new NumberColumn("active-count", "Active Count"),
-                new NumberColumn("completed-task-count", "Completed Task Count"),
-                new NumberColumn("current-thread-count", "Current Thread Count"),
-                new NumberColumn("largest-thread-count", "Largest Thread Count"),
-                new NumberColumn("queue-size", "Queue Size"),
-                new NumberColumn("rejected-count", "Rejected Count"),
-                new NumberColumn("task-count", "Task Count")
-        };
-        grid = new Grid(columns.length, 2);
-        grid.addStyleName("metric-grid");
-        for (int row = 0; row < columns.length; ++row) {
-            grid.getCellFormatter().addStyleName(row, 0, "nominal");
-            grid.getCellFormatter().addStyleName(row, 1, "numerical");
-        }
-
-        VerticalPanel metricsPanel = new VerticalPanel();
-        metricsPanel.addStyleName("metric-container");
-        metricsPanel.add(header);
-        metricsPanel.add(grid);
-
-        SimpleLayout layout = new SimpleLayout()
-                .setTitle("Batch")
-                .setHeadline("Thread Pools")
-                .setDescription(SafeHtmlUtils.fromString(threadPoolsDescription.get("description").asString()))
-                .addContent("", tableAndPager)
-                .addContent("", help)
-                .addContent("", metricsPanel);
-        return layout.build();
+        return tabs;
     }
 
     @Override
     public void refresh(ModelNode metric) {
-        if (metric != null) {
-            List<Property> attributes = metric.asPropertyList();
-            for (int i = 0; i < columns.length; i++) {
-                for (Property attribute : attributes) {
-                    if (attribute.getName().equals(columns[i].getDeytpedName())) {
-                        grid.setText(i, 0, columns[i].getLabel());
-                        grid.setText(i, 1, attribute.getValue().asString());
-                    }
-                }
-            }
-        }
+        threadPoolPanel.refresh(metric);
     }
 
     @Override
     public void refresh(final List<Property> metrics) {
-        selectionModel.clear();
-        dataProvider.setList(metrics);
-        table.selectDefaultEntity();
+        threadPoolPanel.refresh(metrics);
+    }
+
+    @Override
+    public void refreshJobs(final List<Job> metrics) {
+        jobsPanel.refresh(metrics);
     }
 
     @Override
     public void setPresenter(final JberetMetricsPresenter presenter) {
-        this.presenter = presenter;
+        threadPoolPanel.setPresenter(presenter);
+        jobsPanel.setPresenter(presenter);
     }
 }
