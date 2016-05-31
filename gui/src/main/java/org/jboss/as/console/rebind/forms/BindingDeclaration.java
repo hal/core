@@ -41,12 +41,12 @@ public class BindingDeclaration implements Binding  {
     private boolean writeUndefined;
 
     /**
-     * 
+     *
      * @param detypedName
      * @param javaName
      * @param listType Fully-qualified type of the List, or <code>null</code> if the java type is not java.util.List
      * @param ignore
-     * @param beanClassName 
+     * @param beanClassName
      */
     public BindingDeclaration(String detypedName, String javaName, String listType, boolean ignore, String beanClassName) {
         this.detypedName = detypedName;
@@ -86,6 +86,10 @@ public class BindingDeclaration implements Binding  {
         else if("float".equals(javaTypeName))
         {
             this.javaTypeName = "java.lang.Float";
+        }
+        else if("double".equals(javaTypeName))
+        {
+            this.javaTypeName = "java.lang.Double";
         }
         else if("long".equals(javaTypeName))
         {
