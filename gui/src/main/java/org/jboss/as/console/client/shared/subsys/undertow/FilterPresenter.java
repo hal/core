@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -49,9 +52,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -166,8 +166,6 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
-
-    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");    
 
     public void loadFilters() {
 

@@ -19,17 +19,12 @@ import org.jboss.dmr.client.ModelNode;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class TXRollbackView implements Sampler {
+class TXRollbackView implements Sampler {
 
     private TransactionPresenter presenter;
     private Sampler sampler = null;
 
-    @Deprecated
-    public TXRollbackView(TransactionPresenter presenter) {
-        this.presenter = presenter;
-    }
-
-    public TXRollbackView() {
+    TXRollbackView() {
     }
 
     public Widget asWidget() {
@@ -45,26 +40,23 @@ public class TXRollbackView implements Sampler {
         };
 
         String title = "Failure Origin";
-        if(Console.protovisAvailable()) {
-            sampler = new BulletGraphView(title, "total number")
-                    .setColumns(cols);
-        }
-        else
-        {
-
-            final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
-                @Override
-                public ModelNode getAddress() {
-                    ModelNode address = new ModelNode();
-                    address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
-                    address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "transactions");
-                    return address;
-                }
-            };
+        final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
+            @Override
+            public ModelNode getAddress() {
+                ModelNode address = new ModelNode();
+                address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
+                address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "transactions");
+                return address;
+            }
+        };
+        if (Console.protovisAvailable()) {
+            sampler = new BulletGraphView(title, "total number", false, addressCallback)
+                .setColumns(cols);
+        } else {
 
             sampler = new PlainColumnView(title, addressCallback)
-                    .setColumns(cols)
-                    .setWidth(100, Style.Unit.PCT);
+                .setColumns(cols)
+                .setWidth(100, Style.Unit.PCT);
         }
 
         return sampler.asWidget();

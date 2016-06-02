@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.tx;
 
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -21,8 +23,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -155,7 +155,7 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
 
 
 
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_probe(), new ClickHandler() {
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 presenter.onProbe(true);

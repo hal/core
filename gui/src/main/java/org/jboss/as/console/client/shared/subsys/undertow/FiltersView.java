@@ -114,8 +114,6 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
         return layout;
     }
 
-    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");
-    
     @Override
     public void setFilters(List<ModelNode> filters) {
         for (ModelNode prop: filters) {

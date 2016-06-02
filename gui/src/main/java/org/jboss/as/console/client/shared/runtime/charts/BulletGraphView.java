@@ -3,13 +3,14 @@ package org.jboss.as.console.client.shared.runtime.charts;
 import com.google.gwt.core.client.JsArrayNumber;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.shared.help.HelpSystem;
+import org.jboss.as.console.client.shared.help.MetricHelpPanel;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.Sampler;
 import org.thechiselgroup.choosel.protovis.client.PV;
@@ -41,6 +42,7 @@ public class BulletGraphView implements Sampler {
     private HorizontalPanel container;
     private PVPanel vis = null;
     private Grid grid;
+    private HelpSystem.AddressCallback address;
 
     private boolean embeddedUse = false;
 
@@ -55,7 +57,14 @@ public class BulletGraphView implements Sampler {
         this.metricName = metricName;
         this.embeddedUse = embeddedUse;
     }
-
+    
+    public BulletGraphView(String title, String metricName, boolean embeddedUse, HelpSystem.AddressCallback address) {
+        this.title = title;
+        this.metricName = metricName;
+        this.embeddedUse = embeddedUse;
+        this.address = address;
+    }
+    
     public Sampler setColumns(Column[] columns) {
         this.columns = columns;
         return this;
@@ -149,6 +158,11 @@ public class BulletGraphView implements Sampler {
                 renderDefault();    // the 'empty' display
             }
         });
+
+        if (address != null) {
+            MetricHelpPanel helpPanel = new MetricHelpPanel(address, this.columns);
+            desc.add(helpPanel.asWidget());
+        }
 
         container.add(graphWidget);
         graphWidget.getElement().getParentElement().setAttribute("align", "center");
