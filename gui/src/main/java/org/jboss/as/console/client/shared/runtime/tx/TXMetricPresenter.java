@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2010, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.as.console.client.shared.runtime.tx;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -50,6 +71,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
     public interface MyView extends TXMetricView  {
         void setPresenter(TXMetricManagement presenter);
         void setTxMetric(Metric txMetric);
+        void setGeneralMetric(ModelNode txModel);
         void setRollbackMetric(Metric rollbackMetric);
         void clearSamples();
     }
@@ -85,12 +107,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
 
     @Override
     protected void onAction(Action action) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                refresh();
-            }
-        });
+        Scheduler.get().scheduleDeferred(() -> refresh());
     }
 
     @Override
@@ -118,21 +135,22 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
 
-                if(result.isFailure())
-                {
+                if (result.isFailure()) {
                     Log.error("Failed to load TX metrics: "+ result.getFailureDescription());
-                }
-                else
-                {
+                } else {
 
-                    TransactionManager metrics = entityAdapter.fromDMR(result.get(RESULT));
+                    ModelNode txAttributesNode = result.get(RESULT);
+                    TransactionManager metrics = entityAdapter.fromDMR(txAttributesNode);
 
                     getView().setTxMetric(new Metric(
                             metrics.getNumTransactions(),
                             metrics.getNumCommittedTransactions(),
                             metrics.getNumAbortedTransactions(),
-                            metrics.getNumTimeoutTransactions()
+                            metrics.getNumTimeoutTransactions(),
+                            metrics.getNumHeuristics()
                     ));
+                    
+                    getView().setGeneralMetric(txAttributesNode);
 
                     getView().setRollbackMetric(new Metric(
                             metrics.getNumApplicationRollback() + metrics.getNumResourceRollback(),

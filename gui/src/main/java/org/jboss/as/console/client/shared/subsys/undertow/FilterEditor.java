@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -42,9 +45,6 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  * @since 04/06/2016
@@ -60,8 +60,6 @@ public class FilterEditor {
     private final AddressTemplate addressTemplate;
     private final String title;
 
-    static java.util.logging.Logger LOG = java.util.logging.Logger.getLogger("org.jboss");
-    
     public FilterEditor(FilterPresenter presenter, AddressTemplate addressTemplate, String title) {
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
