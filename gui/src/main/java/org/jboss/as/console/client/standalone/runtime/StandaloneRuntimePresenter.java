@@ -229,7 +229,7 @@ public class StandaloneRuntimePresenter
                 {
                     // TODO: only works when this response changes the reload state
                     String outcome = response.get(RESULT).asString();
-                    boolean keepRunning = !outcome.equalsIgnoreCase("running");//reloadState.isStaleModel();
+                    boolean keepRunning = !( outcome.equalsIgnoreCase("running") || outcome.equalsIgnoreCase("restart-required") );//reloadState.isStaleModel();
 
                     if(!keepRunning)
                     {
