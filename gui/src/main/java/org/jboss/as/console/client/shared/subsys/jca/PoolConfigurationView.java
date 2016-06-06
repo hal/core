@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -19,11 +24,6 @@ import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -78,7 +78,7 @@ public class PoolConfigurationView {
         PropertyListItem decrementerProperties = new PropertyListItem("capacityDecrementerProperties",
                 "Decrementer Properties");
         decrementerProperties.setRequired(false);
-        ComboBoxItem decrementerClass = new ComboBoxItem("capacityDecrementerClass", "Decrementer Class");
+        ComboBoxItem decrementerClass = new ComboBoxItem("capacityDecrementerClass", "Decrementer Class", true);
         decrementerClass.setRequired(false);
         decrementerClass.setValueMap(Ordering.natural().immutableSortedCopy(decNames));
 
@@ -88,7 +88,7 @@ public class PoolConfigurationView {
         PropertyListItem incrementerProperties = new PropertyListItem("capacityIncrementerProperties",
                 "Incrementer Properties");
         incrementerProperties.setRequired(false);
-        ComboBoxItem incrementerClass = new ComboBoxItem("capacityIncrementerClass", "Incrementer Class");
+        ComboBoxItem incrementerClass = new ComboBoxItem("capacityIncrementerClass", "Incrementer Class", true);
         incrementerClass.setRequired(false);
         incrementerClass.setValueMap(Ordering.natural().immutableSortedCopy(incNames));
 
