@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.runtime.tx;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -26,9 +29,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -311,7 +311,7 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
                 else
                 {
                     if(refresh) {
-                        Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_probe()));
+                        Console.info(Console.MESSAGES.successful(Console.CONSTANTS.common_label_refresh()));
                         refresh();
                     }
                 }

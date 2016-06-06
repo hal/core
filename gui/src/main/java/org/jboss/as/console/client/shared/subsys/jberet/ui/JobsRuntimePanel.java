@@ -353,5 +353,4 @@ public class JobsRuntimePanel implements IsWidget {
         propList.addAll(jobs);
     }
 
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
 }
