@@ -42,12 +42,14 @@ public class NameTokens {
     public static final String HostPropertiesPresenter = "host-properties";
     public static final String Infinispan = "infinispan";
     public static final String InterfacePresenter = "interfaces";
+    public static final String JMSBridge = "jms-bridge";
     public static final String JMSPresenter = "jms";
     public static final String JndiPresenter = "naming";
     public static final String LogViewer = "logviewer";
     public static final String LogFiles = "logfiles";
     public static final String LogHandler = "log-handler";
     public static final String MessagingPresenter = "messaging";
+    public static final String MessagingProvider = "messaging-provider";
     public static final String ActivemqMessagingPresenter = "activemq-messaging";
     public static final String MetricsPresenter = "invocation-metrics";
     public static final String ModelBrowserPresenter = "model-browser";
