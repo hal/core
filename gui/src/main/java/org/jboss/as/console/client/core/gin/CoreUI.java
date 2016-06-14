@@ -99,6 +99,7 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinder;
+import org.jboss.as.console.client.shared.subsys.activemq.JMSBridgePresenter;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
@@ -134,7 +135,12 @@ import org.jboss.as.console.client.shared.subsys.picketlink.ServiceProviderPrese
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.*;
+import org.jboss.as.console.client.shared.subsys.undertow.FilterPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinder;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
@@ -277,6 +283,7 @@ public interface CoreUI {
     AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter> getActivemqMsgConnectionsPresenter();
     AsyncProvider<org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter> getMsgClusteringPresenter();
     AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter> getActivemqMsgClusteringPresenter();
+    AsyncProvider<JMSBridgePresenter> getJMSBridgePresenter();
 
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
     AsyncProvider<LogViewerPresenter> getLogViewerPresenter();

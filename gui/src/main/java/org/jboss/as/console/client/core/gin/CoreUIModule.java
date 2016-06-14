@@ -174,6 +174,8 @@ import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinder;
 import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinderView;
+import org.jboss.as.console.client.shared.subsys.activemq.JMSBridgePresenter;
+import org.jboss.as.console.client.shared.subsys.activemq.JMSBridgeView;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.batch.ui.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
@@ -241,7 +243,18 @@ import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinderView;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainView;
-import org.jboss.as.console.client.shared.subsys.undertow.*;
+import org.jboss.as.console.client.shared.subsys.undertow.FilterPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.FiltersView;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricView;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinder;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinderView;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowView;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebSubsystemView;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
@@ -455,6 +468,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyView.class,
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringView.class,
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyProxy.class);
+
+        bindPresenter(JMSBridgePresenter.class,
+                JMSBridgePresenter.MyView.class,
+                JMSBridgeView.class,
+                JMSBridgePresenter.MyProxy.class);
 
         bindPresenter(LogViewerPresenter.class,
                 LogViewerPresenter.MyView.class,

@@ -79,6 +79,7 @@ public class ModelDescriptionConstants {
     public static final String INPUT_STREAM_INDEX = "input-stream-index";
     public static final String INTERFACE = "interface";
     public static final String IN_SERIES = "in-series";
+    public static final String JMS_BRIDGE = "jms-bridge";
     public static final String JOB = "job";
     public static final String JOB_XML_NAME = "job-xml-name";
     public static final String JVM = "jvm";

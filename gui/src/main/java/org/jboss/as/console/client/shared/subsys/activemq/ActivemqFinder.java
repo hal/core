@@ -21,7 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.activemq;
 
-import com.google.gwt.core.client.GWT;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -32,11 +34,10 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -49,7 +50,6 @@ import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.RequiredResources;
-import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -59,31 +59,29 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_ADDRESS;
+import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_TEMPLATE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 /**
- * @author Harald Pehl
+ * @author Claudio Miranda
  */
 public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFinder.MyProxy>
-        implements MessagingAddress, PreviewEvent.Handler {
+        implements PreviewEvent.Handler {
 
-    // ------------------------------------------------------ proxy & view
-    // @formatter:off
     @ProxyCodeSplit
     @NameToken(NameTokens.ActivemqFinder)
-    @RequiredResources(resources = PROVIDER_ADDRESS, recursive = false)
-    @SearchIndex(keywords = {"topic", "queue", "jms", "messaging", "publish", "subscribe"})
+    @RequiredResources(resources = {MessagingAddress.ROOT_ADDRESS, PROVIDER_ADDRESS}, recursive = false)
     public interface MyProxy extends Proxy<ActivemqFinder>, Place {}
 
-    public interface MyView extends View, HasPresenter<ActivemqFinder> {
+    public interface MyView extends View {
+        void setPresenter(ActivemqFinder presenter);
+        void setPreview(SafeHtml html);
         void updateFrom(List<Property> list);
-        void setPreview(final SafeHtml html);
     }
-    // @formatter:on
-
 
     private final DispatchAsync dispatcher;
     private final ResourceDescriptionRegistry descriptionRegistry;
@@ -93,13 +91,10 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     private DefaultWindow providerDialog;
     private ProviderView providerView;
 
-
-    // ------------------------------------------------------ presenter lifecycle
-
     @Inject
-    public ActivemqFinder(EventBus eventBus,
-            MyView view,
-            MyProxy proxy,
+    public ActivemqFinder(EventBus eventBus,  
+            ActivemqFinder.MyView view,
+            ActivemqFinder.MyProxy proxy,
             DispatchAsync dispatcher,
             ResourceDescriptionRegistry descriptionRegistry,
             SecurityFramework securityFramework,
@@ -118,22 +113,24 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     }
 
     @Override
+    protected void onBind() {
+        super.onBind();
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
+        getView().setPresenter(this);
+    }
+
+    @Override
+    protected void revealInParent() {
+        if(Console.getBootstrapContext().isStandalone())
+            RevealContentEvent.fire(this, ServerMgmtApplicationPresenter.TYPE_MainContent, this);
+        else
+            RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
     public void onPreview(PreviewEvent event) {
         if(isVisible())
             getView().setPreview(event.getHtml());
-    }
-
-    @Override
-    protected void onBind() {
-        super.onBind();
-        getView().setPresenter(this);
-        getEventBus().addHandler(PreviewEvent.TYPE, this);
-    }
-
-    @Override
-    protected void onReset() {
-        super.onReset();
-        loadProvider();
     }
 
     public SecurityFramework getSecurityFramework() {
@@ -193,7 +190,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         dialog.center();
     }
 
-    private void loadProvider() {
+    void loadProvider() {
         loadProvider(null);
     }
 
@@ -283,5 +280,5 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         providerDialog.center();
 
         providerView.updateFrom(provider);
-    }
+    }    
 }
