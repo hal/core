@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,8 +32,6 @@ import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -161,6 +161,5 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
             }
         }
     }
-
 
 }

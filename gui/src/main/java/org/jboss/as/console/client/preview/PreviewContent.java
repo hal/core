@@ -132,6 +132,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/jca.html")
     ExternalTextResource jca();
 
+    @Source("content/jms_bridge.html")
+    ExternalTextResource jms_bridge();
+
     @Source("content/jmx.html")
     ExternalTextResource jmx();
 
