@@ -225,13 +225,13 @@ public class PatchManager {
         private ReadPatches(final String host) {
             this.host = host;
         }
-        
+
         @Override
         public void execute(final Control<List<Patches>> control) {
          // read: patch-streams and latest patch,
          //	NOTE: latest patch == applied to product, it does not include
          // other streams!
-         final ModelNode readResourceOperation = baseAddress();
+         final ModelNode readResourceOperation = baseAddress(host);
          readResourceOperation.get(OP).set(READ_RESOURCE_OPERATION);
          readResourceOperation.get(INCLUDE_RUNTIME).set(true);
          dispatcher.execute(new DMRAction(readResourceOperation), new AsyncCallback<DMRResponse>() {
@@ -244,34 +244,29 @@ public class PatchManager {
 
             public void onSuccess(DMRResponse result) {
                 final ModelNode readResult = result.get().get(RESULT);
-                final String host = getHost();
                 final Patches patches = new Patches(host);
                 //extract latest patch
                 final ModelNode patchesNode = readResult.get("patches");
-                String id = null;
+
+                String idPatchesNodes = null;
                 if (patchesNode.isDefined()) {
                     List<ModelNode> idList = patchesNode.asList();
                     if (!idList.isEmpty()) {
-                        id = idList.get(0).asString(); // TODO first == latest?
+                    	idPatchesNodes = idList.get(0).asString(); // TODO first == latest?
                     }
                 }
-                if (id == null) {
-                    id = readResult.get("cumulative-patch-id").asString();
-                }
-                patches.setLatest(id);
-                 String version = readResult.get("version").asString();
-                if (patches.getLatest() != null) {
-                    patches.getLatest().setVersion(version);
-                }
-                
+
+                final String id = (idPatchesNodes != null) ? idPatchesNodes : readResult.get("cumulative-patch-id").asString();
+                final String version = readResult.get("version").asString();
+
                 ModelNode headersNode = readResult.get("response-headers");
                 if (headersNode.isDefined()) {
-                  ModelNode stateNode = headersNode.get("process-state");
-                  patches.setRestartRequired("restart-required".equals(stateNode.asString()));
-              } else {
-                  patches.setRestartRequired(false);
-              }
-                
+                   ModelNode stateNode = headersNode.get("process-state");
+                   patches.setRestartRequired("restart-required".equals(stateNode.asString()));
+                } else {
+                   patches.setRestartRequired(false);
+                }
+
                 //read patch streams and issue comp command to read
                 //patch list per stream.
                 final String[] patchStreams = sort(readResult.get("patch-stream").asPropertyList());
@@ -295,14 +290,19 @@ public class PatchManager {
                     }
 
                     public void onSuccess(DMRResponse result) {
-                    	final ModelNode compResult = result.get().get(RESULT);
-                    	for(int index = 0; index < patchStreams.length; index++){
-                    		List<ModelNode> streamPatches = compResult.get("step-"+(index+1)).get(RESULT).asList();
-                    		for(ModelNode patch:streamPatches){
-                    			patches.add(historyToPatchInfo(patchStreams[index],patch));
-                    		}
-                    	}
-                    	addPatches(control, patches);
+                        final ModelNode compResult = result.get().get(RESULT);
+                        for(int index = 0; index < patchStreams.length; index++){
+                            List<ModelNode> streamPatches = compResult.get("step-"+(index+1)).get(RESULT).asList();
+                            for(ModelNode patch:streamPatches){
+                                patches.add(historyToPatchInfo(patchStreams[index],patch));
+                            }
+                        }
+                        // this should be done here because setLatestId is checked against the registered patches.
+                        patches.setLatest(id);
+                        if (patches.getLatest() != null) {
+                            patches.getLatest().setVersion(version);
+                        }
+                        addPatches(control, patches);
                         control.proceed();
                     }
                     
