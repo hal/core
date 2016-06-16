@@ -127,7 +127,6 @@ public interface UIConstants extends Constants {
     String common_label_noRecentMessages();
     String common_label_operations();
     String common_label_option();
-    String common_label_patch_stream();
     String common_label_paths();
     String common_label_plaseWait();
     String common_label_portOffset();
