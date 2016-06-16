@@ -223,7 +223,7 @@ public class PatchManager {
             historyOp.get(OP).set("show-history");
             steps.add(historyOp);
 
-            ModelNode latestPatchOp = baseAddress(host);
+            ModelNode latestPatchOp = baseAddress();
             latestPatchOp.get(OP).set(READ_RESOURCE_OPERATION);
             latestPatchOp.get(INCLUDE_RUNTIME).set(true);
             steps.add(latestPatchOp);
