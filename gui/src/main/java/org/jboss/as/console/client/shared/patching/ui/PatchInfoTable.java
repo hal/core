@@ -107,10 +107,17 @@ public class PatchInfoTable implements IsWidget, PatchManagementElementId {
                 return record.getType();
             }
         };
+        TextColumn<PatchInfo> inEffectColumn = new TextColumn<PatchInfo>() {
+            @Override
+            public String getValue(PatchInfo record) {
+                return record.isInEffect() ? "true" : "false";
+            }
+        };
         table.addColumn(idColumn, "ID");
         table.addColumn(patchStreamColumn, Console.CONSTANTS.common_label_patch_stream());
         table.addColumn(dateColumn, Console.CONSTANTS.common_label_date());
         table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
+        table.addColumn(inEffectColumn, Console.CONSTANTS.patch_manager_in_effect());
 
         DefaultPager pager = new DefaultPager();
         pager.getElement().setId(asId(PREFIX, getClass(), "_Pager"));
