@@ -358,6 +358,7 @@ public interface UIConstants extends Constants {
     String patch_manager_error_title();
     String patch_manager_error();
     String patch_manager_hide_details();
+    String patch_manager_in_effect();
     String patch_manager_latest();
     String patch_manager_patch_details();
     String patch_manager_possible_actions();
