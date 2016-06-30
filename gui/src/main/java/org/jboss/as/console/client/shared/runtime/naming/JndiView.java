@@ -54,10 +54,6 @@ public class JndiView extends DisposableViewImpl implements JndiPresenter.MyView
         container = new VerticalPanel();
         container.setStyleName("fill-layout");
 
-        uriLabel = new HTML(SELECTED_URI_PREFIX, true);
-        layout.addContent("", uriLabel);
-        uriLabel.getElement().setAttribute("style", "margin-bottom:10px");
-
         layout.addContent("", container);
 
         return layout.build();
@@ -68,17 +64,12 @@ public class JndiView extends DisposableViewImpl implements JndiPresenter.MyView
         container.clear();
         container.add(tree);
 
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                JndiEntry entry = selectionModel.getSelectedObject();
-                uriLabel.setHTML(SELECTED_URI_PREFIX + entry.getURI());
-            }
-        });
-
         // open first element
         TreeNode rootNode = tree.getRootTreeNode();
         TreeNode firstItem = rootNode.setChildOpen(0, true);
+
+        // open datail of first element
+        firstItem.setChildOpen(0, true);
 
     }
 

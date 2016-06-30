@@ -527,6 +527,9 @@ public interface UIConstants extends Constants {
     String subsys_naming_jndiBindings();
     String subsys_naming_jndiView();
     String subsys_naming_selectedURI();
+    String subsys_naming_URI();
+    String subsys_naming_type();
+    String subsys_naming_value();
     String subsys_web_desc();
     String subsys_web_socketInUse();
     String subsys_ws_desc();
