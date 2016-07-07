@@ -75,7 +75,7 @@ public class ThreadPoolEditor {
             @Override
             public String getValue(WorkmanagerPool record) {
 
-                String type = record.isShortRunning() ? "short-running" : "long-runnig";
+                String type = record.isShortRunning() ? "short-running" : "long-running";
                 return type;
             }
         };
