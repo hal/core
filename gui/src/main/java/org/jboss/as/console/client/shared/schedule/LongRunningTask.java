@@ -56,12 +56,14 @@ public class LongRunningTask {
                 else
                 {
 
-                    command.execute(new SimpleCallback<Boolean>() {
-                        @Override
-                        public void onSuccess(Boolean result) {
-                            keepRunning = result;
-                        }
-                    });
+                    if(keepRunning) {
+                        command.execute(new SimpleCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                keepRunning = result;
+                            }
+                        });
+                    }
                 }
 
                 if(!keepRunning && window!=null)
