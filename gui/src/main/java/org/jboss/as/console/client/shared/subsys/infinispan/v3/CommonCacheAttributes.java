@@ -1,5 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.infinispan.v3;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -23,12 +29,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -238,6 +238,8 @@ public class CommonCacheAttributes {
                 formMapping.get(MIXED_STORE).getForm().edit(payload.get("store").get("mixed-jdbc"));
             if (hasDefined(payload, "store", "binary-jdbc"))
                 formMapping.get(BINARY_STORE).getForm().edit(payload.get("store").get("binary-jdbc"));
+            if (hasDefined(payload, "store", "remote"))
+                formMapping.get(REMOTE_STORE).getForm().edit(payload.get("store").get("remote"));
         }
     }
 

@@ -5,10 +5,15 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_CONNECTOR;
 
 /**
  * @author Pavel Slegr
@@ -32,12 +37,16 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         form = new ModclusterForm(presenter);
 
         CheckBoxItem advertise = new CheckBoxItem("advertise", "Advertise");
-        TextBoxItem advertiseSocket = new TextBoxItem("advertiseSocket", "Advertise Socket");
-        TextBoxItem advertiseKey= new TextBoxItem("advertiseKey", "Advertise Key", false);
+        FormItem advertiseSocket = new SuggestionResource("advertiseSocket", "Advertise Socket", true,
+            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+            .buildFormItem();
 
+        TextBoxItem advertiseKey= new TextBoxItem("advertiseKey", "Advertise Key", false);
         TextBoxItem balancer = new TextBoxItem("balancer", "Balancer", false);
         TextBoxItem loadBalancingGroup = new TextBoxItem("loadBalancingGroup", "Load Balancing Group", false);
-        TextBoxItem connector = new TextBoxItem("connector", "Connector", true);
+        FormItem connector = new SuggestionResource("connector", "Connector", true,
+            Console.MODULES.getCapabilities().lookup(UNDERTOW_CONNECTOR))
+            .buildFormItem();
 
         form.setFields(connector, loadBalancingGroup, balancer, advertiseSocket, advertiseKey, advertise);
 

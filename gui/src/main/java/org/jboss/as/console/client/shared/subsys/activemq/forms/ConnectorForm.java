@@ -1,25 +1,24 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Collections;
-import java.util.List;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -32,14 +31,11 @@ public class ConnectorForm {
     boolean isCreate = false;
     private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqConnector> callback;
-    private MultiWordSuggestOracle oracle;
 
     public ConnectorForm(MsgConnectionsPresenter presenter,
             FormToolStrip.FormCallback<ActivemqConnector> callback, ConnectorType type) {
         this.presenter = presenter;
         this.callback = callback;
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
         this.type = type;
     }
 
@@ -94,8 +90,11 @@ public class ConnectorForm {
         FormItem name;
 
         if (isCreate) { name = new TextBoxItem("name", "Name"); } else { name = new TextItem("name", "Name"); }
-        SuggestBoxItem socket = new SuggestBoxItem("socketBinding", "Socket Binding");
-        socket.setOracle(oracle);
+        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+        FormItem socket = suggestionResource.buildFormItem();
+
+
         form.setFields(name, socket);
     }
 
@@ -103,9 +102,11 @@ public class ConnectorForm {
         FormItem name;
 
         if (isCreate) { name = new TextBoxItem("name", "Name"); } else { name = new TextItem("name", "Name"); }
-        SuggestBoxItem socket = new SuggestBoxItem("socketBinding", "Socket Binding");
         TextAreaItem factory = new TextAreaItem("factoryClass", "Factory Class");
-        socket.setOracle(oracle);
+        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+        FormItem socket = suggestionResource.buildFormItem();
+
         form.setFields(name, socket, factory);
     }
 
@@ -117,8 +118,4 @@ public class ConnectorForm {
         isCreate = create;
     }
 
-    public void setSocketBindings(List<String> socketBindings) {
-        this.oracle.clear();
-        this.oracle.addAll(socketBindings);
-    }
 }

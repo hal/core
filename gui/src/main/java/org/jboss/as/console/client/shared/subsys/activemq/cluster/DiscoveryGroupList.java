@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -16,9 +18,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -100,17 +99,6 @@ public class DiscoveryGroupList {
         serverName.setText("DiscoveryGroups: Provider " + presenter.getCurrentServer());
 
         factoryTable.selectDefaultEntity();
-
-        // populate oracle
-        presenter.loadExistingSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {}
-
-            @Override
-            public void onSuccess(List<String> names) {
-                defaultAttributes.setSocketBindings(names);
-            }
-        });
     }
 
     @SuppressWarnings("unchecked")

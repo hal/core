@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -12,8 +14,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.AcceptorForm;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
 import org.jboss.as.console.client.shared.subsys.activemq.model.AcceptorType;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -21,9 +23,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -122,17 +121,6 @@ public class AcceptorList {
         serverName.setText("Acceptors: Provider " + presenter.getCurrentServer());
         table.selectDefaultEntity();
 
-        // populate oracle
-        presenter.loadSocketBindings(
-                new AsyncCallback<List<String>>() {
-                    @Override
-                    public void onFailure(Throwable throwable) {}
-
-                    @Override
-                    public void onSuccess(List<String> names) {
-                        acceptorForm.setSocketBindings(names);
-                    }
-                });
     }
 
     @SuppressWarnings("unchecked")

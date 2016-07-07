@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -13,6 +16,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -22,8 +26,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_PASSIVATION_STORE;
 
 /**
  * @author Heiko Braun
@@ -87,6 +90,11 @@ public class CachesView {
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("passivation-store", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("passivation-store", "Passivation store", false,
+                            Console.MODULES.getCapabilities().lookup(EJB_PASSIVATION_STORE));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
 
