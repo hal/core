@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.activemq.connections;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -21,9 +23,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -123,18 +122,6 @@ public class ConnectorList {
         provider.setList(Connectors);
         serverName.setText("Connectors: Provider " + presenter.getCurrentServer());
         table.selectDefaultEntity();
-
-        // populate oracle
-        presenter.loadSocketBindings(
-                new AsyncCallback<List<String>>() {
-                    @Override
-                    public void onFailure(Throwable throwable) {}
-
-                    @Override
-                    public void onSuccess(List<String> names) {
-                        connectorForm.setSocketBindings(names);
-                    }
-                });
     }
 
     @SuppressWarnings("unchecked")

@@ -436,22 +436,12 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     }
 
     public void launchNewAcceptorWizard(final AcceptorType type) {
-        loadSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                Console.error("Failed to load socket bindings", throwable.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<String> names) {
-                window = new DefaultWindow(Console.MESSAGES.createTitle(type.name().toUpperCase() + " Acceptor"));
-                window.setWidth(480);
-                window.setHeight(360);
-                window.trapWidget(new NewAcceptorWizard(MsgConnectionsPresenter.this, type).asWidget());
-                window.setGlassEnabled(true);
-                window.center();
-            }
-        });
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.name().toUpperCase() + " Acceptor"));
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new NewAcceptorWizard(MsgConnectionsPresenter.this, type).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void onDeleteAcceptor(final ActivemqAcceptor entity) {
@@ -541,22 +531,12 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     }
 
     public void launchNewConnectorWizard(final ConnectorType type) {
-        loadSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                Console.error("Failed to load socket bindings", throwable.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<String> names) {
-                window = new DefaultWindow(Console.MESSAGES.createTitle(type.name().toUpperCase() + " Connector"));
-                window.setWidth(480);
-                window.setHeight(360);
-                window.trapWidget(new NewConnectorWizard(MsgConnectionsPresenter.this, type).asWidget());
-                window.setGlassEnabled(true);
-                window.center();
-            }
-        });
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.name().toUpperCase() + " Connector"));
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new NewConnectorWizard(MsgConnectionsPresenter.this, type).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void onDeleteConnector(final ActivemqConnector entity) {

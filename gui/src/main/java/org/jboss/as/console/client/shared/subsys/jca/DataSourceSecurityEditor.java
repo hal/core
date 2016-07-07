@@ -1,14 +1,19 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormEditor;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 
 /**
  * @author Heiko Braun
@@ -31,12 +36,10 @@ public class DataSourceSecurityEditor extends FormEditor<DataSource>{
     @Override
     public Widget asWidget() {
 
-        TextBoxItem securityDomain = new TextBoxItem("securityDomain", "Security Domain") {
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
+        SuggestionResource suggestionResource = new SuggestionResource("securityDomain", "Security Domain", false,
+                Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+        FormItem securityDomain = suggestionResource.buildFormItem();
+
         TextBoxItem user = new TextBoxItem("username", "Username") {
             @Override
             public boolean isRequired() {

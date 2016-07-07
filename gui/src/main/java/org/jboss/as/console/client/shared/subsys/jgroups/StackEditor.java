@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.jgroups;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -17,9 +21,10 @@ import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -27,9 +32,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -108,7 +111,10 @@ public class StackEditor {
         form.setNumColumns(2);
 
         TextItem nameField = new TextItem("name", "Name");
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
+
+        FormItem socket = new SuggestionResource("socketBinding", "Socket Binding", false,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+                .buildFormItem();
 
         form.setFields(nameField, socket);
         form.setEnabled(false);

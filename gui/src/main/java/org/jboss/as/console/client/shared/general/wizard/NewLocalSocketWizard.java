@@ -4,15 +4,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -31,7 +36,9 @@ public class NewLocalSocketWizard {
 
         final Form<LocalSocketBinding> form = new Form<>(LocalSocketBinding.class);
         TextBoxItem name = new TextBoxItem("name", "Name");
-        TextBoxItem socketBinding = new TextBoxItem("socketBinding", "Socket Binding");
+        FormItem socketBinding = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+                .buildFormItem();
         form.setFields(name, socketBinding);
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {

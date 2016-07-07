@@ -8,15 +8,19 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_OUTBOUND_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -37,7 +41,10 @@ public class NewMailServerWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
+        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_OUTBOUND_SOCKET_BINDING));
+
+        FormItem socket = suggestionResource.buildFormItem();
         TextBoxItem user = new TextBoxItem("username", "Username", false);
         PasswordBoxItem pass = new PasswordBoxItem("password", "Password", false);
         CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");

@@ -105,6 +105,8 @@ import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
 import org.jboss.as.console.client.domain.runtime.NoServerView;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyView;
+import org.jboss.as.console.client.meta.Capabilities;
+import org.jboss.as.console.client.meta.CoreCapabilitiesRegister;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistryImpl;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
@@ -835,6 +837,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         // bootstrapping
         bind(BootstrapContext.class).in(Singleton.class);
         bind(BootstrapServerSetup.class).in(Singleton.class);
+        bind(CoreCapabilitiesRegister.class).in(Singleton.class);
         bind(LoadGoogleViz.class).in(Singleton.class);
         bind(ExecutionMode.class).in(Singleton.class);
         bind(TrackExecutionMode.class).in(Singleton.class);
@@ -846,6 +849,8 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(EagerLoadGroups.class).in(Singleton.class);
         bind(BootstrapSteps.class).in(Singleton.class);
         bind(Bootstrapper.class).in(Singleton.class);
+        
+        bind(Capabilities.class).in(Singleton.class);
 
         bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);
         bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);

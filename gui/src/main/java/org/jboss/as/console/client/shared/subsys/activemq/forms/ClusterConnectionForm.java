@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -16,9 +15,6 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 4/3/12
@@ -29,14 +25,11 @@ public class ClusterConnectionForm {
     boolean isCreate = false;
     private final MsgClusteringPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqClusterConnection> callback;
-    private MultiWordSuggestOracle oracle;
 
     public ClusterConnectionForm(MsgClusteringPresenter presenter,
             FormToolStrip.FormCallback<ActivemqClusterConnection> callback) {
         this.presenter = presenter;
         this.callback = callback;
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
     public ClusterConnectionForm(MsgClusteringPresenter presenter,
@@ -44,8 +37,6 @@ public class ClusterConnectionForm {
         this.presenter = presenter;
         isCreate = create;
         if (!isCreate) { this.callback = callback; }
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
     public Widget asWidget() {
@@ -135,8 +126,4 @@ public class ClusterConnectionForm {
         isCreate = create;
     }
 
-    public void setSocketBindings(List<String> socketBindings) {
-        this.oracle.clear();
-        this.oracle.addAll(socketBindings);
-    }
 }

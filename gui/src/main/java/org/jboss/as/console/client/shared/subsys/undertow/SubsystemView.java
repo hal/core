@@ -1,20 +1,24 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
-import com.google.gwt.core.client.GWT;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_HOST;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_SERVER;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_SERVLET_CONTAINER;
 
 /**
  * @author Heiko Braun
@@ -39,6 +43,27 @@ public class SubsystemView {
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("default-security-domain", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-security-domain", "Default security domain", true,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-server", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-server", "Default server", true,
+                            Console.MODULES.getCapabilities().lookup(UNDERTOW_SERVER));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-servlet-container", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-servlet-container", "Default servlet container", true,
+                            Console.MODULES.getCapabilities().lookup(UNDERTOW_SERVLET_CONTAINER));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-virtual-host", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-virtual-host", "Default virtual host", true,
+                            Console.MODULES.getCapabilities().lookup(UNDERTOW_HOST));
+                    return suggestionResource.buildFormItem();
+                })
+
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
 
