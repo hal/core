@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Strings;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -9,16 +12,19 @@ import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.*;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.DATASOURCE;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.PROCESS_ID_SOCKET_BINDING;
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.PROCESS_ID_SOCKET_MAX_PORTS;
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.PROCESS_ID_UUID;
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.ROOT_ADDRESS_TEMPLATE;
 
 /**
  * @author Heiko Braun
@@ -28,13 +34,13 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
     private final static String[] PROCESS = new String[]{
             "process-id-uuid",
-            "process-id-socket-binding",
+            "process-id-socket-binding", //- added as factory to use the SuggestionBox custom implementation.
             "process-id-socket-max-ports",
     };
 
     private final static String[] RECOVERY = new String[]{
-            "socket-binding",
-            "status-socket-binding",
+            "socket-binding", //- added as factory to use the SuggestionBox custom implementation.
+            "status-socket-binding",//- added as factory to use the SuggestionBox custom implementation.
             "recovery-listener",
     };
 
@@ -51,7 +57,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
             "jdbc-communication-store-table-prefix",
             "jdbc-state-store-drop-table",
             "jdbc-state-store-table-prefix",
-            "jdbc-store-datasource",
+            "jdbc-store-datasource" //- added as factory to use the SuggestionBox custom implementation.
     };
 
 
@@ -113,6 +119,12 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         processAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .include(PROCESS)
+                .addFactory("process-id-socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("process-id-socket-binding", 
+                            "Process id socket binding", false,
+                        Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext)
                 .build();
@@ -200,6 +212,16 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         recoveryAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .include(RECOVERY)
+                .addFactory("status-socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("status-socket-binding", "Status socket binding", true,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("socket-binding", "Socket binding", true,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext)
                 .build();
@@ -238,6 +260,12 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         jdbcAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .include(JDBC)
+                .addFactory("jdbc-store-datasource", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("jdbc-store-datasource", 
+                            "Jdbc store datasource", false,
+                        Console.MODULES.getCapabilities().lookup(DATASOURCE));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext)
                 .build();

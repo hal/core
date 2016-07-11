@@ -63,6 +63,7 @@ import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimegateKeeper;
 import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
+import org.jboss.as.console.client.meta.Capabilities;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SearchIndexRegistry;
@@ -230,6 +231,7 @@ public interface CoreUI {
     UploadHandler getUploadHHandler();
 
     ApplicationMetaData getApplicationMetaData();
+    Capabilities getCapabilities();
 
     // ----------------------------------------------------------------------
     AsyncProvider<HomepagePresenter> getHomepagePresenter();

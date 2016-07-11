@@ -41,6 +41,7 @@ public class ModelDescriptionConstants {
     public static final String ATTRIBUTES = "attributes";
     public static final String BYTES = "bytes";
     public static final String CANCELLED = "cancelled";
+    public static final String CAPABILITY_REFERENCE = "capability-reference";
     public static final String CHILD_TYPE = "child-type";
     public static final String CHILDREN = "children";
     public static final String COMPOSITE = "composite";

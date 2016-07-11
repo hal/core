@@ -1,19 +1,24 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.activemq.cluster.BroadcastGroupList;
 import org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.JGROUPS_CHANNEL;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.JGROUPS_STACK;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -40,6 +45,21 @@ public class BroadcastGroupForm {
 
         formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("socket-binding", "Socket binding", false,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("jgroups-stack", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("jgroups-stack", "Jgroups stack", false,
+                            Console.MODULES.getCapabilities().lookup(JGROUPS_STACK));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("jgroups-channel", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("jgroups-channel", "Jgroups channel", false,
+                            Console.MODULES.getCapabilities().lookup(JGROUPS_CHANNEL));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
 

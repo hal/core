@@ -1,17 +1,22 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.CACHE_CONTAINER;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_THREAD_POOL;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.REMOTING_HTTP_CONNECTOR;
 
 /**
  * @author Heiko Braun
@@ -44,6 +49,22 @@ public class RemotingSvcView {
 
         final ModelNodeFormBuilder.FormAssets commonAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("cluster", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("cluster", "Cluster", false,
+                            Console.MODULES.getCapabilities().lookup(CACHE_CONTAINER));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("thread-pool-name", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("thread-pool-name", "Thread pool name", false,
+                            Console.MODULES.getCapabilities().lookup(EJB_THREAD_POOL));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("connector-ref", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("connector-ref", "Connector ref", false,
+                            Console.MODULES.getCapabilities().lookup(REMOTING_HTTP_CONNECTOR));
+                    return suggestionResource.buildFormItem();
+                })
+
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .build();

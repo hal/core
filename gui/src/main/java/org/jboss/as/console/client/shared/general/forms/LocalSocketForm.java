@@ -1,16 +1,25 @@
 package org.jboss.as.console.client.shared.general.forms;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.*;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Collections;
-import java.util.List;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -51,7 +60,9 @@ public class LocalSocketForm {
 
     private void buildForm() {
         FormItem name = new TextItem("name", "Name");
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
+        FormItem socket = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+                .buildFormItem();
         NumberBoxItem sourcePort = new NumberBoxItem("sourcePort", "Source Port");
         TextBoxItem sourceInterface = new TextBoxItem("sourceInterface", "Source Interface");
         CheckBoxItem fixed = new CheckBoxItem("fixedSourcePort", "Fixed Source Port?");

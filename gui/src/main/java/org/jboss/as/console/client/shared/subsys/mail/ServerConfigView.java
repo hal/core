@@ -1,20 +1,26 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.*;
-
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -23,11 +29,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import javax.swing.*;
-import javax.swing.SingleSelectionModel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_OUTBOUND_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -116,7 +118,10 @@ public class ServerConfigView {
 
         form = new Form<MailServerDefinition>(MailServerDefinition.class);
 
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
+        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_OUTBOUND_SOCKET_BINDING));
+        
+        FormItem socket = suggestionResource.buildFormItem();
         TextBoxItem user = new TextBoxItem("username", "Username");
         PasswordBoxItem pass = new PasswordBoxItem("password", "Password");
         CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");
@@ -196,5 +201,6 @@ public class ServerConfigView {
 
         dataProvider.setList(server);
         table.selectDefaultEntity();
+        form.clearValues();
     }
 }

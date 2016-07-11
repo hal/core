@@ -1,26 +1,5 @@
 package org.jboss.as.console.mbui.widgets;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.help.StaticHelpPanel;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
-import org.jboss.ballroom.client.widgets.forms.DoubleFormItem;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.ListItem;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.dmr.client.ModelDescriptionConstants;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
-import org.jboss.dmr.client.Property;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +12,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.meta.Capabilities;
+import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
+import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
+import org.jboss.ballroom.client.widgets.forms.DoubleFormItem;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.ListItem;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.Property;
+
 import static java.util.Arrays.asList;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CAPABILITY_REFERENCE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
 
 /**
  * @author Heiko Braun
@@ -43,6 +47,7 @@ public class ModelNodeFormBuilder {
 
     private ModelNodeForm form;
     private SecurityContext securityContext;
+    private Capabilities capabilities;
     private String address;
     private ModelNode modelDescription;
     private Set<String> includes = new LinkedHashSet<>();
@@ -61,6 +66,10 @@ public class ModelNodeFormBuilder {
     public interface FormItemFactory {
 
         FormItem create(Property attributeDescription);
+    }
+    
+    public ModelNodeFormBuilder() {
+        this.capabilities = Console.MODULES.getCapabilities();
     }
 
     public ModelNodeFormBuilder setSecurityContext(SecurityContext sc) {
@@ -301,9 +310,8 @@ public class ModelNodeFormBuilder {
 
                 FormItem formItem = null;
 
-                // exopliciyly created form items (monkey patching)
-                if(itemFactories.containsKey(attr.getName()))
-                {
+                // explicitly created form items (monkey patching)
+                if (itemFactories.containsKey(attr.getName())) {
                     formItem = itemFactories.get(attr.getName()).create(attr);
                 }
 
@@ -365,7 +373,7 @@ public class ModelNodeFormBuilder {
                                 for (ModelNode value : allowed)
                                     allowedValues.add(value.asString());
 
-                                final boolean isNillable = attrDesc.hasDefined(ModelDescriptionConstants.NILLABLE) && attrDesc.get(ModelDescriptionConstants.NILLABLE).asBoolean();
+                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean();
                                 ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);
                                 combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
@@ -373,13 +381,17 @@ public class ModelNodeFormBuilder {
 
                                 formItem = combo;
                             } else {
-                                TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
-                                textBoxItem.setAllowWhiteSpace(true);
-
-                                textBoxItem.setRequired(isRequired);
-                                textBoxItem.setEnabled(!readOnly && !isRuntime);
-
-                                formItem = textBoxItem;
+                                formItem = createSuggestBoxForCapabilityReference(attr, label, isRequired);
+                                if (formItem == null) {
+                                    // there is no capability-reference
+                                    TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
+                                    textBoxItem.setAllowWhiteSpace(true);
+    
+                                    textBoxItem.setRequired(isRequired);
+                                    textBoxItem.setEnabled(!readOnly && !isRuntime);
+    
+                                    formItem = textBoxItem;
+                                }
                             }
 
                             // TODO: Support for TextAreaItem
@@ -419,8 +431,8 @@ public class ModelNodeFormBuilder {
             }
         }
 
+        
         // some resources already contain a name attribute
-
         FormItem nameItem = null;
         if(createMode) {
             for (FormItem item : requiredItems) {
@@ -483,13 +495,27 @@ public class ModelNodeFormBuilder {
         return required;
     }
 
+    private FormItem createSuggestBoxForCapabilityReference(final Property property, String label, boolean required) {
+        FormItem formItem = null;
+        ModelNode modelNode = property.getValue();
+        if (modelNode.hasDefined(CAPABILITY_REFERENCE) && capabilities != null) {
+            String reference = modelNode.get(CAPABILITY_REFERENCE).asString();
+            if (capabilities.contains(reference)) {
+                SuggestionResource suggestionResource = new SuggestionResource(property.getName(), label, required, 
+                        capabilities.lookup(reference));
+                formItem = suggestionResource.buildFormItem();
+            }
+        }
+        return formItem;
+    }
+
     public ModelNodeFormBuilder setRequiredOnly(boolean requiredOnly) {
         this.requiredOnly = requiredOnly;
         return this;
     }
 
     /**
-     * In create mode we consider the paramter for the 'add' operations for building the form.
+     * In create mode we consider the parameter for the 'add' operations for building the form.
      *
      * @param createMode
      * @return

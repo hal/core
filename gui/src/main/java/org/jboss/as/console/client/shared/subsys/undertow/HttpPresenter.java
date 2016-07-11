@@ -26,8 +26,14 @@ import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -36,6 +42,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_RESPONSE_FILTER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -317,6 +324,70 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         window.setWidget(newAddResourceDialog(lookup, address));
         window.setGlassEnabled(true);
         window.center();
+    }
+
+    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
+
+
+    public void onLaunchAddFilterReferenceDialog(AddressTemplate address, String hostname) {
+
+        String type = address.getResourceType();
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        ResourceDescription resoourceDescription = descriptionRegistry.lookup(address);
+        AddressTemplate resolvedAddress = address.replaceWildcards(hostname);
+
+        // the fields are added manually, because the name field should be autocomplete (SuggestionTextBox)
+        // and the ModelNodeFormBuilder just excludes the name attribute.
+        ModelNode attributes = resoourceDescription.get("attributes");
+        ModelNode attrDesc = attributes.get("priority");
+        FormItem priorityItem = null;
+        if (attrDesc.hasDefined("min") && attrDesc.hasDefined("max")) {
+            priorityItem = new NumberBoxItem(
+                "priority", Console.CONSTANTS.common_label_priority(),
+                attrDesc.get("min").asLong(),
+                attrDesc.get("max").asLong()
+            );
+        }
+        priorityItem.setRequired(false);
+
+        TextBoxItem predicateItem = new TextBoxItem("predicate", Console.CONSTANTS.common_label_predicate(), false);
+
+        // this is the textfield with autocomplete, the suggestions comes from the response filters
+        FormItem responseFilterName = new SuggestionResource(NAME, Console.CONSTANTS.common_label_name(), true,
+                Console.MODULES.getCapabilities().lookup(UNDERTOW_RESPONSE_FILTER))
+                .buildFormItem();
+
+        // a modelnodeformbuilder.formassets is used to pass as parameter to AddResourceDialog 
+        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
+                .setResourceDescription(resoourceDescription)
+                .setSecurityContext(Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter));
+        ModelNodeFormBuilder.FormAssets formAssets = builder.build();
+        ModelNodeForm form = formAssets.getForm();
+        form.setFields(responseFilterName, predicateItem, priorityItem);
+        form.setEnabled(true);
+        
+        AddResourceDialog addResourceDialog = new AddResourceDialog(formAssets,
+                resoourceDescription,
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        window.hide();
+                        operationDelegate.onCreateResource(resolvedAddress, payload.get(NAME).asString(), payload, defaultOpCallbacks);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }
+        );
+        window.setWidget(addResourceDialog);
+        window.setGlassEnabled(true);
+        window.center();
 
     }
 
@@ -328,7 +399,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     @Override
                     public void onAdd(ModelNode payload) {
                         window.hide();
-                        operationDelegate.onCreateResource(address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                        operationDelegate.onCreateResource(address, payload.get(NAME).asString(), payload, defaultOpCallbacks);
                     }
 
                     @Override

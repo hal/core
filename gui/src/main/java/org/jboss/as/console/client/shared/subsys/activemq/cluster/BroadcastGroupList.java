@@ -1,13 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
-import com.google.gwt.core.client.GWT;
+import java.util.List;
+
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.BroadcastGroupForm;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -17,8 +16,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -108,17 +105,6 @@ public class BroadcastGroupList {
         serverName.setText("BroadcastGroups: Provider " + presenter.getCurrentServer());
 
         table.selectDefaultEntity();
-
-        // populate oracle
-        presenter.loadExistingSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {}
-
-            @Override
-            public void onSuccess(List<String> names) {
-                defaultAttributes.setSocketBindings(names);
-            }
-        });
     }
 
     @SuppressWarnings("unchecked")
