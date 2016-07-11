@@ -47,6 +47,7 @@ import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.RequiredResources;
@@ -59,6 +60,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_ADDRESS;
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_TEMPLATE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
@@ -180,6 +182,11 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                     public void onCancel() {
                         dialog.hide();
                     }
+                })
+                .addFactory("security-domain", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("security-domain", "Security domain", true,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                    return suggestionResource.buildFormItem();
                 })
                 .include("security-enabled", "security-domain", "cluster-user", "cluster-password");
 

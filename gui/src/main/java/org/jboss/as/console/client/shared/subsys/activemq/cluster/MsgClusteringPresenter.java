@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -23,9 +27,10 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcas
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -45,11 +50,9 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.JGROUPS_CHANNEL;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.JGROUPS_STACK;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -355,11 +358,6 @@ public class MsgClusteringPresenter
         return currentServer;
     }
 
-    public void loadExistingSocketBindings(AsyncCallback<List<String>> callback) {
-        // TODO
-        callback.onSuccess(Collections.emptyList());
-    }
-
     public void onCreateBroadcastGroup(final ActivemqBroadcastGroup entity) {
         closeDialogue();
 
@@ -453,22 +451,12 @@ public class MsgClusteringPresenter
     }
 
     public void launchNewDiscoveryGroupWizard() {
-        loadExistingSocketBindings(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-                Console.error(Console.MESSAGES.failed("Loading socket bindings"), throwable.getMessage());
-            }
-
-            @Override
-            public void onSuccess(List<String> names) {
-                window = new DefaultWindow(Console.MESSAGES.createTitle("Discovery Group"));
-                window.setWidth(480);
-                window.setHeight(450);
-                window.trapWidget(new NewDiscoveryGroupWizard(MsgClusteringPresenter.this, names).asWidget());
-                window.setGlassEnabled(true);
-                window.center();
-            }
-        });
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Discovery Group"));
+        window.setWidth(480);
+        window.setHeight(450);
+        window.trapWidget(new NewDiscoveryGroupWizard(MsgClusteringPresenter.this).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void onDeleteDiscoveryGroup(final String name) {
@@ -557,7 +545,7 @@ public class MsgClusteringPresenter
         window.setWidth(480);
         window.setHeight(450);
         window.trapWidget(
-                new NewClusterConnectionWizard(MsgClusteringPresenter.this, Collections.emptyList()).asWidget());
+                new NewClusterConnectionWizard(MsgClusteringPresenter.this).asWidget());
         window.setGlassEnabled(true);
         window.center();
     }
@@ -736,6 +724,21 @@ public class MsgClusteringPresenter
                                     .setRequiredOnly(false)
                                     .includeOptionals(false)
                                     .include("connectors", "broadcast-period", "jgroups-channel", "jgroups-stack", "socket-binding")
+                                    .addFactory("socket-binding", attributeDescription ->  {
+                                        SuggestionResource suggestionResource = new SuggestionResource("socket-binding", "Socket binding", false,
+                                                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                                        return suggestionResource.buildFormItem();
+                                    })
+                                    .addFactory("jgroups-stack", attributeDescription ->  {
+                                        SuggestionResource suggestionResource = new SuggestionResource("jgroups-stack", "Jgroups stack", false,
+                                                Console.MODULES.getCapabilities().lookup(JGROUPS_STACK));
+                                        return suggestionResource.buildFormItem();
+                                    })
+                                    .addFactory("jgroups-channel", attributeDescription ->  {
+                                        SuggestionResource suggestionResource = new SuggestionResource("jgroups-channel", "Jgroups channel", false,
+                                                Console.MODULES.getCapabilities().lookup(JGROUPS_CHANNEL));
+                                        return suggestionResource.buildFormItem();
+                                    })
                                     .setResourceDescription(resourceDescription)
                                     .setSecurityContext(securityContext)
                                     .build();

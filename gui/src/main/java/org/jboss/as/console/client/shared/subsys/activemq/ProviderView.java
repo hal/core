@@ -28,12 +28,15 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.dmr.client.Property;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 
 public class ProviderView implements MessagingAddress {
 
@@ -124,6 +127,11 @@ public class ProviderView implements MessagingAddress {
         secForm = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .include(SECURITY)
+                .addFactory("security-domain", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("security-domain", "Security domain", true,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
         secForm.getForm().setToolsCallback(callback);

@@ -1,17 +1,22 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Map;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_CACHE;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.STATELESS_SESSION_BEAN_POOL;
 
 /**
  * @author Heiko Braun
@@ -44,6 +49,37 @@ public class ContainerView {
 
         final ModelNodeFormBuilder.FormAssets commonAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .addFactory("default-entity-bean-instance-pool", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-entity-bean-instance-pool", "Default entity bean instance pool", false,
+                            Console.MODULES.getCapabilities().lookup(STATELESS_SESSION_BEAN_POOL));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-mdb-instance-pool", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-mdb-instance-pool", "Default mdb instance pool", false,
+                            Console.MODULES.getCapabilities().lookup(STATELESS_SESSION_BEAN_POOL));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-slsb-instance-pool", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-slsb-instance-pool", "Default slsb instance pool", false,
+                            Console.MODULES.getCapabilities().lookup(STATELESS_SESSION_BEAN_POOL));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-security-domain", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-security-domain", "Default security domain", false,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-sfsb-cache", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-sfsb-cache", "Default sfsb cache", false,
+                            Console.MODULES.getCapabilities().lookup(EJB_CACHE));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("default-sfsb-passivation-disabled-cache", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("default-sfsb-passivation-disabled-cache", "Default sfsb passivation disabled cache", false,
+                            Console.MODULES.getCapabilities().lookup(EJB_CACHE));
+                    return suggestionResource.buildFormItem();
+                })
+
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .build();

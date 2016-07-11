@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.jgroups;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -12,10 +16,11 @@ import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -23,10 +28,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
@@ -53,10 +55,14 @@ public class TransportEditor implements PropertyManagement {
         form.setNumColumns(2);
 
         TextItem name = new TextItem("name", "Name");
-        TextBoxItem socket= new TextBoxItem("socketBinding", "Socket Binding");
-        TextBoxItem diagSocket = new TextBoxItem("diagSocketBinding", "Diagnostics Socket", false);
+        FormItem socket = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+                .buildFormItem();
+        FormItem diagSocket = new SuggestionResource("diagSocketBinding", "Diagnostics Socket", false,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING))
+                .buildFormItem();
+        
         CheckBoxItem shared= new CheckBoxItem("shared", "Is Shared?");
-
         TextBoxItem machine = new TextBoxItem("machine", "Machine", false);
         TextBoxItem site= new TextBoxItem("site", "Site", false);
         TextBoxItem rack= new TextBoxItem("rack", "Rack", false);

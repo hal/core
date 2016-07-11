@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.List;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -21,6 +24,7 @@ import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -31,9 +35,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.List;
-import java.util.Map;
-
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_PASSIVATION_STORE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -284,6 +286,12 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                             }
                         }
                 )
+                .addFactory("passivation-store", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("passivation-store", "Passivation store", false,
+                            Console.MODULES.getCapabilities().lookup(EJB_PASSIVATION_STORE));
+                    return suggestionResource.buildFormItem();
+                })
+
         );
 
         window.setGlassEnabled(true);

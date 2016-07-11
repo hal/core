@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.iiopopenjdk;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -33,6 +36,7 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.MapAttributeAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.MapAttributePropertyManager;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -41,9 +45,8 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.List;
-import java.util.Map;
-
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter.IIOP_OPENJDK_SUBSYSTEM_TEMPLATE;
 
 /**
@@ -82,6 +85,21 @@ public class IiopOpenJdkView extends SuspendableViewImpl implements IiopOpenJdkP
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .exclude("properties")
+                .addFactory("socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("socket-binding", "Socket binding", false,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("ssl-socket-binding", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("ssl-socket-binding", "Ssl socket binding", false,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("security-domain", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("security-domain", "Security domain", false,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                    return suggestionResource.buildFormItem();
+                })
                 .setResourceDescription(resourceDescription)
                 .setSecurityContext(securityContext);
         formAssets = builder.build();

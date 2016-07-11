@@ -1,12 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -15,8 +16,7 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Collections;
-import java.util.List;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
 
 /**
  * @author Heiko Braun
@@ -28,14 +28,11 @@ public class DiscoveryGroupForm {
     boolean isCreate = false;
     private final MsgClusteringPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback;
-    private MultiWordSuggestOracle oracle;
 
     public DiscoveryGroupForm(MsgClusteringPresenter presenter,
             FormToolStrip.FormCallback<ActivemqDiscoveryGroup> callback) {
         this.presenter = presenter;
         this.callback = callback;
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
     public DiscoveryGroupForm(MsgClusteringPresenter presenter,
@@ -43,8 +40,6 @@ public class DiscoveryGroupForm {
         this.presenter = presenter;
         isCreate = create;
         if (!isCreate) { this.callback = callback; }
-        oracle = new MultiWordSuggestOracle();
-        oracle.setDefaultSuggestionsFromText(Collections.emptyList());
     }
 
     public Widget asWidget() {
@@ -53,7 +48,6 @@ public class DiscoveryGroupForm {
         if (isCreate) {
             form.setNumColumns(1);
         } else {
-
             form.setNumColumns(2);
             form.setEnabled(false);
         }
@@ -84,7 +78,10 @@ public class DiscoveryGroupForm {
         if (isCreate) { name = new TextBoxItem("name", "Name"); } else { name = new TextItem("name", "Name"); }
         NumberBoxItem initialWait = new NumberBoxItem("initialWaitTimeout", "Initial Wait Timeout");
         NumberBoxItem refresh = new NumberBoxItem("refreshTimeout", "Refresh Timeout");
-        TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
+        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
+                Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+        FormItem socket = suggestionResource.buildFormItem();
+
         if (isCreate) { form.setFields(name, socket); } else { form.setFields(name, socket, initialWait, refresh); }
     }
 
@@ -96,8 +93,4 @@ public class DiscoveryGroupForm {
         isCreate = create;
     }
 
-    public void setSocketBindings(List<String> socketBindings) {
-        this.oracle.clear();
-        this.oracle.addAll(socketBindings);
-    }
 }

@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DiscoveryGroupForm;
@@ -10,9 +12,6 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Heiko Braun
  * @date 4/4/12
@@ -20,11 +19,9 @@ import java.util.Map;
 public class NewDiscoveryGroupWizard {
 
     private MsgClusteringPresenter presenter;
-    private List<String> names;
 
-    public NewDiscoveryGroupWizard(MsgClusteringPresenter presenter, List<String> names) {
+    public NewDiscoveryGroupWizard(MsgClusteringPresenter presenter) {
         this.presenter = presenter;
-        this.names = names;
     }
 
     public Widget asWidget() {
@@ -40,7 +37,6 @@ public class NewDiscoveryGroupWizard {
                     public void onDelete(ActivemqDiscoveryGroup entity) {}
                 }, true);
 
-        form.setSocketBindings(names);
         layout.add(form.asWidget());
 
         DialogueOptions options = new DialogueOptions(

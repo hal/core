@@ -21,6 +21,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
@@ -34,18 +38,12 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * 
@@ -56,8 +54,6 @@ import java.util.List;
  */
 public class FilterRefEditor implements IsWidget {
 
-    protected final SecurityContext securityContext;
-    protected final ResourceDescription resourceDescription;
 
     private final ProvidesKey<Property> nameProvider;
     private final AddressTemplate operationAddress;
@@ -69,12 +65,10 @@ public class FilterRefEditor implements IsWidget {
     private final SingleSelectionModel<Property> selectionModel;
     private String hostname;
 
-    FilterRefEditor(HttpPresenter presenter, AddressTemplate operationAddress, ResourceDescription resourceDescription) {
+    FilterRefEditor(HttpPresenter presenter, AddressTemplate operationAddress) {
         this.presenter = presenter;
         this.nameProvider = Property::getName;
         this.operationAddress = operationAddress;
-        this.resourceDescription = resourceDescription.getChildDescription("filter-ref");
-        this.securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
         selectionModel = new SingleSelectionModel<>(nameProvider);
     }
 
@@ -126,7 +120,7 @@ public class FilterRefEditor implements IsWidget {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
             presenter.setSelectedHost(hostname);
-            presenter.onLaunchAddResourceDialog(operationAddress, hostname);
+            presenter.onLaunchAddFilterReferenceDialog(operationAddress, hostname);
         });
         ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final Property selection = selectionModel.getSelectedObject();
