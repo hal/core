@@ -36,7 +36,7 @@ public class LoadActivemqServersCmd implements AsyncCommand<List<Property>> {
     @Override
     public void execute(final AsyncCallback<List<Property>> callback) {
         Operation operation = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION,
-                ROOT_TEMPLATE.resolve(statementContext)).param(CHILD_TYPE, "server").build();
+                ROOT_TEMPLATE.resolve(statementContext)).param(CHILD_TYPE, "server").param("recursive-depth", 2).build();
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
