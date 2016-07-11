@@ -43,6 +43,7 @@ import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -61,6 +62,7 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_ADDRESS;
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_TEMPLATE;
+import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PATH_ADDRESS;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
@@ -74,7 +76,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ActivemqFinder)
-    @RequiredResources(resources = {MessagingAddress.ROOT_ADDRESS, PROVIDER_ADDRESS}, recursive = false)
+    @RequiredResources(resources = {MessagingAddress.ROOT_ADDRESS, PROVIDER_ADDRESS, PATH_ADDRESS}, recursive = false)
     public interface MyProxy extends Proxy<ActivemqFinder>, Place {}
 
     public interface MyView extends View {
@@ -92,7 +94,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     private ProviderView providerView;
 
     @Inject
-    public ActivemqFinder(EventBus eventBus,  
+    public ActivemqFinder(EventBus eventBus,
             ActivemqFinder.MyView view,
             ActivemqFinder.MyProxy proxy,
             DispatchAsync dispatcher,
@@ -219,7 +221,11 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     }
 
     public void onSaveProvider(Property provider, Map<String, Object> changeset) {
-        ResourceAddress fqAddress = PROVIDER_TEMPLATE.resolve(statementContext, provider.getName());
+        onSaveProvider(provider, changeset, PROVIDER_TEMPLATE);
+    }
+
+    public void onSaveProvider(Property provider, Map<String, Object> changeset, AddressTemplate address) {
+        ResourceAddress fqAddress = address.resolve(statementContext, provider.getName());
         ModelNodeAdapter adapter = new ModelNodeAdapter();
         ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
 
@@ -273,12 +279,12 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
 
     public void onLaunchProviderSettings(Property provider) {
         providerDialog = new DefaultWindow(Console.MESSAGES.providerSettings());
-        providerDialog.setWidth(640);
+        providerDialog.setWidth(840);
         providerDialog.setHeight(480);
         providerDialog.trapWidget(providerView.asWidget());
         providerDialog.setGlassEnabled(true);
         providerDialog.center();
 
         providerView.updateFrom(provider);
-    }    
+    }
 }

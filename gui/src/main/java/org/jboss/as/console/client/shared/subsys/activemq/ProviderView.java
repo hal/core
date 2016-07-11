@@ -27,12 +27,14 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 public class ProviderView implements MessagingAddress {
@@ -72,10 +74,19 @@ public class ProviderView implements MessagingAddress {
             "create-journal-dir"
     };
 
+    private final static String[] DIRECTORY = new String[]{
+            "path",
+            "relative-to"
+    };
+
     private final ActivemqFinder presenter;
     private ModelNodeFormBuilder.FormAssets commonForm;
     private ModelNodeFormBuilder.FormAssets secForm;
     private ModelNodeFormBuilder.FormAssets journalForm;
+    private ModelNodeFormBuilder.FormAssets bindingsDirForm;
+    private ModelNodeFormBuilder.FormAssets journalDirForm;
+    private ModelNodeFormBuilder.FormAssets largeMessagesDirForm;
+    private ModelNodeFormBuilder.FormAssets pagingDirForm;
     private Property provider;
     private HTML title;
 
@@ -87,6 +98,7 @@ public class ProviderView implements MessagingAddress {
         SecurityContext securityContext = presenter.getSecurityFramework()
                 .getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(PROVIDER_TEMPLATE);
+        ResourceDescription pathDefinition = presenter.getDescriptionRegistry().lookup(PATH_TEMPLATE);
 
         FormCallback callback = new FormCallback() {
             @Override
@@ -136,6 +148,38 @@ public class ProviderView implements MessagingAddress {
                 .setSecurityContext(securityContext).build();
         journalForm.getForm().setToolsCallback(callback);
 
+        // bindings directory
+        bindingsDirForm = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(DIRECTORY)
+                .setResourceDescription(pathDefinition)
+                .setSecurityContext(securityContext).build();
+        bindingsDirForm.getForm().setToolsCallback(createPathCallback("bindings-directory"));
+
+        // journal directory
+        journalDirForm = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(DIRECTORY)
+                .setResourceDescription(pathDefinition)
+                .setSecurityContext(securityContext).build();
+        journalDirForm.getForm().setToolsCallback(createPathCallback("journal-directory"));
+
+        // large messages directory
+        largeMessagesDirForm = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(DIRECTORY)
+                .setResourceDescription(pathDefinition)
+                .setSecurityContext(securityContext).build();
+        largeMessagesDirForm.getForm().setToolsCallback(createPathCallback("large-messages-directory"));
+
+        // paging directory
+        pagingDirForm = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(DIRECTORY)
+                .setResourceDescription(pathDefinition)
+                .setSecurityContext(securityContext).build();
+        pagingDirForm.getForm().setToolsCallback(createPathCallback("paging-directory"));
+
         title = new HTML();
         title.setStyleName("content-header-label");
 
@@ -145,7 +189,11 @@ public class ProviderView implements MessagingAddress {
                 .setDescription(definition.get("description").asString())
                 .addDetail(Console.CONSTANTS.common_label_attributes(), commonForm.asWidget())
                 .addDetail("Security", secForm.asWidget())
-                .addDetail("Journal", journalForm.asWidget());
+                .addDetail("Journal", journalForm.asWidget())
+                .addDetail("Bindings Directory", bindingsDirForm.asWidget())
+                .addDetail("Journal Directory", journalDirForm.asWidget())
+                .addDetail("Large Messages Directory", largeMessagesDirForm.asWidget())
+                .addDetail("Paging Directory", pagingDirForm.asWidget());
         return layoutBuilder.build();
     }
 
@@ -156,5 +204,26 @@ public class ProviderView implements MessagingAddress {
         commonForm.getForm().edit(provider.getValue());
         secForm.getForm().edit(provider.getValue());
         journalForm.getForm().edit(provider.getValue());
+        ModelNode path = provider.getValue().get("path");
+        if (path.isDefined()) {
+            bindingsDirForm.getForm().edit(path.get("bindings-directory"));
+            journalDirForm.getForm().edit(path.get("journal-directory"));
+            largeMessagesDirForm.getForm().edit(path.get("large-messages-directory"));
+            pagingDirForm.getForm().edit(path.get("paging-directory"));
+        }
+    }
+
+    private FormCallback createPathCallback(String directory) {
+        return new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(Map changeset) {
+                presenter.onSaveProvider(provider, changeset, PROVIDER_TEMPLATE.append("path=" + directory));
+            }
+
+            @Override
+            public void onCancel(Object entity) {
+            }
+        };
     }
 }
