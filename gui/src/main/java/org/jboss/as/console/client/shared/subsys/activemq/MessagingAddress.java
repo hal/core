@@ -38,4 +38,7 @@ public interface MessagingAddress {
     AddressTemplate JMSBRIDGE_TEMPLATE = AddressTemplate.of(JMSBRIDGE_ADDRESS);
 
     String JMSBRIDGE_ENTITY_ADDRESS = ROOT_ADDRESS + "/jms-bridge=" + JMSBridgeSelectionAwareContext.SELECTED_ENTITY;
+
+    String PATH_ADDRESS = ROOT_ADDRESS + "/server={activemq.server}/path=bindings-directory";
+    AddressTemplate PATH_TEMPLATE = AddressTemplate.of(PATH_ADDRESS);
 }
