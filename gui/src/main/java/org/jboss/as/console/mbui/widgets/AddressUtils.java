@@ -86,11 +86,11 @@ public class AddressUtils {
 
             if(i==tuples.size()-1)
                 if(fq)
-                    sb.append(tuple.getValue().asString());
+                    sb.append(escapeValue(tuple.getValue().asString()));
                 else
                     sb.append("*");
             else
-                sb.append(tuple.getValue().asString());
+                sb.append(escapeValue(tuple.getValue().asString()));
 
             i++;
         }
@@ -111,11 +111,11 @@ public class AddressUtils {
 
             if(i==tuples.size()-1)
                 if(fq)
-                    sb.append(tuple.getValue().asString());
+                    sb.append(escapeValue(tuple.getValue().asString()));
                 else
                     sb.append("*");
             else
-                sb.append(tuple.getValue().asString());
+                sb.append(escapeValue(tuple.getValue().asString()));
 
             i++;
         }
@@ -125,4 +125,11 @@ public class AddressUtils {
 
         return sb.toString();
     }
+
+    private static String escapeValue(String addressSegment) {
+        return addressSegment
+                .replace("/", "\\/")
+                .replace(":", "\\:");
+    }
+
 }
