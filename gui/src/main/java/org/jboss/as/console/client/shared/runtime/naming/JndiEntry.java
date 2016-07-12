@@ -70,4 +70,8 @@ class JndiEntry {
     public String getURI() {
         return uri;
     }
+
+    public String getDataType() {
+        return dataType;
+    }
 }
