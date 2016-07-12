@@ -1,15 +1,15 @@
 package org.jboss.as.console.mbui.behaviour;
 
-import org.jboss.as.console.client.widgets.forms.KeyAssignment;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jboss.as.console.client.widgets.forms.KeyAssignment;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -137,7 +137,7 @@ public class ModelNodeAdapter {
             nodeToSetValueUpon.clear();
             Map<String,String> map = (Map<String,String>)value;
             for(String k : map.keySet())
-                nodeToSetValueUpon.add(k, map.get(k));
+                nodeToSetValueUpon.get(k).set(map.get(k));
         }
         else
         {
