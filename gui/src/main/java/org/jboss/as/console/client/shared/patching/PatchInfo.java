@@ -50,4 +50,7 @@ public interface PatchInfo { //@formatter:off
 
     String getLink();
     void setLink(String link);
+
+    Boolean isInEffect();
+    void setInEffect(Boolean isInEffect);
 } //@formatter:on
