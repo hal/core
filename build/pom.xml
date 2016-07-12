@@ -233,7 +233,7 @@
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
                     <jsInteropMode>JS</jsInteropMode>
-                    <extraJvmArgs>-Xms768m -Xmx1024m -Xss1024k -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory -DDEBUG</extraJvmArgs>
+                    <extraJvmArgs>-Xms768m -Xmx2024m -Xss1024k -Dgwt.jjs.permutationWorkerFactory=com.google.gwt.dev.ThreadedPermutationWorkerFactory -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
                     <bindAddress>${gwt.bindAddress}</bindAddress>
                     <hostedWebapp>war</hostedWebapp>
