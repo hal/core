@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -18,12 +22,12 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -34,10 +38,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -207,7 +207,7 @@ public class ResourceAdapterPresenter
         ResourceAddress fqAddress = address.resolve(statementContext, selectedAdapter, name);
 
         final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
+        ModelNode operation = adapter.fromChangeSet(fqAddress, changeset);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
@@ -304,7 +304,7 @@ public class ResourceAdapterPresenter
         ResourceAddress fqAddress = address.resolve(statementContext, name);
 
         final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
+        ModelNode operation = adapter.fromChangeSet(fqAddress, changeset);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
