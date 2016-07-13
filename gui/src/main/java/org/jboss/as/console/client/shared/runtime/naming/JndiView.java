@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.shared.runtime.naming;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.user.cellview.client.TreeNode;
 import com.google.gwt.user.client.ui.HTML;
@@ -39,9 +42,11 @@ public class JndiView extends DisposableViewImpl implements JndiPresenter.MyView
 
     private VerticalPanel container;
     private HTML uriLabel;
+    private JndiPresenter presenter;
 
     @Override
     public void setPresenter(JndiPresenter presenter) {
+        this.presenter = presenter;
     }
 
     @Override
@@ -50,6 +55,24 @@ public class JndiView extends DisposableViewImpl implements JndiPresenter.MyView
         SimpleLayout layout = new SimpleLayout()
                                .setTitle(Console.CONSTANTS.subsys_naming_jndiView())
                                .setHeadline(Console.CONSTANTS.subsys_naming_jndiBindings());
+
+        HTML refreshButton = new HTML("<i class='icon-refresh'></i> Refresh Results");
+        refreshButton.setStyleName("html-link");
+        refreshButton.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+        refreshButton.getElement().getStyle().setTop(-10, Style.Unit.PX);
+        refreshButton.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        refreshButton.getElement().getStyle().setLeft(88, Style.Unit.PCT);
+
+        layout.addContent("", refreshButton);
+
+        refreshButton.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_refresh_jndiView());
+
+        refreshButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.refresh();
+            }
+        });
 
         container = new VerticalPanel();
         container.setStyleName("fill-layout");

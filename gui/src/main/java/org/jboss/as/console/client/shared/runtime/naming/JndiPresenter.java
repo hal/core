@@ -53,6 +53,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 7/20/11
  */
 public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPresenter.MyProxy>
+    implements JndiViewManagement
 {
     @ProxyCodeSplit
     @NameToken(NameTokens.JndiPresenter)
@@ -110,6 +111,11 @@ public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPr
     @Override
     protected void onReset() {
         super.onReset();
+        loadJndiTree();
+    }
+
+    @Override
+    public void refresh() {
         loadJndiTree();
     }
 
