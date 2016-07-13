@@ -46,6 +46,7 @@ public class ModelDescriptionConstants {
     public static final String CHILDREN = "children";
     public static final String COMPOSITE = "composite";
     public static final String CONCURRENT_GROUPS = "concurrent-groups";
+    public static final String CONFIGURATION_CHANGES = "configuration-changes";
     public static final String CPU_AFFINITY = "cpu-affinity";
     public static final String CRITERIA = "criteria";
     public static final String COMPENSATING_OPERATION = "compensating-operation";
@@ -85,6 +86,7 @@ public class ModelDescriptionConstants {
     public static final String JOB_XML_NAME = "job-xml-name";
     public static final String JVM = "jvm";
     public static final String JVM_TYPE = "type";
+    public static final String LIST_CHANGES_OPERATION = "list-changes";
     public static final String LOCAL = "local";
     public static final String LOCALE = "locale";
     public static final String MANAGEMENT_INTERFACES = "management-interfaces";
@@ -164,6 +166,7 @@ public class ModelDescriptionConstants {
     public static final String SERVER_GROUP = "server-group";
     public static final String SERVER_GROUPS = "server-groups";
     public static final String SERVER_OPERATIONS = "server-operations";
+    public static final String SERVICE = "service";
     public static final String SHUTDOWN = "shutdown";
     public static final String SOCKET_BINDING = "socket-binding";
     public static final String SOCKET_BINDING_GROUP = "socket-binding-group";

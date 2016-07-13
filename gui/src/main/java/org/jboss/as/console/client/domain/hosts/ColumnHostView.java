@@ -1,5 +1,11 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.inject.Inject;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -38,12 +44,6 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -335,6 +335,15 @@ public class ColumnHostView extends SuspendableViewImpl
                     public void executeOn(final String host) {
                         Console.getPlaceManager().revealRelativePlace(
                                 new PlaceRequest(NameTokens.HostInterfacesPresenter)
+                        );
+                    }
+                }),
+                new MenuDelegate<String>(          // TODO permissions
+                        "Configuration Changes", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.ConfigurationChangesPresenter)
                         );
                     }
                 }),

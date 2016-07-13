@@ -58,6 +58,7 @@ public interface UIMessages extends Messages {
     String common_validation_heapSize();
     String common_validation_notEmptyNoSpace();
     String common_validation_portOffsetUndefined(String errMessage);
+    String configuration_changes_description();
     String contentAlreadyAssigned(String name);
     String contentFailedToAssignToServerGroups(String name);
     String contentFailedToUnassignFromServerGroups(String name);

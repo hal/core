@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -39,10 +43,6 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -283,7 +283,17 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public String render(StandaloneServer data) {
                         return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                }.setOperationAddress("/", "suspend")
+                }.setOperationAddress("/", "suspend"),
+                
+                new MenuDelegate<>(
+                        "Configuration Changes", new ContextualCommand<StandaloneServer>() {
+                    @Override
+                    public void executeOn(final StandaloneServer server) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.ConfigurationChangesPresenter)
+                        );
+                    }
+                })
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<StandaloneServer>() {

@@ -137,6 +137,7 @@ public class NameTokens {
     public static final String DeploymentsPresenter  = "domain-deployments-old";
 
     public static final String HostMgmtPresenter = "hosts";
+    public static final String ConfigurationChangesPresenter = "configuration-changes";
 
     public final static String ServerPresenter = "server-config";
 
