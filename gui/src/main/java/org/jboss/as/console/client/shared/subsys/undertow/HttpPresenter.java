@@ -326,9 +326,6 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         window.center();
     }
 
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-
-
     public void onLaunchAddFilterReferenceDialog(AddressTemplate address, String hostname) {
 
         String type = address.getResourceType();

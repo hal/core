@@ -51,6 +51,7 @@ import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
 import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostJVMPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostPropertiesPresenter;
@@ -301,6 +302,7 @@ public interface CoreUI {
     AsyncProvider<HostPropertiesPresenter> getHostPropertiesPresenter();
     AsyncProvider<HostJVMPresenter> getHostJVMPresenter();
     AsyncProvider<HostInterfacesPresenter> getHostInterfacesPresenter();
+    AsyncProvider<ConfigurationChangesPresenter> getConfigurationChangesPresenter();
 
     AsyncProvider<StandaloneServerPresenter> getStandaloneServerPresenter();
 

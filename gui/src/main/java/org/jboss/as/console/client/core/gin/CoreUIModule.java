@@ -83,6 +83,8 @@ import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricView;
 import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
 import org.jboss.as.console.client.domain.hosts.ServerConfigView;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesView;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesView;
 import org.jboss.as.console.client.domain.hosts.general.HostJVMPresenter;
@@ -384,6 +386,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 HostJVMPresenter.MyView.class,
                 HostJVMView.class,
                 HostJVMPresenter.MyProxy.class);
+
+        bindPresenter(ConfigurationChangesPresenter.class,
+                ConfigurationChangesPresenter.MyView.class,
+                ConfigurationChangesView.class,
+                ConfigurationChangesPresenter.MyProxy.class);
 
         // profile management application
         bindPresenter(ProfileMgmtPresenter.class,
