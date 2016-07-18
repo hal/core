@@ -4,10 +4,9 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
@@ -23,19 +22,19 @@ import org.jboss.dmr.client.ModelNode;
 public class DefaultCFForm {
 
     private Form<ActivemqConnectionFactory> form = new Form<>(ActivemqConnectionFactory.class);
-    private final MsgDestinationsPresenter presenter;
+    private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqConnectionFactory> callback;
     private boolean provideTools = true;
     private boolean isCreate = false;
 
-    public DefaultCFForm(MsgDestinationsPresenter presenter,
+    public DefaultCFForm(MsgConnectionsPresenter presenter,
             FormToolStrip.FormCallback<ActivemqConnectionFactory> callback) {
         this.presenter = presenter;
         this.callback = callback;
         form.setNumColumns(2);
     }
 
-    public DefaultCFForm(MsgDestinationsPresenter presenter,
+    public DefaultCFForm(MsgConnectionsPresenter presenter,
             FormToolStrip.FormCallback<ActivemqConnectionFactory> callback, boolean provideTools) {
         this.presenter = presenter;
         this.callback = callback;
@@ -48,7 +47,7 @@ public class DefaultCFForm {
     }
 
     public Widget asWidget() {
-        JndiNameItem jndiName = new JndiNameItem("jndiName", "JNDI Name");
+        ListItem jndiName = new ListItem("entries", "JNDI Names");
         TextBoxItem groupId = new TextBoxItem("groupId", "Group ID", false);
         ListItem connectors = new ListItem("connectors", "Connectors");
         CheckBoxItem failoverInitial = new CheckBoxItem("failoverInitial", "Failover Initial?");
@@ -65,6 +64,13 @@ public class DefaultCFForm {
                     connectors.setErroneous(true);
                 } else {
                     connectors.setErroneous(false);
+                }
+                
+                if (jndiName.getValue() == null || jndiName.getValue().isEmpty()) {
+                    outcome.addError("entries");
+                    jndiName.setErroneous(true);
+                } else {
+                    jndiName.setErroneous(false);
                 }
             });
         } else {
@@ -91,7 +97,7 @@ public class DefaultCFForm {
                 .setHelp(helpPanel);
 
         if (provideTools) {
-            FormToolStrip<ActivemqConnectionFactory> formTools = new FormToolStrip<ActivemqConnectionFactory>(form, callback);
+            FormToolStrip<ActivemqConnectionFactory> formTools = new FormToolStrip<>(form, callback);
             formLayout.setTools(formTools);
         }
         return formLayout.build();

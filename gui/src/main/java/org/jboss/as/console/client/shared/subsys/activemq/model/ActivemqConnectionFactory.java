@@ -19,10 +19,10 @@
 
 package org.jboss.as.console.client.shared.subsys.activemq.model;
 
+import java.util.List;
+
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -39,9 +39,9 @@ public interface ActivemqConnectionFactory {
     String getGroupId();
     void setGroupId(String id);
 
-    @Binding(skip = true)
-    String getJndiName();
-    void setJndiName(String jndi);
+    @Binding(listType="java.lang.String")
+    List<String> getEntries();
+    void setEntries(List<String> jndiNames);
 
     @Binding(listType = "java.lang.String")
     List<String> getConnectors();

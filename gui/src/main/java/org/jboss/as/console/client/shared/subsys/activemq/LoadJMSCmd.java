@@ -91,12 +91,16 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
 
                     ActivemqConnectionFactory connectionFactory = factoryAdapter.fromDMR(factoryValue);
                     connectionFactory.setName(name);
-                    connectionFactory.setJndiName(jndi);
 
                     if (factoryValue.hasDefined("connectors")) {
                         List<ModelNode> items = factoryValue.get("connectors").asList();
                         List<String> list = Lists.transform(items, ModelNode::asString);
                         connectionFactory.setConnectors(list);
+                    }
+                    if (factoryValue.hasDefined("entries")) {
+                        List<ModelNode> items = factoryValue.get("entries").asList();
+                        List<String> list = Lists.transform(items, ModelNode::asString);
+                        connectionFactory.setEntries(list);
                     }
                     factoryModels.add(connectionFactory);
                 }

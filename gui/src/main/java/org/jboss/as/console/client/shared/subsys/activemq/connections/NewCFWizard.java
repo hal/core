@@ -1,4 +1,6 @@
-package org.jboss.as.console.client.shared.subsys.activemq;
+package org.jboss.as.console.client.shared.subsys.activemq.connections;
+
+import java.util.Map;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -10,17 +12,15 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
-import java.util.Map;
-
 /**
  * @author Heiko Braun
  * @date 4/3/12
  */
 public class NewCFWizard {
 
-    MsgDestinationsPresenter presenter;
+    MsgConnectionsPresenter presenter;
 
-    public NewCFWizard(MsgDestinationsPresenter presenter) {
+    public NewCFWizard(MsgConnectionsPresenter presenter) {
         this.presenter = presenter;
     }
 

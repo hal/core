@@ -1,4 +1,8 @@
-package org.jboss.as.console.client.shared.subsys.activemq;
+package org.jboss.as.console.client.shared.subsys.activemq.connections;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
@@ -17,9 +21,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Heiko Braun
  * @date 4/2/12
@@ -29,9 +30,9 @@ public class ConnectionFactoryList {
     private ContentHeaderLabel serverName;
     private DefaultCellTable<ActivemqConnectionFactory> factoryTable;
     private ListDataProvider<ActivemqConnectionFactory> factoryProvider;
-    private MsgDestinationsPresenter presenter;
+    private MsgConnectionsPresenter presenter;
 
-    public ConnectionFactoryList(MsgDestinationsPresenter presenter) {
+    public ConnectionFactoryList(MsgConnectionsPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -54,9 +55,23 @@ public class ConnectionFactoryList {
         Column<ActivemqConnectionFactory, String> jndiColumn = new Column<ActivemqConnectionFactory, String>(
                 new TextCell()) {
             @Override
-            public String getValue(ActivemqConnectionFactory object) {
-                return object.getJndiName();
+            public String getValue(ActivemqConnectionFactory endpoint) {
+                StringBuilder builder = new StringBuilder();
+                List<String> jndiNames = endpoint.getEntries();
+                if (!jndiNames.isEmpty()) {
+                    builder.append("[");
+                    for (Iterator<String> iterator = jndiNames.iterator(); iterator.hasNext(); ) {
+                        String jndiName = iterator.next();
+                        builder.append(jndiName);
+                        if (iterator.hasNext()) {
+                            builder.append(", ");
+                        }
+                    }
+                    builder.append("]");
+                }
+                return builder.toString();
             }
+            
         };
 
         factoryTable.addColumn(nameColumn, "Name");
@@ -67,6 +82,7 @@ public class ConnectionFactoryList {
                 new FormToolStrip.FormCallback<ActivemqConnectionFactory>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
+                        
                         presenter.saveConnnectionFactory(getSelectedFactory().getName(), changeset);
                     }
 
