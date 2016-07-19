@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAddressingPattern;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
@@ -47,7 +46,7 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
 
     private CoreQueueEditor coreQueueEditor;
     private JMSEditor jmsEditor;
-    private ConnectionFactoryList connectionFactories;
+    
     private SecurityDetails securitySettings;
     private AddressingDetails addressingSettings;
     private DivertList divertList;
@@ -64,14 +63,13 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
 
         coreQueueEditor = new CoreQueueEditor(presenter);
         jmsEditor = new JMSEditor(presenter);
-        connectionFactories = new ConnectionFactoryList(presenter);
+        
         securitySettings = new SecurityDetails(presenter);
         addressingSettings = new AddressingDetails(presenter);
         divertList = new DivertList(presenter);
 
         panel.addPage("Core Queues", coreQueueEditor.asWidget()) ;
         panel.addPage("JMS Queues/Topics", jmsEditor.asWidget()) ;
-        panel.addPage("Connection Factories", connectionFactories.asWidget()) ;
         panel.addPage("Security Settings", securitySettings.asWidget()) ;
         panel.addPage("Address Settings", addressingSettings.asWidget()) ;
         panel.addPage("Diverts", divertList.asWidget()) ;
@@ -135,11 +133,6 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
 
     @Override
     public void setProvider(List<Property> result) {
-    }
-
-    @Override
-    public void setConnectionFactories(List<ActivemqConnectionFactory> factories) {
-        connectionFactories.setFactories(factories);
     }
 
     @Override

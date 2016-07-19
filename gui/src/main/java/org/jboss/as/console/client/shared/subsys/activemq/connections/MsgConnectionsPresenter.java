@@ -34,6 +34,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.LoadJMSCmd;
 import org.jboss.as.console.client.shared.subsys.activemq.model.AcceptorType;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectorService;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
@@ -87,6 +88,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         void setInvmConnectors(List<ActivemqConnector> invm);
         void setConnetorServices(List<ActivemqConnectorService> services);
         void setBridges(List<ActivemqBridge> bridges);
+        void setConnectionFactories(List<ActivemqConnectionFactory> factories);
     }
     // @formatter:on
 
@@ -106,6 +108,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     private EntityAdapter<ActivemqConnector> connectorAdapter;
     private EntityAdapter<ActivemqConnectorService> connectorServiceAdapter;
     private EntityAdapter<ActivemqBridge> bridgeAdapter;
+    private EntityAdapter<ActivemqConnectionFactory> factoryAdapter;
     private LoadJMSCmd loadJMSCmd;
     private DefaultWindow propertyWindow;
 
@@ -130,6 +133,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         connectorAdapter = new EntityAdapter<>(ActivemqConnector.class, propertyMetaData);
         connectorServiceAdapter = new EntityAdapter<>(ActivemqConnectorService.class, propertyMetaData);
         bridgeAdapter = new EntityAdapter<>(ActivemqBridge.class, propertyMetaData);
+        factoryAdapter = new EntityAdapter<>(ActivemqConnectionFactory.class, propertyMetaData);
         loadJMSCmd = new LoadJMSCmd(dispatcher, factory, propertyMetaData);
     }
 
@@ -161,6 +165,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         loadConnectors();
         loadConnectorServices();
         loadBridges();
+        loadConnectionFactories();
     }
 
     private void loadProvider() {
@@ -1034,6 +1039,141 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
                 } else {
                     Console.info("Successfully saved provider " + name);
                     loadProvider(); // refresh
+                }
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public void saveConnnectionFactory(String name, Map<String, Object> changeset) {
+        ModelNode address = new ModelNode();
+        address.get(ADDRESS).set(Baseadress.get());
+        address.get(ADDRESS).add("subsystem", "messaging-activemq");
+        address.get(ADDRESS).add("server", getCurrentServer());
+        address.get(ADDRESS).add("connection-factory", name);
+
+        ModelNode operation = factoryAdapter.fromChangeset(changeset, address);
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.saveFailed("Connection Factory " + getCurrentServer()),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.saved("Connection Factory " + getCurrentServer()));
+                }
+                loadConnectionFactories();
+            }
+        });
+    }
+
+    public void onDeleteCF(final String name) {
+        ModelNode address = Baseadress.get();
+        address.add("subsystem", "messaging-activemq");
+        address.add("server", getCurrentServer());
+        address.add("connection-factory", name);
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(address);
+        operation.get(OP).set(REMOVE);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.deletionFailed("Connection Factory " + name),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.deleted("Connection Factory " + name));
+                }
+                loadConnectionFactories();
+            }
+        });
+    }
+
+    public void launchNewCFWizard() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Connection Factory"));
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new NewCFWizard(this).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void onCreateCF(final ActivemqConnectionFactory entity) {
+        window.hide();
+
+        // default values
+        entity.setUseGlobalPools(true);
+
+        ModelNode address = Baseadress.get();
+        address.add("subsystem", "messaging-activemq");
+        address.add("server", getCurrentServer());
+        address.add("connection-factory", entity.getName());
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(address);
+        operation.get(OP).set(ADD);
+
+        // jndi names
+        operation.get("entries").setEmptyList();
+        for (String jndiEntry : entity.getEntries()) {
+            operation.get("entries").add(jndiEntry);
+        }
+
+        // connectors
+        for (String connector : entity.getConnectors()) {
+            operation.get("connectors").add(connector);
+        }
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.addingFailed("Connection Factory " + entity.getName()),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.added("Connection Factory " + entity.getName()));
+                }
+                loadConnectionFactories();
+            }
+        });
+    }
+    
+    private void loadConnectionFactories() {
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging-activemq");
+        operation.get(ADDRESS).add("server", getCurrentServer());
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(CHILD_TYPE).set("connection-factory");
+        operation.get(RECURSIVE).set(true);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failed("Loading connection factories " + getCurrentServer()),
+                            response.getFailureDescription());
+                } else {
+                    List<Property> model = response.get(RESULT).asPropertyList();
+                    List<ActivemqConnectionFactory> connectionFactories = new ArrayList<>();
+                    for (Property prop : model) {
+                        ModelNode svc = prop.getValue();
+                        ActivemqConnectionFactory entity = factoryAdapter.fromDMR(svc);
+                        entity.setName(prop.getName());
+
+                        entity.setConnectors(EntityAdapter.modelToList(svc, "connectors"));
+                        entity.setEntries(EntityAdapter.modelToList(svc, "entries"));
+                        connectionFactories.add(entity);
+                    }
+                    getView().setConnectionFactories(connectionFactories);
                 }
             }
         });

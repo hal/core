@@ -47,7 +47,6 @@ import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAddressingPattern;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqCoreQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
@@ -100,7 +99,6 @@ public class MsgDestinationsPresenter
     public interface JMSView {
         void setJMSQueues(List<ActivemqJMSQueue> queues);
         void setJMSTopics(List<ActivemqJMSEndpoint> topics);
-        void setConnectionFactories(List<ActivemqConnectionFactory> factories);
         void enableEditQueue(boolean b);
         void enableEditTopic(boolean b);
     }
@@ -120,11 +118,10 @@ public class MsgDestinationsPresenter
     private EntityAdapter<ActivemqMessagingProvider> providerAdapter;
     private EntityAdapter<ActivemqSecurityPattern> securityAdapter;
     private EntityAdapter<ActivemqAddressingPattern> addressingAdapter;
-    private EntityAdapter<ActivemqConnectionFactory> factoryAdapter;
+    
     private EntityAdapter<ActivemqDivert> divertAdapter;
     private EntityAdapter<ActivemqJMSQueue> jmsQueueAdapter;
     private EntityAdapter<ActivemqJMSTopic> topicAdapter;
-    private EntityAdapter<ActivemqCoreQueue> queueAdapter;
 
     private String currentServer;
     private LoadJMSCmd loadJMSCmd;
@@ -153,11 +150,9 @@ public class MsgDestinationsPresenter
         this.securityAdapter = new EntityAdapter<>(ActivemqSecurityPattern.class, propertyMetaData);
         this.addressingAdapter = new EntityAdapter<>(ActivemqAddressingPattern.class, propertyMetaData);
 
-        this.factoryAdapter = new EntityAdapter<>(ActivemqConnectionFactory.class, metaData);
         this.divertAdapter = new EntityAdapter<>(ActivemqDivert.class, metaData);
         this.jmsQueueAdapter = new EntityAdapter<>(ActivemqJMSQueue.class, metaData);
         this.topicAdapter = new EntityAdapter<>(ActivemqJMSTopic.class, metaData);
-        this.queueAdapter= new EntityAdapter<>(ActivemqCoreQueue.class, metaData);
 
         this.loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
     }
@@ -563,7 +558,6 @@ public class MsgDestinationsPresenter
         loadJMSCmd.execute(address, new SimpleCallback<AggregatedJMSModel>() {
             @Override
             public void onSuccess(AggregatedJMSModel result) {
-                getJMSView().setConnectionFactories(result.getFactories());
                 getJMSView().setJMSQueues(result.getJMSQueues());
                 getJMSView().setJMSTopics(result.getTopics());
                 getView().setQueues(result.getQueues());
@@ -880,64 +874,6 @@ public class MsgDestinationsPresenter
         return currentServer;
     }
 
-    @SuppressWarnings("unchecked")
-    public void saveConnnectionFactory(String name, Map<String, Object> changeset) {
-        ModelNode address = new ModelNode();
-        address.get(ADDRESS).set(Baseadress.get());
-        address.get(ADDRESS).add("subsystem", "messaging-activemq");
-        address.get(ADDRESS).add("server", getCurrentServer());
-        address.get(ADDRESS).add("connection-factory", name);
-
-        ModelNode operation = factoryAdapter.fromChangeset(changeset, address);
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.saveFailed("Connection Factory " + getCurrentServer()),
-                            response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.saved("Connection Factory " + getCurrentServer()));
-                }
-                loadJMSConfig();
-            }
-        });
-    }
-
-    public void onDeleteCF(final String name) {
-        ModelNode address = Baseadress.get();
-        address.add("subsystem", "messaging-activemq");
-        address.add("server", getCurrentServer());
-        address.add("connection-factory", name);
-
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).set(address);
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.deletionFailed("Connection Factory " + name),
-                            response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.deleted("Connection Factory " + name));
-                }
-                loadJMSConfig();
-            }
-        });
-    }
-
-    public void launchNewCFWizard() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Connection Factory"));
-        window.setWidth(480);
-        window.setHeight(360);
-        window.trapWidget(new NewCFWizard(this).asWidget());
-        window.setGlassEnabled(true);
-        window.center();
-    }
-
     public void launchNewDivertWizard() {
         loadExistingQueueNames(new AsyncCallback<List<String>>() {
             @Override
@@ -953,46 +889,6 @@ public class MsgDestinationsPresenter
                 window.trapWidget(new NewDivertWizard(MsgDestinationsPresenter.this, names).asWidget());
                 window.setGlassEnabled(true);
                 window.center();
-            }
-        });
-    }
-
-    public void onCreateCF(final ActivemqConnectionFactory entity) {
-        window.hide();
-
-        // default values
-        entity.setUseGlobalPools(true);
-
-        ModelNode address = Baseadress.get();
-        address.add("subsystem", "messaging-activemq");
-        address.add("server", getCurrentServer());
-        address.add("connection-factory", entity.getName());
-
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).set(address);
-        operation.get(OP).set(ADD);
-
-        // jndi names
-        operation.get("entries").setEmptyList();
-        operation.get("entries").add(entity.getJndiName());
-
-        // connectors
-        for (String connector : entity.getConnectors()) {
-            operation.get("connectors").add(connector);
-        }
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.addingFailed("Connection Factory " + entity.getName()),
-                            response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.added("Connection Factory " + entity.getName()));
-                }
-                loadJMSConfig();
             }
         });
     }

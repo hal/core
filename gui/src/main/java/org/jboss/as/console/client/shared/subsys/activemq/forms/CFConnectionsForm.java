@@ -4,7 +4,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter;
+import org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -19,10 +19,10 @@ import org.jboss.dmr.client.ModelNode;
 public class CFConnectionsForm {
 
     private Form<ActivemqConnectionFactory> form;
-    private final MsgDestinationsPresenter presenter;
+    private final MsgConnectionsPresenter presenter;
     private FormToolStrip.FormCallback<ActivemqConnectionFactory> callback;
 
-    public CFConnectionsForm(final MsgDestinationsPresenter presenter,
+    public CFConnectionsForm(final MsgConnectionsPresenter presenter,
             FormToolStrip.FormCallback<ActivemqConnectionFactory> callback) {
         this.presenter = presenter;
         this.callback = callback;
