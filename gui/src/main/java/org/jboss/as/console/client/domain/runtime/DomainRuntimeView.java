@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.domain.runtime;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -20,6 +25,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -40,11 +46,6 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -374,19 +375,26 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(Server server) {
 
-                        LifecycleOperation op = server.isStarted() ? LifecycleOperation.STOP : LifecycleOperation.START;
-                        Feedback.confirm(
-                                "Server " + op.name(),
-                                "Do you really want to " + op.name() + " server " + server.getName() + "?",
-                                new Feedback.ConfirmationHandler() {
+                        LifecycleOperation op = server.getRuntimeState() == RuntimeState.STOPPED ? 
+                                LifecycleOperation.START : LifecycleOperation.STOP; 
 
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
-                                    }
-                                });
+                        if (LifecycleOperation.START == op) {
+                            Feedback.confirm(
+                                    "Server " + op.name(),
+                                    "Do you really want to " + op.name() + " server " + server.getName() + "?",
+                                    new Feedback.ConfirmationHandler() {
 
+                                        @Override
+                                        public void onConfirmation(boolean isConfirmed) {
+                                            if (isConfirmed)
+                                                presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+                                        }
+                                    });
+                            
+                            
+                        } else {
+                            presenter.onLaunchStopDialogue(server);
+                        }
                     }
 
                 }, MenuDelegate.Role.Operation) {

@@ -550,6 +550,7 @@ public interface UIConstants extends Constants {
     String successfullyRefreshedStatistics();
     String suspend();
     String suspendTimeoutDescription();
+    String stopTimeoutDescription();
     String systemPropertiesDescription();
     String transportSettings();
     String unableToAddDeployment();
