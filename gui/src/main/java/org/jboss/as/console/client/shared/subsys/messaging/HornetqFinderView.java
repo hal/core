@@ -6,6 +6,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -194,7 +195,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
             @Override
             public void execute() {
                 previewCanvas.clear();
-                previewCanvas.add(new HTML(html));
+                previewCanvas.add(new ScrollPanel(new HTML(html)));
             }
         });
 

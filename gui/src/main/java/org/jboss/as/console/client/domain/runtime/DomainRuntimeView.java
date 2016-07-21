@@ -11,6 +11,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -684,7 +685,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         if (presenter.getPlaceManager().getCurrentPlaceRequest().getNameToken().equals(serverColumn.getToken())) {
             Scheduler.get().scheduleDeferred(() -> {
                 contentCanvas.clear();
-                contentCanvas.add(new HTML(html));
+                contentCanvas.add(new ScrollPanel(new HTML(html)));
             });
         }
 
