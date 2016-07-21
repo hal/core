@@ -27,7 +27,7 @@ class BootstrapServerDialog {
         deck.add(connectPage);
         deck.add(configurePage);
 
-        int width = 700;
+        int width = 750;
         popupPanel = new PopupPanel(false, true);
         popupPanel.setGlassEnabled(true);
         popupPanel.setAnimationEnabled(false);
