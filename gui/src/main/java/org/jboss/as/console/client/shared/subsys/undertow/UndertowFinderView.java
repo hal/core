@@ -10,6 +10,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -36,14 +37,14 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
     public static final String SERVLET_JSP_ITEM = "Servlet/JSP";
     public static final String HTTP_ITEM = "HTTP";
     public static final String FILTERS_ITEM = "Filters";
-    
+
     private UndertowFinder presenter;
     private LayoutPanel previewCanvas;
     private SplitLayoutPanel layout;
     private final PlaceManager placeManager;
     private final PreviewContentFactory previewContentFactory;
     private FinderColumn<FinderItem> links;
-    
+
     private ColumnManager columnManager;
     private Widget linksCol;
 
@@ -70,7 +71,7 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
     public void setPreview(SafeHtml html) {
         Scheduler.get().scheduleDeferred(() -> {
             previewCanvas.clear();
-            previewCanvas.add(new HTML(html));
+            previewCanvas.add(new ScrollPanel(new HTML(html)));
         });
     }
 
