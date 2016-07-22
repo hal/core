@@ -156,7 +156,12 @@ public class JvmEditor {
         HeapBoxItem maxPermgen = new HeapBoxItem("maxPermgen", "Max Permgen Size", false);
         HeapBoxItem permgen = new HeapBoxItem("permgen", "Permgen Size", false);
 
-        options = new ListItem("options", "JVM Options");
+        options = new ListItem("options", "JVM Options") {
+            @Override
+            public boolean isRequired() {
+                return false;
+            }
+        };
 
         form.setFields(nameItem, heapItem, maxHeapItem, permgen, maxPermgen, options);
         form.setEnabled(false);
