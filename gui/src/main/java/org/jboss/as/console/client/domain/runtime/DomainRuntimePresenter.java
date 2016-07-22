@@ -1,6 +1,9 @@
 package org.jboss.as.console.client.domain.runtime;
 
-import com.google.gwt.core.client.GWT;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -19,12 +22,11 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
+import org.jboss.as.console.client.domain.ServerStopDialogue;
 import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.hosts.CopyServerWizard;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
@@ -75,10 +77,6 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.jboss.gwt.flow.client.PushFlowCallback;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -340,6 +338,16 @@ public class DomainRuntimePresenter
         window.setWidth(480);
         window.setHeight(360);
         window.trapWidget(new ServerSuspendDialogue(this, server).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+
+    }
+
+    public void onLaunchStopDialogue(Server server) {
+        window = new DefaultWindow("Stop Server");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new ServerStopDialogue(this, server).asWidget());
         window.setGlassEnabled(true);
         window.center();
 
