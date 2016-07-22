@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.domain;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -15,9 +18,6 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -36,7 +36,7 @@ public class ServerSuspendDialogue {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        NumberBoxItem timeout = new NumberBoxItem("timeout", "Timeout");
+        NumberBoxItem timeout = new NumberBoxItem("timeout", "Timeout", true);
         timeout.setValue(0);
         final Form<Void> form = new Form<Void>(Void.class);
         form.setFields(timeout);
