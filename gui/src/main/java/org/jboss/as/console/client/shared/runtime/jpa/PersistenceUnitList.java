@@ -1,10 +1,14 @@
 package org.jboss.as.console.client.shared.runtime.jpa;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -23,9 +27,6 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.icons.Icons;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -110,6 +111,9 @@ public class PersistenceUnitList {
         table.addColumn(name, "Deployment");
         table.addColumn(statusColumn, "Metrics Enabled?");
         table.addColumn(option, "Option");
+        
+        name.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        statusColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         table.setSelectionModel(
                 new SingleSelectionModel<JPADeployment>(

@@ -106,4 +106,8 @@ public class TXMetricViewImpl extends SuspendableViewImpl implements TXMetricPre
         this.rollbackMetric.addSample(rollbackMetric);
     }
 
+    public void setStatistcsEnabled(final boolean stats) {
+        statisticsInfo.setStatistcsEnabled(stats);
+    }
+
 }

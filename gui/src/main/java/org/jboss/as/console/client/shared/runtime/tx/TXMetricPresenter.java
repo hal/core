@@ -38,6 +38,7 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -51,7 +52,10 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
@@ -59,6 +63,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView, TXMetricPresenter.MyProxy>
         implements TXMetricManagement {
+
+    private static final AddressTemplate TRANSACTION_TEMPLATE = AddressTemplate.of("{selected.profile}/subsystem=transactions");
 
     @ProxyCodeSplit
     @NameToken(NameTokens.TXMetrics)
@@ -74,6 +80,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
         void setGeneralMetric(ModelNode txModel);
         void setRollbackMetric(Metric rollbackMetric);
         void clearSamples();
+        void setStatistcsEnabled(boolean stats);
     }
 
 
@@ -157,8 +164,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
                             metrics.getNumApplicationRollback(),
                             metrics.getNumResourceRollback()
                     ));
-
-
+                    getView().setStatistcsEnabled(metrics.isEnableStatistics());
                 }
 
             }

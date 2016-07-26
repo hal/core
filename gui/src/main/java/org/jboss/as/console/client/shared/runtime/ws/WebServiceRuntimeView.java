@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -24,15 +27,13 @@ import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
+import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ColumnSortHandler;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -45,6 +46,8 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     private Sampler sampler;
     private Column[] columns;
     private WebServiceRuntimePresenter presenter;
+
+    private ContentDescription statsText = new ContentDescription("Statistics status.");
 
     @Override
     public void setPresenter(WebServiceRuntimePresenter presenter) {
@@ -200,6 +203,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         VerticalPanel p = new VerticalPanel();
         p.setStyleName("fill-layout-width");
         p.add(refreshBtn);
+        p.add(statsText);
         p.add(sampler.asWidget());
 
         OneToOneLayout layout = new OneToOneLayout()
@@ -212,6 +216,14 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
 
 
         return layout.build();
+    }
+
+    public void setStatistcsEnabled(final boolean stats) {
+        if (stats) {
+            statsText.setText("Status: ON");
+        } else {
+            statsText.setText("Status: OFF");
+        }
     }
 
     public void updateEndpoints(List<WebServiceEndpoint> endpoints) {

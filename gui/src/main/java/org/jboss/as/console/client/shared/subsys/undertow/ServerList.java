@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -16,18 +18,13 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -42,6 +39,8 @@ public class ServerList {
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
 
+    private ContentDescription statsText = new ContentDescription("Statistics status: ");
+
     public ServerList(CommonHttpPresenter presenter, boolean isRuntimeView) {
 
         this.presenter = presenter;
@@ -54,7 +53,7 @@ public class ServerList {
             }
         };
 
-        if(isRuntimeView)
+        if (isRuntimeView)
         {
             this.RESOURCE_ADDRESS = AddressTemplate.of("/{implicit.host}/{selected.server}/subsystem=undertow/server=*");
         }
@@ -97,29 +96,6 @@ public class ServerList {
         table.addColumn(nameColumn, "Name");
         table.addColumn(option, "Option");
 
-        ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                // TODO
-            }
-        }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Server"),
-                        Console.MESSAGES.deleteConfirm("Server '" + getCurrentSelection().getName() + "'"),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    // TODO
-                                }
-                            }
-                        });
-            }
-        }));
-
         SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(RESOURCE_ADDRESS);
 
@@ -153,15 +129,17 @@ public class ServerList {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("HTTP Server ")
-                .setDescription("Please chose a server from below for further settings.")
-                        //.setMasterTools(tools) // TODO: implement add/remove ops
                 .setMaster(Console.MESSAGES.available("HTTP Server "), table);
-
-
-        if(!isRuntimeView)
-        {
+        
+        String description = "Please chose a server from below for further settings.";
+        if (isRuntimeView) {
+            // adds the buttons to enable and disable the statistics 
+            description += " If no metrics are shown, you might need to enable statistics in the configuration section for the desired profile.";
+            layoutBuilder.addDetail("Statistics", statsText);
+        } else {
             layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
         }
+        layoutBuilder.setDescription(SafeHtmlUtils.fromString(description));
 
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
@@ -182,8 +160,7 @@ public class ServerList {
         table.setSelectionModel(selectionModel);
         return layoutBuilder.build();
     }
-
-
+    
     private Property getCurrentSelection() {
         Property selection = ((SingleSelectionModel<Property>) table.getSelectionModel()).getSelectedObject();
         return selection;
@@ -193,5 +170,13 @@ public class ServerList {
         dataProvider.setList(provider);
         table.selectDefaultEntity();
 
+    }
+
+    public void setStatistcsEnabled(final boolean stats) {
+        if (stats) {
+            statsText.setText("Status: ON");
+        } else {
+            statsText.setText("Status: OFF");
+        }
     }
 }

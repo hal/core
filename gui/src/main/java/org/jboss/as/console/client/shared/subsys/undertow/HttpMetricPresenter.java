@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -15,10 +20,11 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Operation;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
@@ -32,11 +38,6 @@ import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 
@@ -46,6 +47,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.MyView,
         HttpMetricPresenter.MyProxy> implements CommonHttpPresenter {
 
+    public static final AddressTemplate SERVER_TEMPLATE = AddressTemplate.of("/{implicit.host}/{selected.server}/subsystem=undertow");
+    public static final AddressTemplate UNDERTOW_TEMPLATE = AddressTemplate.of("{selected.profile}/subsystem=undertow");
 
     private final PlaceManager placeManager;
     private final FilteringStatementContext statementContext;
@@ -74,14 +77,11 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
 
     public interface MyView extends View {
         void setPresenter(HttpMetricPresenter presenter);
-
         void clearSamples();
-
         void setServer(List list);
-
         void setServerSelection(String currentServer);
-
         void setConnectors(List<Property> connectors);
+        void setStatistcsEnabled(boolean stats);
     }
 
     @Inject
@@ -140,17 +140,43 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
     protected void onReset() {
         super.onReset();
         loadServer();
-
+        loadStatisticsAttribute();
     }
 
-    private void loadServer() {
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "undertow");
-        operation.get(CHILD_TYPE).set("server");
+    private void loadStatisticsAttribute() {
+        ResourceAddress serverResource = SERVER_TEMPLATE
+                .resolve(statementContext);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        Operation op = new Operation.Builder(READ_RESOURCE_OPERATION, serverResource)
+                .build();
+
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Log.error("Failed to load undertow http statistics attribute", response.getFailureDescription());
+                    getView().setStatistcsEnabled(false);
+                } else {
+                    ModelNode payload = response.get(RESULT);
+                    getView().setStatistcsEnabled(payload.get("statistics-enabled").asBoolean());
+                }
+            }
+        });
+    }
+    
+    private void loadServer() {
+        
+        ResourceAddress serverResource = SERVER_TEMPLATE.resolve(statementContext);
+        
+        Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION,
+                serverResource)
+                .param(CHILD_TYPE, SERVER)
+                .build();
+        
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
 
             @Override
             public void onSuccess(DMRResponse result) {
@@ -160,8 +186,8 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
                     Log.error("Failed to load http server", response.getFailureDescription());
                     getView().setServer(Collections.EMPTY_LIST);
                 } else {
-                    getView().setServer(response.get(RESULT).asPropertyList());
-
+                    ModelNode payload = response.get(RESULT);
+                    getView().setServer(payload.asPropertyList());
                     getView().setServerSelection(currentServer);
                 }
 
