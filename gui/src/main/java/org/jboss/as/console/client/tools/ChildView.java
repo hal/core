@@ -5,6 +5,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -151,7 +152,7 @@ public class ChildView {
         table.addColumn(new ModelNodeColumn(new ModelNodeColumn.ValueAdapter() {
             @Override
             public String getValue(ModelNode model) {
-                return model.asString();
+                return URL.decodePathSegment(model.asString());
             }
         }), "Child Resource" );
 
