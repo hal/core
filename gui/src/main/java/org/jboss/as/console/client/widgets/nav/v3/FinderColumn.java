@@ -723,7 +723,7 @@ public class FinderColumn<T> implements SecurityContextAware {
             if(filter!=null)
                 layout.setWidgetTopHeight(filterWidget, 41, Style.Unit.PX, filterHeight, Style.Unit.PX);
 
-            layout.setWidgetTopHeight(column, offset, Style.Unit.PX, 95, Style.Unit.PCT);
+            layout.setWidgetTopBottom(column, offset, Style.Unit.PX, 0, Style.Unit.PX);
 
         }
         else            // embedded mode, w/o header
