@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.runtime.activemq;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -25,7 +28,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -34,9 +37,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -48,7 +48,9 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ActivemqMetricPresenter)
-    @AccessControl(resources = {"/{implicit.host}/{selected.server}/subsystem=messaging-activemq/server=*"})
+    @RequiredResources(resources = {
+        "/{implicit.host}/{selected.server}/subsystem=messaging-activemq/server=*"
+    })
     @SearchIndex(keywords = {"jms", "queue", "topic", "size"})
     public interface MyProxy extends Proxy<ActivemqMetricPresenter>, Place {
     }

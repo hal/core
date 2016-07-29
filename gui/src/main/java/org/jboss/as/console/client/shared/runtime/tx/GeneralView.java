@@ -34,6 +34,7 @@ import org.jboss.as.console.client.shared.help.MetricHelpPanel;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
+import org.jboss.as.console.client.shared.runtime.charts.TextColumn;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -46,11 +47,10 @@ class GeneralView implements IsWidget {
     private Grid grid;
     private Column[] columns;
 
-    GeneralView() { }
-
     public Widget asWidget() {
 
         columns = new Column[]{
+                new TextColumn("Status", "OFF"),
                 new NumberColumn("number-of-inflight-transactions", "Inflight Transactions"),
                 new NumberColumn("number-of-nested-transactions", "Nested Transactions")
         };
@@ -61,6 +61,7 @@ class GeneralView implements IsWidget {
             grid.getCellFormatter().addStyleName(row, 0, "nominal");
             grid.getCellFormatter().addStyleName(row, 1, "numerical");
         }
+        grid.setText(0, 0, "Status");
 
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("fill-layout-width");
@@ -87,7 +88,7 @@ class GeneralView implements IsWidget {
     void setGeneralMetric(ModelNode metric) {
         if (metric != null) {
             List<Property> attributes = metric.asPropertyList();
-            for (int i = 0; i < columns.length; i++) {
+            for (int i = 1; i < columns.length; i++) {
                 for (Property attribute : attributes) {
                     if (attribute.getName().equals(columns[i].getDeytpedName())) {
                         grid.setText(i, 0, columns[i].getLabel());
@@ -100,6 +101,14 @@ class GeneralView implements IsWidget {
 
     public void clear() {
         grid.clear();
+    }
+
+    public void setStatistcsEnabled(final boolean stats) {
+        if (stats) {
+            grid.setText(0, 1, "ON");
+        } else {
+            grid.setText(0, 1, "OFF");
+        }
     }
 
 }

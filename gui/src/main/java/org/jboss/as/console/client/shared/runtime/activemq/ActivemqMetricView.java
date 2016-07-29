@@ -1,9 +1,12 @@
 package org.jboss.as.console.client.shared.runtime.activemq;
 
+import java.util.List;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -21,8 +24,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -51,7 +52,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
         panel = new PagedView();
 
         this.table = new DefaultCellTable(5);
-        this.dataProvider = new ListDataProvider<Property>();
+        this.dataProvider = new ListDataProvider<>();
         this.dataProvider.addDataDisplay(table);
         this.table.setSelectionModel(new SingleSelectionModel<Property>());
 
@@ -59,6 +60,12 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
             @Override
             public String getValue(Property node) {
                 return node.getName();
+            }
+        };
+        TextColumn<Property> statsColumn = new TextColumn<Property>() {
+            @Override
+            public String getValue(Property node) {
+                return node.getValue().get("statistics-enabled").asString();
             }
         };
 
@@ -79,9 +86,13 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
         };
 
         table.addColumn(nameColumn, "Name");
+        table.addColumn(statsColumn, "Statistics enabled");
         table.addColumn(option, "Option");
 
-
+        statsColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        option.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        nameColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        
         Widget frontPage = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("JMS Messaging Provider")

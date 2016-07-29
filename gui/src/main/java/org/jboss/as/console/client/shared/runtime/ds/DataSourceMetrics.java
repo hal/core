@@ -1,11 +1,14 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
+import java.util.List;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -30,8 +33,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.List;
 
 import static com.google.gwt.dom.client.Style.TextAlign.RIGHT;
 import static com.google.gwt.dom.client.Style.Unit.PX;
@@ -103,6 +104,10 @@ public class DataSourceMetrics {
         table.addColumn(status, "Enabled?");
         table.addColumn(stats, "Statistics Enabled?");
 
+        stats.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        status.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        protocolColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        
         table.getSelectionModel().addSelectionChangeHandler(
                 new SelectionChangeEvent.Handler(){
                     @Override

@@ -1,14 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -56,6 +55,11 @@ public class HttpMetricView extends SuspendableViewImpl implements HttpMetricPre
     @Override
     public void setServer(List list) {
         serverList.setServer(list);
+    }
+    
+    @Override
+    public void setStatistcsEnabled(boolean stats) {
+        serverList.setStatistcsEnabled(stats);
     }
 
     @Override
