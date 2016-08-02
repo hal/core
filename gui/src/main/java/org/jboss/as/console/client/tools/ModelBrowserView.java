@@ -9,6 +9,7 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Button;
@@ -594,7 +595,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
             String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
             html.appendHtmlConstant("<i class='" + icon + "'></i>&nbsp;");
-            html.appendHtmlConstant(childName);
+            html.appendHtmlConstant(URL.decodePathSegment(childName));
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
