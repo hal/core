@@ -1029,3 +1029,41 @@ h3,
 .loading-cursor {
     cursor: progress!important;
 }
+
+/* browse-content */
+
+.browse-content {
+    height:100%;
+    padding-left:30px;
+    padding-right:30px;
+    padding-top:20px;
+}
+
+.browse-content table {
+    height:100%;
+    padding-left:30px;
+    padding-right:30px;
+    padding-top:20px;
+}
+
+.browse-content-scrollable-wrapper {
+    height:100%;
+    overflow:auto;
+}
+
+.browse-content-scrollable-wrapper .browse-content {
+    height:auto;
+}
+
+.browse-content td {
+    padding: 5px;
+    font-family: monospace;
+}
+.browse-content table {
+    border-spacing: 10px;
+    border-collapse: separate;
+}
+
+.browse-content tr:hover,tr.alt:hover {
+    background: #D4EDFA!important;
+}

@@ -294,7 +294,36 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                                     }
                                 });
                     }
-                }, Operation).setOperationAddress("/deployment=*", "remove"));
+                }, Operation).setOperationAddress("/deployment=*", "remove"),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_explode(), item -> {
+                    // when archive=undefined, then it is an archive
+                    boolean archive = item.get("content").get(0).hasDefined("archive") ? item.get("content").get(0).get("archive").asBoolean() : true;
+                    boolean managed = item.get("managed").asBoolean();
+                    if (!archive) {
+                        Console.warning("Cannot explode an already exploded deployment");
+                    } else if (!managed) {
+                        Console.warning("Cannot explode an unmanaged deployment");
+                    } else {
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.explodeTitle(item.getName()),
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.explodeContent(item);
+                                    }
+                                });
+                    }
+                }, Operation).setOperationAddress("/deployment=*", "explode"),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_browseContent(), item -> {
+                    // when archive=undefined, then it is an archive
+                    boolean archive = item.get("content").get(0).hasDefined("archive") ? item.get("content").get(0).get("archive").asBoolean() : true;
+                    boolean managed = item.get("managed").asBoolean();
+                    if (archive) {
+                        Console.warning("Cannot read content from an unexploded deployment");
+                    } else if (!managed) {
+                        Console.warning("Cannot read content from an unmanaged deployment");
+                    } else {
+                        presenter.browseContent(item.getName());
+                    }
+                }, Operation).setOperationAddress("/deployment=*", "browse-content"));
 
         contentColumn.setFilter((item, token) ->
                 item.getName().contains(token) || item.getRuntimeName().contains(token));
@@ -313,7 +342,36 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                                         presenter.removeContent(item, true);
                                     }
                                 }), Operation)
-                        .setOperationAddress("/deployment=*", "remove"));
+                        .setOperationAddress("/deployment=*", "remove"),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_explode(), item -> {
+                    // when archive=undefined, then it is an archive
+                    boolean archive = item.get("content").get(0).hasDefined("archive") ? item.get("content").get(0).get("archive").asBoolean() : true;
+                    boolean managed = item.get("managed").asBoolean();
+                    if (!archive) {
+                        Console.warning(Console.CONSTANTS.deploymentCannotExplodeExploded());
+                    } else if (!managed) {
+                        Console.warning(Console.CONSTANTS.deploymentCannotExplodeUnmanaged());
+                    } else {
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), Console.MESSAGES.explodeTitle(item.getName()),
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.explodeContent(item);
+                                    }
+                                });
+                    }
+                }, Operation).setOperationAddress("/deployment=*", ModelDescriptionConstants.EXPLODE),
+                new MenuDelegate<Content>(Console.CONSTANTS.common_label_browseContent(), item -> {
+                    // when archive=undefined, then it is an archive
+                    boolean archive = item.get("content").get(0).hasDefined("archive") ? item.get("content").get(0).get("archive").asBoolean() : true;
+                    boolean managed = item.get("managed").asBoolean();
+                    if (archive) {
+                        Console.warning(Console.CONSTANTS.deploymentCannotReadUnexploded());
+                    } else if (!managed) {
+                        Console.warning(Console.CONSTANTS.deploymentCannotReadUnmanaged());
+                    } else {
+                        presenter.browseContent(item.getName());
+                    }
+                }, Operation).setOperationAddress("/deployment=*", ModelDescriptionConstants.BROWSE_CONTENT));
 
         unassignedColumn.setFilter((item, token) ->
                 item.getName().contains(token) || item.getRuntimeName().contains(token));

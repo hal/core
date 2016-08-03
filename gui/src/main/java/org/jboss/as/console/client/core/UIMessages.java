@@ -85,6 +85,7 @@ public interface UIMessages extends Messages {
     String editRole();
     String enableConfirm(String entity);
     String environment_description();
+    String explodeTitle(String name);
     String excludedFrom();
     String excludeMember();
     String excludeRole();

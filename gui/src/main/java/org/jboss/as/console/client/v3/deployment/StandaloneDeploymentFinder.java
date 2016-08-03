@@ -21,19 +21,20 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.CHILD_TYPE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.INCLUDE_RUNTIME;
-import static org.jboss.dmr.client.ModelDescriptionConstants.READ_CHILDREN_RESOURCES_OPERATION;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RECURSIVE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.ContentSlot;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
@@ -57,17 +58,8 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.annotations.ContentSlot;
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -240,6 +232,34 @@ public class StandaloneDeploymentFinder
         });
     }
 
+    public void explodeContent(final Deployment content) {
+        Operation operation = new Operation.Builder(EXPLODE, new ResourceAddress().add("deployment", content.getName()))
+                .build();
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.CONSTANTS.unableToExplodeDeployment(), caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error(Console.CONSTANTS.unableToExplodeDeployment(), result.getFailureDescription());
+                } else {
+                    Console.info(content.getName() + " successfully exploded.");
+                    loadDeployments();
+                }
+            }
+        });
+    }
+
+    public void browseContent() {
+        placeManager.revealRelativePlace(new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowseContent).build());
+    }
+    
+    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
 
     // ------------------------------------------------------ finder related methods
 

@@ -83,8 +83,6 @@ import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricView;
 import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
 import org.jboss.as.console.client.domain.hosts.ServerConfigView;
-import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
-import org.jboss.as.console.client.shared.hosts.ConfigurationChangesView;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesView;
 import org.jboss.as.console.client.domain.hosts.general.HostJVMPresenter;
@@ -144,6 +142,8 @@ import org.jboss.as.console.client.shared.general.SocketBindingView;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesView;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
@@ -282,6 +282,8 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.deployment.DeploymentBrowseContentPresenter;
+import org.jboss.as.console.client.v3.deployment.DeploymentBrowseContentView;
 import org.jboss.as.console.client.v3.deployment.DeploymentDetailsPresenter;
 import org.jboss.as.console.client.v3.deployment.DeploymentDetailsView;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
@@ -422,6 +424,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DeploymentDetailsPresenter.MyView.class,
                 DeploymentDetailsView.class,
                 DeploymentDetailsPresenter.MyProxy.class);
+
+        bindPresenter(DeploymentBrowseContentPresenter.class,
+                DeploymentBrowseContentPresenter.MyView.class,
+                DeploymentBrowseContentView.class,
+                DeploymentBrowseContentPresenter.MyProxy.class);
 
         bindPresenter(DeploymentScannerPresenter.class,
                 DeploymentScannerPresenter.MyView.class,
