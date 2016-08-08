@@ -543,6 +543,7 @@ public interface UIConstants extends Constants {
     String subsys_ws_endpoint_desc();
     String subsys_ws_provider();
     String subsys_ws_remove_handler();
+    String subsys_ws_wise_title_description();
     String subsystemsDescription();
     String subys_tx_desc();
     String subys_tx_metric_desc();
