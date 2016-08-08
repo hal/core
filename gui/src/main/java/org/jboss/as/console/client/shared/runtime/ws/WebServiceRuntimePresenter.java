@@ -99,9 +99,9 @@ public class WebServiceRuntimePresenter
     @Override
     protected void onReset() {
         super.onReset();
+        verifyWiseExists();
         loadStatisticsAttribute();
         loadEndpoints(false);
-        extractWiseUrl();
     }
 
     public void loadEndpoints(boolean msg) {
@@ -147,6 +147,41 @@ public class WebServiceRuntimePresenter
         });
     }
     
+    private void verifyWiseExists() {
+        if (bootstrapContext.isStandalone()) {
+
+            final ModelNode operation = new ModelNode();
+            operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+            operation.get(CHILD_TYPE).set(SUBSYSTEM);
+            operation.get(ADDRESS).setEmptyList();
+            
+            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+                @Override
+                public void onSuccess(DMRResponse dmrResult) {
+                    ModelNode response = dmrResult.get();
+
+                    if (response.isFailure()) {
+                        Console.error("Failed to verify if wise subsystem is enabled.", response.getFailureDescription());
+                    } else {
+                        ModelNode nodeResult = response.get(RESULT);
+                        for (ModelNode node: nodeResult.asList()) {
+                            if ("wise".equals(node.asString())) {
+                                extractWiseUrl();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(final Throwable caught) {
+                    Console.error("Failed to verify if wise subsystem is enabled." + caught.getMessage());
+                }
+            });
+        }
+    }
+
     private void extractWiseUrl() {
         // wise is only available in standalone mode, as the wise subsystem deploys a regular wise.war application.
         // this is as requested by wise team.
