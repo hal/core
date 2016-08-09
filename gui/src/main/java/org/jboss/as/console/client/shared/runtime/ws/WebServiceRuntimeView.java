@@ -46,6 +46,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     private Sampler sampler;
     private Column[] columns;
     private WebServiceRuntimePresenter presenter;
+    private ContentDescription description;
 
     private ContentDescription statsText = new ContentDescription("Statistics status.");
 
@@ -206,11 +207,13 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         p.add(statsText);
         p.add(sampler.asWidget());
 
+        description = new ContentDescription(Console.CONSTANTS.subsys_ws_endpoint_desc());
+        
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle("Webservices")
                 .setHeadline("Web Service Endpoints")
                 .setMaster(Console.MESSAGES.available("Web Service Endpoints"), tableLayout)
-                .setDescription(Console.CONSTANTS.subsys_ws_endpoint_desc())
+                .setDescription(description)
                 .addDetail(Console.CONSTANTS.common_label_stats(), p)
                 .addDetail(Console.CONSTANTS.common_label_attributes(), basicsLayout.build());
 
@@ -241,5 +244,12 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         dataProvider.setList(endpoints);
         table.selectDefaultEntity();*/
 
+    }
+
+    @Override
+    public void setWiseUrl(final String url) {
+        String wiseText = "<br><br><span title=\"" + Console.CONSTANTS.subsys_ws_wise_title_description() 
+                + "\">WISE Url</span>: <a href=\"" + url + "\" target=\"_blank\">"+ url + "</a>";
+        description.setHTML(description.getText() + wiseText);
     }
 }

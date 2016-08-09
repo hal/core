@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.layout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -10,9 +13,6 @@ import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -25,8 +25,9 @@ public class OneToOneLayout {
 
     private String title = "TITLE";
     private String headline = "HEADLINE";
-    private String description = "DESCRIPTION";
+    //private String description = "DESCRIPTION";
 
+    private ContentDescription contentDescription;
     private Widget toolStrip = null;
 
     private NamedWidget master;
@@ -86,7 +87,12 @@ public class OneToOneLayout {
     }
 
     public OneToOneLayout setDescription(String description) {
-        this.description = description;
+        this.contentDescription = new ContentDescription(description);
+        return this;
+    }
+
+    public OneToOneLayout setDescription(ContentDescription description) {
+        this.contentDescription= description;
         return this;
     }
 
@@ -142,7 +148,7 @@ public class OneToOneLayout {
             panel.add(headlineWidget);
         }
 
-        panel.add(new ContentDescription(description));
+        panel.add(contentDescription);
 
         if(master!=null)
         {
