@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.jmx;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -10,15 +14,20 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.general.SimpleSuggestion;
 import org.jboss.as.console.client.shared.general.SuggestionManagement;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.jmx.JMXFunctions.AddRemotingConnector;
+import org.jboss.as.console.client.shared.subsys.jmx.JMXFunctions.CheckRemotingConnector;
+import org.jboss.as.console.client.shared.subsys.jmx.JMXFunctions.ModifyJmxAttributes;
 import org.jboss.as.console.client.shared.subsys.jmx.model.JMXSubsystem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
@@ -30,10 +39,9 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Outcome;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -42,7 +50,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 11/28/11
  */
 public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.MyProxy>
-    implements SuggestionManagement {
+        implements SuggestionManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JMXPresenter)
@@ -51,11 +59,16 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
     public interface MyProxy extends Proxy<JMXPresenter>, Place {
     }
 
+
     public interface MyView extends View {
+
         void setPresenter(JMXPresenter presenter);
+
         void updateFrom(JMXSubsystem jpaSubsystem);
     }
 
+
+    private final StatementContext statementContext;
     private RevealStrategy revealStrategy;
     private ApplicationMetaData metaData;
     private DispatchAsync dispatcher;
@@ -67,10 +80,12 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
     public JMXPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             DispatchAsync dispatcher,
+            StatementContext statementContext,
             RevealStrategy revealStrategy,
             ApplicationMetaData metaData, BeanFactory factory) {
 
         super(eventBus, view, proxy);
+        this.statementContext = statementContext;
 
         this.revealStrategy = revealStrategy;
         this.metaData = metaData;
@@ -98,27 +113,23 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
         ModelNode operation = beanMetaData.getAddress().asResource(Baseadress.get());
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(RECURSIVE).set(true);
+        operation.get(INCLUDE_ALIASES).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
+                ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.unknown_error(), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     ModelNode payload = response.get(RESULT).asObject();
                     JMXSubsystem jmxSubsystem = adapter.fromDMR(payload);
 
 
-                    if(payload.hasDefined("remoting-connector"))
-                    {
+                    if (payload.hasDefined("remoting-connector")) {
                         List<Property> connectorList = payload.get("remoting-connector").asPropertyList();
-                        if(!connectorList.isEmpty())
-                        {
+                        if (!connectorList.isEmpty()) {
                             Property item = connectorList.get(0);
                             ModelNode jmxConnector = item.getValue();
                             jmxSubsystem.setMgmtEndpoint(jmxConnector.get("use-management-endpoint").asBoolean());
@@ -138,44 +149,24 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
 
     public void onSave(final JMXSubsystem editedEntity, Map<String, Object> changeset) {
 
-        List<ModelNode> extraSteps = new ArrayList<ModelNode>(2);
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(),
+                new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(final FunctionContext context) {
+                        Console.error(Console.MESSAGES.modificationFailed("JMX Subsystem"),
+                                context.getErrorMessage());
+                    }
 
-        if(changeset.containsKey("mgmtEndpoint"))
-        {
-            ModelNode registry = new ModelNode();
-            registry.get(ADDRESS).set(Baseadress.get());
-            registry.get(ADDRESS).add("subsystem", "jmx");
-            registry.get(ADDRESS).add("remoting-connector", "jmx");
-            registry.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-            registry.get(NAME).set("use-management-endpoint");
-            registry.get(VALUE).set((Boolean)changeset.get("mgmtEndpoint"));
-
-            changeset.remove("mgmtEndpoint");
-            extraSteps.add(registry);
-        }
-
-        ModelNode operation = adapter.fromChangeset(
-                changeset,
-                beanMetaData.getAddress().asResource(Baseadress.get()),
-                extraSteps.toArray(new ModelNode[] {}));
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
-
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.modificationFailed("JMX Subsystem"), response.getFailureDescription());
-                }
-                else
-                {
-                    Console.info(Console.MESSAGES.modified("JMX Subsystem"));
-                }
-
-                loadSubsystem();
-            }
-        });
+                    @Override
+                    public void onSuccess(final FunctionContext context) {
+                        Console.info(Console.MESSAGES.modified("JMX Subsystem"));
+                        loadSubsystem();
+                    }
+                },
+                new CheckRemotingConnector(dispatcher, statementContext),
+                new AddRemotingConnector(dispatcher, statementContext, status -> status == 404),
+                new ModifyJmxAttributes(dispatcher, statementContext, changeset)
+        );
     }
 
     @Override
@@ -187,10 +178,8 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
             public void onSuccess(List<SocketBinding> result) {
 
                 List<SimpleSuggestion> suggestions = new ArrayList<SimpleSuggestion>();
-                for(SocketBinding binding : result)
-                {
-                    if(binding.getName().startsWith(request.getQuery()))
-                    {
+                for (SocketBinding binding : result) {
+                    if (binding.getName().startsWith(request.getQuery())) {
                         SimpleSuggestion suggestion = new SimpleSuggestion(
                                 binding.getName(), binding.getName()
                         );
@@ -205,7 +194,6 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
                 callback.onSuggestionsReady(request, response);
             }
         });
-
 
 
     }
