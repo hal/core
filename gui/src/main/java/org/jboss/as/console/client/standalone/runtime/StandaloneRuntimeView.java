@@ -283,7 +283,21 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public String render(StandaloneServer data) {
                         return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                }.setOperationAddress("/", "suspend")
+                }.setOperationAddress("/", "suspend"),
+
+                new MenuDelegate<StandaloneServer>("Restart", new ContextualCommand<StandaloneServer>() {
+                    @Override
+                    public void executeOn(StandaloneServer item) {
+                        Feedback.confirm("Restart Server", "Really restart server?", new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed)
+                                    presenter.onRestartServer();
+                            }
+                        });
+                    }
+                }, MenuDelegate.Role.Operation).setOperationAddress("/", "shutdown")
+                
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<StandaloneServer>() {
