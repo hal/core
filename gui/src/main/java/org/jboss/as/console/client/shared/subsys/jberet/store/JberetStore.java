@@ -401,13 +401,27 @@ public class JberetStore extends ChangeSupport {
             String deploymentName;
             String subdeploymentName = "";
             
-            if (addressList.size() == 3) {
-                // constains subdeployment
-                deploymentName = addressList.get(0).get(ModelDescriptionConstants.DEPLOYMENT).asString();
-                subdeploymentName = addressList.get(1).get(ModelDescriptionConstants.SUBDEPLOYMENT).asString();
-            } else {
-                deploymentName = addressList.get(0).get(ModelDescriptionConstants.DEPLOYMENT).asString();
+            boolean subdeployment = false;
+            int index = 2;
 
+            if (Console.MODULES.getBootstrapContext().isStandalone()) {
+                index = 0;
+            }
+            
+            for (ModelNode node: addressList) {
+                Property property = node.asProperty();
+                if (property.getName().equals("subdeployment")) {
+                    subdeployment = true;
+                    break;
+                }
+            }
+            
+            if (subdeployment) {
+                // constains subdeployment
+                deploymentName = addressList.get(index).get(ModelDescriptionConstants.DEPLOYMENT).asString();
+                subdeploymentName = addressList.get(index + 1).get(ModelDescriptionConstants.SUBDEPLOYMENT).asString();
+            } else {
+                deploymentName = addressList.get(index).get(ModelDescriptionConstants.DEPLOYMENT).asString();
             }
             ModelNode jobNode = deploymentNode.get(RESULT).get(ModelDescriptionConstants.JOB);
             for (Property jobProperty : jobNode.asPropertyList()) {
