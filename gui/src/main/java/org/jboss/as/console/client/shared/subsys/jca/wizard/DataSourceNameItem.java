@@ -36,6 +36,7 @@ class DataSourceNameItem<T extends DataSource> extends TextBoxItem {
         super("name", "Name");
         this.existingDataSources = existingDataSources;
         this.defaultErrMessage = getErrMessage();
+        super.setAllowWhiteSpace(true);
     }
 
     @Override
