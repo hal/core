@@ -41,6 +41,7 @@ import org.jboss.as.console.client.v3.stores.DiagnosticsView;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.widgets.InlineLink;
+import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -100,7 +101,6 @@ public class Footer {
             }
         });
 
-        toolReference.add(new String[]{"Expression Resolver", "expressions"});
         if (diagnostics.isEnabled()) {
             toolReference.add(new String[]{"Diagnostics", "debug-panel"});
         }
@@ -129,6 +129,20 @@ public class Footer {
             });
             toolsList.add(browser);
         }
+
+        InlineLink browser = new InlineLink("Expression Resolver");
+        browser.getElement().setAttribute("style", "margin:4px");
+        browser.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                toolsPopup.hide();
+                placeManager.getEventBus().fireEvent(
+                        new ResolveExpressionEvent("${name:default_value}")
+                );
+            }
+        });
+        toolsList.add(browser);
+
         toolsPopup.setWidget(toolsList);
 
         final HTML toolsLink = new HTML("<i class='icon-caret-up'></i>&nbsp;"+"Tools");
