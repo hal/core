@@ -40,6 +40,14 @@ public class Job extends ModelNode {
         get("name").set(name);
     }
 
+    public void setJobXmlName(final String name) {
+        get("job-xml-name").set(name);
+    }
+
+    public String getJobXmlName() {
+        return failSafeGet("job-xml-name");
+    }
+
     public String getDeploymentName() {
         return failSafeGet("deployment");
     }
@@ -72,50 +80,26 @@ public class Job extends ModelNode {
         return failSafeGet("batch-status");
     }
 
-    public void setCurrentStatus(final String currentStatus) {
-        get("batch-status").set(currentStatus);
-    }
-
     public String getExitStatus() {
         return failSafeGet("exit-status");
-    }
-
-    public void setExitStatus(final String exitStatus) {
-        get("exit-status").set(exitStatus);
     }
 
     public String getCreateTime() {
         return failSafeGet("create-time");
     }
 
-    public void setCreateTime(final String createTime) {
-        get("create-time").set(createTime);
-    }
-
     public String getEndTime() {
         return failSafeGet("end-time");
-    }
-
-    public void setEndTime(final String endTime) {
-        get("end-time").set(endTime);
     }
 
     public String getStartTime() {
         return failSafeGet("start-time");
     }
 
-    public void setStartTime(final String startTime) {
-        get("start-time").set(startTime);
-    }
-
     public String getLastUpdatedTime() {
         return failSafeGet("last-updated-time");
     }
 
-    public void setLastUpdatedTime(final String lastUpdatedTime) {
-        get("last-updated-time").set(lastUpdatedTime);
-    }
-    
     private String failSafeGet(String attribute) {
         String val = "";
         if (hasDefined(attribute)) {
