@@ -1,13 +1,14 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-
-import java.util.List;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -60,11 +61,11 @@ public class DataSourceMetricView extends SuspendableViewImpl implements DataSou
     }
 
     @Override
-    public void setDSPoolMetric(Metric poolMetric, boolean isXA) {
+    public void setDSPoolMetric(ModelNode results, boolean isXA) {
         if(isXA)
-            xaMetrics.setDSPoolMetric(poolMetric);
+            xaMetrics.setDSPoolMetric(results);
         else
-            dsMetrics.setDSPoolMetric(poolMetric);
+            dsMetrics.setDSPoolMetric(results);
     }
 
     @Override

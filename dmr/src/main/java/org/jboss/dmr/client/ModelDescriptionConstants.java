@@ -161,6 +161,7 @@ public class ModelDescriptionConstants {
     public static final String ROLLING_TO_SERVERS = "rolling-to-servers";
     public static final String ROLLOUT_PLAN = "rollout-plan";
     public static final String RUNTIME_NAME = "runtime-name";
+    public static final String RUNTIME_ONLY = "runtime-only";
     public static final String RUNNING_SERVER = "server";
     public static final String SCHEMA_LOCATION = "schema-location";
     public static final String SCHEMA_LOCATIONS = "schema-locations";
