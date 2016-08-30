@@ -28,6 +28,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -316,7 +317,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
     public void setPreview(final SafeHtml html) {
         Scheduler.get().scheduleDeferred(() -> {
             contentCanvas.clear();
-            contentCanvas.add(new HTML(html));
+            contentCanvas.add(new ScrollPanel(new HTML(html)));
         });
     }
 
