@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.shared.subsys.modcluster.model;
 
+import java.util.List;
+
 import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
@@ -26,19 +28,19 @@ import org.jboss.as.console.client.widgets.forms.Binding;
  * @date 2/14/12
  */
 public interface Modcluster {
-    
+
     @Binding(detypedName="advertise")
     public boolean isAdvertise();
     public void setAdvertise(boolean advertise);
-    
+
     @Binding(detypedName="advertise-socket")
     public String getAdvertiseSocket();
     public void setAdvertiseSocket(String advertiseSocket);
-    
+
     @Binding(detypedName="advertise-security-key")
     public String getAdvertiseKey();
     public void setAdvertiseKey(String advertiseKey);
-    
+
     @Binding(detypedName="auto-enable-contexts")
     public boolean isAutoEnableContexts();
     public void setAutoEnableContexts(boolean autoEnableContexts);
@@ -61,6 +63,10 @@ public interface Modcluster {
     public String getProxyUrl();
     public void setProxyUrl(String proxyUrl);
 
+    @Binding(listType="java.lang.String")
+    public List<String> getProxies();
+    public void setProxies(List<String> proxies);
+
     //TODO this has to be time value with SECONDS unit
     @Binding(detypedName="socket-timeout")
     Integer getSocketTimeout();
@@ -69,12 +75,12 @@ public interface Modcluster {
     @Binding(skip=true)
     SSLConfig getSSLConfig();
     void setSSLConfig(SSLConfig config);
-    
+
     //TODO this has to be time value with SECONDS unit
     @Binding(detypedName="stop-context-timeout")
     Integer getStopContextTimeout();
     void setStopContextTimeout(Integer stopContextTimeout);
-    
+
     public String getBalancer();
     public void setBalancer(String balancer);
 
@@ -104,11 +110,11 @@ public interface Modcluster {
     @Binding(detypedName="ping")
     Integer getPing();
     void setPing(Integer ping);
-    
+
     @Binding(detypedName="sticky-session")
     public boolean isStickySession();
     public void setStickySession(boolean stickySession);
-    
+
     @Binding(detypedName="sticky-session-force")
     public boolean isStickySessionForce();
     public void setStickySessionForce(boolean stickySessionForce);
@@ -121,11 +127,11 @@ public interface Modcluster {
     @Binding(detypedName="ttl")
     Integer getTtl();
     void setTtl(Integer ttl);
-    
+
     //TODO this has to be time value with SECONDS unit
     @Binding(detypedName="worker-timeout")
     Integer getWorkerTimeout();
     void setWorkerTimeout(Integer workerTimeout);
-    
-    
+
+
 }
