@@ -51,6 +51,7 @@ class GeneralView implements IsWidget {
 
         columns = new Column[]{
                 new TextColumn("Status", "OFF"),
+                new NumberColumn("average-commit-time", "Average Commit Time"),
                 new NumberColumn("number-of-inflight-transactions", "Inflight Transactions"),
                 new NumberColumn("number-of-nested-transactions", "Nested Transactions")
         };
