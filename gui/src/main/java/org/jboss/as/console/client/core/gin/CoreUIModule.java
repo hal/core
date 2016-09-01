@@ -478,6 +478,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringView.class,
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyProxy.class);
 
+        bindPresenter(org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.class,
+                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.MyProxy.class);
+
         bindPresenter(JMSBridgePresenter.class,
                 JMSBridgePresenter.MyView.class,
                 JMSBridgeView.class,
@@ -547,7 +552,7 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ResourceAdapterFinder.MyView.class,
                 ResourceAdapterFinderView.class,
                 ResourceAdapterFinder.MyProxy.class);
-        
+
         bindPresenter(ResourceAdapterPresenter.class,
                 ResourceAdapterPresenter.MyView.class,
                 ResourceAdapterView.class,
