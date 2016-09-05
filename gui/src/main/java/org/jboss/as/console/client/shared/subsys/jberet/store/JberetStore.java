@@ -427,12 +427,16 @@ public class JberetStore extends ChangeSupport {
             for (Property jobProperty : jobNode.asPropertyList()) {
                 String jobName = jobProperty.getName();
                 
+                // not sure if it is possible the same job, multiple filenames.
+                String jobXmlName = jobProperty.getValue().get("job-xml-names").asList().get(0).asString();
+                        
                 // if the job had run, get the runtime attributes
                 if (jobProperty.getValue().get("instance-count").asInt() > 0) {
                     
                     for (Property ins : jobProperty.getValue().get("execution").asPropertyList()) {
                         Job job = new Job(ins.getValue());
                         job.setName(jobName);
+                        job.setJobXmlName(jobXmlName);
                         job.setExecutionId(ins.getName());
                         job.setDeploymentName(deploymentName);
                         job.setSubdeploymentName(subdeploymentName);
@@ -441,6 +445,7 @@ public class JberetStore extends ChangeSupport {
                 } else {
                     Job job = new Job(new ModelNode());
                     job.setName(jobName);
+                    job.setJobXmlName(jobXmlName);
                     job.setDeploymentName(deploymentName);
                     job.setSubdeploymentName(subdeploymentName);
                     jobsMetrics.add(job);
