@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import java.util.List;
+
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,6 +26,8 @@ import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
+import org.jboss.as.console.client.semver.ManagementModel;
+import org.jboss.as.console.client.semver.Version;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.schedule.LongRunningTask;
@@ -42,8 +46,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.List;
-
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -51,7 +53,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class StandaloneRuntimePresenter
         extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, StandaloneRuntimeRefresh.Handler{
+        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, StandaloneRuntimeRefresh.Handler {
 
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
@@ -63,7 +65,7 @@ public class StandaloneRuntimePresenter
     private DefaultWindow window;
 
     public void closeDialoge() {
-         window.hide();
+        window.hide();
     }
 
     public void onLaunchSuspendDialogue() {
@@ -82,22 +84,28 @@ public class StandaloneRuntimePresenter
     @RequiredResources(resources = {"/"}, recursive = false)
     public interface MyProxy extends Proxy<StandaloneRuntimePresenter>, Place {}
 
+
     public interface MyView extends View {
+
         void setPresenter(StandaloneRuntimePresenter presenter);
+
         void setSubsystems(List<SubsystemRecord> result);
+
         void setPreview(final SafeHtml html);
+
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
+
         void updateServer(StandaloneServer standaloneServer);
     }
+
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
 
-
     @Inject
     public StandaloneRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-                                      SubsystemLoader subsysStore, Header header, ReloadState reloadState, DispatchAsync dispatcher) {
+            SubsystemLoader subsysStore, Header header, ReloadState reloadState, DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
@@ -119,8 +127,7 @@ public class StandaloneRuntimePresenter
 
     @Override
     public void onPreview(PreviewEvent event) {
-        if(isVisible())
-            getView().setPreview(event.getHtml());
+        if (isVisible()) { getView().setPreview(event.getHtml()); }
     }
 
     @Override
@@ -138,9 +145,10 @@ public class StandaloneRuntimePresenter
         header.highlight(getProxy().getNameToken());
 
 
-        if(!hasBeenLoaded) {
-            if(getProxy().getNameToken().equals(placeManager.getCurrentPlaceRequest().getNameToken()))
+        if (!hasBeenLoaded) {
+            if (getProxy().getNameToken().equals(placeManager.getCurrentPlaceRequest().getNameToken())) {
                 loadServer();
+            }
 
             hasBeenLoaded = true;
         }
@@ -163,8 +171,7 @@ public class StandaloneRuntimePresenter
 
     @Override
     public void onToggleScrolling(FinderScrollEvent event) {
-        if(isVisible())
-            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
     }
 
     public void onReloadServerConfig() {
@@ -222,17 +229,14 @@ public class StandaloneRuntimePresenter
 
                 ModelNode response = result.get();
 
-                if(response.isFailure()) {
+                if (response.isFailure()) {
                     callback.onFailure(new RuntimeException("Failed to poll server state"));
-                }
-                else
-                {
+                } else {
                     // TODO: only works when this response changes the reload state
                     String outcome = response.get(RESULT).asString();
                     boolean keepRunning = !outcome.equalsIgnoreCase("running");//reloadState.isStaleModel();
 
-                    if(!keepRunning)
-                    {
+                    if (!keepRunning) {
 
                         // clear state
                         reloadState.reset();
@@ -251,7 +255,8 @@ public class StandaloneRuntimePresenter
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.getMessageCenter().notify(new Message("Waiting for the server to reload", caught.getMessage(), Message.Severity.Warning));
+                Console.getMessageCenter().notify(new Message("Waiting for the server to reload", caught.getMessage(),
+                        Message.Severity.Warning));
             }
         });
     }
@@ -267,7 +272,7 @@ public class StandaloneRuntimePresenter
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
             @Override
-            public void onSuccess(DMRResponse result) {
+            public void onSuccess (DMRResponse result){
 
                 ModelNode response = result.get();
 
@@ -279,15 +284,16 @@ public class StandaloneRuntimePresenter
 
                     boolean isRunning = model.get("server-state").asString().equalsIgnoreCase("RUNNING");
 
-                    SrvState srvState = SrvState.valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase());
+                    SrvState srvState = SrvState
+                            .valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase());
 
-                    StandaloneServer server = new StandaloneServer(
-                            srvState,
-                            SuspendState.valueOf(model.get("suspend-state").asString())
-                    );
-
+                    SuspendState suspendState = SuspendState.UNKOWN;
+                    Version serverVersion = ManagementModel.parseVersion(model);
+                    if (ManagementModel.supportsSuspend(serverVersion)) {
+                        suspendState = SuspendState.valueOf(model.get("suspend-state").asString());
+                    }
+                    StandaloneServer server = new StandaloneServer(srvState, suspendState);
                     getView().updateServer(server);
-
                 }
             }
         });

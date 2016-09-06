@@ -1,5 +1,11 @@
 package org.jboss.as.console.client.domain.topology;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
@@ -7,6 +13,8 @@ import org.jboss.as.console.client.domain.model.ServerFlag;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
+import org.jboss.as.console.client.semver.ManagementModel;
+import org.jboss.as.console.client.semver.Version;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -20,12 +28,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -232,17 +234,11 @@ public final class TopologyFunctions {
                                 .add("host", hostInfo.getName())
                                 .add("server", serverInstance.getName());
 
-                        Operation serverStateOp = new Operation.Builder(READ_ATTRIBUTE_OPERATION, address)
-                                .param(NAME, "server-state")
+                        Operation serverAttributesOp = new Operation.Builder(READ_RESOURCE_OPERATION, address)
+                                .param(ATTRIBUTES_ONLY, true)
+                                .param(INCLUDE_RUNTIME, true)
                                 .build();
-                        steps.add(serverStateOp);
-                        stepToServer.put("step-" + step, serverInstance);
-                        step++;
-
-                        Operation suspendState = new Operation.Builder(READ_ATTRIBUTE_OPERATION, address)
-                                .param(NAME, "suspend-state")
-                                .build();
-                        steps.add(suspendState);
+                        steps.add(serverAttributesOp);
                         stepToServer.put("step-" + step, serverInstance);
                         step++;
 
@@ -255,7 +251,6 @@ public final class TopologyFunctions {
                         step++;
                     }
                 }
-
             }
 
             // HAL-921: no running server instances
@@ -273,27 +268,26 @@ public final class TopologyFunctions {
                                 ServerInstance serverInstance = stepToServer.get(step);
                                 if (serverInstance != null) {
 
-                                    // step-n: server state
+                                    // step-n: server attributes
                                     if (node.get(RESULT).isDefined()) {
-                                        String state = node.get(RESULT).asString();
+                                        ModelNode serverAttributes = node.get(RESULT);
+                                        String serverState = serverAttributes.get("server-state").asString();
 
                                         serverInstance.setServerState(
-                                                SrvState.valueOf(state.replace("-", "_").toUpperCase())
+                                                SrvState.valueOf(serverState.replace("-", "_").toUpperCase())
                                         );
 
-                                        if (state.equals("reload-required")) {
+                                        if (serverState.equals("reload-required")) {
                                             serverInstance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                                        } else if (state.equals("restart-required")) {
+                                        } else if (serverState.equals("restart-required")) {
                                             serverInstance.setFlag(ServerFlag.RESTART_REQUIRED);
                                         }
-                                    }
 
-                                    // step-n + 1: socket binding groups
-                                    property = iterator.next();
-                                    node = property.getValue();
-                                    if (node.get(RESULT).isDefined()) {
-                                        String state = node.get(RESULT).asString();
-                                        serverInstance.setSuspendState(SuspendState.valueOf(state));
+                                        Version serverVersion = ManagementModel.parseVersion(serverAttributes);
+                                        if (ManagementModel.supportsSuspend(serverVersion)) {
+                                            String suspendState = serverAttributes.get("suspend-state").asString();
+                                            serverInstance.setSuspendState(SuspendState.valueOf(suspendState));
+                                        }
                                     }
 
                                     // step-n + 1: socket binding groups

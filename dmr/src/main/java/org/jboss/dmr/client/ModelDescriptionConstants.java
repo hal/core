@@ -39,6 +39,7 @@ public class ModelDescriptionConstants {
     public static final String ANY_IPV4_ADDRESS = "any-ipv4-address";
     public static final String ANY_IPV6_ADDRESS = "any-ipv6-address";
     public static final String ATTRIBUTES = "attributes";
+    public static final String ATTRIBUTES_ONLY = "attributes-only";
     public static final String BYTES = "bytes";
     public static final String CANCELLED = "cancelled";
     public static final String CAPABILITY_REFERENCE = "capability-reference";
@@ -90,6 +91,9 @@ public class ModelDescriptionConstants {
     public static final String LOCAL = "local";
     public static final String LOCALE = "locale";
     public static final String MANAGEMENT_INTERFACES = "management-interfaces";
+    public static final String MANAGEMENT_MAJOR_VERSION = "management-major-version";
+    public static final String MANAGEMENT_MICRO_VERSION = "management-micro-version";
+    public static final String MANAGEMENT_MINOR_VERSION = "management-minor-version";
     public static final String MASK = "mask";
     public static final String MAX = "max";
     public static final String MAX_FAILED_SERVERS = "max-failed-servers";

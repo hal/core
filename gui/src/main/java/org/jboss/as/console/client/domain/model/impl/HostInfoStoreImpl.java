@@ -19,6 +19,14 @@
 
 package org.jboss.as.console.client.domain.model.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -34,6 +42,8 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.semver.ManagementModel;
+import org.jboss.as.console.client.semver.Version;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -48,14 +58,6 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -99,17 +101,14 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to read hosts:"+ response.getFailureDescription()));
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to read hosts:" + response.getFailureDescription()));
+                } else {
                     List<Property> hostModels = response.get("result").asPropertyList();
 
                     List<Host> records = new LinkedList<Host>();
-                    for(Property hostModel : hostModels)
-                    {
+                    for (Property hostModel : hostModels) {
                         Host record = factory.host().as();
                         record.setName(hostModel.getName());
 
@@ -128,8 +127,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void loadHostsAndServerInstances(final AsyncCallback<List<HostInfo>> callback)
-    {
+    public void loadHostsAndServerInstances(final AsyncCallback<List<HostInfo>> callback) {
         getHosts(new SimpleCallback<List<Host>>() {
             @Override
             public void onSuccess(final List<Host> hosts) {
@@ -188,13 +186,13 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
     /**
      * Deprecated: Use topology functions instead. See {@link org.jboss.as.console.client.domain.topology.TopologyFunctions}
+     *
      * @param serverGroup
      * @param callback
      */
     @Override
     @Deprecated
-    public void loadServerInstances(final String serverGroup, final AsyncCallback<List<ServerInstance>> callback)
-    {
+    public void loadServerInstances(final String serverGroup, final AsyncCallback<List<ServerInstance>> callback) {
         final List<ServerInstance> instancesOfGroup = new LinkedList<ServerInstance>();
         loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>() {
             @Override
@@ -217,7 +215,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     @Override
     public void getServerConfigurations(final String host, final AsyncCallback<List<Server>> callback) {
 
-        if(host==null) throw new RuntimeException("Host parameter is null!");
+        if (host == null) { throw new RuntimeException("Host parameter is null!"); }
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -252,19 +250,16 @@ public class HostInfoStoreImpl implements HostInformationStore {
                 ModelNode response = result.get();
                 ModelNode overalResult = response.get(RESULT);
 
-                if(overalResult.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to load sever configurations: "+response.getFailureDescription()));
-                }
-                else
-                {
+                if (overalResult.isFailure()) {
+                    callback.onFailure(new RuntimeException(
+                            "Failed to load sever configurations: " + response.getFailureDescription()));
+                } else {
 
                     List<Property> serverGroupsModel = overalResult.get("step-2").get(RESULT).asPropertyList();
 
-                    Map<String,String> group2profile = new HashMap<String,String>();
+                    Map<String, String> group2profile = new HashMap<String, String>();
 
-                    for(Property group : serverGroupsModel)
-                    {
+                    for (Property group : serverGroupsModel) {
                         group2profile.put(group.getName(), group.getValue().get("profile").asString());
                     }
 
@@ -272,8 +267,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                     List<ModelNode> serverConfigModel = overalResult.get("step-1").get(RESULT).asList();
 
                     List<Server> records = new LinkedList<Server>();
-                    for(ModelNode item : serverConfigModel)
-                    {
+                    for (ModelNode item : serverConfigModel) {
                         ModelNode model = item.asProperty().getValue();
                         Server server = serverAdapter.fromDMR(model);
                         server.setHostName(host);
@@ -283,7 +277,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
                         // Does not exists (yet)
                         //server.setServerState(SrvState.valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase()));
 
-                        server.setSuspendState(SuspendState.UNKOWN);   // TODO: https://issues.jboss.org/browse/WFLY-4910
+                        server.setSuspendState(
+                                SuspendState.UNKOWN);   // TODO: https://issues.jboss.org/browse/WFLY-4910
                         server.setProfile(group2profile.get(server.getGroup()));
                         records.add(server);
                     }
@@ -303,12 +298,11 @@ public class HostInfoStoreImpl implements HostInformationStore {
     @Override
     public void getServerConfiguration(final String host, final String server, final AsyncCallback<Server> callback) {
 
-        if (host==null) throw new RuntimeException("Host parameter is null!");
-        if (NOT_SET.equals(host)){
+        if (host == null) { throw new RuntimeException("Host parameter is null!"); }
+        if (NOT_SET.equals(host)) {
             callback.onFailure(new RuntimeException("Attempt to load data w/o host chosen"));
             return;
-        }
-        else if (NOT_SET.equals(server)){
+        } else if (NOT_SET.equals(server)) {
             callback.onFailure(new RuntimeException("Attempt to load data w/o server chosen"));
             return;
         }
@@ -330,11 +324,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response = result.get();
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to get server config (host/server):"+host+"/"+server));
-                }
-                else {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to get server config (host/server):" + host + "/" + server));
+                } else {
                     ModelNode model = response.get("result").asObject();
 
                     Server server = serverAdapter.fromDMR(model);
@@ -369,14 +362,12 @@ public class HostInfoStoreImpl implements HostInformationStore {
                     public void onSuccess(final List<Server> serverConfigs) {
 
 
-                        if(serverConfigs.isEmpty())
-                        {
+                        if (serverConfigs.isEmpty()) {
                             callbackReference.onSuccess(new ArrayList<ServerInstance>());
                             return;
                         }
 
-                        for(final Server handle : serverConfigs)
-                        {
+                        for (final Server handle : serverConfigs) {
 
                             ModelNode operation = new ModelNode();
                             operation.get(OP).set(COMPOSITE);
@@ -449,36 +440,34 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                     instance.setSocketBindings(new HashMap<String, String>());
                                     instanceList.add(instance);
 
-                                    if(response.isFailure())
-                                    {
+                                    if (response.isFailure()) {
                                         instance.setRunning(false);
                                         instance.setSuspendState(SuspendState.UNKOWN);
-                                    }
-                                    else
-                                    {
+                                    } else {
 
                                         ModelNode instanceModel = compositeResponse.get("step-1").get(RESULT);
                                         instance.setRunning(handle.isStarted());
-                                        instance.setSuspendState(SuspendState.valueOf(instanceModel.get("suspend-state").asString()));
+                                        Version serverVersion = ManagementModel.parseVersion(instanceModel);
+                                        if (ManagementModel.supportsSuspend(serverVersion)) {
+                                            instance.setSuspendState(SuspendState
+                                                    .valueOf(instanceModel.get("suspend-state").asString()));
+                                        }
 
                                         //instance.setProfile(instanceModel.get("profile-name").asString());
 
-                                        if(instanceModel.hasDefined("server-state"))
-                                        {
+                                        if (instanceModel.hasDefined("server-state")) {
 
                                             // TODO: setFlag() is deprecated and to be removed ...
                                             String state = instanceModel.get("server-state").asString();
-                                            if(state.equals("reload-required"))
-                                            {
+                                            if (state.equals("reload-required")) {
                                                 instance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                                            }
-                                            else if (state.equals("restart-required"))
-                                            {
+                                            } else if (state.equals("restart-required")) {
                                                 instance.setFlag(ServerFlag.RESTART_REQUIRED);
                                             }
 
                                             instance.setServerState(
-                                                    SrvState.valueOf(instanceModel.get("server-state").asString().replace("-", "_").toUpperCase())
+                                                    SrvState.valueOf(instanceModel.get("server-state").asString()
+                                                            .replace("-", "_").toUpperCase())
                                             );
 
                                         }
@@ -487,14 +476,11 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                                         List<Property> interfaces = new ArrayList<Property>();
 
-                                        if(compositeResponse.hasDefined("step-2"))
-                                        {
+                                        if (compositeResponse.hasDefined("step-2")) {
                                             interfaces = compositeResponse.get("step-2").get(RESULT).asPropertyList();
 
-                                            for(Property intf : interfaces)
-                                            {
-                                                if(intf.getValue().hasDefined("resolved-address"))
-                                                {
+                                            for (Property intf : interfaces) {
+                                                if (intf.getValue().hasDefined("resolved-address")) {
                                                     instance.getInterfaces().put(
                                                             intf.getName(),
                                                             intf.getValue().get("resolved-address").asString()
@@ -505,12 +491,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                                         // ---- socket binding
                                         List<Property> sockets = new ArrayList<Property>();
-                                        if(compositeResponse.hasDefined("step-3"))
-                                        {
+                                        if (compositeResponse.hasDefined("step-3")) {
                                             sockets = compositeResponse.get("step-3").get(RESULT).asPropertyList();
 
-                                            for(Property socket : sockets)
-                                            {
+                                            for (Property socket : sockets) {
                                                 instance.getSocketBindings().put(
                                                         socket.getName(),
                                                         socket.getValue().get("port-offset").asString()
@@ -529,9 +513,9 @@ public class HostInfoStoreImpl implements HostInformationStore {
                 });
             }
 
-            private void checkComplete(List<ServerInstance> instanceList, AsyncCallback<List<ServerInstance>> callback) {
-                if(numRequests==numResponses)
-                {
+            private void checkComplete(List<ServerInstance> instanceList,
+                    AsyncCallback<List<ServerInstance>> callback) {
+                if (numRequests == numResponses) {
 
                     Collections.sort(instanceList, new Comparator<ServerInstance>() {
                         @Override
@@ -569,7 +553,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void startServer(final String host, final String configName, boolean startIt, final AsyncCallback<Boolean> callback) {
+    public void startServer(final String host, final String configName, boolean startIt,
+            final AsyncCallback<Boolean> callback) {
         final String actualOp = startIt ? "start" : "stop";
 
         final ModelNode operation = new ModelNode();
@@ -599,27 +584,23 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
         ModelType type = null;
 
-        if("java.lang.String".equals(javaTypeName))
-            type = ModelType.STRING;
-        else if("java.lang.Integer".equals(javaTypeName))
-            type = ModelType.INT;
-        else if("java.lang.Long".equals(javaTypeName))
-            type = ModelType.LONG;
-        else if("java.lang.Boolean".equals(javaTypeName))
-            type = ModelType.BOOLEAN;
-        else if("java.lang.Double".equals(javaTypeName))
-            type = ModelType.DOUBLE;
-        else if("java.util.List".equals(javaTypeName)) {
+        if ("java.lang.String".equals(javaTypeName)) { type = ModelType.STRING; } else if ("java.lang.Integer"
+                .equals(javaTypeName)) { type = ModelType.INT; } else if ("java.lang.Long"
+                .equals(javaTypeName)) { type = ModelType.LONG; } else if ("java.lang.Boolean"
+                .equals(javaTypeName)) { type = ModelType.BOOLEAN; } else if ("java.lang.Double"
+                .equals(javaTypeName)) { type = ModelType.DOUBLE; } else if ("java.util.List"
+                .equals(javaTypeName)) {
             type = ModelType.LIST;
         } else {
-            throw new RuntimeException("Failed to resolve ModelType for '"+ javaTypeName+"'");
+            throw new RuntimeException("Failed to resolve ModelType for '" + javaTypeName + "'");
         }
 
         return type;
     }
 
     @Override
-    public void suspendServer(String host, String configName, Map<String, Object> params,  AsyncCallback<Boolean> callback) {
+    public void suspendServer(String host, String configName, Map<String, Object> params,
+            AsyncCallback<Boolean> callback) {
         final String actualOp = "suspend";
 
         final ModelNode operation = new ModelNode();
@@ -629,7 +610,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
         for (String s : params.keySet()) {
             operation.get(s).set(resolveModelType(
-                            params.get(s).getClass().getName()),
+                    params.get(s).getClass().getName()),
                     params.get(s)
             );
         }
@@ -680,7 +661,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void killServer(final String host, final String configName, boolean destroyIt, final AsyncCallback<Boolean> callback) {
+    public void killServer(final String host, final String configName, boolean destroyIt,
+            final AsyncCallback<Boolean> callback) {
         final String actualOp = destroyIt ? "destroy" : "kill";
 
         final ModelNode operation = new ModelNode();
@@ -758,7 +740,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void createServerConfig(final  String host, final Server record, final AsyncCallback<Boolean> callback) {
+    public void createServerConfig(final String host, final Server record, final AsyncCallback<Boolean> callback) {
         final ModelNode serverConfig = new ModelNode();
         serverConfig.get(OP).set(ModelDescriptionConstants.ADD);
         serverConfig.get(ADDRESS).add("host", host);
@@ -769,8 +751,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
         serverConfig.get("auto-start").set(record.isAutoStart());
 
         // TODO: can be null?
-        if(record.getJvm()!=null)
-            serverConfig.get("jvm").set(record.getJvm().getName());
+        if (record.getJvm() != null) { serverConfig.get("jvm").set(record.getJvm().getName()); }
 
         serverConfig.get("socket-binding-group").set(record.getSocketBinding());
         serverConfig.get("socket-binding-port-offset").set(record.getPortOffset());
@@ -789,11 +770,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to create server:"+response.getFailureDescription()));
-                }
-                else {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to create server:" + response.getFailureDescription()));
+                } else {
                     String outcome = response.get("outcome").asString();
 
                     Boolean wasSuccessful = outcome.equals("success") ? Boolean.TRUE : Boolean.FALSE;
@@ -805,14 +785,15 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
     @Override
     @Deprecated
-    public void saveServerConfig(String host, String name, Map<String, Object> changedValues, final AsyncCallback<Boolean> callback) {
+    public void saveServerConfig(String host, String name, Map<String, Object> changedValues,
+            final AsyncCallback<Boolean> callback) {
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
         proto.get(ADDRESS).add("host", host);
         proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
 
         List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
-        ModelNode operation  = ModelAdapter.detypedFromChangeset(proto, changedValues, bindings);
+        ModelNode operation = ModelAdapter.detypedFromChangeset(proto, changedValues, bindings);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
@@ -823,11 +804,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to save server: "+response.getFailureDescription()));
-                }
-                else {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to save server: " + response.getFailureDescription()));
+                } else {
                     callback.onSuccess(response.get(OUTCOME).asString().equals(SUCCESS));
                 }
             }
@@ -852,12 +832,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to delete server: "+response.getFailureDescription()));
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to delete server: " + response.getFailureDescription()));
+                } else {
                     Boolean wasSuccessful = !response.isFailure();
                     callback.onSuccess(wasSuccessful);
                 }
@@ -879,24 +857,18 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
 
-                if(result.isFailure())
-                {
-                    callback.onFailure(new Throwable("Failed to load jvms: "+result.getFailureDescription()));
-                }
-                else
-                {
+                if (result.isFailure()) {
+                    callback.onFailure(new Throwable("Failed to load jvms: " + result.getFailureDescription()));
+                } else {
                     List<Property> jvms = result.get(RESULT).asPropertyList();
-                    if(!jvms.isEmpty())
-                    {
+                    if (!jvms.isEmpty()) {
                         // select first entry
                         Property property = jvms.get(0);
                         Jvm jvm = jvmAdapter.fromDMR(property.getValue().asObject());
                         jvm.setName(property.getName());
 
                         callback.onSuccess(jvm);
-                    }
-                    else
-                    {
+                    } else {
                         callback.onSuccess(null);
                     }
                 }
@@ -919,17 +891,13 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
 
-                if(result.isFailure())
-                {
-                    callback.onFailure(new Throwable("Failed to load server:"+result.getFailureDescription()));
-                }
-                else
-                {
+                if (result.isFailure()) {
+                    callback.onFailure(new Throwable("Failed to load server:" + result.getFailureDescription()));
+                } else {
                     List<Property> properties = result.get(RESULT).asPropertyList();
                     List<PropertyRecord> records = new ArrayList<PropertyRecord>(properties.size());
 
-                    for(Property prop : properties)
-                    {
+                    for (Property prop : properties) {
                         PropertyRecord record = factory.property().as();
                         record.setKey(prop.getName());
                         ModelNode payload = prop.getValue().asObject();
@@ -968,6 +936,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
         });
 
     }
+
     public void restartHost(String host, final AsyncCallback<Boolean> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set("shutdown");
