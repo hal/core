@@ -19,6 +19,10 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -52,10 +56,6 @@ import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 
@@ -114,7 +114,7 @@ public class XADataSourcePresenter extends Presenter<XADataSourcePresenter.MyVie
         this.currentProfileSelection = currentProfileSelection;
         this.dataSourceTemplates = dataSourceTemplates;
 
-        this.dataSourceStore = new DataSourceStoreInterceptor(dataSourceStore);
+        this.dataSourceStore = dataSourceStore;
         this.driverRegistry = driverRegistry.create();
         this.revealStrategy = revealStrategy;
         this.bootstrap = bootstrap;
