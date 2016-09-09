@@ -21,9 +21,17 @@
  */
 package org.jboss.as.console.client.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import org.jboss.as.console.client.rbac.Constraints;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -36,15 +44,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -142,10 +141,8 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
         @Override
         public void onFailure(Throwable caught) {
-
             control.getContext().setError(caught);
             caught.printStackTrace();
-
             control.abort();
         }
 
@@ -180,12 +177,22 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
                             for (ModelNode node : nodes) {
                                 // matching the wildcard response
+                                String storage = null;
+                                if (node.get(RESULT).hasDefined(STORAGE))
+                                    storage = node.get(RESULT).get(STORAGE).asString();
+                                
                                 List<ModelNode> responseAddress = node.get(ADDRESS).asList();
 
                                 // match the inquiry
-                                if (matchingAddress(responseAddress, inquiryAddress)) {
+                                // the runtime-only=storage check is performed only when the matchingAddress returns false
+                                // this cover the corner case of r-r-d for /subsystem=datasources/data-source=*/statistics=pool
+                                // because the fix of WFCORE-1737 resolves the datasource=* wildcard
+                                if (matchingAddress(responseAddress, inquiryAddress) || RUNTIME_ONLY.equals(storage)) {
                                     payload = node.get(RESULT);
                                     break;
+                                } else {
+                                    // log error as they don't match
+                                    Log.error("Addresses don't match. response address:  " + node.get(ADDRESS).asString() + ". inquiry address: " + in.operation.get(ADDRESS).asString());
                                 }
                             }
                             if (payload == null) {

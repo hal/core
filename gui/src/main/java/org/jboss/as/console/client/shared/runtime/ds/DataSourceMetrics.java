@@ -3,20 +3,15 @@ package org.jboss.as.console.client.shared.runtime.ds;
 import java.util.List;
 
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.SimpleLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -26,6 +21,10 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.v3.behaviour.SelectionAwareContext;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -35,21 +34,24 @@ import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 
 import static com.google.gwt.dom.client.Style.TextAlign.RIGHT;
-import static com.google.gwt.dom.client.Style.Unit.PX;
+import static org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter.DATASOURCE_POOL_ADDRESS;
 
 /**
  * @author Heiko Braun
  * @date 12/10/11
  */
-public class DataSourceMetrics {
+public class DataSourceMetrics implements SelectionAwareContext {
 
 
+    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
+    
     private DataSourceMetricPresenter presenter;
     private DefaultCellTable<DataSource> table;
     private ListDataProvider<DataSource> dataProvider;
     private Sampler poolSampler;
     private Sampler cacheSampler;
     private boolean isXA;
+    private ModelNodeFormBuilder.FormAssets poolStatsForm;
 
     public DataSourceMetrics(DataSourceMetricPresenter presenter, boolean isXA) {
         this.presenter = presenter;
@@ -59,15 +61,10 @@ public class DataSourceMetrics {
 
     Widget asWidget() {
 
-        table = new DefaultCellTable<DataSource>(5, new ProvidesKey<DataSource>() {
-            @Override
-            public Object getKey(DataSource item) {
-                return item.getJndiName();
-            }
-        });
+        table = new DefaultCellTable<>(5, DataSource::getJndiName);
         table.setSelectionModel(new SingleSelectionModel<DataSource>());
 
-        dataProvider = new ListDataProvider<DataSource>();
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
         com.google.gwt.user.cellview.client.Column<DataSource, String> nameColumn = new com.google.gwt.user.cellview.client.Column<DataSource, String>(new TextCell()) {
@@ -76,7 +73,6 @@ public class DataSourceMetrics {
                 return object.getName();
             }
         };
-
 
         final com.google.gwt.user.cellview.client.Column<DataSource, String> protocolColumn = new com.google.gwt.user.cellview.client.Column<DataSource, String>(new TextCell()) {
             @Override
@@ -109,20 +105,16 @@ public class DataSourceMetrics {
         protocolColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         
         table.getSelectionModel().addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler(){
-                    @Override
-                    public void onSelectionChange(SelectionChangeEvent event) {
-                        DataSource ds = getCurrentSelection();
-                        presenter.setSelectedDS(ds, isXA);
-
-                    }
-        });
+                event -> {
+                    DataSource ds = getCurrentSelection();
+                    presenter.setSelectedDS(ds, isXA);
+                });
 
         // ----
 
         String title = "Connection Pool";
-
         final String subaddress = isXA ? "xa-data-source":"data-source";
+
         final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
             @Override
             public ModelNode getAddress() {
@@ -137,36 +129,16 @@ public class DataSourceMetrics {
         
         
         ToolStrip tools = new ToolStrip();
-        final ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                presenter.verifyConnection(getCurrentSelection().getName(), isXA);
-            }
-        });
-        final ToolButtonDropdown flushDropdown = new ToolButtonDropdown("Flush Gracefully", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.flush(getCurrentSelection().getName(), "flush-gracefully-connection-in-pool", isXA);
-            }
-        });
-        flushDropdown.addItem("Flush Idle", new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                presenter.flush(getCurrentSelection().getName(), "flush-idle-connection-in-pool", isXA);
-            }
-        });
-        flushDropdown.addItem("Flush Invalid", new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                presenter.flush(getCurrentSelection().getName(), "flush-invalid-connection-in-pool", isXA);
-            }
-        });
-        flushDropdown.addItem("Flush All", new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                presenter.flush(getCurrentSelection().getName(), "flush-all-connection-in-pool", isXA);
-            }
-        });
+        final ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(),
+                clickEvent -> presenter.verifyConnection(getCurrentSelection().getName(), isXA));
+        final ToolButtonDropdown flushDropdown = new ToolButtonDropdown("Flush Gracefully",
+                event -> presenter.flush(getCurrentSelection().getName(), "flush-gracefully-connection-in-pool", isXA));
+        flushDropdown.addItem("Flush Idle",
+                () -> presenter.flush(getCurrentSelection().getName(), "flush-idle-connection-in-pool", isXA));
+        flushDropdown.addItem("Flush Invalid",
+                () -> presenter.flush(getCurrentSelection().getName(), "flush-invalid-connection-in-pool", isXA));
+        flushDropdown.addItem("Flush All",
+                () -> presenter.flush(getCurrentSelection().getName(), "flush-all-connection-in-pool", isXA));
 
         verifyBtn.setVisible(true);
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
@@ -181,6 +153,13 @@ public class DataSourceMetrics {
 
         // ----
 
+        ResourceDescription resDescription = presenter.getDescriptionRegistry().lookup(AddressTemplate.of(DATASOURCE_POOL_ADDRESS));
+        
+        poolStatsForm = new ModelNodeFormBuilder()
+                .setRuntimeOnly()
+                .setResourceDescription(resDescription)
+                .setSecurityContext(Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken()))
+                .build();
 
         NumberColumn avail = new NumberColumn("AvailableCount", "Available Connections");
         Column[] cols = new Column[] {
@@ -189,19 +168,15 @@ public class DataSourceMetrics {
                 new NumberColumn("MaxUsedCount","Max Used").setComparisonColumn(avail)
         };
 
-        if(Console.protovisAvailable())
-        {
+        if(Console.protovisAvailable()) {
             poolSampler = new BulletGraphView(title, "total number", true)
                     .setColumns(cols);
-        }
-        else
-        {
+        } else {
             poolSampler = new PlainColumnView(title, addressCallback)
                     .setColumns(cols)
                     .setWidth(100, Style.Unit.PCT);
 
         }
-
 
         // ----
 
@@ -212,25 +187,18 @@ public class DataSourceMetrics {
         tablePanel.setStyleName("fill-layout-width");
         tablePanel.add(table);
         tablePanel.add(pager);
-
-
         // ----
-
 
         String title2 = "Prepared Statement Cache";
 
-        final HelpSystem.AddressCallback addressCallback2 = new HelpSystem.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
-                address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "datasources");
-                address.get(ModelDescriptionConstants.ADDRESS).add(subaddress, getCurrentSelection().getName());
-                address.get(ModelDescriptionConstants.ADDRESS).add("statistics", "jdbc");
-                return address;
-            }
+        final HelpSystem.AddressCallback addressCallback2 = () -> {
+            ModelNode address = new ModelNode();
+            address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
+            address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "datasources");
+            address.get(ModelDescriptionConstants.ADDRESS).add(subaddress, getCurrentSelection().getName());
+            address.get(ModelDescriptionConstants.ADDRESS).add("statistics", "jdbc");
+            return address;
         };
-
         // ----
 
 
@@ -255,33 +223,40 @@ public class DataSourceMetrics {
 
         HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
         refreshBtn.setStyleName("html-link");
-        refreshBtn.getElement().getStyle().setMarginTop(30, PX);
-        refreshBtn.getElement().getStyle().setMarginBottom(-20, PX);
-        refreshBtn.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.setSelectedDS(getCurrentSelection(), isXA);
-            }
-        });
+        refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+        refreshBtn.addClickHandler(event -> presenter.setSelectedDS(getCurrentSelection(), isXA));
 
-        SimpleLayout layout = new SimpleLayout()
+        VerticalPanel p = new VerticalPanel();
+        p.setStyleName("fill-layout-width");
+        p.add(refreshBtn);
+        p.add(poolSampler.asWidget());
+        p.add(cacheSampler.asWidget());
+
+        OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
                 .setTitle(isXA ? "XA Data Sources" : "Data Sources")
                 .setHeadline(isXA ? "XA Data Source Metrics" : "Data Source Metrics")
+                .setMasterTools(tools)
+                .setMaster("Datasource", tablePanel)
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
-                .addContent("", tools)
-                .addContent("Datasource", tablePanel)
-                .addContent("", refreshBtn)
-                .addContent("Pool Usage", poolSampler.asWidget())
-                .addContent("Prepared Statement Cache", cacheSampler.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_stats(), p)
+                .addDetail(Console.CONSTANTS.subsys_jca_pool_statistics_tab(), poolStatsForm.asWidget());
 
-        Widget root = layout.build();
+
+
         refreshBtn.getElement().getParentElement().getStyle().setTextAlign(RIGHT);
-        return root;
+        return layout.build();
     }
 
     private DataSource getCurrentSelection() {
         return ((SingleSelectionModel<DataSource>) table.getSelectionModel()).getSelectedObject();
+    }
+
+    @Override
+    public String getSelection() {
+        return getCurrentSelection().getName();
     }
 
     public void clearSamples() {
@@ -295,8 +270,18 @@ public class DataSourceMetrics {
         table.selectDefaultEntity();
     }
 
-    public void setDSPoolMetric(Metric poolMetric) {
+    public void setDSPoolMetric(ModelNode result) {
+
+        long avail = result.get("AvailableCount").asLong();
+        long active = result.get("ActiveCount").asLong();
+        long max = result.get("MaxUsedCount").asLong();
+
+        Metric poolMetric = new Metric(
+                avail, active, max
+        );
+        
         poolSampler.addSample(poolMetric);
+        poolStatsForm.getForm().edit(result);
     }
 
     public void setDSCacheMetric(Metric metric) {

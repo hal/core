@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -9,23 +12,22 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.ConnectionWindow;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -33,9 +35,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.Collections;
-import java.util.List;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -47,14 +47,19 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetricPresenter.MyView,
         DataSourceMetricPresenter.MyProxy> {
 
+    static final String DATASOURCE_ADDRESS = "/{implicit.host}/{selected.server}/subsystem=datasources/data-source=*"; 
+    static final String XADATASOURCE_ADDRESS = "/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*"; 
+    static final String DATASOURCE_POOL_ADDRESS = DATASOURCE_ADDRESS + "/statistics=pool"; 
+    
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourceMetricPresenter)
-    @AccessControl(resources = {
-            "/{implicit.host}/{selected.server}/subsystem=datasources/data-source=*",
-            "/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
+    @RequiredResources(resources = {
+            DATASOURCE_ADDRESS,
+            XADATASOURCE_ADDRESS,
+            DATASOURCE_POOL_ADDRESS
+            })
     @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})
     public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {}
-
 
     public interface MyView extends View {
 
@@ -64,38 +69,35 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
         void setDatasources(List<DataSource> datasources, boolean isXA);
 
-        void setDSPoolMetric(Metric poolMetric, boolean isXA);
+        void setDSPoolMetric(ModelNode results, boolean isXA);
 
         void setDSCacheMetric(Metric metric, boolean isXA);
     }
 
-
-    private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
     private DataSource selectedDS;
-    private BeanFactory factory;
     private EntityAdapter<DataSource> dataSourceAdapter;
+    private ResourceDescriptionRegistry descriptionRegistry;
 
     private LoadDataSourceCmd loadDSCmd;
     private DataSource selectedXA;
     private final ServerStore serverStore;
-
+    private StatementContext statementContext;
 
     @Inject
     public DataSourceMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, DispatchAsync dispatcher, Dispatcher circuit,
-            ApplicationMetaData metaData, RevealStrategy revealStrategy,
-            ServerStore serverStore, BeanFactory factory) {
+            DispatchAsync dispatcher, Dispatcher circuit,
+            ApplicationMetaData metaData, RevealStrategy revealStrategy, StatementContext statementContext,
+            ServerStore serverStore, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy, circuit);
-
-        this.placeManager = placeManager;
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.serverStore = serverStore;
-        this.factory = factory;
+        this.descriptionRegistry = descriptionRegistry;
+        this.statementContext = statementContext;
 
         this.loadDSCmd = new LoadDataSourceCmd(dispatcher, metaData);
 
@@ -203,7 +205,6 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         operation.get(ADDRESS).add("subsystem", "datasources");
         operation.get(ADDRESS).add(subresource, name);
         operation.get(ADDRESS).add("statistics", "pool");
-
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
@@ -216,21 +217,12 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                     Console.error(Console.MESSAGES.failed("Datasource Metrics"), response.getFailureDescription());
                 } else {
                     ModelNode result = response.get(RESULT).asObject();
-
-                    long avail = result.get("AvailableCount").asLong();
-                    long active = result.get("ActiveCount").asLong();
-                    long max = result.get("MaxUsedCount").asLong();
-
-                    Metric poolMetric = new Metric(
-                            avail, active, max
-                    );
-
-                    getView().setDSPoolMetric(poolMetric, isXA);
+                    getView().setDSPoolMetric(result, isXA);
                 }
             }
         });
     }
-
+    
     private void loadDSCacheMetrics(final boolean isXA) {
 
         DataSource target = isXA ? selectedXA : selectedDS;
@@ -338,5 +330,13 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
             }
         });
 
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    public StatementContext getStatementContext() {
+        return statementContext;
     }
 }

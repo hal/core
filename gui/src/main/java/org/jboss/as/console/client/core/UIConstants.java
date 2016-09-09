@@ -498,6 +498,7 @@ public interface UIConstants extends Constants {
     String subsys_jca_dataSources_desc();
     String subsys_jca_dataSources();
     String subsys_jca_dataSourcesXA();
+    String subsys_jca_pool_statistics_tab();
     String subsys_jca_err_prop_required();
     String subsys_jca_error_context_removal_desc();
     String subsys_jca_error_context_removal();
