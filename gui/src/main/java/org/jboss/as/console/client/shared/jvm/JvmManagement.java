@@ -21,13 +21,15 @@ package org.jboss.as.console.client.shared.jvm;
 
 import java.util.Map;
 
+import org.jboss.dmr.client.ModelNode;
+
 /**
  * @author Heiko Braun
  * @date 4/29/11
  */
 public interface JvmManagement {
 
-    void onCreateJvm(String reference, Jvm jvm);
-    void onDeleteJvm(String reference, Jvm editedEntity);
+    void onCreateJvm(String reference, ModelNode jvm);
+    void onDeleteJvm(String reference, String name);
     void onUpdateJvm(String reference, String jvmName, Map<String, Object> changedValues);
 }

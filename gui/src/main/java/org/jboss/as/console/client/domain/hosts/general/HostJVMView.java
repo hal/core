@@ -19,25 +19,27 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -49,59 +51,59 @@ public class HostJVMView extends DisposableViewImpl implements HostJVMPresenter.
 
     private HostJVMPresenter presenter;
     private JvmEditor jvmEditor;
-    private DefaultCellTable<Jvm> table;
-    private ListDataProvider<Jvm> dataProvider;
+    private DefaultCellTable<Property> table;
+    private ListDataProvider<Property> dataProvider;
+    private SingleSelectionModel<Property> selectionModel;
+
+    private ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private SecurityFramework securityFramework;
+
+    @Inject
+    public HostJVMView(final ResourceDescriptionRegistry resourceDescriptionRegistry,
+                       final SecurityFramework securityFramework) {
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.securityFramework = securityFramework;
+    }
 
     @Override
     public Widget createWidget() {
 
+        ProvidesKey<Property> providesKey = Property::getName;
+        selectionModel = new SingleSelectionModel<>(providesKey);
+        selectionModel.addSelectionChangeHandler(event -> updateDetail(selectionModel.getSelectedObject()));
+        table = new DefaultCellTable<>(8, providesKey);
+        table.setSelectionModel(selectionModel);
+        dataProvider = new ListDataProvider<>(providesKey);
+        dataProvider.addDataDisplay(table);
+
         ToolStrip toolStrip = new ToolStrip();
 
-        ToolButton addBtn= new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewJVMDialogue();
-            }
-        });
+        ToolButton addBtn= new ToolButton(Console.CONSTANTS.common_label_add(),
+                event -> presenter.launchNewJVMDialogue());
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_hostJVMView());
         toolStrip.addToolButtonRight(addBtn);
 
-        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
+        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
 
-                final Jvm entity = ((SingleSelectionModel<Jvm>) table.getSelectionModel()).getSelectedObject();
+            final Property entity = selectionModel.getSelectedObject();
 
-                Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("JVM Configuration"),
-                        Console.MESSAGES.deleteConfirm("JVM Configuration"),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.onDeleteJvm("", entity);
-                            }
-                        });
+            Feedback.confirm(
+                    Console.MESSAGES.deleteTitle("JVM Configuration"),
+                    Console.MESSAGES.deleteConfirm("JVM Configuration '" + entity.getName() + "'"),
+                    isConfirmed -> {
+                        if (isConfirmed)
+                            presenter.onDeleteJvm("", entity.getName());
+                    });
 
-            }
         });
         removeBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_hostJVMView());
         toolStrip.addToolButtonRight(removeBtn);
 
         // ---
 
-        table = new DefaultCellTable<Jvm>(8, new ProvidesKey<Jvm>() {
+        TextColumn<Property> nameCol = new TextColumn<Property>() {
             @Override
-            public Object getKey(Jvm item) {
-                return item.getName();
-            }
-        });
-        dataProvider = new ListDataProvider<Jvm>();
-        dataProvider.addDataDisplay(table);
-
-        TextColumn<Jvm> nameCol = new TextColumn<Jvm>() {
-            @Override
-            public String getValue(Jvm object) {
+            public String getValue(Property object) {
                 return object.getName();
             }
         };
@@ -110,31 +112,16 @@ public class HostJVMView extends DisposableViewImpl implements HostJVMPresenter.
         table.addColumn(nameCol, "Name");
         //table.addColumn(debugCol, "IsDebugEnabled?");
 
-        jvmEditor = new JvmEditor(presenter, false, false);
-        jvmEditor.setAddressCallback(new FormHelpPanel.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.add("host", Console.MODULES.getHostStore().getSelectedHost());
-                address.add("jvm", "*");
-                return address;
-            }
-        });
+        ResourceDescription resourceDescription = resourceDescriptionRegistry.lookup(HostJVMPresenter.ROOT_ADDRESS_TEMPLATE);
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
-        final SingleSelectionModel<Jvm> selectionModel = new SingleSelectionModel<Jvm>();
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                jvmEditor.setSelectedRecord("", selectionModel.getSelectedObject());
-            }
-        });
-        table.setSelectionModel(selectionModel);
-
+        jvmEditor = new JvmEditor(presenter, resourceDescription, securityContext, HostJVMPresenter.ROOT_ADDRESS);
+        jvmEditor.setEnableClearButton(false);
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setTitle("JVM Configurations")
                 .setPlain(true)
-                .setDescription(Console.CONSTANTS.hosts_jvm_desc())
+                .setDescription(SafeHtmlUtils.fromString(Console.CONSTANTS.hosts_jvm_desc()))
                 .setHeadline(Console.CONSTANTS.hosts_jvm_title())
                 .setMaster(Console.MESSAGES.available("JVM Configurations"), table)
                 .setMasterTools(toolStrip)
@@ -149,9 +136,13 @@ public class HostJVMView extends DisposableViewImpl implements HostJVMPresenter.
     }
 
     @Override
-    public void setJvms(List<Jvm> jvms) {
+    public void updateModel(List<Property> jvms) {
         dataProvider.setList(jvms);
-
         table.selectDefaultEntity();
+        SelectionChangeEvent.fire(selectionModel);
+    }
+
+    private void updateDetail(Property jvm) {
+        jvmEditor.setSelectedRecord("", jvm);
     }
 }

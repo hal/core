@@ -20,8 +20,8 @@
 package org.jboss.as.console.client.domain.model;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ public interface ServerGroupDAO {
 
     void saveJvm(String groupName, String jvmName, Map<String,Object> changedValues, AsyncCallback <Boolean> simpleCallback);
 
-    void loadJVMConfiguration(ServerGroupRecord group, AsyncCallback<Jvm> callback);
+    void loadJVMConfiguration(ServerGroupRecord group, AsyncCallback<Property> callback);
 
     void loadProperties(ServerGroupRecord group, AsyncCallback<List<PropertyRecord>> callback);
 }
