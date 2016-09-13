@@ -334,7 +334,8 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         boolean hasChildren = treeItem.getChildCount() > 0;
 
         // placeholder identify child subtrees that have not been loaded
-        boolean notHasBeenLoaded = treeItem.getChild(0) instanceof PlaceholderItem;
+        boolean notHasBeenLoaded = treeItem.getChild(0) instanceof PlaceholderItem
+                && treeItem.getChild(0).getText().equals(WILDCARD);
 
         if(hasChildren && notHasBeenLoaded)
         {
@@ -574,9 +575,6 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
         rootItem.removeItems();
 
-        if(modelNodes.isEmpty())
-            rootItem.addItem(new PlaceholderItem());
-
         String denominatorType = AddressUtils.getDenominatorType(rootItem.getAddress().asPropertyList());
 
         Set<String> singletonTypes = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation().getSingletons().get(denominatorType);
@@ -607,6 +605,10 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
         for(String child : remainingSingletons)
         {
             rootItem.addItem(new PlaceholderItem(child));
+        }
+
+        if(rootItem.getChildCount() == 0) {
+            rootItem.addItem(new PlaceholderItem());
         }
 
     }
