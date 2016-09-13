@@ -40,16 +40,13 @@ import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
-import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
-import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
-import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
 import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
@@ -64,6 +61,7 @@ import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -73,7 +71,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 /**
  * @author Heiko Braun
@@ -83,11 +81,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
+    static final String JVM_ADDRESS = "opt://{implicit.host}/server-config=*/jvm=*";
+    static final AddressTemplate JVM_ADDRESS_TEMPLATE = AddressTemplate.of(JVM_ADDRESS);
+
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @OperationMode(DOMAIN)
     @RequiredResources(resources = {
             "/{implicit.host}/server-config=*",
+            JVM_ADDRESS,
             "opt://{implicit.host}/server-config=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"server", "server-config", "jvm", "socket-binding"})
@@ -97,7 +99,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public interface MyView extends MultiView {
         void setPresenter(ServerConfigPresenter presenter);
         void updateSocketBindings(List<String> result);
-        void setJvm(String reference, Jvm jvm);
+        void setJvm(String reference, Property jvm);
         void setProperties(String reference, List<PropertyRecord> properties);
         void setGroups(List<ServerGroupRecord> result);
         void updateFrom(Server server);
@@ -117,6 +119,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
 
     private final HostStore hostStore;
+    private CrudOperationDelegate operationDelegate;
 
 
     @Inject
@@ -139,6 +142,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         this.circuit = circuit;
         this.statementContext = delegateContext;
+        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
     }
 
     @Override
@@ -263,56 +267,55 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
 
     @Override
-    public void onCreateJvm(String reference, Jvm jvm) {
-        ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectedServer().getHostName());
-        address.add("server-config", reference);
-        address.add(JVM, jvm.getName());
-        final String selectedConfigName = reference;
-
-        CreateJvmCmd cmd = new CreateJvmCmd(dispatcher, factory, address);
-        cmd.execute(jvm, new SimpleCallback<Boolean>() {
+    public void onCreateJvm(String reference, ModelNode jvm) {
+        String name = jvm.get(NAME).asString();
+        AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(reference);
+        operationDelegate.onCreateResource(address, name, jvm, new CrudOperationDelegate.Callback() {
             @Override
-            public void onSuccess(Boolean result) {
-                circuit.dispatch(new RefreshServer());
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.added("JVM Configuration"));
+                refreshView();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.error(Console.MESSAGES.addingFailed("JVM Configuration"), t.getMessage());
             }
         });
     }
 
     @Override
-    public void onDeleteJvm(String reference, Jvm jvm) {
-
-        ModelNode address = new ModelNode();
-        address.add("host", serverStore.getSelectedServer().getHostName());
-        address.add("server-config", reference);
-        address.add(JVM, jvm.getName());
-        final String selectedConfigName = reference;
-
-        DeleteJvmCmd cmd = new DeleteJvmCmd(dispatcher, factory, address);
-        cmd.execute(new SimpleCallback<Boolean>() {
+    public void onDeleteJvm(String reference, String name) {
+        AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(reference);
+        operationDelegate.onRemoveResource(address, name, new CrudOperationDelegate.Callback() {
             @Override
-            public void onSuccess(Boolean result) {
-                circuit.dispatch(new RefreshServer());
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.deleted("JVM Configuration"));
+                refreshView();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.error(Console.MESSAGES.deletionFailed("JVM Configuration"), t.getMessage());
             }
         });
-
     }
 
     @Override
     public void onUpdateJvm(String reference, String jvmName, Map<String, Object> changedValues) {
-
         if (changedValues.size() > 0) {
-            ModelNode address = new ModelNode();
-            address.add("host", serverStore.getSelectedServer().getHostName());
-            address.add("server-config", reference);
-            address.add(JVM, jvmName);
-            final String selectedConfigName = reference;
+            AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(reference);
 
-            UpdateJvmCmd cmd = new UpdateJvmCmd(dispatcher, factory, propertyMetaData, address);
-            cmd.execute(changedValues, new SimpleCallback<Boolean>() {
+            operationDelegate.onSaveResource(address, jvmName, changedValues, new CrudOperationDelegate.Callback() {
                 @Override
-                public void onSuccess(Boolean result) {
-                    circuit.dispatch(new RefreshServer());
+                public void onSuccess(AddressTemplate addressTemplate, String name) {
+                    Console.info(Console.MESSAGES.modified("JVM Configuration"));
+                    refreshView();
+                }
+
+                @Override
+                public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                    Console.error(Console.MESSAGES.modificationFailed("JVM Configuration"), t.getMessage());
                 }
             });
         }
@@ -328,7 +331,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
-        final String selectedConfigName = reference;
 
         CreatePropertyCmd cmd = new CreatePropertyCmd(dispatcher, factory, address);
         cmd.execute(prop, new SimpleCallback<Boolean>() {
@@ -346,7 +348,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         address.add("host", serverStore.getSelectedServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
-        final String selectedConfigName = reference;
 
         DeletePropertyCmd cmd = new DeletePropertyCmd(dispatcher, factory, address);
         cmd.execute(prop, new SimpleCallback<Boolean>() {
@@ -382,9 +383,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     public void loadJVMConfiguration(final Server server) {
-        hostInfoStore.loadJVMConfiguration(server.getHostName(), server, new SimpleCallback<Jvm>() {
+        hostInfoStore.loadJVMConfiguration(server.getHostName(), server, new SimpleCallback<Property>() {
             @Override
-            public void onSuccess(Jvm jvm) {
+            public void onSuccess(Property jvm) {
                 getView().setJvm(server.getName(), jvm);
             }
         });

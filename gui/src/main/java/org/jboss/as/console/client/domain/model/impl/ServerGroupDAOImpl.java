@@ -404,7 +404,7 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
     }
 
     @Override
-    public void loadJVMConfiguration(ServerGroupRecord group, final AsyncCallback<Jvm> callback) {
+    public void loadJVMConfiguration(ServerGroupRecord group, final AsyncCallback<Property> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(ModelDescriptionConstants.READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(ADDRESS).add("server-group", group.getName());
@@ -418,12 +418,7 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
                 List<Property> jvms = result.get(RESULT).asPropertyList();
                 if(!jvms.isEmpty())
                 {
-                    // select first entry
-                    Property property = jvms.get(0);
-                    Jvm jvm = jvmAdapter.fromDMR(property.getValue().asObject());
-                    jvm.setName(property.getName());
-
-                    callback.onSuccess(jvm);
+                    callback.onSuccess(jvms.get(0));
                 }
                 else
                 {

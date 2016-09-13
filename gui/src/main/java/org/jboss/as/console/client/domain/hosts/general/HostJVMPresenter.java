@@ -20,10 +20,7 @@
 package org.jboss.as.console.client.domain.hosts.general;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -38,16 +35,20 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -55,10 +56,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.Action;
-import org.jboss.gwt.circuit.PropagatesChange;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,47 +71,52 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
         implements JvmManagement {
 
+    static final String ROOT_ADDRESS = "{selected.host}/jvm=*";
+    static final AddressTemplate ROOT_ADDRESS_TEMPLATE = AddressTemplate.of(ROOT_ADDRESS);
+
     @ProxyCodeSplit
     @NameToken(NameTokens.HostJVMPresenter)
+    @RequiredResources(resources = ROOT_ADDRESS)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
-    @AccessControl(resources = {"/{selected.host}/jvm=*",})
     public interface MyProxy extends ProxyPlace<HostJVMPresenter>, Place {}
 
 
     public interface MyView extends View {
         void setPresenter(HostJVMPresenter presenter);
-        void setJvms(List<Jvm> jvms);
+        void updateModel(List<Property> jvms);
     }
 
 
     private final DispatchAsync dispatcher;
     private final HostStore hostStore;
     private final CoreGUIContext statementContext;
-    private final EntityAdapter<Jvm> adapter;
     private DefaultWindow window;
+    private CrudOperationDelegate operationDelegate;
+    private SecurityFramework securityFramework;
+    private ResourceDescriptionRegistry descriptionRegistry;
 
     @Inject
     public HostJVMPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-                            HostStore hostStore, ApplicationMetaData metaData, CoreGUIContext statementContext) {
+                            HostStore hostStore, CoreGUIContext statementContext, SecurityFramework securityFramework,
+                            ResourceDescriptionRegistry descriptionRegistry) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
         this.statementContext = statementContext;
-        this.adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
+        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Action action) {
-                if (isVisible()) {
-                    loadJVMConfig();
-                }
+        hostStore.addChangeHandler(action -> {
+            if (isVisible()) {
+                loadModel();
             }
         });
     }
@@ -134,8 +137,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
-                String resolved = template.resolveAsKey(statementContext);
-                return resolved;
+                return template.resolveAsKey(statementContext);
             }
         };
 
@@ -152,56 +154,29 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @Override
     protected void onReset() {
         super.onReset();
-
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                loadJVMConfig();
-            }
-        });
-
-    }
-
-    private PlaceRequest hostPlaceRequest() {
-        return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", hostStore.getSelectedHost()).build();
+        Scheduler.get().scheduleDeferred(this::loadModel);
     }
 
     @Override
-    public void onCreateJvm(String reference, Jvm jvm) {
-
-        closeDialogue();
-
-        ModelNode address = new ModelNode();
-        address.add("host", hostStore.getSelectedHost());
-        address.add(JVM, jvm.getName());
-
-        ModelNode operation = adapter.fromEntity(jvm);
-        operation.get(OP).set(ADD);
-        operation.get(ADDRESS).set(address);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+    public void onCreateJvm(String reference, ModelNode jvm) {
+        String name = jvm.get(NAME).asString();
+        operationDelegate.onCreateResource(ROOT_ADDRESS_TEMPLATE, name, jvm, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.added("JVM Configuration"));
+                loadModel();
+            }
 
             @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.addingFailed("JVM Configurations"),
-                            response.getFailureDescription());
-                } else {
-                    Console.MESSAGES.added("JVM Configurations");
-                }
-
-                loadJVMConfig();
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.info(Console.MESSAGES.addingFailed("JVM Configuration"));
             }
         });
     }
 
-    private void loadJVMConfig() {
+    private void loadModel() {
 
-        getView().setJvms(Collections.EMPTY_LIST);
+        getView().updateModel(Collections.emptyList());
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
@@ -209,109 +184,90 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         operation.get(CHILD_TYPE).set(JVM);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
             @Override
             public void onSuccess(DMRResponse result) {
-
                 ModelNode response = result.get();
-                List<Jvm> jvms = new ArrayList<Jvm>();
-
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("JVM Configurations"), response.getFailureDescription());
                 } else {
-                    List<Property> payload = response.get(RESULT).asPropertyList();
-
-                    for (Property prop : payload) {
-                        String jvmName = prop.getName();
-                        ModelNode jvmPropValue = prop.getValue();
-                        Jvm jvm = adapter.fromDMR(jvmPropValue);
-                        jvm.setName(jvmName);
-                        jvms.add(jvm);
-                    }
-
+                    getView().updateModel(response.get(RESULT).asPropertyList());
                 }
-
-                getView().setJvms(jvms);
-
             }
         });
     }
 
     @Override
-    public void onDeleteJvm(String reference, Jvm jvm) {
-
-        if (jvm.getName().equals("default")) {
+    public void onDeleteJvm(String reference, String name) {
+        if (name.equals("default")) {
             Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"),
                     Console.CONSTANTS.hosts_jvm_err_deleteDefault());
             return;
         }
 
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(REMOVE);
-        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        operation.get(ADDRESS).add(JVM, jvm.getName());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        operationDelegate.onRemoveResource(ROOT_ADDRESS_TEMPLATE, name, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.deleted("JVM Configuration"));
+                loadModel();
+            }
 
             @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"),
-                            response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.deleted("JVM Configuration"));
-                }
-
-                loadJVMConfig();
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"), t.getMessage());
             }
         });
     }
 
     @Override
     public void onUpdateJvm(String reference, String jvmName, Map<String, Object> changedValues) {
+        operationDelegate.onSaveResource(ROOT_ADDRESS_TEMPLATE, jvmName, changedValues,
+                new CrudOperationDelegate.Callback() {
+                    @Override
+                    public void onSuccess(AddressTemplate addressTemplate, String name) {
+                        Console.info(Console.MESSAGES.modified("JVM Configuration"));
+                        loadModel();
+                    }
 
-        ModelNode address = new ModelNode();
-        address.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        address.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        address.get(ADDRESS).add(JVM, jvmName);
-
-        ModelNode operation = adapter.fromChangeset(changedValues, address);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.modificationFailed("JVM Configuration"),
-                            response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.modified("JVM Configuration"));
-                }
-
-                loadJVMConfig();
-            }
-        });
-
+                    @Override
+                    public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                        Console.error(Console.MESSAGES.modificationFailed("JVM Configuration"), t.getMessage());
+                    }
+                });
     }
 
     public void launchNewJVMDialogue() {
+        SecurityContext securityContext = securityFramework.getSecurityContext(getProxy().getNameToken());
+        ResourceDescription resourceDescription = descriptionRegistry.lookup(ROOT_ADDRESS_TEMPLATE);
+
+        ModelNode defaults = new ModelNode();
+        defaults.get("heap-size").set("64m");
+        defaults.get("max-heap-size").set("256m");
+
+        ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+                .setCreateMode(true)
+                .setResourceDescription(resourceDescription)
+                .setRequiredOnly(true)
+                .setSecurityContext(securityContext).build();
+        formAssets.getForm().setEnabled(true);
+        formAssets.getForm().editTransient(defaults);
+
         window = new DefaultWindow(Console.MESSAGES.createTitle("JVM Configuration"));
         window.setWidth(480);
         window.setHeight(360);
-        window.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-            }
-        });
 
         window.trapWidget(
-                new NewHostJvmWizard(this, hostStore.getSelectedHost()).asWidget()
+                new AddResourceDialog(formAssets, resourceDescription, new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        window.hide();
+                        onCreateJvm("", payload);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }).asWidget()
         );
 
         window.setGlassEnabled(true);

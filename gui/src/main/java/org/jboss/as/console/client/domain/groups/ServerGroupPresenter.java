@@ -27,7 +27,6 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
@@ -38,23 +37,17 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
-import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
-import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
-import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
 import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
@@ -62,12 +55,14 @@ import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 /**
  * Maintains a single server group.
@@ -81,11 +76,15 @@ public class ServerGroupPresenter
         extends Presenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
+    static final String JVM_ADDRESS = "opt://server-group=*/jvm=*";
+    static final AddressTemplate JVM_ADDRESS_TEMPLATE = AddressTemplate.of(JVM_ADDRESS);
+
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
     @OperationMode(DOMAIN)
     @RequiredResources(resources = {
             "/server-group=*",
+            JVM_ADDRESS,
             "opt://server-group=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"group", "server-group", "profile", "socket-binding", "jvm"})
@@ -95,34 +94,26 @@ public class ServerGroupPresenter
     public interface MyView extends View {
         void setPresenter(ServerGroupPresenter presenter);
         void updateSocketBindings(List<String> result);
-        void setJvm(ServerGroupRecord group, Jvm jvm);
+        void setJvm(ServerGroupRecord group, Property jvm);
         void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
         void updateProfiles(List<ProfileRecord> result);
         void updateFrom(ServerGroupRecord group);
     }
 
     private ServerGroupDAO serverGroupDAO;
-    private DefaultWindow window;
     private DefaultWindow propertyWindow;
 
     private final ProfileStore profileStore;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
-    private ApplicationMetaData propertyMetaData;
-    private final ServerGroupStore serverGroupStore;
-    private final PlaceManager placeManager;
-    private final SecurityFramework securityFramework;
     private final ServerStore serverStore;
     private final CoreGUIContext statementContext;
+    private CrudOperationDelegate operationDelegate;
 
     @Inject
     public ServerGroupPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            ServerGroupDAO serverGroupDAO,
-            ProfileStore profileStore,
-            DispatchAsync dispatcher, BeanFactory factory,
-            ApplicationMetaData propertyMetaData, ServerGroupStore serverGroupStore, PlaceManager placeManager,
-            SecurityFramework securityFramework, ServerStore serverStore, CoreGUIContext statementContext) {
+            EventBus eventBus, MyView view, MyProxy proxy, ServerGroupDAO serverGroupDAO, ProfileStore profileStore,
+            DispatchAsync dispatcher, BeanFactory factory, ServerStore serverStore, CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
         this.serverGroupDAO = serverGroupDAO;
@@ -130,12 +121,9 @@ public class ServerGroupPresenter
 
         this.dispatcher = dispatcher;
         this.factory = factory;
-        this.propertyMetaData = propertyMetaData;
-        this.serverGroupStore = serverGroupStore;
-        this.placeManager = placeManager;
-        this.securityFramework = securityFramework;
         this.serverStore = serverStore;
         this.statementContext = statementContext;
+        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
     }
 
     @Override
@@ -149,8 +137,7 @@ public class ServerGroupPresenter
         SecurityContextChangedEvent.AddressResolver resolver = new SecurityContextChangedEvent.AddressResolver<AddressTemplate>() {
             @Override
             public String resolve(AddressTemplate template) {
-                String resolved = template.resolveAsKey(statementContext, serverStore.getSelectedGroup());
-                return resolved;
+                return template.resolveAsKey(statementContext, serverStore.getSelectedGroup());
             }
         };
 
@@ -246,54 +233,53 @@ public class ServerGroupPresenter
 
     }
 
-    public void closeDialoge()
-    {
-        if(window!=null) window.hide();
-    }
-
+    @Override
     public void onUpdateJvm(final String groupName, String jvmName, Map<String, Object> changedValues) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvmName);
-
-        UpdateJvmCmd cmd = new UpdateJvmCmd(dispatcher, factory, propertyMetaData, address);
-        cmd.execute(changedValues, new SimpleCallback<Boolean>() {
+        AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(groupName);
+        operationDelegate.onSaveResource(address, jvmName, changedValues, new CrudOperationDelegate.Callback() {
             @Override
-            public void onSuccess(Boolean result) {
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.modified("JVM Configuration"));
                 loadServerGroup();
             }
-        });
 
-    }
-
-    public void onCreateJvm(final String groupName, Jvm jvm) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvm.getName());
-
-        CreateJvmCmd cmd = new CreateJvmCmd(dispatcher, factory, address);
-        cmd.execute(jvm, new SimpleCallback<Boolean>() {
             @Override
-            public void onSuccess(Boolean result) {
-                loadServerGroup();
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.info(Console.MESSAGES.modificationFailed("JVM Configuration"));
             }
         });
-
     }
 
-    public void onDeleteJvm(final String groupName, Jvm jvm) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvm.getName());
-
-        DeleteJvmCmd cmd = new DeleteJvmCmd(dispatcher, factory, address);
-        cmd.execute(new SimpleCallback<Boolean>() {
+    @Override
+    public void onCreateJvm(final String groupName, ModelNode jvm) {
+        AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(groupName);
+        operationDelegate.onCreateResource(address, jvm.get(NAME).asString(), jvm, new CrudOperationDelegate.Callback() {
             @Override
-            public void onSuccess(Boolean result) {
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.added("JVM Configuration"));
                 loadServerGroup();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.info(Console.MESSAGES.addingFailed("JVM Configuration"));
+            }
+        });
+    }
+
+    @Override
+    public void onDeleteJvm(final String groupName, String name) {
+        AddressTemplate address = JVM_ADDRESS_TEMPLATE.replaceWildcards(groupName);
+        operationDelegate.onRemoveResource(address, name, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(AddressTemplate addressTemplate, String name) {
+                Console.info(Console.MESSAGES.deleted("JVM Configuration"));
+                loadServerGroup();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.info(Console.MESSAGES.deletionFailed("JVM Configuration"));
             }
         });
     }
@@ -357,9 +343,9 @@ public class ServerGroupPresenter
     }
 
     public void loadJVMConfiguration(final ServerGroupRecord group) {
-        serverGroupDAO.loadJVMConfiguration(group, new SimpleCallback<Jvm>() {
+        serverGroupDAO.loadJVMConfiguration(group, new SimpleCallback<Property>() {
             @Override
-            public void onSuccess(Jvm jvm) {
+            public void onSuccess(Property jvm) {
                 getView().setJvm(group, jvm);
             }
         });

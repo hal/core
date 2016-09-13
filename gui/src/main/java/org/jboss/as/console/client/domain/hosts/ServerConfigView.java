@@ -24,15 +24,19 @@ import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
+
+import com.google.inject.Inject;
 
 /**
  * @author Heiko Braun
@@ -48,6 +52,15 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
 
     private ContentHeaderLabel headline;
 
+    private ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private SecurityFramework securityFramework;
+
+    @Inject
+    public ServerConfigView(ResourceDescriptionRegistry resourceDescriptionRegistry, SecurityFramework securityFramework) {
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.securityFramework = securityFramework;
+    }
+
     @Override
     public void setPresenter(ServerConfigPresenter presenter) {
         this.presenter = presenter;
@@ -55,25 +68,16 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
 
     @Override
     public void createWidget() {
+        ResourceDescription resourceDescription = resourceDescriptionRegistry.lookup(ServerConfigPresenter.JVM_ADDRESS_TEMPLATE);
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
         details = new ServerConfigDetails(presenter);
 
         // jvm editor
-        jvmEditor = new JvmEditor(presenter, true, true);
-        jvmEditor.setAddressCallback(new FormHelpPanel.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-
-                ModelNode address = new ModelNode();
-                address.add("host", presenter.getSelectedHost());
-                address.add("server-config", "*");
-                address.add("jvm", "*");
-                return address;
-            }
-        });
+        jvmEditor = new JvmEditor(presenter, resourceDescription, securityContext, ServerConfigPresenter.JVM_ADDRESS);
+        jvmEditor.setEnableClearButton(true);
 
         propertyEditor = new PropertyEditor(presenter, false);
-        //propertyEditor.setOperationAddress("/{implicit.host}/server-config={selected.server}/system-property=*", "add");
 
 
         // --------------------
@@ -99,7 +103,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
 
 
     @Override
-    public void setJvm(String reference, Jvm jvm) {
+    public void setJvm(String reference, Property jvm) {
         jvmEditor.setSelectedRecord(reference, jvm);
     }
 
@@ -137,8 +141,5 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
             details.setAvailableGroups(result);
         else
             System.out.println("<<< view not correctly initialized! >>>");
-
-
-
     }
 }

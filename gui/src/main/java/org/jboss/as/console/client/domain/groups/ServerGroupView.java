@@ -20,22 +20,21 @@
 package org.jboss.as.console.client.domain.groups;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -48,16 +47,20 @@ import java.util.List;
 public class ServerGroupView extends SuspendableViewImpl implements ServerGroupPresenter.MyView {
 
     private ServerGroupPresenter presenter;
-    private VerticalPanel panel;
 
     private PropertyEditor propertyEditor;
     private JvmEditor jvmEditor;
-
-    private DefaultCellTable<ServerGroupRecord> serverGroupTable;
-    private ListDataProvider<ServerGroupRecord> serverGroupProvider;
     private ServerGroupDetails details;
-    private String preselection;
     private HTML headline;
+
+    private ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private SecurityFramework securityFramework;
+
+    @Inject
+    public ServerGroupView(ResourceDescriptionRegistry resourceDescriptionRegistry, SecurityFramework securityFramework) {
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.securityFramework = securityFramework;
+    }
 
     @Override
     public void setPresenter(ServerGroupPresenter presenter) {
@@ -66,19 +69,13 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
     @Override
     public Widget createWidget() {
+        ResourceDescription resourceDescription = resourceDescriptionRegistry.lookup(ServerGroupPresenter.JVM_ADDRESS_TEMPLATE);
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
         details = new ServerGroupDetails(presenter);
 
-        jvmEditor = new JvmEditor(presenter, true, true);
-        jvmEditor.setAddressCallback(new FormHelpPanel.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.add("server-group", "*");
-                address.add("jvm", "*");
-                return address;
-            }
-        });
+        jvmEditor = new JvmEditor(presenter, resourceDescription, securityContext, ServerGroupPresenter.JVM_ADDRESS);
+        jvmEditor.setEnableClearButton(true);
 
         propertyEditor = new PropertyEditor(presenter, false);
         //propertyEditor.setOperationAddress("/server-group=*/system-property=*", "add");
@@ -121,12 +118,8 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         details.setProfiles(result);
     }
 
-    private SingleSelectionModel<ServerGroupRecord> getSelectionModel() {
-        return ((SingleSelectionModel<ServerGroupRecord>) serverGroupTable.getSelectionModel());
-    }
-
     @Override
-    public void setJvm(ServerGroupRecord group, Jvm jvm) {
+    public void setJvm(ServerGroupRecord group, Property jvm) {
         jvmEditor.setSelectedRecord(group.getName(), jvm);
     }
 

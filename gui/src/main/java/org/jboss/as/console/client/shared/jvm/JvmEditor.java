@@ -19,25 +19,22 @@
 
 package org.jboss.as.console.client.shared.jvm;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import static org.jboss.dmr.client.ModelDescriptionConstants.DEFAULT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.rbac.internal.SecurityContextAwareVerticalPanel;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.general.HeapBoxItem;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.ListItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.Map;
 
@@ -51,132 +48,67 @@ public class JvmEditor {
 
     private JvmManagement presenter;
 
-    private Form<Jvm> form;
-    BeanFactory factory = GWT.create(BeanFactory.class);
-    private boolean hasJvm;
-    private boolean providesClearOp = false;
+    private ModelNodeFormBuilder.FormAssets formAssets;
+    private ResourceDescription resourceDescription;
+    private SecurityContext securityContext;
 
+    private boolean enableClearButton = false;
     private String reference;
-    private FormHelpPanel.AddressCallback addressCallback;
+    private Property editedEntity;
+    private String resourceAddress;
 
-    private boolean overrideName = true;
     private ToolButton clearBtn;
-    private FormItem nameItem;
-    private SecurityContextAwareVerticalPanel rootPanel;
-    private boolean writeGranted;
-    private ListItem options;
+    private VerticalPanel rootPanel;
+    private ToolStrip toolStrip;
 
-    public JvmEditor(JvmManagement presenter) {
-        this(presenter, true, false);
-    }
-
-    public JvmEditor(JvmManagement presenter, boolean overrideName) {
-        this(presenter, overrideName, false);
-    }
-
-    public JvmEditor(JvmManagement presenter, boolean overrideName, boolean providesClearOp) {
+    public JvmEditor(JvmManagement presenter, ResourceDescription resourceDescription, SecurityContext securityContext,
+                     String resourceAddress) {
         this.presenter = presenter;
-        this.overrideName = overrideName;
-        this.providesClearOp = providesClearOp;
-        this.writeGranted = true;
+        this.resourceDescription = resourceDescription;
+        this.securityContext = securityContext;
+        this.resourceAddress = resourceAddress;
     }
-
-    public void setAddressCallback(FormHelpPanel.AddressCallback addressCallback) {
-        this.addressCallback = addressCallback;
-    }
-
 
     public Widget asWidget() {
-        rootPanel = new SecurityContextAwareVerticalPanel() {
-
-            @Override
-            public void onSecurityContextChanged() {
-                // TODO Is it safe to save the state of the privilege here and evaluate it in setSelectedRecord()?
-                // TODO Is this method always called first? AFAICT that's the case.
-                SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(token);
-                writeGranted = securityContext.getWritePriviledge().isGranted();
-            }
-
-        };
+        rootPanel = new VerticalPanel();
         rootPanel.setStyleName("fill-layout-width");
 
-        form = new Form<Jvm>(Jvm.class);
-        form.setNumColumns(2);
-
-        FormToolStrip<Jvm> toolStrip = new FormToolStrip<Jvm>(
-                form,
-                new FormToolStrip.FormCallback<Jvm>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        onSaveJvm();
-                    }
-
-                    @Override
-                    public void onDelete(Jvm entity) {
-
-                        // not provided: it's overriden below
-                    }
-                }
-        );
-
-
-        toolStrip.providesDeleteOp(false);
-
-        clearBtn = new ToolButton(Console.CONSTANTS.common_label_clear(), new ClickHandler() {
+        formAssets = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext)
+                .setAddress(resourceAddress)
+                .build();
+        formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
-            public void onClick(ClickEvent event) {
-                Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("JVM Configuration"),
-                        Console.MESSAGES.deleteConfirm("JVM Configuration"),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.onDeleteJvm(reference, form.getEditedEntity());
+            public void onSave(Map changeset) {
+                onSaveJvm();
+            }
 
-                            }
-                        });
+            @Override
+            public void onCancel(Object entity) {
             }
         });
 
-        if(providesClearOp)
+        toolStrip = new ToolStrip(resourceAddress);
+
+        clearBtn = new ToolButton(Console.CONSTANTS.common_label_clear(), event -> Feedback.confirm(
+                Console.MESSAGES.deleteTitle("JVM Configuration"),
+                Console.MESSAGES.deleteConfirm("JVM Configuration"),
+                isConfirmed -> {
+                    if (isConfirmed) {
+                        presenter.onDeleteJvm(reference, editedEntity.getName());
+                    }
+                }));
+
+        if(enableClearButton)
             toolStrip.addToolButtonRight(clearBtn);
 
         rootPanel.add(toolStrip.asWidget());
 
-        nameItem = null;
-
-        if(overrideName)
-            nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        else
-            nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
-
-        HeapBoxItem heapItem = new HeapBoxItem("heapSize", "Heap Size", false);
-        HeapBoxItem maxHeapItem = new HeapBoxItem("maxHeapSize", "Max Heap Size", false);
-        HeapBoxItem maxPermgen = new HeapBoxItem("maxPermgen", "Max Permgen Size", false);
-        HeapBoxItem permgen = new HeapBoxItem("permgen", "Permgen Size", false);
-
-        options = new ListItem("options", "JVM Options") {
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
-
-        form.setFields(nameItem, heapItem, maxHeapItem, permgen, maxPermgen, options);
-        form.setEnabled(false);
-
         // ---
 
-        if(addressCallback!=null)
-        {
-            final FormHelpPanel helpPanel = new FormHelpPanel(addressCallback, form);
-            rootPanel.add(helpPanel.asWidget());
-        }
-
-        // ---
-
-        Widget formWidget = form.asWidget();
+        Widget formWidget = formAssets.asWidget();
         rootPanel.add(formWidget);
 
         return rootPanel;
@@ -184,50 +116,48 @@ public class JvmEditor {
 
     private void onSaveJvm() {
 
-        FormValidation validation = form.validate();
+        FormValidation validation = formAssets.getForm().validate();
         if(!validation.hasErrors())
         {
-            form.setEnabled(false);
-            Jvm jvm = form.getUpdatedEntity();
+            formAssets.getForm().setEnabled(false);
+            ModelNode jvm = formAssets.getForm().getUpdatedEntity();
 
-            if(hasJvm)
-                presenter.onUpdateJvm(reference, jvm.getName(), form.getChangedValues());
-            else
+            if(editedEntity != null) {
+                presenter.onUpdateJvm(reference, editedEntity.getName(), formAssets.getForm().getChangedValues());
+            } else {
+                jvm.get(NAME).set(DEFAULT);
                 presenter.onCreateJvm(reference, jvm);
+            }
         }
     }
 
-    public void setSelectedRecord(String reference, Jvm jvm) {
+    public void setSelectedRecord(String reference, Property jvm) {
         this.reference = reference;
+        this.editedEntity = jvm;
 
-        hasJvm = jvm != null;
+        boolean hasJvm = jvm != null;
 
-        clearBtn.setVisible(hasJvm && writeGranted);
-        nameItem.setEnabled(!hasJvm); // prevent changing the name of existing configurations
-
-        if (writeGranted) {
-            form.setEnabled(false);
-        }
+        clearBtn.setVisible(hasJvm);
 
         if(hasJvm) {
-            form.edit(jvm);
+            formAssets.getForm().edit(jvm.getValue());
         } else {
-            form.edit(factory.jvm().as());
-            // Workaround for multi value field 'options'
-            options.clearValue();
+            formAssets.getForm().edit(new ModelNode());
         }
     }
 
     public void clearValues() {
-        form.clearValues();
+        formAssets.getForm().clearValues();
     }
 
     public void setSecurityContextFilter(final String resourceAddress) {
-        if (rootPanel != null) {
-            rootPanel.setFilter(resourceAddress);
-        }
-        if (form != null) {
-            form.setSecurityContextFilter(resourceAddress);
+        if (formAssets != null && formAssets.getForm() != null) {
+            formAssets.getForm().setSecurityContextFilter(resourceAddress);
         }
     }
+
+    public void setEnableClearButton(boolean enable) {
+        this.enableClearButton = enable;
+    }
+
 }

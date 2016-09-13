@@ -21,8 +21,8 @@ package org.jboss.as.console.client.domain.model;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.topology.HostInfo;
-import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,7 @@ public interface HostInformationStore {
 
     void deleteServerConfig(String selectedHost, Server selectedRecord, AsyncCallback<Boolean> asyncCallback);
 
-    void loadJVMConfiguration(String host, Server server, AsyncCallback<Jvm> callback);
+    void loadJVMConfiguration(String host, Server server, AsyncCallback<Property> callback);
 
     void loadProperties(String host, Server server, AsyncCallback<List<PropertyRecord>> callback);
 

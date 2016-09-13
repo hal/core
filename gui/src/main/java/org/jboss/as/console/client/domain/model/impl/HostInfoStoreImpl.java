@@ -844,7 +844,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void loadJVMConfiguration(String host, Server server, final AsyncCallback<Jvm> callback) {
+    public void loadJVMConfiguration(String host, Server server, final AsyncCallback<Property> callback) {
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(ModelDescriptionConstants.READ_CHILDREN_RESOURCES_OPERATION);
@@ -863,11 +863,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                     List<Property> jvms = result.get(RESULT).asPropertyList();
                     if (!jvms.isEmpty()) {
                         // select first entry
-                        Property property = jvms.get(0);
-                        Jvm jvm = jvmAdapter.fromDMR(property.getValue().asObject());
-                        jvm.setName(property.getName());
-
-                        callback.onSuccess(jvm);
+                        callback.onSuccess(jvms.get(0));
                     } else {
                         callback.onSuccess(null);
                     }
