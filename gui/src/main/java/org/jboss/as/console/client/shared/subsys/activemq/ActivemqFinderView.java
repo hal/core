@@ -216,6 +216,11 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMsgClusteringPresenter)
                                         .with("name", provider.getName()).build())),
 
+                new MenuDelegate<>("Prepared Transactions", provider ->
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest.Builder().nameToken(NameTokens.ActivemqTransactions)
+                                        .with("name", provider.getName()).build())),
+
                 new MenuDelegate<>(Console.MESSAGES.providerSettings(), presenter::onLaunchProviderSettings),
 
                 new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), provider ->
