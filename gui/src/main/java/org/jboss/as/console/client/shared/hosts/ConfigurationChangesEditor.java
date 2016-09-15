@@ -118,7 +118,7 @@ public class ConfigurationChangesEditor {
         table.addColumn(new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode item) {
-                return extractOperationName(item);
+                return item.get(OPERATIONS).get(0).get(OP).asString();
             }
         }, "Operation");
         
@@ -169,60 +169,7 @@ public class ConfigurationChangesEditor {
     }
     
     /**
-     * Iterate over a "operations" attribute and extract the operation name
-     * <pre>
-     {
-     "operation-date" => "2016-07-11T16:00:30.930Z",
-     "domain-uuid" => "7be474f5-5be9-4040-9f19-8959cf603be0",
-     "access-mechanism" => "HTTP",
-     "remote-address" => "127.0.0.1/127.0.0.1",
-     "outcome" => "success",
-     "operations" => [{
-     "operation" => "composite",
-     "address" => [],
-     "steps" => [{
-     "address" => [
-     ("profile" => "default"),
-     ("subsystem" => "mail"),
-     ("mail-session" => "default"),
-     ("server" => "smtp")
-     ],
-     "operation" => "write-attribute",
-     "name" => "ssl",
-     "value" => true
-     }],
-     "operation-headers" => {
-     "access-mechanism" => "HTTP",
-     "caller-type" => "user"
-     }
-     }]
-     },
-
-     * </pre>
-     * to the following form
-     * <pre>write-attribute</pre>
-     *
-     * @param changeItem The ModelNode
-     * @return The operation name as in <pre>write-attribute</pre> 
-     */
-    private String extractOperationName(final ModelNode changeItem) {
-        String opName = "";
-        ModelNode operations = changeItem.get(OPERATIONS);
-        for (ModelNode op1: operations.asList()) {
-            opName = op1.get(OP).asString();
-            
-            if (COMPOSITE.equals(opName)) {
-                List<ModelNode> steps = op1.get(STEPS).asList();
-                for (ModelNode step: steps) {
-                    opName = step.get(OP).asString();
-                }
-            }
-        }
-        return opName;
-    }
-
-    /**
-     * Iterate over a "operations" attribute and extract the resource address
+     * Iterate over a "operations" resource and extract the resource address
      * <pre>
      {
      "operation-date" => "2016-07-11T16:00:30.930Z",
@@ -266,7 +213,8 @@ public class ConfigurationChangesEditor {
             if (COMPOSITE.equals(opName)) {
 
                 List<ModelNode> steps = op1.get(STEPS).asList();
-                for (ModelNode step : steps) {
+                for (int idxStep = 0; idxStep < steps.size(); idxStep++) {
+                    ModelNode step = steps.get(idxStep);
                     if (step.hasDefined(OP_ADDR)) {
                         ModelNode addressNode = step.get(OP_ADDR);
                         List<ModelNode> modelNodes = addressNode.asList();
@@ -278,6 +226,9 @@ public class ConfigurationChangesEditor {
                                 address.append(" / ");
                         }
                     }
+                    // separates each step resource address
+                    if (idxStep + 1 < steps.size())
+                        address.append(" | ");
                 }
 
             } else {
@@ -338,7 +289,7 @@ public class ConfigurationChangesEditor {
             String clientAddress = node.get("remote-address").asString().toLowerCase();
             String outcome = node.get("outcome").asString().toLowerCase();
             String address = extractResourceAddress(node).toLowerCase();
-            String opname = extractOperationName(node).toLowerCase();
+            String opname = node.get(OPERATIONS).get(0).get(OP).asString().toLowerCase();
             
             if (access.contains(word)
                     || clientAddress.contains(word)
