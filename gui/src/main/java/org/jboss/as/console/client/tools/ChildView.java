@@ -233,7 +233,7 @@ public class ChildView {
         String resourceAddress = AddressUtils.asKey(address, isSingleton);
 
         if(securityContext.getOperationPriviledge(resourceAddress, "add").isGranted()) {
-            _showAddDialog(address, securityContext, description);
+            _showAddDialog(address, isSingleton, securityContext, description);
         }
         else
         {
@@ -243,7 +243,7 @@ public class ChildView {
 
     }
 
-    private void _showAddDialog(final ModelNode address, SecurityContext securityContext, ModelNode description) {
+    private void _showAddDialog(final ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode description) {
         List<Property> tuples = address.asPropertyList();
         String type = "";
         if(tuples.size()>0)
@@ -253,6 +253,7 @@ public class ChildView {
 
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setCreateMode(true)
+                .setSingleton(isSingleton)
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext);
 

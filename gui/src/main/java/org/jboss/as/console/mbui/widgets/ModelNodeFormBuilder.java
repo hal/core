@@ -60,6 +60,7 @@ public class ModelNodeFormBuilder {
     private boolean createMode;
     private boolean unsorted = false;
     private boolean includeOptionals = true; // only important if createMode == true
+    private boolean singleton = false;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -67,7 +68,7 @@ public class ModelNodeFormBuilder {
 
         FormItem create(Property attributeDescription);
     }
-    
+
     public ModelNodeFormBuilder() {
         this.capabilities = Console.MODULES.getCapabilities();
     }
@@ -131,6 +132,11 @@ public class ModelNodeFormBuilder {
 
     public ModelNodeFormBuilder includeOptionals(boolean includeOptionals) {
         this.includeOptionals = includeOptionals;
+        return this;
+    }
+
+    public ModelNodeFormBuilder setSingleton(boolean singleton) {
+        this.singleton = singleton;
         return this;
     }
 
@@ -386,10 +392,10 @@ public class ModelNodeFormBuilder {
                                     // there is no capability-reference
                                     TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
                                     textBoxItem.setAllowWhiteSpace(true);
-    
+
                                     textBoxItem.setRequired(isRequired);
                                     textBoxItem.setEnabled(!readOnly && !isRuntime);
-    
+
                                     formItem = textBoxItem;
                                 }
                             }
@@ -431,7 +437,7 @@ public class ModelNodeFormBuilder {
             }
         }
 
-        
+
         // some resources already contain a name attribute
         FormItem nameItem = null;
         if(createMode) {
@@ -459,13 +465,13 @@ public class ModelNodeFormBuilder {
         // distinguish required and optional fields (createMode)
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
-            if (createMode) {
+            if (createMode && !singleton) {
                 optionalItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
             form.setFields(optionalItems.toArray(new FormItem[]{}));
         } else {
-            if (createMode) {
+            if (createMode && !singleton) {
                 requiredItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
@@ -501,7 +507,7 @@ public class ModelNodeFormBuilder {
         if (modelNode.hasDefined(CAPABILITY_REFERENCE) && capabilities != null) {
             String reference = modelNode.get(CAPABILITY_REFERENCE).asString();
             if (capabilities.contains(reference)) {
-                SuggestionResource suggestionResource = new SuggestionResource(property.getName(), label, required, 
+                SuggestionResource suggestionResource = new SuggestionResource(property.getName(), label, required,
                         capabilities.lookup(reference));
                 formItem = suggestionResource.buildFormItem();
             }

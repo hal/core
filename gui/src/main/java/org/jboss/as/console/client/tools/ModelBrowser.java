@@ -524,7 +524,13 @@ public class ModelBrowser implements IsWidget {
 
                     @Override
                     public void onSuccess(ResourceData context) {
-                        view.showAddDialog(address, isSingleton, context.securityContext, context.description);
+                        if (isSingleton && context.description.get(ATTRIBUTES).asList().isEmpty()
+                                && context.description.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES).asList().isEmpty()) {
+                            // no attributes need to be assigned -> skip the next step
+                            onAddChildResource(address, new ModelNode());
+                        } else {
+                            view.showAddDialog(address, isSingleton, context.securityContext, context.description);
+                        }
                     }
                 }
         );
