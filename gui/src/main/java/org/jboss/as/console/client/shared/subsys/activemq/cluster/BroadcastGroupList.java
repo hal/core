@@ -67,8 +67,8 @@ public class BroadcastGroupList {
 
         tools.addToolButtonRight(
                 new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("BroadcastGroup"),
-                        Console.MESSAGES.deleteConfirm("BroadcastGroup " + getSelectedEntity().getName()),
+                        Console.MESSAGES.deleteTitle("Broadcast Group"),
+                        Console.MESSAGES.deleteConfirm("Broadcast Group " + getSelectedEntity().getName()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 presenter.onDeleteBroadcastGroup(getSelectedEntity().getName());
@@ -102,7 +102,7 @@ public class BroadcastGroupList {
 
     public void setBroadcastGroups(List<Property> BroadcastGroups) {
         dataProvider.setList(BroadcastGroups);
-        serverName.setText("BroadcastGroups: Provider " + presenter.getCurrentServer());
+        serverName.setText("Broadcast Groups: Provider " + presenter.getCurrentServer());
 
         table.selectDefaultEntity();
     }

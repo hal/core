@@ -74,8 +74,8 @@ public class ClusterConnectionList {
 
         tools.addToolButtonRight(
                 new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("ClusterConnection"),
-                        Console.MESSAGES.deleteConfirm("ClusterConnection " + getSelectedEntity().getName()),
+                        Console.MESSAGES.deleteTitle("Cluster Connection"),
+                        Console.MESSAGES.deleteConfirm("Cluster Connection " + getSelectedEntity().getName()),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
@@ -102,7 +102,7 @@ public class ClusterConnectionList {
 
     public void setClusterConnections(List<ActivemqClusterConnection> ClusterConnections) {
         factoryProvider.setList(ClusterConnections);
-        serverName.setText("ClusterConnections: Provider " + presenter.getCurrentServer());
+        serverName.setText("Cluster Connections: Provider " + presenter.getCurrentServer());
         factoryTable.selectDefaultEntity();
 
     }

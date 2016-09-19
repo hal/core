@@ -69,7 +69,7 @@ public class PrincipalDialog implements IsWidget {
             @Template("<table style=\"vertical-align:top\" cellpadding=\"3\">" +
                     "<tr><td>Name</td><td>{0}</td></tr>" +
                     "<tr><td>Realm</td><td>{1}</td></tr>" +
-                    "<tr><td>Realm</td><td>{2}</td></tr>" +
+                    "<tr><td>Role</td><td>{2}</td></tr>" +
                     "</table>")
             SafeHtml help(String nameDesc, String realmDesc, String roleDesc);
         }

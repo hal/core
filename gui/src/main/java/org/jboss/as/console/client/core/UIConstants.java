@@ -183,6 +183,7 @@ public interface UIConstants extends Constants {
     String deploymentEnabledDescription();
     String deploymentNameDescription();
     String deploymentRuntimeNameDescription();
+    String discoveryGroupDescription();
     String discoveryGroupOrConnectorsCanBeDefined();
     String discoveryGroupOrConnectorsMustBeDefined();
     String dismiss();

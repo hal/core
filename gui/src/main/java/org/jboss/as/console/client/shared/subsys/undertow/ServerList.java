@@ -130,10 +130,10 @@ public class ServerList {
                 .setPlain(true)
                 .setHeadline("HTTP Server ")
                 .setMaster(Console.MESSAGES.available("HTTP Server "), table);
-        
-        String description = "Please chose a server from below for further settings.";
+
+        String description = "Configuration for HTTP servers. Select a server to view its settings.";
         if (isRuntimeView) {
-            // adds the buttons to enable and disable the statistics 
+            // adds the buttons to enable and disable the statistics
             description += " If no metrics are shown, you might need to enable statistics in the configuration section for the desired profile.";
             layoutBuilder.addDetail("Statistics", statsText);
         } else {
@@ -160,7 +160,7 @@ public class ServerList {
         table.setSelectionModel(selectionModel);
         return layoutBuilder.build();
     }
-    
+
     private Property getCurrentSelection() {
         Property selection = ((SingleSelectionModel<Property>) table.getSelectionModel()).getSelectedObject();
         return selection;
