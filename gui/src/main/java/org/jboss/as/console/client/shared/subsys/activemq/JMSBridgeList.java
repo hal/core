@@ -192,6 +192,8 @@ class JMSBridgeList {
             sourceContextEditor.clearValues();
             targetContextEditor.clearValues();
         }
+        sourceContextEditor.enableToolButtons(selectedItem != null);
+        targetContextEditor.enableToolButtons(selectedItem != null);
     }
 
     public void setBridges(List<Property> bridges) {

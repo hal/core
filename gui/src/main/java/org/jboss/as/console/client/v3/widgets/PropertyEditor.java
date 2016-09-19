@@ -19,10 +19,12 @@
 
 package org.jboss.as.console.client.v3.widgets;
 
-import com.google.gwt.cell.client.FieldUpdater;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -31,9 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -44,11 +44,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE;
 
@@ -171,6 +166,8 @@ public class PropertyEditor implements IsWidget {
     private final String addLabel;
     private final AddPropertyDialog addDialog;
     private final String removeLabel;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     private DefaultCellTable<Property> table;
     private ListDataProvider<Property> dataProvider;
@@ -204,15 +201,12 @@ public class PropertyEditor implements IsWidget {
         dataProvider.addDataDisplay(table);
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<>(keyProvider);
         table.setSelectionModel(selectionModel);
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Property selection = selectionModel.getSelectedObject();
-                if (selection == null) {
-                    propertyManager.onDeselect();
-                } else {
-                    propertyManager.onSelect(selection);
-                }
+        selectionModel.addSelectionChangeHandler(event -> {
+            Property selection = selectionModel.getSelectedObject();
+            if (selection == null) {
+                propertyManager.onDeselect();
+            } else {
+                propertyManager.onSelect(selection);
             }
         });
 
@@ -226,14 +220,8 @@ public class PropertyEditor implements IsWidget {
         keyColumn.setSortable(true);
         Column<Property, String> valueColumn;
         if (inlineEditing) {
-            valueColumn = new Column<Property, String>(new DefaultEditTextCell()) {
-                {
-                    setFieldUpdater(new FieldUpdater<Property, String>() {
-                        @Override
-                        public void update(int index, Property property, String value) {
-                            getPropertyValue(property).set(value);
-                        }
-                    });
+            valueColumn = new Column<Property, String>(new DefaultEditTextCell()) { {
+                    setFieldUpdater((index, property, value) -> getPropertyValue(property).set(value));
                 }
 
                 @Override
@@ -266,29 +254,23 @@ public class PropertyEditor implements IsWidget {
         // tools
         if (!hideTools) {
             ToolStrip tools = new ToolStrip();
-            ToolButton addButton = new ToolButton(addLabel, new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    addDialog.clearValues();
-                    propertyManager.openAddDialog(addDialog);
-                }
+            addButton = new ToolButton(addLabel, event -> {
+                addDialog.clearValues();
+                propertyManager.openAddDialog(addDialog);
             });
-            ToolButton removeButton = new ToolButton(removeLabel, new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    final Property selection = selectionModel.getSelectedObject();
-                    if (selection != null) {
-                        Feedback.confirm(Console.MESSAGES.removeProperty(),
-                                Console.MESSAGES.removePropertyConfirm(selection.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed) {
-                                            propertyManager.onRemove(selection);
-                                        }
+            removeButton = new ToolButton(removeLabel, event -> {
+                final Property selection = selectionModel.getSelectedObject();
+                if (selection != null) {
+                    Feedback.confirm(Console.MESSAGES.removeProperty(),
+                            Console.MESSAGES.removePropertyConfirm(selection.getName()),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed) {
+                                        propertyManager.onRemove(selection);
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
             });
             AddressTemplate effectiveAddress = operationAddress != null ? operationAddress : propertyManager
@@ -340,5 +322,10 @@ public class PropertyEditor implements IsWidget {
             value = property.getValue();
         }
         return value;
+    }
+    
+    public void enableToolButtons(boolean enable) {
+        addButton.setEnabled(enable);
+        removeButton.setEnabled(enable);
     }
 }
