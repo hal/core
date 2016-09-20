@@ -114,7 +114,7 @@ public class ConnectorMetricView {
         columns = new Column[] {
                 new NumberColumn("request-count", "Request Count"),
                 new NumberColumn("error-count","Error Count"),
-                new NumberColumn("bytes-sent","Bytes Send"),
+                new NumberColumn("bytes-sent","Bytes Sent"),
                 new NumberColumn("bytes-received", "Bytes Received")
         };
 

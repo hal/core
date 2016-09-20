@@ -124,7 +124,7 @@ class DriverStep<T extends DataSource> extends WizardStep<Context<T>, State> {
         // body
         FlowPanel body = new FlowPanel();
         body.add(new ContentDescription(
-                "Select one of the installed JDBC driver. Don't see your driver? Please make sure it's deployed as a module and properly registered."));
+               "Select one of the installed JDBC drivers. If you do not see your driver, make sure that it is deployed as a module and properly registered."));
         body.add(tabs);
         tabs.selectTab(0);
 

@@ -71,8 +71,8 @@ public class DiscoveryGroupList {
 
         tools.addToolButtonRight(
                 new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("DiscoveryGroup"),
-                        Console.MESSAGES.deleteConfirm("DiscoveryGroup " + getSelectedEntity().getName()),
+                        Console.MESSAGES.deleteTitle("Discovery Group"),
+                        Console.MESSAGES.deleteConfirm("Discovery Group " + getSelectedEntity().getName()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 presenter.onDeleteDiscoveryGroup(getSelectedEntity().getName());
@@ -83,7 +83,7 @@ public class DiscoveryGroupList {
                 .setPlain(true)
                 .setHeadlineWidget(serverName)
                 .setDescription(
-                        Console.CONSTANTS.clusterConnectionDescription())
+                        Console.CONSTANTS.discoveryGroupDescription())
                 .setMaster("DiscoveryGroups", factoryTable)
                 .setMasterTools(tools)
                 .setDetail("Details", defaultAttributes.asWidget());
@@ -96,7 +96,7 @@ public class DiscoveryGroupList {
 
     public void setDiscoveryGroups(List<ActivemqDiscoveryGroup> DiscoveryGroups) {
         factoryProvider.setList(DiscoveryGroups);
-        serverName.setText("DiscoveryGroups: Provider " + presenter.getCurrentServer());
+        serverName.setText("Discovery Groups: Provider " + presenter.getCurrentServer());
 
         factoryTable.selectDefaultEntity();
     }

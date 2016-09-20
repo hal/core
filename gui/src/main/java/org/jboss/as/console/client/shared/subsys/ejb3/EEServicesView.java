@@ -35,8 +35,8 @@ public class EEServicesView {
 
         contextView = new ServiceViewTemplate(presenter, "Context Services", AddressTemplate.of("{selected.profile}/subsystem=ee/context-service=*"));
         executorView = new ServiceViewTemplate(presenter, "Executor", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-executor-service=*"));
-        scheduledView = new ServiceViewTemplate(presenter, "Scheduler Executor", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-scheduled-executor-service=*"));
-        threadView = new ServiceViewTemplate(presenter, "Thread factories", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-thread-factory=*"));
+        scheduledView = new ServiceViewTemplate(presenter, "Scheduled Executor", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-scheduled-executor-service=*"));
+        threadView = new ServiceViewTemplate(presenter, "Thread Factories", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-thread-factory=*"));
          // TODO: default bindings
 
         panel.addPage("Context Service", contextView.asWidget());

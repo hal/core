@@ -62,7 +62,7 @@ public class JMSEditor {
         serverName.setStyleName("content-header-label");
 
         panel.add(serverName);
-        panel.add(new ContentDescription("JMS Queue and Topic destinations."));
+        panel.add(new ContentDescription("Configuration for JMS queues and topics."));
 
         TabPanel bottomLayout = new TabPanel();
         bottomLayout.addStyleName("default-tabpanel");

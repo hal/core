@@ -47,7 +47,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
 
-        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The configuration of an infinispan cache container.</p></div>")
+        @Template("<div class=\"preview-content\"><h1>{0}</h1><p>The configuration of an Infinispan cache container.</p></div>")
         SafeHtml preview(String name);
     }
 

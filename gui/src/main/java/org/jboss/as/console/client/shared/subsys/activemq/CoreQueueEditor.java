@@ -59,7 +59,7 @@ public class CoreQueueEditor {
         serverName.setStyleName("content-header-label");
 
         panel.add(serverName);
-        panel.add(new ContentDescription("Core Queue."));
+        panel.add(new ContentDescription("Configuration for core queues."));
 
         TabPanel bottomLayout = new TabPanel();
         bottomLayout.addStyleName("default-tabpanel");
@@ -77,7 +77,7 @@ public class CoreQueueEditor {
 
     public void setQueues(List<ActivemqCoreQueue> queues) {
         queueList.setQueues(queues);
-        serverName.setText("Core queue: Provider " + presenter.getCurrentServer());
+        serverName.setText("Core Queues: Provider " + presenter.getCurrentServer());
     }
 
 }
