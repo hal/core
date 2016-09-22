@@ -275,7 +275,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         .setOperationAddress("/deployment=*", "add"),
                 new MenuDelegate<Content>(Console.CONSTANTS.unassign(), item -> presenter.launchUnassignContentDialog(item), Operation)
                         .setOperationAddress("/deployment=*", "remove"),
-                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceContentWizard(), Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceContentWizard(item), Operation),
                 new MenuDelegate<Content>(Console.CONSTANTS.common_label_delete(), item -> {
                     if (!item.getAssignments().isEmpty()) {
                         String serverGroups = "\t- " + Joiner.on("\n\t- ").join(

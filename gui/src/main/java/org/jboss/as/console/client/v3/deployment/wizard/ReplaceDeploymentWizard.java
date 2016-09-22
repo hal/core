@@ -21,27 +21,29 @@
  */
 package org.jboss.as.console.client.v3.deployment.wizard;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.PopupPanel;
+import static org.jboss.as.console.client.v3.deployment.wizard.State.UPLOAD;
+
+import java.util.EnumSet;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
+import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 
-import java.util.EnumSet;
-
-import static org.jboss.as.console.client.v3.deployment.wizard.State.UPLOAD;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * @author Harald Pehl
  */
 public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
+
+    private Content content;
 
     public ReplaceDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
             DispatchAsync dispatcher, FinishCallback onFinish) {
@@ -50,7 +52,8 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
         addStep(UPLOAD, new UploadStep(this));
     }
 
-    public void open() {
+    public void open(Content content) {
+        this.content = content;
         super.open(Console.CONSTANTS.replaceDeployment());
     }
 
@@ -80,6 +83,10 @@ public abstract class ReplaceDeploymentWizard extends DeploymentWizard {
                 Console.CONSTANTS.common_label_plaseWait(),
                 Console.CONSTANTS.common_label_requestProcessed(), () -> {}
         );
+
+        // as it is as replace operation, the new upload name/runtime must preserve the actual deployment information.
+        context.upload.setName(content.getName());
+        context.upload.setRuntimeName(content.getRuntimeName());
 
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).single(new FunctionContext(),
                 new DeploymentWizardOutcome(loading, context),
