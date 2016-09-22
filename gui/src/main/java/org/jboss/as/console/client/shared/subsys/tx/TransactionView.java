@@ -49,8 +49,10 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
             "object-store-relative-to",
     };
 
-    private final static String[] JDBC = new String[]{
+    private final static String[] STORE = new String[]{
+            "use-journal-store",
             "use-jdbc-store",
+            "journal-store-enable-async-io",
             "jdbc-action-store-drop-table",
             "jdbc-action-store-table-prefix",
             "jdbc-communication-store-drop-table",
@@ -68,7 +70,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
     private ModelNodeFormBuilder.FormAssets processAssets;
     private ModelNodeFormBuilder.FormAssets recoveryAssets;
     private ModelNodeFormBuilder.FormAssets pathAssets;
-    private ModelNodeFormBuilder.FormAssets jdbcAssets;
+    private ModelNodeFormBuilder.FormAssets storeAssets;
 
     @Inject
     public TransactionView(SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
@@ -84,7 +86,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         commonAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .exclude("use-jdbc-store", "use-hornetq-store", "hornetq-store-enable-async-io")
-                .exclude(PROCESS, RECOVERY, PATH, JDBC)
+                .exclude(PROCESS, RECOVERY, PATH, STORE)
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext)
                 .build();
@@ -98,21 +100,6 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
             @Override
             public void onCancel(Object entity) {
                 commonAssets.getForm().cancel();
-            }
-        });
-        commonAssets.getForm().addFormValidator((formItems, outcome) -> {
-            final FormItem<Boolean> journalStoreEnableAsyncIoItem = formItem(formItems, "journal-store-enable-async-io");
-            final FormItem<Boolean> useJournalStoreItem = formItem(formItems, "use-journal-store");
-
-            if (journalStoreEnableAsyncIoItem != null) {
-                final boolean journalStoreEnableAsyncIo = journalStoreEnableAsyncIoItem.getValue() != null && journalStoreEnableAsyncIoItem.getValue();
-                final boolean useJournalStore = useJournalStoreItem != null && useJournalStoreItem.getValue() != null && useJournalStoreItem.getValue();
-
-                if (journalStoreEnableAsyncIo && !useJournalStore) {
-                    useJournalStoreItem.setErrMessage("Journal store needs to be enabled before enabling asynchronous IO.");
-                    useJournalStoreItem.setErroneous(true);
-                    outcome.addError("use-journal-store");
-                }
             }
         });
 
@@ -257,9 +244,9 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
             }
         });
 
-        jdbcAssets = new ModelNodeFormBuilder()
+        storeAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
-                .include(JDBC)
+                .include(STORE)
                 .addFactory("jdbc-store-datasource", attributeDescription ->  {
                     SuggestionResource suggestionResource = new SuggestionResource("jdbc-store-datasource", 
                             "Jdbc store datasource", false,
@@ -269,7 +256,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext)
                 .build();
-        jdbcAssets.getForm().setToolsCallback(new FormCallback() {
+        storeAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(Map changeSet) {
@@ -278,10 +265,10 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
             @Override
             public void onCancel(Object entity) {
-                jdbcAssets.getForm().cancel();
+                storeAssets.getForm().cancel();
             }
         });
-        jdbcAssets.getForm().addFormValidator((formItems, outcome) -> {
+        storeAssets.getForm().addFormValidator((formItems, outcome) -> {
             final FormItem<Boolean> useJdbc = formItem(formItems, "use-jdbc-store");
             final FormItem<String> datasource = formItem(formItems, "jdbc-store-datasource");
 
@@ -290,6 +277,22 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                     datasource.setErrMessage("Please provide datasource JNDI name if using jdbc store.");
                     datasource.setErroneous(true);
                     outcome.addError("jdbc-store-datasource");
+                }
+            }
+        });
+
+        storeAssets.getForm().addFormValidator((formItems, outcome) -> {
+            final FormItem<Boolean> journalStoreEnableAsyncIoItem = formItem(formItems, "journal-store-enable-async-io");
+            final FormItem<Boolean> useJournalStoreItem = formItem(formItems, "use-journal-store");
+
+            if (journalStoreEnableAsyncIoItem != null) {
+                final boolean journalStoreEnableAsyncIo = journalStoreEnableAsyncIoItem.getValue() != null && journalStoreEnableAsyncIoItem.getValue();
+                final boolean useJournalStore = useJournalStoreItem != null && useJournalStoreItem.getValue() != null && useJournalStoreItem.getValue();
+
+                if (journalStoreEnableAsyncIo && !useJournalStore) {
+                    useJournalStoreItem.setErrMessage("Journal store needs to be enabled before enabling asynchronous IO.");
+                    useJournalStoreItem.setErroneous(true);
+                    outcome.addError("use-journal-store");
                 }
             }
         });
@@ -303,7 +306,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
                 .addDetail("Process ID", processAssets.asWidget())
                 .addDetail("Recovery", recoveryAssets.asWidget())
                 .addDetail("Path", pathAssets.asWidget())
-                .addDetail("JDBC", jdbcAssets.asWidget());
+                .addDetail("Store", storeAssets.asWidget());
 
         return layout.build();
     }
@@ -329,6 +332,6 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         processAssets.getForm().edit(modelNode);
         recoveryAssets.getForm().edit(modelNode);
         pathAssets.getForm().edit(modelNode);
-        jdbcAssets.getForm().edit(modelNode);
+        storeAssets.getForm().edit(modelNode);
     }
 }
