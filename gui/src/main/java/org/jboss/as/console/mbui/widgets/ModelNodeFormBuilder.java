@@ -67,7 +67,7 @@ public class ModelNodeFormBuilder {
 
         FormItem create(Property attributeDescription);
     }
-    
+
     public ModelNodeFormBuilder() {
         this.capabilities = Console.MODULES.getCapabilities();
     }
@@ -373,8 +373,9 @@ public class ModelNodeFormBuilder {
                                 for (ModelNode value : allowed)
                                     allowedValues.add(value.asString());
 
-                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean();
-                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);
+                                final boolean includeNull = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean()
+                                        && attrDesc.hasDefined("nil-significant") && attrDesc.get("nil-significant").asBoolean();
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, includeNull);
                                 combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
                                 combo.setRequired(isRequired);
@@ -386,10 +387,10 @@ public class ModelNodeFormBuilder {
                                     // there is no capability-reference
                                     TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
                                     textBoxItem.setAllowWhiteSpace(true);
-    
+
                                     textBoxItem.setRequired(isRequired);
                                     textBoxItem.setEnabled(!readOnly && !isRuntime);
-    
+
                                     formItem = textBoxItem;
                                 }
                             }
@@ -431,7 +432,7 @@ public class ModelNodeFormBuilder {
             }
         }
 
-        
+
         // some resources already contain a name attribute
         FormItem nameItem = null;
         if(createMode) {
@@ -501,7 +502,7 @@ public class ModelNodeFormBuilder {
         if (modelNode.hasDefined(CAPABILITY_REFERENCE) && capabilities != null) {
             String reference = modelNode.get(CAPABILITY_REFERENCE).asString();
             if (capabilities.contains(reference)) {
-                SuggestionResource suggestionResource = new SuggestionResource(property.getName(), label, required, 
+                SuggestionResource suggestionResource = new SuggestionResource(property.getName(), label, required,
                         capabilities.lookup(reference));
                 formItem = suggestionResource.buildFormItem();
             }
