@@ -162,25 +162,9 @@ public class ReloadState {
             }
         };
 
-        if(restartRequired && isStandalone)
+        
+        if(restartRequired )
         {
-            // standalone servers cannot be restarted from the UI
-            options = new DialogueOptions(
-                    Console.CONSTANTS.dismiss(),
-                    dismissHandler,
-                    "",
-                    new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent clickEvent) {
-                            // not used
-                        }
-                    }
-
-            ).showCancel(false);
-        }
-        else if(restartRequired && !isStandalone)
-        {
-            // domain mode restart
             options = new DialogueOptions(
                     "Restart servers now!",
                     restartHandler,
