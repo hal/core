@@ -113,7 +113,7 @@ public class LogStore extends ChangeSupport {
     protected int pageSize;
 
     /**
-     * Flag to pause the {@link LogStore.RefreshLogFile} command
+     * Flag to pause the {@link RefreshLogFileCmd} command
      * when the related log view is no longer visible.
      */
     protected boolean pauseFollow;
@@ -179,6 +179,11 @@ public class LogStore extends ChangeSupport {
         });
     }
 
+    @Process(actionType = ReadLogFilesForRefresh.class)
+    public void readLogFilesForRefresh(final Dispatcher.Channel channel) {
+        readLogFiles(channel);
+    }
+
     @Process(actionType = OpenLogFile.class)
     public void openLogFile(final OpenLogFile action, final Dispatcher.Channel channel) {
         final LogFile logFile = states.get(action.getName());
@@ -222,42 +227,50 @@ public class LogStore extends ChangeSupport {
         final LogFile logFile = states.get(action.getName());
 
         if (logFile == null) {
-            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(action.getName())));
-            requestBuilder.setHeader("Accept", "text/plain");
-            requestBuilder.setHeader("Content-Type", "text/plain");
-            requestBuilder.setIncludeCredentials(true);
-            try {
-                // store the request in order to cancel it later
-                pendingStreamingRequest = new PendingStreamingRequest(action.getName(),
-                        requestBuilder.sendRequest(null, new RequestCallback() {
-                            @Override
-                            public void onResponseReceived(Request request, Response response) {
-                                if (response.getStatusCode() >= 400) {
-                                    channel.nack(new IllegalStateException("Failed to stream log file " +
-                                            action.getName() + ": " + response.getStatusCode() + " - " +
-                                            response.getStatusText()));
-                                } else {
-                                    LogFile newLogFile = new LogFile(action.getName(), response.getText());
-                                    newLogFile.setFollow(false);
-                                    states.put(action.getName(), newLogFile);
-                                    activate(newLogFile);
-                                    channel.ack();
-                                }
-                            }
-
-                            @Override
-                            public void onError(Request request, Throwable exception) {
-                                channel.nack(exception);
-                            }
-                        }), channel);
-            } catch (RequestException e) {
-                channel.nack(e);
-            }
-
+            doStreamLogFile(action.getName(), channel);
         } else {
             // already streamed, just activate
             activate(logFile);
             channel.ack();
+        }
+    }
+
+    @Process(actionType = RefreshLogFile.class)
+    public void refreshLogFile(final RefreshLogFile action, final Dispatcher.Channel channel) {
+        doStreamLogFile(action.getName(), channel);
+    }
+
+    private void doStreamLogFile(final String fileName, final Dispatcher.Channel channel) {
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(fileName)));
+        requestBuilder.setHeader("Accept", "text/plain");
+        requestBuilder.setHeader("Content-Type", "text/plain");
+        requestBuilder.setIncludeCredentials(true);
+        try {
+            // store the request in order to cancel it later
+            pendingStreamingRequest = new PendingStreamingRequest(fileName,
+                    requestBuilder.sendRequest(null, new RequestCallback() {
+                        @Override
+                        public void onResponseReceived(Request request, Response response) {
+                            if (response.getStatusCode() >= 400) {
+                                channel.nack(new IllegalStateException("Failed to stream log file " +
+                                        fileName + ": " + response.getStatusCode() + " - " +
+                                        response.getStatusText()));
+                            } else {
+                                LogFile newLogFile = new LogFile(fileName, response.getText());
+                                newLogFile.setFollow(false);
+                                states.put(fileName, newLogFile);
+                                activate(newLogFile);
+                                channel.ack();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Request request, Throwable exception) {
+                            channel.nack(exception);
+                        }
+                    }), channel);
+        } catch (RequestException e) {
+            channel.nack(e);
         }
     }
 
@@ -501,7 +514,7 @@ public class LogStore extends ChangeSupport {
     }
 
     private void startFollowing(LogFile logFile) {
-        scheduler.scheduleFixedDelay(new RefreshLogFile(logFile.getName()), FOLLOW_INTERVAL);
+        scheduler.scheduleFixedDelay(new RefreshLogFileCmd(logFile.getName()), FOLLOW_INTERVAL);
     }
 
     private String streamUrl(final String name) {
@@ -634,11 +647,11 @@ public class LogStore extends ChangeSupport {
 
     // ------------------------------------------------------ polling
 
-    private class RefreshLogFile implements Scheduler.RepeatingCommand {
+    private class RefreshLogFileCmd implements Scheduler.RepeatingCommand {
 
         private final String name;
 
-        private RefreshLogFile(String name) {
+        private RefreshLogFileCmd(String name) {
             this.name = name;
         }
 

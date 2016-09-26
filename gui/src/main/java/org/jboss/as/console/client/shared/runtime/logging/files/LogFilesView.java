@@ -50,7 +50,7 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilesPresent
 
     @Override
     public Widget createWidget() {
-        logFilesTabs = new LogFilesTabs(circuit);
+        logFilesTabs = new LogFilesTabs(circuit, presenter);
         logFiles = new LogFilesTable(circuit, presenter);
         logFilesTabs.add(logFiles.asWidget(), "Log Files");
         return logFilesTabs;
