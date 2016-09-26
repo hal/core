@@ -21,7 +21,6 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -30,12 +29,9 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore.PendingStreamingRequest;
-import org.jboss.as.console.client.shared.runtime.logging.store.StreamLogFile;
-import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.as.console.client.shared.runtime.logging.files.LogFilesId.BASE_ID;
 import static org.jboss.as.console.client.shared.util.IdHelper.WidgetType.BUTTON;
@@ -50,16 +46,14 @@ public class StreamingProgress extends PopupPanel {
     private final static int WIDTH = 360;
     private final static int HEIGHT = 200;
 
-    private final Dispatcher circuit;
     private final int timeout;
     private final Button cancel;
 
     private String logFile;
     private boolean pending;
 
-    public StreamingProgress(final Dispatcher circuit, final LogStore logStore, int timeout) {
+    public StreamingProgress(final LogStore logStore, int timeout) {
         super(false, true);
-        this.circuit = circuit;
         this.timeout = timeout;
 
         setWidth(WIDTH + "px");
@@ -90,7 +84,6 @@ public class StreamingProgress extends PopupPanel {
 
     public void monitor(final String logFile) {
         this.logFile = logFile;
-        this.circuit.dispatch(new StreamLogFile(logFile));
 
         // deferred show
         pending = true;
