@@ -60,6 +60,7 @@ public class ModelNodeFormBuilder {
     private boolean createMode;
     private boolean unsorted = false;
     private boolean includeOptionals = true; // only important if createMode == true
+    private boolean singleton = false;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -131,6 +132,11 @@ public class ModelNodeFormBuilder {
 
     public ModelNodeFormBuilder includeOptionals(boolean includeOptionals) {
         this.includeOptionals = includeOptionals;
+        return this;
+    }
+
+    public ModelNodeFormBuilder setSingleton(boolean singleton) {
+        this.singleton = singleton;
         return this;
     }
 
@@ -460,13 +466,13 @@ public class ModelNodeFormBuilder {
         // distinguish required and optional fields (createMode)
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
-            if (createMode) {
+            if (createMode && !singleton) {
                 optionalItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
             form.setFields(optionalItems.toArray(new FormItem[]{}));
         } else {
-            if (createMode) {
+            if (createMode && !singleton) {
                 requiredItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
