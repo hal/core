@@ -160,7 +160,10 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
                     getView().setGeneralMetric(txAttributesNode);
 
                     getView().setRollbackMetric(new Metric(
-                            metrics.getNumApplicationRollback() + metrics.getNumResourceRollback(),
+                            // the first metrics doesn't exist in the domain model
+                            // it is used as baseline to compare to the other metrics
+                            metrics.getNumApplicationRollback() + metrics.getNumResourceRollback() + metrics.getNumSystemRollbacks(),
+                            metrics.getNumSystemRollbacks(),
                             metrics.getNumApplicationRollback(),
                             metrics.getNumResourceRollback()
                     ));

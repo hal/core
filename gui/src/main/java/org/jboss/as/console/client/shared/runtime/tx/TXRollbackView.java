@@ -34,31 +34,29 @@ class TXRollbackView implements Sampler {
     private Widget displayStrategy() {
 
         Column[] cols = new Column[] {
+                // the number-of-total-rollbacks doesn't exist in the domain model
+                // it is used as baseline to compare to the other metrics
+                new NumberColumn("number-of-total-rollbacks","Total Failures").setBaseline(true),
                 new NumberColumn("number-of-system-rollbacks","System Failures"),
                 new NumberColumn("number-of-application-rollbacks","Application Failures"),
                 new NumberColumn("number-of-resource-rollbacks","Resource Failures")
         };
 
         String title = "Failure Origin";
-        final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
-                address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "transactions");
-                return address;
-            }
+        final HelpSystem.AddressCallback addressCallback = () -> {
+            ModelNode address = new ModelNode();
+            address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
+            address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "transactions");
+            return address;
         };
         if (Console.protovisAvailable()) {
             sampler = new BulletGraphView(title, "total number", false, addressCallback)
                 .setColumns(cols);
         } else {
-
             sampler = new PlainColumnView(title, addressCallback)
                 .setColumns(cols)
                 .setWidth(100, Style.Unit.PCT);
         }
-
         return sampler.asWidget();
     }
 
