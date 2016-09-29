@@ -115,5 +115,9 @@ public interface TransactionManager {
     @Binding(detypedName = "number-of-heuristics")
     long getNumHeuristics();
     void setNumHeuristics(long l);
+    
+    @Binding(detypedName = "number-of-system-rollbacks")
+    long getNumSystemRollbacks();
+    void setNumSystemRollbacks(long l);
 
 }
