@@ -108,7 +108,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         PlaceLink web = new PlaceLink("Web/HTTP - Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
-        PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
+        PlaceLink ws = new PlaceLink("Web Services", NameTokens.WebServiceRuntimePresenter);
         PlaceLink naming = new PlaceLink("JNDI View", NameTokens.JndiPresenter);
 
         metricPredicates.add(new Predicate("datasources", datasources));
@@ -285,7 +285,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                         return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
                 }.setOperationAddress("/", "suspend"),
-                
+
                 new MenuDelegate<>(
                         "Configuration Changes", new ContextualCommand<StandaloneServer>() {
                     @Override

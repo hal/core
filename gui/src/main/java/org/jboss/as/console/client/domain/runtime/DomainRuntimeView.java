@@ -114,7 +114,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         PlaceLink web = new PlaceLink("Web/HTTP - Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
-        PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
+        PlaceLink ws = new PlaceLink("Web Services", NameTokens.WebServiceRuntimePresenter);
         PlaceLink naming = new PlaceLink("JNDI View", NameTokens.JndiPresenter);
 
         metricPredicates.add(new Predicate("datasources", datasources));
@@ -376,8 +376,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(Server server) {
 
-                        LifecycleOperation op = server.getRuntimeState() == RuntimeState.STOPPED ? 
-                                LifecycleOperation.START : LifecycleOperation.STOP; 
+                        LifecycleOperation op = server.getRuntimeState() == RuntimeState.STOPPED ?
+                                LifecycleOperation.START : LifecycleOperation.STOP;
 
                         if (LifecycleOperation.START == op) {
                             Feedback.confirm(
@@ -391,8 +391,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                                                 presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
                                         }
                                     });
-                            
-                            
+
+
                         } else {
                             presenter.onLaunchStopDialogue(server);
                         }
