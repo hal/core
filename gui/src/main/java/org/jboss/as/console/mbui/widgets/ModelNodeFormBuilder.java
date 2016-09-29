@@ -61,6 +61,7 @@ public class ModelNodeFormBuilder {
     private boolean unsorted = false;
     private boolean includeOptionals = true; // only important if createMode == true
     private boolean singleton = false;
+    private boolean createNameField = true;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -155,6 +156,11 @@ public class ModelNodeFormBuilder {
             }
 
         }
+        return this;
+    }
+    
+    public ModelNodeFormBuilder setCreateNameAttribute(boolean create) {
+        createNameField = create;
         return this;
     }
 
@@ -460,7 +466,8 @@ public class ModelNodeFormBuilder {
         // distinguish required and optional fields (createMode)
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
-            if (createMode && !singleton) {
+            // some resources doesn't have the name attribute
+            if (createMode && !singleton && createNameField) {
                 final TextBoxItem nameBox = new TextBoxItem("name", "Name", true);
                 nameBox.setAllowWhiteSpace(true);
                 optionalItems.addFirst(nameBox);
@@ -468,7 +475,8 @@ public class ModelNodeFormBuilder {
             }
             form.setFields(optionalItems.toArray(new FormItem[]{}));
         } else {
-            if (createMode && !singleton) {
+            // some resources doesn't have the name attribute
+            if (createMode && !singleton && createNameField) {
                 final TextBoxItem nameBox = new TextBoxItem("name", "Name", true);
                 nameBox.setAllowWhiteSpace(true);
                 requiredItems.addFirst(nameBox);

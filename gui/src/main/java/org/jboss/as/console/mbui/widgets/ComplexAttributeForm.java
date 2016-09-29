@@ -1,7 +1,6 @@
 package org.jboss.as.console.mbui.widgets;
 
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
@@ -57,6 +56,7 @@ public class ComplexAttributeForm {
      * * The parent scope resource description (includes the complex attribute definition)
      */
     private ResourceDescription resourceDescriptionDelegate;
+    private String[] excludes;
 
     public ComplexAttributeForm(String attributeName, SecurityContext securityContextDelegate, ResourceDescription resourceDescriptionDelegate) {
 
@@ -149,6 +149,18 @@ public class ComplexAttributeForm {
                 .setConfigOnly()
                 .setResourceDescription(attributeDescription)
                 .setSecurityContext(getSecurityContext())
+                .exclude(excludes)
                 .build();
+    }
+
+    /**
+     * Exclude any attribute from the automatic form mapping.
+     * 
+     * @param attributes The list of attribute names.
+     * @return this This ComplexAttributeForm instance. 
+     */
+    public ComplexAttributeForm exclude(String... attributes) {
+        excludes = attributes; 
+        return this;
     }
 }

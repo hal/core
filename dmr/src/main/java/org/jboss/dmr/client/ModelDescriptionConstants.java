@@ -89,6 +89,8 @@ public class ModelDescriptionConstants {
     public static final String JOB_XML_NAME = "job-xml-name";
     public static final String JVM = "jvm";
     public static final String JVM_TYPE = "type";
+    public static final String LIST_ADD_OPERATION = "list-add";
+    public static final String LIST_REMOVE_OPERATION = "list-remove";
     public static final String LIST_CHANGES_OPERATION = "list-changes";
     public static final String LOCAL = "local";
     public static final String LOCALE = "locale";

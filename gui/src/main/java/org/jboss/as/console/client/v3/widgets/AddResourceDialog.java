@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.v3.widgets;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -33,6 +36,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder.FormItemFactory;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -41,15 +45,13 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * @author Harald Pehl
  */
 public class AddResourceDialog implements IsWidget {
 
     private String[] includes = null;
+    private boolean requiredOnly = true;
 
     public interface Callback {
         void onAdd(ModelNode payload);
@@ -90,6 +92,10 @@ public class AddResourceDialog implements IsWidget {
         this.includes = attributes;
         return this;
     }
+    
+    public void setRequiredOnly(boolean requiredOnly) {
+        this.requiredOnly = requiredOnly;
+    }
 
     @Override
     public Widget asWidget() {
@@ -97,7 +103,7 @@ public class AddResourceDialog implements IsWidget {
             ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                     .setCreateMode(true)
                     .setResourceDescription(resourceDescription)
-                    .setRequiredOnly(true)
+                    .setRequiredOnly(requiredOnly)
                     .setSecurityContext(securityContext);
 
             for (Map.Entry<String, FormItemFactory> entry : factories.entrySet()) {
@@ -156,4 +162,8 @@ public class AddResourceDialog implements IsWidget {
             assets.getForm().clearValues();
         }
     }
+    
+    public ModelNodeForm getForm() {
+        return assets.getForm();
+    } 
 }

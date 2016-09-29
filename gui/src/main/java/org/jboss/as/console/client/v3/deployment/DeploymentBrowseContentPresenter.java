@@ -96,8 +96,6 @@ public class DeploymentBrowseContentPresenter
         revealStrategy.revealInParent(this);
     }
 
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-
     @Override
     public void prepareFromRequest(final PlaceRequest request) {
         deploymentName = request.getParameter(DEPLOYMENT, null);
