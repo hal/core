@@ -159,7 +159,7 @@ public class JobsRuntimePanel implements IsWidget {
         idColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         statusColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(deploymentColumn, "Deployment");
-        table.addColumn(jobColumn, "Job Name");
+        table.addColumn(jobColumn, "Job-Xml-Name");
         table.addColumn(executionIdColumn, "Execution Id");
         table.addColumn(idColumn, "Instance Id");
         table.addColumn(statusColumn, "Batch Status");
