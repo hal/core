@@ -38,6 +38,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
+
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -62,9 +64,11 @@ public class LogFilePanel extends Composite implements LogFilesId {
     private final VerticalPanel panel;
     private final AceEditor editor;
     private final HandlerRegistration resizeHandler;
+    private final LogFilesPresenter presenter;
 
-    public LogFilePanel(final LogFile logFile) {
+    public LogFilePanel(final LogFile logFile, LogFilesPresenter presenter) {
         this.name = logFile.getName();
+        this.presenter = presenter;
 
         panel = new VerticalPanel();
         panel.addStyleName("fill-layout-width");
@@ -170,11 +174,16 @@ public class LogFilePanel extends Composite implements LogFilesId {
             findNext.getElement().setAttribute("action", "findNext"); // AceEditor action wiring
             setId(findNext, BASE_ID + editorId, "next_match");
 
+            ToolButton refresh = new ToolButton(Console.CONSTANTS.common_label_refresh(),
+                    event -> presenter.onRefreshLogFile(name));
+
             ToolStrip searchTools = new ToolStrip();
             searchTools.addToolWidget(findTextBox);
             searchTools.addToolButton(findButton);
             searchTools.addToolWidget(findPrev);
             searchTools.addToolWidget(findNext);
+            searchTools.addToolButton(refresh);
+
             searchTools.getElement().getStyle().setPaddingLeft(0, PX);
             searchTools.getElement().getStyle().setMarginBottom(0.5, EM);
             findTextBox.getElement().getStyle().setWidth(30, EM);
@@ -188,6 +197,7 @@ public class LogFilePanel extends Composite implements LogFilesId {
             findPrev.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
             findNext.getElement().getStyle().setHeight(25, PX);
             findNext.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            refresh.getElement().getStyle().setMarginLeft(1, EM);
 
             // next part: rebuild the original search box
             FlowPanel searchForm = div("ace_search_form", false);

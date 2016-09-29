@@ -21,7 +21,6 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -36,9 +35,9 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.runtime.logging.store.DownloadLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
+import org.jboss.as.console.client.shared.runtime.logging.store.ReadLogFiles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeCellTable;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -136,6 +135,13 @@ public class LogFilesTable extends Composite implements LogFilesId {
         view.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
+
+        final ToolButton refresh = new ToolButton(Console.CONSTANTS.common_label_refresh(),
+                event -> circuit.dispatch(new ReadLogFiles()));
+        refresh.setOperationAddress("/{implicit.host}/{selected.server}/subsystem=logging", "read-resource");
+        setId(refresh, BASE_ID, "refresh");
+        tools.addToolButtonRight(refresh);
+
         panel.add(tools);
 
         // table
@@ -189,6 +195,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
         nameColumn.setSortable(true);
         sortHandler.setComparator(nameColumn, new NameComparator());
         table.addColumn(nameColumn, "Log File Name");
+        table.getColumnSortList().push(nameColumn);
 
         // column: last modified
         TextColumn<ModelNode> lastModifiedColumn = new TextColumn<ModelNode>() {
@@ -242,7 +249,6 @@ public class LogFilesTable extends Composite implements LogFilesId {
         list.addAll(files);
 
         // Make sure the new values are properly sorted
-        table.getColumnSortList().push(nameColumn);
         ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 

@@ -36,8 +36,11 @@ import org.jboss.gwt.circuit.Dispatcher;
 public class LogFilesTabs extends Composite {
 
     private final DefaultTabLayoutPanel tabLayout;
+    private final LogFilesPresenter presenter;
 
-    public LogFilesTabs(final Dispatcher circuit) {
+    public LogFilesTabs(final Dispatcher circuit, LogFilesPresenter presenter) {
+        this.presenter = presenter;
+
         tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
         tabLayout.addSelectionHandler(event -> {
             LogFilePanel logFilePanel = selectedLogFilePanel();
@@ -67,7 +70,7 @@ public class LogFilesTabs extends Composite {
 
     public void open(LogFile logFile) {
         if (!tabLayout.contains(logFile.getName())) {
-            tabLayout.add(new LogFilePanel(logFile), logFile.getName());
+            tabLayout.add(new LogFilePanel(logFile, presenter), logFile.getName());
         }
         tabLayout.selectTab(logFile.getName());
     }
