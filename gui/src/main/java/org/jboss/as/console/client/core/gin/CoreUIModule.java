@@ -49,8 +49,6 @@ import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterImpl;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.core.settings.*;
-import org.jboss.as.console.client.csp.CSPPresenter;
-import org.jboss.as.console.client.csp.CSPView;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupView;
 import org.jboss.as.console.client.domain.groups.deployment.DomainDeploymentPresenter;
@@ -732,11 +730,6 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(ServerStore.class).in(Singleton.class);
         bind(ServerStoreAdapter.class).in(Singleton.class);
-
-        bindPresenter(CSPPresenter.class,
-                CSPPresenter.MyView.class,
-                CSPView.class,
-                CSPPresenter.MyProxy.class);
 
         bind(CoreGUIContext.class).in(Singleton.class);
 

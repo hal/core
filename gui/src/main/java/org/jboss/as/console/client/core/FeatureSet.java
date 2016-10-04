@@ -39,10 +39,6 @@ public class FeatureSet {
         return Storage.isLocalStorageSupported();
     }
 
-    public boolean isCSPEnabled() {
-        return productConfig.getProfile() == ProductConfig.Profile.PRODUCT;
-    }
-
     public boolean hasDeploymentEnabledAttrs() {
         boolean res = ProductConfig.Profile.COMMUNITY.equals(productConfig.getProfile());
         return res;

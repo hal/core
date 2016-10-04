@@ -41,7 +41,6 @@ import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.core.settings.ModelVersions;
 import org.jboss.as.console.client.core.settings.SettingsPresenter;
 import org.jboss.as.console.client.core.settings.SettingsPresenterWidget;
-import org.jboss.as.console.client.csp.CSPPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.groups.deployment.DomainDeploymentPresenter;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
@@ -406,8 +405,6 @@ public interface CoreUI {
 
     ServerStore getServerStore();
     ServerStoreAdapter getServerStoreAdapter();
-
-    AsyncProvider<CSPPresenter> getCSPPresenter();
 
     CoreGUIContext getCoreGUIContext();
 
