@@ -34,7 +34,6 @@
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <protovis.version>0.4.1</protovis.version>
-        <csp.plugin.version>0.9.36.Final-jboss1</csp.plugin.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
         <gwt.devAddress>127.0.0.1</gwt.devAddress>
@@ -167,12 +166,6 @@
                 <artifactId>circuit-processor</artifactId>
                 <version>${circuit.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.hal</groupId>
-                <artifactId>redhat-support-plugin</artifactId>
-                <classifier>resources</classifier>
-                <version>${csp.plugin.version}</version>
             </dependency>
 
             <!-- GWT related -->

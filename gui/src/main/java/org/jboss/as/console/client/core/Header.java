@@ -45,7 +45,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
-import org.jboss.as.console.client.csp.CustomerSupportLauncher;
 import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
@@ -76,7 +75,6 @@ public class Header implements ValueChangeHandler<String> {
 
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
-    private CustomerSupportLauncher cspLauncher;
     private SearchTool searchTool;
 
     @Inject
@@ -156,13 +154,6 @@ public class Header implements ValueChangeHandler<String> {
         Widget messageCenter = messageCenterView.asWidget();
         tools.add(messageCenter);
         messageCenter.getElement().getParentElement().addClassName("first");
-
-        // redhat support plugin
-        if (featureSet.isCSPEnabled()) {
-            this.cspLauncher = new CustomerSupportLauncher(placeManager);
-            tools.add(cspLauncher.asWidget());
-
-        }
 
         // global search
         if (featureSet.isSearchEnabled()) {
@@ -445,9 +436,6 @@ public class Header implements ValueChangeHandler<String> {
                 }
             }
         }
-
-        if(cspLauncher!=null)
-            cspLauncher.highlight(name);
 
     }
 

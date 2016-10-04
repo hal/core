@@ -78,9 +78,6 @@ public class BootstrapContext implements ApplicationProperties {
         String logoutApi = GWT.isScript() ? getBaseUrl() + "logout" : "http://" + devHost + ":8888/app/logout";
         setProperty(LOGOUT_API, logoutApi);
 
-        String cspApi = GWT.isScript() ? getBaseUrl() + "console/csp" : getBaseUrl() + "csp";
-        setProperty(CSP_API, cspApi);
-
         System.out.println("Domain API Endpoint: " + domainApi);
     }
 
