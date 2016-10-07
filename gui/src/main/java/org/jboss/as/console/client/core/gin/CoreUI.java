@@ -51,7 +51,6 @@ import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
 import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
-import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostInterfacesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostJVMPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostPropertiesPresenter;
@@ -83,6 +82,7 @@ import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
+import org.jboss.as.console.client.shared.hosts.ConfigurationChangesPresenter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -155,6 +155,7 @@ import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
+import org.jboss.as.console.client.v3.deployment.DeploymentBrowseContentPresenter;
 import org.jboss.as.console.client.v3.deployment.DeploymentDetailsPresenter;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.as.console.client.v3.deployment.StandaloneDeploymentFinder;
@@ -388,6 +389,7 @@ public interface CoreUI {
     AsyncProvider<StandaloneDeploymentFinder> getStandaloneDeploymentFinder();
     AsyncProvider<DeploymentDetailsPresenter> getDeplymentDetailsPresenter();
     AsyncProvider<DeploymentScannerPresenter> getDeploymentScannerPresenter();
+    AsyncProvider<DeploymentBrowseContentPresenter> getDeploymentBrowseContentPresenter();
 
     Dispatcher getCircuitDispatcher();
 

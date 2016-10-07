@@ -21,6 +21,10 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -36,7 +40,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -75,14 +78,10 @@ import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.DEPLOYMENT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.EXPLODE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 /**
@@ -372,7 +371,34 @@ public class DomainDeploymentFinder
             }
         });
     }
+    
+    public void explodeContent(final Content content) {
+        Operation operation = new Operation.Builder(EXPLODE, new ResourceAddress().add("deployment", content.getName()))
+                .build();
 
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.CONSTANTS.unableToExplodeDeployment(), caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error(Console.CONSTANTS.unableToExplodeDeployment(), result.getFailureDescription());
+                } else {
+                    Console.info(content.getName() + " successfully exploded.");
+                    loadContentRepository();
+                    loadUnassignedContent();
+                }
+            }
+        });
+    }
+
+    public void browseContent(String deploymentName) {
+        placeManager.revealRelativePlace(new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowseContent).with(DEPLOYMENT, deploymentName).build());
+    }
 
     // ------------------------------------------------------ assignments methods
 

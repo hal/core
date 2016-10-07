@@ -58,12 +58,16 @@ final class Templates {
     interface Previews extends SafeHtmlTemplates {
 
         @Template("<div class='preview-content-scrollable-wrapper'><div class='preview-content'><h2>Content</h2>" +
+                "<p>Managed: {2}</p>" +
+                "<p>Archive: {3}</p>" +
                 "<p>The content '{0}' is assigned to the following server groups:</p>{1}</div></div>")
-        SafeHtml content(String name, SafeHtml details);
+        SafeHtml content(String name, SafeHtml details, String managed, String archive);
 
         @Template("<div class='preview-content'><h2>Content</h2>" +
-                "<p>The content '{0}' is not assigned to a server group.</div>")
-        SafeHtml unassignedContent(String name);
+                "<p>Managed: {1}</p>" +
+                "<p>Archive: {2}</p>" +
+                "<p>The content '{0}' is not assigned to a server group.</p></div>")
+        SafeHtml unassignedContent(String name, String managed, String archive);
 
         @Template("<div class='preview-content'><h2>Server Group</h2>{0}</div>")
         SafeHtml serverGroup(SafeHtml details);
@@ -119,8 +123,17 @@ final class Templates {
     // ------------------------------------------------------ previews
 
     static SafeHtml contentPreview(final Content content) {
+        String managed = "No";
+        String archive = "Yes";
+        
+        if (content.get("managed").asBoolean()) 
+            managed = "Yes";
+        
+        if (content.get("content").get(0).hasDefined("archive") && !content.get("content").get(0).get("archive").asBoolean()) {
+            archive = "No";
+        }
         if (content.getAssignments().isEmpty()) {
-            return PREVIEWS.unassignedContent(content.getName());
+            return PREVIEWS.unassignedContent(content.getName(), managed, archive);
         } else {
             SafeHtmlBuilder details = new SafeHtmlBuilder();
             details.appendHtmlConstant("<ul>");
@@ -130,7 +143,7 @@ final class Templates {
                         .appendHtmlConstant("</li>");
             }
             details.appendHtmlConstant("</ul>");
-            return PREVIEWS.content(content.getName(), details.toSafeHtml());
+            return PREVIEWS.content(content.getName(), details.toSafeHtml(), managed, archive);
         }
     }
 
@@ -184,6 +197,21 @@ final class Templates {
         } else {
             details.appendHtmlConstant("<li>").appendEscaped("The deployment was never enabled");
         }
+        
+        // print if managed yes/no
+        if (deployment.isManaged()) {
+            details.appendHtmlConstant("<li>Managed: Yes");
+        } else {
+            details.appendHtmlConstant("<li>Managed: No");
+        }
+
+        // print if archive yes/no
+        if (deployment.isArchive()) {
+            details.appendHtmlConstant("<li>Archive: Yes");
+        } else {
+            details.appendHtmlConstant("<li>Archive: No");
+        }
+        
         if (deployment.getDisabledTime() != null) {
             details.appendHtmlConstant("<li class='deployment-timestamp'>").appendEscaped("Last disabled at ")
                     .appendEscaped(deployment.getDisabledTime());

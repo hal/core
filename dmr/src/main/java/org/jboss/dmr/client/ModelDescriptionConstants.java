@@ -41,6 +41,7 @@ public class ModelDescriptionConstants {
     public static final String ATTRIBUTES = "attributes";
     public static final String ATTRIBUTES_ONLY = "attributes-only";
     public static final String BYTES = "bytes";
+    public static final String BROWSE_CONTENT = "browse-content";
     public static final String CANCELLED = "cancelled";
     public static final String CAPABILITY_REFERENCE = "capability-reference";
     public static final String CHILD_TYPE = "child-type";
@@ -59,6 +60,7 @@ public class ModelDescriptionConstants {
     public static final String DOMAIN_CONTROLLER = "domain-controller";
     public static final String DOMAIN_FAILURE_DESCRIPTION = "domain-failure-description";
     public static final String DOMAIN_RESULTS = "domain-results";
+    public static final String EXPLODE = "explode";
     public static final String EXTENSION = "extension";
     public static final String FAILED = "failed";
     public static final String FAILURE_DESCRIPTION = "failure-description";
@@ -137,6 +139,7 @@ public class ModelDescriptionConstants {
     public static final String READ_CHILDREN_TYPES_OPERATION = "read-children-types";
     public static final String READ_CHILDREN_RESOURCES_OPERATION = "read-children-resources";
     public static final String READ_CONFIG_AS_XML_OPERATION = "read-config-as-xml";
+    public static final String READ_CONTENT_OPERATION = "read-content";
     public static final String READ_OPERATION_DESCRIPTION_OPERATION = "read-operation-description";
     public static final String READ_OPERATION_NAMES_OPERATION = "read-operation-names";
     public static final String READ_RESOURCE_DESCRIPTION_OPERATION = "read-resource-description";

@@ -21,6 +21,13 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
 import org.jboss.as.console.client.Console;
@@ -40,13 +47,6 @@ import org.jboss.dmr.client.dispatch.impl.UploadAction;
 import org.jboss.dmr.client.dispatch.impl.UploadResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -205,11 +205,15 @@ public final class DeploymentFunctions {
         public void execute(final Control<FunctionContext> control) {
             Operation content = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, ResourceAddress.ROOT)
                     .param(CHILD_TYPE, "deployment")
+                    .param(INCLUDE_RUNTIME, true)
                     .build();
             ResourceAddress address = new ResourceAddress()
                     .add("server-group", serverGroup)
                     .add("deployment", "*");
-            Operation assignments = new Operation.Builder(READ_RESOURCE_OPERATION, address).build();
+            Operation assignments = new Operation.Builder(READ_RESOURCE_OPERATION, address)
+                    .param(INCLUDE_RUNTIME, true)
+                    .build();
+            
 
             dispatcher.execute(new DMRAction(new Composite(content, assignments)), new FunctionCallback(control) {
                 @Override

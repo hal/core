@@ -41,8 +41,11 @@ import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
+import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Navigation;
@@ -126,8 +129,50 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
         deploymentColumn.setMenuItems(
                 new MenuDelegate<>(Console.CONSTANTS.common_label_view(), item -> presenter.showDetails(), Navigation),
                 enableDisableDelegate,
-                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> presenter.launchReplaceDeploymentWizard(item), Operation),
-                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item -> presenter.verifyRemoveDeployment(item), Operation)
+                new MenuDelegate<>(Console.CONSTANTS.common_label_replace(), item -> {
+                    if (!item.isManaged()) {
+                        Console.warning(Console.CONSTANTS.deploymentCannotReplaceUnmanaged());
+                    } else {
+                        presenter.launchReplaceDeploymentWizard(item);
+                    }
+                }, Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_delete(), item -> presenter.verifyRemoveDeployment(item), Operation),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_explode(), new ContextualCommand<Deployment>() {
+                    
+                    @Override
+                    public void executeOn(final Deployment item) {
+                        // when archive=undefined, then it is an archive
+                        if (item.isEnabled()) {
+                            Console.warning(Console.CONSTANTS.deploymentCannotExplodeEnabled());
+                        } else if (!item.isArchive()) {
+                            Console.warning(Console.CONSTANTS.deploymentCannotExplodeExploded());
+                        } else if (!item.isManaged()) {
+                            Console.warning(Console.CONSTANTS.deploymentCannotExplodeUnmanaged());
+                        } else {
+                            Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
+                                    Console.MESSAGES.explodeTitle(item.getName()),
+                                    isConfirmed -> {
+                                        if (isConfirmed) {
+                                            presenter.explodeContent(item);
+                                        }
+                                    });
+                        }
+                    }
+                    
+                }, Operation).setOperationAddress("/deployment=*", ModelDescriptionConstants.EXPLODE),
+                new MenuDelegate<>(Console.CONSTANTS.common_label_browseContent(), new ContextualCommand<Deployment>() {
+                    
+                    @Override
+                    public void executeOn(final Deployment item) {
+                        if (item.isArchive()) {
+                            Console.warning(Console.CONSTANTS.deploymentCannotReadUnexploded());
+                        } else if (!item.isManaged()) {
+                            Console.warning(Console.CONSTANTS.deploymentCannotReadUnmanaged());
+                        } else {
+                            presenter.browseContent();
+                        }
+                    }
+                }, Operation).setOperationAddress("/deployment=*", ModelDescriptionConstants.BROWSE_CONTENT)
         );
 
         deploymentColumn.setTooltipDisplay(Templates::deploymentTooltip);

@@ -89,6 +89,7 @@ public interface UIConstants extends Constants {
     String common_label_assign();
     String common_label_attributes();
     String common_label_autoStart();
+    String common_label_browseContent();
     String common_label_cancel();
     String common_label_chooseFile();
     String common_label_clear();
@@ -101,6 +102,7 @@ public interface UIConstants extends Constants {
     String common_label_details();
     String common_label_disable();
     String common_label_done();
+    String common_label_explode();
     String common_label_edit();
     String common_label_enable();
     String common_label_enOrDisable();
@@ -183,6 +185,12 @@ public interface UIConstants extends Constants {
     String deploymentEnabledDescription();
     String deploymentNameDescription();
     String deploymentRuntimeNameDescription();
+    String deploymentCannotReadUnmanaged();
+    String deploymentCannotReadUnexploded();
+    String deploymentCannotReplaceUnmanaged();
+    String deploymentCannotExplodeUnmanaged();
+    String deploymentCannotExplodeExploded();
+    String deploymentCannotExplodeEnabled();
     String discoveryGroupDescription();
     String discoveryGroupOrConnectorsCanBeDefined();
     String discoveryGroupOrConnectorsMustBeDefined();
@@ -565,6 +573,8 @@ public interface UIConstants extends Constants {
     String unableToModifyDeployment();
     String unableToNavigateBack();
     String unableToRemoveDeployment();
+    String unableToExplodeDeployment();
+    String unableToReadDeployment();
     String unableToResolve();
     String unassign();
     String unassigned();

@@ -21,11 +21,11 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 /**
  * A deployed and assigned content on a specific server.
@@ -120,6 +120,23 @@ public class Deployment extends Content {
         ModelNode enabled = get("enabled");
         //noinspection SimplifiableConditionalExpression
         return enabled.isDefined() ? enabled.asBoolean() : false;
+    }
+
+    public boolean isManaged() {
+        ModelNode managed = get("managed");
+        //noinspection SimplifiableConditionalExpression
+        return managed.isDefined() ? managed.asBoolean() : false;
+    }
+
+    public boolean isArchive() {
+        ModelNode content = get("content");
+        boolean archive = true;
+        // sometimes the deployment archive attribute is undefined
+        if (content.get(0).hasDefined("archive")) {
+            archive = content.get(0).get("archive").asBoolean();
+        }
+        //noinspection SimplifiableConditionalExpression
+        return archive;
     }
 
     public Status getStatus() {
