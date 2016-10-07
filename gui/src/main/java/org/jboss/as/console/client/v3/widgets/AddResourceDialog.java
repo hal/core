@@ -132,7 +132,7 @@ public class AddResourceDialog implements IsWidget {
             layout.setStyleName("fill-layout-width window-content");
             Widget formWidget = assets.getForm().asWidget();
             ModelNode opDescription = resourceDescription.get("operations").get("add").get("description");
-            ContentDescription text = new ContentDescription(opDescription.asString());
+            ContentDescription text = new ContentDescription(opDescription.asString() + " At least one of ARCHIVE or MODULE is required.");
             layout.add(text);
             layout.add(assets.getHelp().asWidget());
             layout.add(formWidget);
