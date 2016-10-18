@@ -45,6 +45,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     private Sampler sampler;
     private Column[] columns;
     private WebServiceRuntimePresenter presenter;
+    private SingleSelectionModel<WebServiceEndpoint> selectionModel;
 
     @Override
     public void setPresenter(WebServiceRuntimePresenter presenter) {
@@ -115,7 +116,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         table.addColumnSortHandler(sortHandler);
         table.getColumnSortList().push(nameCol); // initial sort is on name
 
-        final SingleSelectionModel<WebServiceEndpoint> selectionModel = new SingleSelectionModel(keyProvider);
+        selectionModel = new SingleSelectionModel(keyProvider);
         table.setSelectionModel(selectionModel);
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -123,12 +124,7 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 final WebServiceEndpoint selection = selectionModel.getSelectedObject();
-                sampler.addSample(
-                        new Metric(
-                                selection.getRequestCount(),
-                                selection.getResponseCount(),
-                                selection.getFaultCount()
-                        ));
+                addSample(selection);
             }
         });
         DefaultPager pager = new DefaultPager();
@@ -215,5 +211,17 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         ColumnSortEvent.fire(table, table.getColumnSortList());
 
         table.selectDefaultEntity();
+        WebServiceEndpoint selection = selectionModel.getSelectedObject();
+        addSample(selection);
     }
+
+    private void addSample(WebServiceEndpoint endpoint) {
+        if (endpoint != null) {
+            sampler.addSample(new Metric(
+                    endpoint.getRequestCount(),
+                    endpoint.getResponseCount(),
+                    endpoint.getFaultCount()));
+        }
+    }
+
 }
