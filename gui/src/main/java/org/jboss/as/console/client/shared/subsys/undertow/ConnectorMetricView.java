@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -13,13 +14,10 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -85,15 +83,6 @@ public class ConnectorMetricView {
         table.addColumn(socketColumn, "Socket Binding");
         table.addColumn(enabledColumn, "Is Enabled?");
 
-        // forms
-        final SecurityContext securityContext = presenter.getSecurityFramework()
-                .getSecurityContext(presenter.getProxy().getNameToken());
-
-        ResourceDescription resourceDescription = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
-
-        VerticalPanel formPanel = new VerticalPanel();
-        formPanel.setStyleName("fill-layout-width");
-
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -139,7 +128,7 @@ public class ConnectorMetricView {
                refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
                refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
                refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
-               refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+               refreshBtn.getElement().getStyle().setRight(80, Style.Unit.PX);
 
         refreshBtn.addClickHandler(new ClickHandler() {
             @Override
@@ -147,6 +136,8 @@ public class ConnectorMetricView {
                 presenter.loadDetails();
             }
         });
+        HTMLPanel refreshWrapper = new HTMLPanel("");
+        refreshWrapper.add(refreshBtn);
 
         // ----
         SimpleLayout layoutBuilder = new SimpleLayout()
@@ -155,7 +146,7 @@ public class ConnectorMetricView {
                 .setDescription("")
                         //.setMasterTools(tools)
                 .addContent(Console.MESSAGES.available("HTTP Connectors"), table)
-                .addContent("", refreshBtn)
+                .addContent("", refreshWrapper)
                 .addContent("Metrics", desc);
 
 
