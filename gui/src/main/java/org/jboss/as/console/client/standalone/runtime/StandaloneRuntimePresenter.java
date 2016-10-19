@@ -28,8 +28,10 @@ import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.semver.ManagementModel;
 import org.jboss.as.console.client.semver.Version;
+import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.patching.RestartOp;
 import org.jboss.as.console.client.shared.schedule.LongRunningTask;
 import org.jboss.as.console.client.shared.state.ReloadEvent;
 import org.jboss.as.console.client.shared.state.ReloadState;
@@ -187,7 +189,7 @@ public class StandaloneRuntimePresenter
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("Reload Server"), response.getFailureDescription());
                 } else {
-                    pollState();
+                    pollState("Waiting for the server to reload","Reload Server");
                 }
             }
 
@@ -198,12 +200,12 @@ public class StandaloneRuntimePresenter
         });
     }
 
-    private void pollState() {
+    private void pollState(final String standBy, final String success) {
 
         LongRunningTask poll = new LongRunningTask(new AsyncCommand<Boolean>() {
             @Override
             public void execute(final AsyncCallback<Boolean> callback) {
-                checkReloadState(callback);
+                checkServerState(callback,standBy,success);
             }
         }, 10);
 
@@ -214,7 +216,7 @@ public class StandaloneRuntimePresenter
     /**
      * Simply query the process state attribute to get to the required headers
      */
-    public void checkReloadState(final AsyncCallback<Boolean> callback) {
+    public void checkServerState(final AsyncCallback<Boolean> callback, final String standBy, final String success) {
 
         // :read-attribute(name=process-type)
         final ModelNode operation = new ModelNode();
@@ -241,7 +243,7 @@ public class StandaloneRuntimePresenter
                         // clear state
                         reloadState.reset();
 
-                        Console.info(Console.MESSAGES.successful("Reload Server"));
+                        Console.info(Console.MESSAGES.successful(success));
 
                         // clear reload state
                         getEventBus().fireEvent(new ReloadEvent());
@@ -255,8 +257,7 @@ public class StandaloneRuntimePresenter
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.getMessageCenter().notify(new Message("Waiting for the server to reload", caught.getMessage(),
-                        Message.Severity.Warning));
+                Console.getMessageCenter().notify(new Message(standBy, caught.getMessage(), Message.Severity.Warning));
             }
         });
     }
@@ -347,5 +348,29 @@ public class StandaloneRuntimePresenter
             }
         });
     }
+    
+	public void onRestartServer() {
+	    final ModelNode operation = new ModelNode();
+        operation.get(OP).set("shutdown");
+        operation.get(ADDRESS).setEmptyList();
+        operation.get("restart").set(true);
 
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failed("Restart Server"), response.getFailureDescription());
+                } else {
+                    pollState("Waiting for the server to restart","Restart Server");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error(Console.MESSAGES.failed("Restart Server"), caught.getMessage());
+            }
+        });
+	}
 }
