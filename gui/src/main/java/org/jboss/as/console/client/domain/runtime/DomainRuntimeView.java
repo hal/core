@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -34,6 +35,8 @@ import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
@@ -56,6 +59,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
     private final DispatchAsync dispatcher;
+    private final PreviewContentFactory contentFactory;
 
     private Widget subsysColWidget;
     private Widget statusColWidget;
@@ -77,20 +81,27 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
+
     interface ServerTemplate extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\" style='line-height:0.9em'>{2}&nbsp;<i class='{1}'></i><br/><span style='font-size:8px'>({3})</span></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
+
     interface SubsystemTemplate extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String server);
     }
 
+
     interface StatusTemplate extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String title);
     }
+
 
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
@@ -99,11 +110,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private static final SubsystemTemplate SUBSYSTEM_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
     @Inject
-    public DomainRuntimeView(final PlaceManager placeManager, DispatchAsync dispatcher) {
+    public DomainRuntimeView(final PlaceManager placeManager, DispatchAsync dispatcher, PreviewContentFactory contentFactory) {
         super();
 
         this.placeManager = placeManager;
         this.dispatcher = dispatcher;
+        this.contentFactory = contentFactory;
         contentCanvas = new LayoutPanel();
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
@@ -131,24 +143,19 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         List<RuntimeExtensionMetaData> menuExtensions = registry.getExtensions();
         for (RuntimeExtensionMetaData ext : menuExtensions) {
 
-            if(RuntimeGroup.METRICS.equals(ext.getGroup()))
-            {
+            if (RuntimeGroup.METRICS.equals(ext.getGroup())) {
                 metricPredicates.add(
                         new Predicate(
                                 ext.getKey(), new PlaceLink(ext.getName(), ext.getToken())
                         )
                 );
-            }
-            else if(RuntimeGroup.OPERATiONS.equals(ext.getGroup()))
-            {
+            } else if (RuntimeGroup.OPERATiONS.equals(ext.getGroup())) {
                 runtimePredicates.add(
                         new Predicate(
                                 ext.getKey(), new PlaceLink(ext.getName(), ext.getToken())
                         )
                 );
-            }
-            else
-            {
+            } else {
                 Log.warn("Invalid runtime group for extension: " + ext.getGroup());
             }
         }
@@ -161,7 +168,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     public void execute() {
 
-                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.HostVMMetricPresenter));
+                        Console.getPlaceManager()
+                                .revealRelativePlace(new PlaceRequest(NameTokens.HostVMMetricPresenter));
                     }
                 });
 
@@ -173,7 +181,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     public void execute() {
 
-                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.EnvironmentPresenter));
+                        Console.getPlaceManager()
+                                .revealRelativePlace(new PlaceRequest(NameTokens.EnvironmentPresenter));
                     }
                 });
 
@@ -223,8 +232,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     @Override
                     public SafeHtml render(String baseCss, Server server) {
-                        String context = presenter.getFilter().equals(FilterType.HOST) ? server.getGroup() : server.getHostName();
-                        return SERVER_TEMPLATE.item(baseCss, "",server.getName(), context);
+                        String context = presenter.getFilter().equals(FilterType.HOST) ? server.getGroup() : server
+                                .getHostName();
+                        return SERVER_TEMPLATE.item(baseCss, "", server.getName(), context);
                     }
 
                     @Override
@@ -232,24 +242,15 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                         String css = "";
                         // TODO: reload state
-                        if(!server.isStarted())
-                        {
+                        if (!server.isStarted()) {
                             css = "paused";
-                        }
-                        else if(server.getServerState()== SrvState.RELOAD_REQUIRED)
-                        {
+                        } else if (server.getServerState() == SrvState.RELOAD_REQUIRED) {
                             css = "warn";
-                        }
-                        else if(server.getServerState()== SrvState.RESTART_REQUIRED)
-                        {
+                        } else if (server.getServerState() == SrvState.RESTART_REQUIRED) {
                             css = "warn";
-                        }
-                        else if(server.getSuspendState()==SuspendState.SUSPENDED)
-                        {
+                        } else if (server.getSuspendState() == SuspendState.SUSPENDED) {
                             css = "info";
-                        }
-                        else if(server.isStarted())
-                        {
+                        } else if (server.isStarted()) {
                             css = "good";
                         }
 
@@ -355,9 +356,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.tryDelete(presenter.getSelectedServer());
-                                        else {
+                                        if (isConfirmed) { presenter.tryDelete(presenter.getSelectedServer()); } else {
                                             presenter.closeWindow();
                                         }
                                     }
@@ -387,8 +386,10 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                                         @Override
                                         public void onConfirmation(boolean isConfirmed) {
-                                            if (isConfirmed)
-                                                presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+                                            if (isConfirmed) {
+                                                presenter.onServerInstanceLifecycle(server.getHostName(),
+                                                        server.getName(), op);
+                                            }
                                         }
                                     });
 
@@ -429,7 +430,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public String render(Server server) {
                         return server.getSuspendState() == SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                }.setOperationAddress("/{implicit.host}/server-config=*","resume"),
+                }.setOperationAddress("/{implicit.host}/server-config=*", "resume"),
 
                 new MenuDelegate<Server>(
                         "Reload", new ContextualCommand<Server>() {
@@ -443,14 +444,16 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RELOAD);
+                                        if (isConfirmed) {
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(),
+                                                    LifecycleOperation.RELOAD);
+                                        }
                                     }
                                 });
 
                     }
                 }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/{implicit.host}/server-config=*","reload"),
+                        .setOperationAddress("/{implicit.host}/server-config=*", "reload"),
 
                 new MenuDelegate<Server>(
                         "Restart", new ContextualCommand<Server>() {
@@ -463,15 +466,17 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RESTART);
+                                        if (isConfirmed) {
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(),
+                                                    LifecycleOperation.RESTART);
+                                        }
                                     }
                                 });
 
 
                     }
                 }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/{implicit.host}/server-config=*","restart")
+                        .setOperationAddress("/{implicit.host}/server-config=*", "restart")
         );
 
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {
@@ -485,16 +490,11 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     sb.appendHtmlConstant("<i class=\"icon-ban-circle\" style='color:#CC0000'></i>&nbsp;");*/
                 sb.appendEscaped("Server is ").appendEscaped(message);
 
-                if(server.getServerState()==SrvState.RELOAD_REQUIRED)
-                {
-                    sb.appendEscaped(". "+Console.CONSTANTS.server_instance_reloadRequired());
-                }
-                else if(server.getServerState()==SrvState.RESTART_REQUIRED)
-                {
+                if (server.getServerState() == SrvState.RELOAD_REQUIRED) {
+                    sb.appendEscaped(". " + Console.CONSTANTS.server_instance_reloadRequired());
+                } else if (server.getServerState() == SrvState.RESTART_REQUIRED) {
                     sb.appendEscaped(". " + Console.CONSTANTS.server_instance_servers_needRestart());
-                }
-                else if (server.getSuspendState() == SuspendState.SUSPENDED)
-                    sb.appendEscaped(", but suspended");
+                } else if (server.getSuspendState() == SuspendState.SUSPENDED) { sb.appendEscaped(", but suspended"); }
 
                 return sb.toSafeHtml();
             }
@@ -572,10 +572,19 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override
             public void createPreview(PlaceLink data, AsyncCallback<SafeHtml> callback) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
-                builder.appendHtmlConstant("</div>");
-                callback.onSuccess(builder.toSafeHtml());
+                PreviewContent content = PreviewContent.INSTANCE;
+                ExternalTextResource resource = (ExternalTextResource) content
+                        .getResource("runtime_" + data.getToken().replace("-", "_"));
+                if (resource != null) {
+                    contentFactory.createContent(resource, callback);
+                } else {
+                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                    builder.appendHtmlConstant(
+                            "<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;" + data
+                                    .getTitle() + "</span></center>");
+                    builder.appendHtmlConstant("</div>");
+                    callback.onSuccess(builder.toSafeHtml());
+                }
             }
         });
 
@@ -587,7 +596,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     }
                 })
         );
-
 
 
         subsysColWidget = subsystemColumn.asWidget();
@@ -616,7 +624,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     final Server selectedServer = serverColumn.getSelectedItem();
 
                     // action
-                    if(selectedServer.isStarted()) {
+                    if (selectedServer.isStarted()) {
                         columnManager.appendColumn(statusColWidget);
                     }
 
@@ -639,13 +647,10 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         @Override
                         public void execute() {
 
-                            if(statusColumn.getSelectedItem().getTitle().equals("Subsystems"))
-                            {
+                            if (statusColumn.getSelectedItem().getTitle().equals("Subsystems")) {
                                 columnManager.appendColumn(subsysColWidget);
                                 updateSubsystemColumn(subsystems);
-                            }
-                            else
-                            {
+                            } else {
                                 columnManager.reduceColumnsTo(2);
                             }
                         }
@@ -674,17 +679,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     }
 
     @Override
-    public void setInSlot(Object slot, IsWidget  content) {
+    public void setInSlot(Object slot, IsWidget content) {
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
-            if(content!=null)
-                setContent(content);
-            else
-                contentCanvas.clear();
+            if (content != null) { setContent(content); } else { contentCanvas.clear(); }
 
         }
     }
 
-    private void setContent(IsWidget  newContent) {
+    private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }
@@ -735,6 +737,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
     private class PlaceLink extends FinderItem {
 
+        private final String token;
+
         public PlaceLink(String title, final String token) {
             super(title, new Command() {
                 @Override
@@ -748,11 +752,17 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 }
             }, false);
 
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
         }
     }
 
 
     public final class Predicate {
+
         private String subsysName;
         private PlaceLink link;
 
@@ -778,17 +788,13 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         this.subsystems = subsystems;
     }
 
-    private void updateSubsystemColumn(List<SubsystemRecord> subsystems)
-    {
+    private void updateSubsystemColumn(List<SubsystemRecord> subsystems) {
         List<PlaceLink> runtimeLinks = new ArrayList<>();
 
-        for(SubsystemRecord subsys : subsystems)
-        {
+        for (SubsystemRecord subsys : subsystems) {
 
-            for(Predicate predicate : metricPredicates)
-            {
-                if(predicate.matches(subsys.getKey()))
-                    runtimeLinks.add(predicate.getLink());
+            for (Predicate predicate : metricPredicates) {
+                if (predicate.matches(subsys.getKey())) { runtimeLinks.add(predicate.getLink()); }
             }
         }
 

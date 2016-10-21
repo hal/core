@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -75,17 +76,21 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
 
     interface SubsystemTemplate extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String server);
     }
 
+
     interface StatusTemplate extends SafeHtmlTemplates {
+
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String title);
 
         @Template("<div class=\"{0}\">{1}</span></div>")
         SafeHtml item(String cssClass, String title);
     }
+
 
     private static final StatusTemplate STATUS_TEMPLATE = GWT.create(StatusTemplate.class);
 
@@ -125,24 +130,19 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         List<RuntimeExtensionMetaData> menuExtensions = registry.getExtensions();
         for (RuntimeExtensionMetaData ext : menuExtensions) {
 
-            if(RuntimeGroup.METRICS.equals(ext.getGroup()))
-            {
+            if (RuntimeGroup.METRICS.equals(ext.getGroup())) {
                 metricPredicates.add(
                         new Predicate(
                                 ext.getKey(), new PlaceLink(ext.getName(), ext.getToken())
                         )
                 );
-            }
-            else if(RuntimeGroup.OPERATiONS.equals(ext.getGroup()))
-            {
+            } else if (RuntimeGroup.OPERATiONS.equals(ext.getGroup())) {
                 runtimePredicates.add(
                         new Predicate(
                                 ext.getKey(), new PlaceLink(ext.getName(), ext.getToken())
                         )
                 );
-            }
-            else
-            {
+            } else {
                 Log.warn("Invalid runtime group for extension: " + ext.getGroup());
             }
         }
@@ -155,7 +155,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     public void execute() {
 
-                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.HostVMMetricPresenter));
+                        Console.getPlaceManager()
+                                .revealRelativePlace(new PlaceRequest(NameTokens.HostVMMetricPresenter));
                     }
                 });
 
@@ -167,7 +168,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     public void execute() {
 
-                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.EnvironmentPresenter));
+                        Console.getPlaceManager()
+                                .revealRelativePlace(new PlaceRequest(NameTokens.EnvironmentPresenter));
                     }
                 });
 
@@ -226,20 +228,13 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public String rowCss(StandaloneServer server) {
 
                         String css = "";
-                        if(server.getConfigState().equals(SrvState.RELOAD_REQUIRED))
-                        {
+                        if (server.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
                             css = "warn";
-                        }
-                        else if(server.getConfigState().equals(SrvState.RESTART_REQUIRED))
-                        {
+                        } else if (server.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
                             css = "warn";
-                        }
-                        else if(server.getSuspendState()==SuspendState.SUSPENDED)
-                        {
+                        } else if (server.getSuspendState() == SuspendState.SUSPENDED) {
                             css = "info";
-                        }
-                        else
-                        {
+                        } else {
                             css = "good";
                         }
 
@@ -261,8 +256,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                         Feedback.confirm("Reload Server", "Really reload server?", new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.onReloadServerConfig();
+                                if (isConfirmed) { presenter.onReloadServerConfig(); }
                             }
                         });
 
@@ -274,26 +268,26 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     @Override
                     public void executeOn(StandaloneServer item) {
 
-                        if(item.getSuspendState()==SuspendState.SUSPENDED)
-                            presenter.onResumeServer();
-                        else
+                        if (item.getSuspendState() == SuspendState.SUSPENDED) { presenter.onResumeServer(); } else {
                             presenter.onLaunchSuspendDialogue();
+                        }
                     }
                 }, MenuDelegate.Role.Operation) {
                     @Override
                     public String render(StandaloneServer data) {
-                        return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
+                        return data.getSuspendState() == SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
-                }.setOperationAddress("/", "suspend"), new MenuDelegate<StandaloneServer>("Restart", new ContextualCommand<StandaloneServer>() {
+                }.setOperationAddress("/", "suspend"),
+                new MenuDelegate<StandaloneServer>("Restart", new ContextualCommand<StandaloneServer>() {
                     @Override
                     public void executeOn(StandaloneServer item) {
-                        Feedback.confirm("Restart Server", "Really restart server?", new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed)
-                                    presenter.onRestartServer();
-                            }
-                        });
+                        Feedback.confirm("Restart Server", "Really restart server?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed) { presenter.onRestartServer(); }
+                                    }
+                                });
                     }
                 }, MenuDelegate.Role.Operation).setOperationAddress("/", "shutdown"),
                 new MenuDelegate<>(
@@ -311,20 +305,18 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             @Override
             public void createPreview(StandaloneServer server, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
-                html.appendEscaped("Server name: ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server")
+                        .appendHtmlConstant("</h2>");
+                html.appendEscaped("Server name: ")
+                        .appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
                 html.appendHtmlConstant("<p/>");
                 if (server.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
-                }
-                else if (server.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
+                } else if (server.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
                     PreviewState.warn(html, "This server needs to be restarted.");
-                }
-                else if(server.getSuspendState() == SuspendState.SUSPENDED)
-                {
+                } else if (server.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
-                }
-                else {
+                } else {
                     html.appendEscaped(Console.CONSTANTS.server_config_uptodate());
                 }
                 html.appendHtmlConstant("</div>");
@@ -338,13 +330,11 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             public SafeHtml render(StandaloneServer data) {
                 String message = null;
 
-                if(data.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
+                if (data.getConfigState().equals(SrvState.RELOAD_REQUIRED)) {
                     message = "does require a reload!";
-                }
-                else if(data.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
+                } else if (data.getConfigState().equals(SrvState.RESTART_REQUIRED)) {
                     message = "needs to be restarted!";
-                }
-                else {
+                } else {
                     message = "is running appropriately.";
                 }
 
@@ -355,8 +345,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     sb.appendHtmlConstant("<i class=\"icon-warning-sign\" style='color:#CC0000'></i>&nbsp;");*/
                 sb.appendEscaped("Server ").appendEscaped(message);
 
-                if(!data.getConfigState().equals(SrvState.RELOAD_REQUIRED) && data.getSuspendState()==SuspendState.SUSPENDED)
-                    sb.appendEscaped(", but suspended");
+                if (!data.getConfigState().equals(SrvState.RELOAD_REQUIRED) && data
+                        .getSuspendState() == SuspendState.SUSPENDED) { sb.appendEscaped(", but suspended"); }
 
                 return sb.toSafeHtml();
             }
@@ -433,10 +423,19 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override
             public void createPreview(PlaceLink data, AsyncCallback<SafeHtml> callback) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;" + data.getTitle() + "</span></center>");
-                builder.appendHtmlConstant("</div>");
-                callback.onSuccess(builder.toSafeHtml());
+                PreviewContent content = PreviewContent.INSTANCE;
+                ExternalTextResource resource = (ExternalTextResource) content
+                        .getResource("runtime_" + data.getToken().replace("-", "_"));
+                if (resource != null) {
+                    contentFactory.createContent(resource, callback);
+                } else {
+                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                    builder.appendHtmlConstant(
+                            "<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;" + data
+                                    .getTitle() + "</span></center>");
+                    builder.appendHtmlConstant("</div>");
+                    callback.onSuccess(builder.toSafeHtml());
+                }
             }
         });
 
@@ -524,8 +523,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     @Override
     public void setInSlot(Object slot, IsWidget content) {
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
-            if (content != null)
-                setContent(content);
+            if (content != null) { setContent(content); }
 
         } else {
             Console.MODULES.getMessageCenter().notify(
@@ -572,6 +570,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
     private class PlaceLink extends FinderItem {
 
+        private final String token;
+
         public PlaceLink(String title, final String token) {
             super(title, new Command() {
                 @Override
@@ -585,12 +585,17 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 }
             }, false);
 
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
         }
     }
 
 
-
     public final class Predicate {
+
         private String subsysName;
         private PlaceLink link;
 
@@ -615,17 +620,13 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         this.subsystems = subsystems;
     }
 
-    private void updateSubsystemColumn(List<SubsystemRecord> subsystems)
-    {
+    private void updateSubsystemColumn(List<SubsystemRecord> subsystems) {
         List<PlaceLink> runtimeLinks = new ArrayList<>();
 
-        for(SubsystemRecord subsys : subsystems)
-        {
+        for (SubsystemRecord subsys : subsystems) {
 
-            for(Predicate predicate : metricPredicates)
-            {
-                if(predicate.matches(subsys.getKey()))
-                    runtimeLinks.add(predicate.getLink());
+            for (Predicate predicate : metricPredicates) {
+                if (predicate.matches(subsys.getKey())) { runtimeLinks.add(predicate.getLink()); }
             }
         }
 

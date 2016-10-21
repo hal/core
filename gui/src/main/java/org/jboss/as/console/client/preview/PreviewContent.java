@@ -42,11 +42,17 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("properties.html")
     ExternalTextResource properties();
 
+    @Source("content/runtime_ds_metrics.html")
+    ExternalTextResource runtime_ds_metrics();
+
     @Source("runtime_empty_standalone.html")
     ExternalTextResource runtime_empty_standalone();
 
     @Source("runtime_empty_domain.html")
     ExternalTextResource runtime_empty_domain();
+
+    @Source("content/runtime_http_metrics.html")
+    ExternalTextResource runtime_http_metrics();
 
     @Source("runtime_hosts.html")
     ExternalTextResource runtime_hosts();
@@ -59,6 +65,12 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("runtime_server_group.html")
     ExternalTextResource runtime_server_group();
+
+    @Source("content/runtime_tx_metrics.html")
+    ExternalTextResource runtime_tx_metrics();
+
+    @Source("content/runtime_webservice_runtime.html")
+    ExternalTextResource runtime_webservice_runtime();
 
     @Source("sockets.html")
     ExternalTextResource sockets();
