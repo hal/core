@@ -63,6 +63,7 @@ public class FormView {
                     .setSecurityContext(securityContext);
 
             formAssets = builder.build();
+            formAssets.getForm().addFormValidator(ModelBrowserValidators.getValidatorFor(AddressUtils.asKey(address, false)));
 
             // cache it
             widgetCache.put(cacheKey, formAssets);
