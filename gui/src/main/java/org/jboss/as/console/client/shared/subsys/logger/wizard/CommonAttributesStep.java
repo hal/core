@@ -31,7 +31,9 @@ public class CommonAttributesStep extends WizardStep<HandlerContext, HandlerStep
                 .setCreateMode(true)
                 .setResourceDescription(wizard.getResourceDescription())
                 .setRequiredOnly(true)
-                .setSecurityContext(wizard.getSecurityContext());
+                .setSecurityContext(wizard.getSecurityContext())
+                //exclude file so it does not appear in the description as it is described in the next step
+                .exclude("file");
 
         ModelNodeFormBuilder.FormAssets assets = builder.build();
         form = assets.getForm();
