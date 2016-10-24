@@ -467,13 +467,17 @@ public class ModelNodeFormBuilder {
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
             if (createMode && !singleton) {
-                optionalItems.addFirst(new TextBoxItem("name", "Name", true));
+                final TextBoxItem nameBox = new TextBoxItem("name", "Name", true);
+                nameBox.setAllowWhiteSpace(true);
+                optionalItems.addFirst(nameBox);
                 numWritable++;
             }
             form.setFields(optionalItems.toArray(new FormItem[]{}));
         } else {
             if (createMode && !singleton) {
-                requiredItems.addFirst(new TextBoxItem("name", "Name", true));
+                final TextBoxItem nameBox = new TextBoxItem("name", "Name", true);
+                nameBox.setAllowWhiteSpace(true);
+                requiredItems.addFirst(nameBox);
                 numWritable++;
             }
 
