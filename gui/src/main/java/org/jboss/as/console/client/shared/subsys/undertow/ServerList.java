@@ -134,7 +134,7 @@ public class ServerList {
         String description = "Configuration for HTTP servers. Select a server to view its settings.";
         if (isRuntimeView) {
             // adds the buttons to enable and disable the statistics
-            description += " If no metrics are shown, you might need to enable statistics in the configuration section for the desired profile.";
+            description += " If no metrics are shown, you might need to enable statistics in the 'Configuration' section.";
             layoutBuilder.addDetail("Statistics", statsText);
         } else {
             layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
