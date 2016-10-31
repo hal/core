@@ -141,11 +141,7 @@ public class ThreadPoolEditor {
         TextBoxItem nameItemAttr = new TextBoxItem("name", "Name");
         nameItemAttr.setEnabled(false);
         CheckBoxItem allowCore = new CheckBoxItem ("allowCoreTimeout", "Allow Core Timeout?");
-        NumberBoxItem keepAliveTimeout = new NumberBoxItem("keepaliveTime", "Keep Alive Timeout") {
-            {
-                isRequired = false;
-            }
-        };
+        NumberBoxItem keepAliveTimeout = new NumberBoxItem("keepaliveTime", "Keep Alive Timeout");
         TextBoxItem threadFactory = new TextBoxItem("threadFactory", "Thread Factory") {
             {
                 isRequired = false;
