@@ -6,6 +6,7 @@ import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -59,7 +60,10 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         proxyList.setRequired(false);
         TextBoxItem proxyUrl = new TextBoxItem("proxyUrl", "Proxy Url");
 
-        proxyForm.setFields(proxyUrl, proxyList);
+        ListItem proxies = new ListItem("proxies", "Proxies");
+        proxies.setRequired(false);
+
+        proxyForm.setFields(proxyUrl, proxyList, proxies);
 
 
         //---
