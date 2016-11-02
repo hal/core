@@ -189,7 +189,7 @@ final class Templates {
         }
 
         SafeHtmlBuilder details = new SafeHtmlBuilder();
-        details.appendHtmlConstant("<h3>").appendEscaped("Details").appendHtmlConstant("</h3>")
+        details.appendHtmlConstant("<h3>").appendEscaped("Overview").appendHtmlConstant("</h3>")
                 .appendHtmlConstant("<ul>");
         if (deployment.getEnabledTime() != null) {
             details.appendHtmlConstant("<li class='deployment-timestamp'>").appendEscaped("Last enabled at ")
