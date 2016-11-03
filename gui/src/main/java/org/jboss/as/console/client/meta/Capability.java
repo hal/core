@@ -56,7 +56,11 @@ public class Capability {
 
     @Override
     public String toString() {
-        return "Capability(" + name + " -> " + templates + ")";
+        StringBuilder str = new StringBuilder("Capability(").append(name).append(" => ");
+        for (AddressTemplate addr: templates) {
+            str.append(addr.toString()).append(", ");
+        }
+        return str.toString();
     }
 
     public void addTemplate(final AddressTemplate template) {
