@@ -32,6 +32,8 @@ import com.google.common.collect.Iterables;
 public class ModelBrowserValidators {
     private static Map<String, FormValidator> validators = new HashMap<>();
 
+    private static FormValidator EMPTY = (items, outcome) -> {};
+
     private static FormItem findItem(String name, List<FormItem> formItems) {
         return Iterables.find(formItems, formItem -> name.equals(formItem.getName()), null);
     }
@@ -46,8 +48,8 @@ public class ModelBrowserValidators {
 
     public static FormValidator getValidatorFor(String resource) {
         resource = removeProfile(resource);
-
-        return validators.get(resource);
+        FormValidator validator = validators.get(resource);
+        return validator != null ? validator : EMPTY;
     }
 
     static {
