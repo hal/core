@@ -46,10 +46,11 @@ public class Capabilities {
 
     public void register(final String name, final boolean dynamic,
             final AddressTemplate first, AddressTemplate... rest) {
-        safeGet(name, dynamic).addTemplate(first);
+        Capability capability = safeGet(name, dynamic);
+        capability.addTemplate(first);
         if (rest != null) {
             for (AddressTemplate template : rest) {
-                safeGet(name, dynamic).addTemplate(template);
+                capability.addTemplate(template);
             }
         }
     }
@@ -74,4 +75,5 @@ public class Capabilities {
             return capability;
         }
     }
+
 }

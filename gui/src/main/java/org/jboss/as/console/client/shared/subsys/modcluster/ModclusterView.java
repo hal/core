@@ -14,7 +14,7 @@ import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
-import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_CONNECTOR;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_LISTENER;
 
 /**
  * @author Pavel Slegr
@@ -46,7 +46,7 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         TextBoxItem balancer = new TextBoxItem("balancer", "Balancer", false);
         TextBoxItem loadBalancingGroup = new TextBoxItem("loadBalancingGroup", "Load Balancing Group", false);
         FormItem connector = new SuggestionResource("connector", "Connector", true,
-            Console.MODULES.getCapabilities().lookup(UNDERTOW_CONNECTOR))
+            Console.MODULES.getCapabilities().lookup(UNDERTOW_LISTENER))
             .buildFormItem();
 
         form.setFields(connector, loadBalancingGroup, balancer, advertiseSocket, advertiseKey, advertise);
