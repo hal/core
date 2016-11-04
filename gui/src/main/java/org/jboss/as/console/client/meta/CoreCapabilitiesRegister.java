@@ -80,7 +80,7 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
     public void execute(final Control<BootstrapContext> control) {
 
         ResourceAddress address = control.getContext().isStandalone()
-                ? ResourceAddress.ROOT
+                ? new ResourceAddress()
                 : new ResourceAddress().add(HOST, hostStore.getSelectedHost());
         address.add("core-service", "capability-registry");
 
