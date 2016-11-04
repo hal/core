@@ -260,6 +260,7 @@ public class ChildView {
         ModelNodeFormBuilder.FormAssets assets = builder.build();
 
         final ModelNodeForm form = assets.getForm();
+        form.addFormValidator(ModelBrowserValidators.getValidatorFor(AddressUtils.asKey(address, false)));
         form.setEnabled(true);
 
         if(form.hasWritableAttributes()) {
