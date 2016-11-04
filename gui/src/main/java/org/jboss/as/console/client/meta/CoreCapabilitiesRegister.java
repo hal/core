@@ -79,12 +79,14 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
     @Override
     public void execute(final Control<BootstrapContext> control) {
 
-        ResourceAddress address = new ResourceAddress().add(HOST, hostStore.getSelectedHost());
+        ResourceAddress address = control.getContext().isStandalone()
+                ? ResourceAddress.ROOT
+                : new ResourceAddress().add(HOST, hostStore.getSelectedHost());
         address.add("core-service", "capability-registry");
-        
+
         ModelNode possibleCapabilitiesKey = new ModelNode();
         possibleCapabilitiesKey.add("possible-capabilities");
-        
+
         Operation operation = new Operation.Builder(QUERY_OPERATION, address)
                 .param("select", possibleCapabilitiesKey)
                 .build();
@@ -107,17 +109,18 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
                     context.setlastError(new RuntimeException(response.getFailureDescription()));
                     control.abort();
                 } else {
-                    for (ModelNode node: response.get(RESULT).get("possible-capabilities").asList()) {
+                    for (ModelNode node : response.get(RESULT).get("possible-capabilities").asList()) {
 
-                        Capability capability = new Capability(node.get(NAME).asString(), node.get("dynamic").asBoolean());
-                        for (ModelNode registrationAddress: node.get("registration-points").asList()) {
+                        Capability capability = new Capability(node.get(NAME).asString(),
+                                node.get("dynamic").asBoolean());
+                        for (ModelNode registrationAddress : node.get("registration-points").asList()) {
                             String resAddress = registrationAddress.asString();
                             resAddress = resAddress.replace("profile=*", "{selected.profile}");
                             resAddress = resAddress.replaceAll("^/host=\\w*/", "/{selected.host}/");
                             capability.addTemplate(AddressTemplate.of(resAddress));
                         }
                         capabilities.register(capability);
-                        
+
                     }
                     registerManualCapabilities();
                 }
@@ -127,7 +130,7 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
 
         control.proceed();
     }
-    
+
     /* 
          There are no capabilities registered for the following addresses, so this is an emulation 
          unfortunately, there is no capability-reference also, so, each attribute that wants to have 
@@ -137,10 +140,10 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
 
         capabilities.register(SECURITY_DOMAIN, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=security/security-domain=*"));
-        
+
         capabilities.register(STATELESS_SESSION_BEAN_POOL, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=ejb3/strict-max-bean-instance-pool=*"));
-        
+
         capabilities.register(EJB_CACHE, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=ejb3/cache=*"));
 
@@ -159,7 +162,7 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
 
         capabilities.register(JGROUPS_STACK, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=jgroups/stack=*"));
-        
+
         capabilities.register(UNDERTOW_SERVER, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=undertow/server=*"));
 
