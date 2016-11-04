@@ -64,6 +64,7 @@ public class ModelNodeFormBuilder {
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
+
     public interface FormItemFactory {
 
         FormItem create(Property attributeDescription);
@@ -74,13 +75,12 @@ public class ModelNodeFormBuilder {
     }
 
     public ModelNodeFormBuilder setSecurityContext(SecurityContext sc) {
-        if(null==sc)
-            throw new IllegalArgumentException("SecurityContext cannot be null!");
+        if (null == sc) { throw new IllegalArgumentException("SecurityContext cannot be null!"); }
         this.securityContext = sc;
         return this;
     }
 
-    public  ModelNodeFormBuilder setAddress(String addr) {
+    public ModelNodeFormBuilder setAddress(String addr) {
         this.address = addr;
         return this;
     }
@@ -92,7 +92,7 @@ public class ModelNodeFormBuilder {
 
     public ModelNodeFormBuilder setRuntimeOnly() {
         this.configAttributes = false;
-        this.runtimeAttributes= true;
+        this.runtimeAttributes = true;
         return this;
     }
 
@@ -113,14 +113,14 @@ public class ModelNodeFormBuilder {
     }
 
     public ModelNodeFormBuilder include(String... attributeName) {
-        if (attributeName != null && attributeName.length !=  0) {
+        if (attributeName != null && attributeName.length != 0) {
             this.includes.addAll(asList(attributeName));
         }
         return this;
     }
 
     public ModelNodeFormBuilder include(String[]... attributes) {
-        if (attributes != null && attributes.length !=  0) {
+        if (attributes != null && attributes.length != 0) {
 
             for (String[] group : attributes) {
                 this.includes.addAll(asList(group));
@@ -141,14 +141,14 @@ public class ModelNodeFormBuilder {
     }
 
     public ModelNodeFormBuilder exclude(String... attributeName) {
-        if (attributeName != null && attributeName.length !=  0) {
+        if (attributeName != null && attributeName.length != 0) {
             this.excludes.addAll(asList(attributeName));
         }
         return this;
     }
 
     public ModelNodeFormBuilder exclude(String[]... attributes) {
-        if (attributes != null && attributes.length !=  0) {
+        if (attributes != null && attributes.length != 0) {
 
             for (String[] group : attributes) {
                 this.excludes.addAll(asList(group));
@@ -175,7 +175,8 @@ public class ModelNodeFormBuilder {
 
         List<Property> attributeDescriptions = new ArrayList<Property>();
         if (createMode && modelDescription.get("operations").get("add").hasDefined("request-properties")) {
-            attributeDescriptions = modelDescription.get("operations").get("add").get("request-properties").asPropertyList();
+            attributeDescriptions = modelDescription.get("operations").get("add").get("request-properties")
+                    .asPropertyList();
         } else if (!createMode) {
             attributeDescriptions = modelDescription.get("attributes").asPropertyList();
         }
@@ -230,7 +231,8 @@ public class ModelNodeFormBuilder {
             for (Property attr : attributeDescriptions) {
 
                 boolean isRuntime = attr.getValue().get("storage").asString().equals("runtime");
-                boolean isConfig = !attr.getValue().get("storage").asString().equals("runtime"); // TODO: verify statement
+                boolean isConfig = !attr.getValue().get("storage").asString()
+                        .equals("runtime"); // TODO: verify statement
 
                 if (runtimeAttributes == false && isRuntime) {
                     continue;
@@ -240,8 +242,7 @@ public class ModelNodeFormBuilder {
                     continue;
                 }
 
-                if (!attr.getName().equals(attribute))
-                    continue;
+                if (!attr.getName().equals(attribute)) { continue; }
 
                 // -------
                 // Attribute meta data
@@ -255,8 +256,7 @@ public class ModelNodeFormBuilder {
                 ModelNode attrDesc = attr.getValue();
 
                 // skip deprecated attributes
-                if(attrDesc.hasDefined("deprecated"))
-                {
+                if (attrDesc.hasDefined("deprecated")) {
                     //Log.error("Skip deprecated attribute '" + attr.getName() + "'");
                     continue;
                 }
@@ -269,7 +269,8 @@ public class ModelNodeFormBuilder {
                     ModelNode defaultValue = attrDesc.get("default");
                     ModelNode value = new ModelNode();
                     //value.set(type, ModelNodeForm.downCast(defaultValue));
-                    setValue(value, type, ModelNodeForm.downCast(defaultValue, attrDesc)); // workaround for numeric types
+                    setValue(value, type,
+                            ModelNodeForm.downCast(defaultValue, attrDesc)); // workaround for numeric types
 
 
                     defaultValues.put(attr.getName(), value);
@@ -284,16 +285,14 @@ public class ModelNodeFormBuilder {
                 boolean isRequired = isRequired(attrDesc);
 
                 // createMode flag
-                if ((createMode && readOnly))
-                    continue;
+                if ((createMode && readOnly)) { continue; }
 
                 // requiredOnly flag
-                if (requiredOnly && hasRequired && !isRequired)
-                    continue;
+                if (requiredOnly && hasRequired && !isRequired) { continue; }
 
 
                 // count writable attributes
-                if (!readOnly && !isRuntime) numWritable++;
+                if (!readOnly && !isRuntime) { numWritable++; }
 
                 // -------
                 // help
@@ -322,7 +321,7 @@ public class ModelNodeFormBuilder {
                 }
 
                 // not created by explicit factory
-                if(null==formItem) {
+                if (null == formItem) {
                     switch (type) {
                         case BOOLEAN:
                             formItem = new CheckBoxItem(attr.getName(), label);
@@ -336,8 +335,9 @@ public class ModelNodeFormBuilder {
                             break;
                         case LONG:
                             boolean allowNegativeValues = false;
-                            if (attrDesc.hasDefined("default"))
+                            if (attrDesc.hasDefined("default")) {
                                 allowNegativeValues = attrDesc.get("default").asLong() < 0;
+                            }
 
                             formItem = new NumberBoxItem(attr.getName(), label, allowNegativeValues);
                             formItem.setRequired(isRequired);
@@ -349,16 +349,13 @@ public class ModelNodeFormBuilder {
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case INT:
-                            if(attrDesc.hasDefined("min") && attrDesc.hasDefined("max"))
-                            {
+                            if (attrDesc.hasDefined("min") && attrDesc.hasDefined("max")) {
                                 formItem = new NumberBoxItem(
                                         attr.getName(), label,
                                         attrDesc.get("min").asLong(),
                                         attrDesc.get("max").asLong()
                                 );
-                            }
-                            else
-                            {
+                            } else {
                                 formItem = new NumberBoxItem(attr.getName(), label);
                             }
 
@@ -376,11 +373,12 @@ public class ModelNodeFormBuilder {
                             if (attrDesc.get("allowed").isDefined()) {
                                 List<ModelNode> allowed = attrDesc.get("allowed").asList();
                                 Set<String> allowedValues = new HashSet<String>(allowed.size());
-                                for (ModelNode value : allowed)
-                                    allowedValues.add(value.asString());
+                                for (ModelNode value : allowed) { allowedValues.add(value.asString()); }
 
-                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean();
-                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);                                                        combo.setValueMap(allowedValues);
+                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE)
+                                        .asBoolean() && defaultValues.isEmpty();
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);
+                                combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
                                 combo.setRequired(isRequired);
 
@@ -420,10 +418,9 @@ public class ModelNodeFormBuilder {
 
                 if (formItem != null) {
                     if (createMode) {
-                        if (isRequired && includeOptionals)
-                            requiredItems.add(formItem);
-                        else
+                        if (isRequired && includeOptionals) { requiredItems.add(formItem); } else {
                             optionalItems.add(formItem);
+                        }
                     } else {
                         requiredItems.add(formItem);
                     }
@@ -439,7 +436,7 @@ public class ModelNodeFormBuilder {
 
         // some resources already contain a name attribute
         FormItem nameItem = null;
-        if(createMode) {
+        if (createMode) {
             for (FormItem item : requiredItems) {
                 if ("name".equals(item.getName())) {
                     nameItem = item;
@@ -455,8 +452,7 @@ public class ModelNodeFormBuilder {
         }
 
         // remove so it can be prepended
-        if(nameItem!=null)
-        {
+        if (nameItem != null) {
             requiredItems.remove(nameItem);
             optionalItems.remove(nameItem);
         }
@@ -481,8 +477,10 @@ public class ModelNodeFormBuilder {
 
             form.setFields(requiredItems.toArray(new FormItem[]{}));
 
-            if (optionalItems.size() > 0)
-                form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(), optionalItems.toArray(new FormItem[]{}));
+            if (optionalItems.size() > 0) {
+                form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(),
+                        optionalItems.toArray(new FormItem[]{}));
+            }
         }
 
         // form meta data
@@ -527,6 +525,7 @@ public class ModelNodeFormBuilder {
      * In create mode we consider the parameter for the 'add' operations for building the form.
      *
      * @param createMode
+     *
      * @return
      */
     public ModelNodeFormBuilder setCreateMode(boolean createMode) {
@@ -536,6 +535,7 @@ public class ModelNodeFormBuilder {
     }
 
     public final class FormAssets {
+
         private ModelNodeForm form;
         private SafeHtml help;
         private Set<String[]> unsupportedTypes = Collections.EMPTY_SET;
@@ -574,55 +574,39 @@ public class ModelNodeFormBuilder {
     /**
      * a more lenient way to update values by type
      */
-    public static void setValue(ModelNode target, ModelType type, Object propValue ) {
+    public static void setValue(ModelNode target, ModelType type, Object propValue) {
 
-        if(type.equals(ModelType.STRING))
-        {
-            target.set((String)propValue);
-        }
-        else if(type.equals(ModelType.INT))
-        {
-            target.set((Integer)propValue);
-        }
-        else if(type.equals(ModelType.DOUBLE))
-        {
-            target.set((Double)propValue);
-        }
-        else if(type.equals(ModelType.LONG))
-        {
+        if (type.equals(ModelType.STRING)) {
+            target.set((String) propValue);
+        } else if (type.equals(ModelType.INT)) {
+            target.set((Integer) propValue);
+        } else if (type.equals(ModelType.DOUBLE)) {
+            target.set((Double) propValue);
+        } else if (type.equals(ModelType.LONG)) {
             // in some cases the server returns the wrong model type for numeric values
             // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
             try {
-                target.set((Long)propValue);
+                target.set((Long) propValue);
             } catch (Throwable e) { // ClassCastException
-                target.set(Integer.valueOf((Integer)propValue));
+                target.set(Integer.valueOf((Integer) propValue));
             }
-        }
-        else if(type.equals(ModelType.BIG_DECIMAL))
-        {
+        } else if (type.equals(ModelType.BIG_DECIMAL)) {
             // in some cases the server returns the wrong model type for numeric values
             // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
             try {
-                target.set((BigDecimal)propValue);
+                target.set((BigDecimal) propValue);
             } catch (Throwable e) { // ClassCastException
-                target.set(Double.valueOf((Double)propValue));
+                target.set(Double.valueOf((Double) propValue));
             }
-        }
-        else if(type.equals(ModelType.BOOLEAN))
-        {
-            target.set((Boolean)propValue);
-        }
-        else if(type.equals(ModelType.LIST))
-        {
+        } else if (type.equals(ModelType.BOOLEAN)) {
+            target.set((Boolean) propValue);
+        } else if (type.equals(ModelType.LIST)) {
             target.setEmptyList();
-            List list = (List)propValue;
+            List list = (List) propValue;
 
-            for(Object item : list)
-                target.add(String.valueOf(item));
-        }
-        else
-        {
-            Log.warn("Type conversionnot supported for "+ type);
+            for (Object item : list) { target.add(String.valueOf(item)); }
+        } else {
+            Log.warn("Type conversionnot supported for " + type);
             target.setEmptyObject();
         }
 
