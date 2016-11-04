@@ -379,10 +379,8 @@ public class ModelNodeFormBuilder {
                                 for (ModelNode value : allowed)
                                     allowedValues.add(value.asString());
 
-                                final boolean includeNull = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean()
-                                        && attrDesc.hasDefined("nil-significant") && attrDesc.get("nil-significant").asBoolean();
-                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, includeNull);
-                                combo.setValueMap(allowedValues);
+                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE).asBoolean();
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);                                                        combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
                                 combo.setRequired(isRequired);
 
