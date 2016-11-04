@@ -25,11 +25,23 @@ import org.jboss.dmr.client.ModelNode;
 
 /**
  * Represents a fully qualified DMR address ready to be put into a DMR operation.
+ *
  * @author Harald Pehl
  */
 public class ResourceAddress extends ModelNode {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
+    /**
+     * Constant for the root address. Do <strong>not</strong> use this constants to chain calls like {@code add("foo",
+     * "bar")}. This will change the resource address for {@code ROOT} and will lead to very interesting errors!
+     */
+    public static final ResourceAddress ROOT = new ResourceAddress() {
+        static final String NOT_SUPPORTED = "Not supported for ROOT address";
+
+        @Override
+        public ResourceAddress add(final String propertyName, final String propertyValue) {
+            throw new UnsupportedOperationException(NOT_SUPPORTED);
+        }
+    };
 
     public ResourceAddress() {
         super();
