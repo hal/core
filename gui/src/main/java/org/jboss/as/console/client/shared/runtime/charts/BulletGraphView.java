@@ -379,7 +379,7 @@ public class BulletGraphView implements Sampler {
                     public String f(JsArgs args) {
                         Bullet d = args.getObject(0);
                         double measures = d.measures[0];
-                        return measures > 0.00 ? String.valueOf(Double.valueOf(d.ranges[0]).longValue()) : "";
+                        return measures > 0.00 ? String.valueOf(measures) : "";
                     }
                 });
 
