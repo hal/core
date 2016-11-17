@@ -138,6 +138,45 @@ public class DataSourceTemplates implements Iterable<DataSourceTemplate<? extend
         xaDataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter");
         setup.add(new DataSourceTemplate<>("mysql-xa", MYSQL, xaDataSource, driver));
 
+        // ------------------------------------------------------ MariaDB
+        // Driver
+        driver = beanFactory.jdbcDriver().as();
+        driver.setName("mariadb");
+        driver.setDriverModuleName("org.mariadb");
+        driver.setDriverClass("org.mariadb.jdbc.Driver");
+        driver.setXaDataSourceClass("org.mariadb.jdbc.MariaDbDataSource");
+
+        // DS
+        dataSource = beanFactory.dataSource().as();
+        dataSource.setName("MariaDB");
+        dataSource.setPoolName("MariaDB_Pool");
+        dataSource.setJndiName("java:/MariaDB");
+        dataSource.setDriverName("mariadb");
+        dataSource.setConnectionUrl("jdbc:mariadb://localhost:3306/db");
+        dataSource.setUsername("admin");
+        dataSource.setPassword("admin");
+        dataSource.setValidateOnMatch(true);
+        dataSource.setBackgroundValidation(false);
+        dataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker");
+        dataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter");
+        setup.add(new DataSourceTemplate<>("mariadb", MARIA_DB, dataSource, driver));
+
+        // XA DS
+        xaDataSource = beanFactory.xaDataSource().as();
+        xaDataSource.setName("MariaDBXADS");
+        xaDataSource.setPoolName("MariaDBXADS_Pool");
+        xaDataSource.setJndiName("java:/MariaDBXADS");
+        xaDataSource.setDriverName("mariadb");
+        xaDataSource.setProperties(properties("ServerName", "localhost",
+                "DatabaseName", "db"));
+        xaDataSource.setUsername("admin");
+        xaDataSource.setPassword("admin");
+        xaDataSource.setValidateOnMatch(true);
+        xaDataSource.setBackgroundValidation(false);
+        xaDataSource.setValidConnectionChecker("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker");
+        xaDataSource.setExceptionSorter("org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter");
+        setup.add(new DataSourceTemplate<>("mariadb-xa", MARIA_DB, xaDataSource, driver));
+
 
         // ------------------------------------------------------ Oracle
         // Driver

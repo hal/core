@@ -13,7 +13,8 @@ public class DataSourceTemplate<T extends DataSource> {
         ORACLE("Oracle"),
         SQL_SERVER("Microsoft SQLServer"),
         DB2("IBM DB2"),
-        SYBASE("Sybase");
+        SYBASE("Sybase"),
+        MARIA_DB("MariaDB");
 
         private final String label;
 
