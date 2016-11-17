@@ -45,8 +45,6 @@ public class DeploymentBrowseContentView extends SuspendableViewImpl implements 
     private VerticalPanel panel = new VerticalPanel();
     private DeploymentBrowseContentPresenter presenter;
 
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-
     @Inject
     public DeploymentBrowseContentView() { }
 

@@ -188,6 +188,16 @@ import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EESubsystemView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJBView;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronFactoryPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronFinder;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronFinderView;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronMapperPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronSecurityRealmPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.ElytronSecurityRealmView;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.ElytronView;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.factory.ElytronFactoryView;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.mapper.ElytronMapperView;
 import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemView;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
@@ -454,6 +464,31 @@ public class CoreUIModule extends AbstractPresenterModule {
                       XADataSourcePresenter.MyView.class,
                       XADatasourceView.class,
                       XADataSourcePresenter.MyProxy.class);
+
+        bindPresenter(ElytronFinder.class,
+                ElytronFinder.MyView.class,
+                ElytronFinderView.class,
+                ElytronFinder.MyProxy.class);
+        
+        bindPresenter(ElytronPresenter.class,
+                ElytronPresenter.MyView.class,
+                ElytronView.class,
+                ElytronPresenter.MyProxy.class);
+        
+        bindPresenter(ElytronFactoryPresenter.class,
+                ElytronFactoryPresenter.MyView.class,
+                ElytronFactoryView.class,
+                ElytronFactoryPresenter.MyProxy.class);
+
+        bindPresenter(ElytronMapperPresenter.class,
+                ElytronMapperPresenter.MyView.class,
+                ElytronMapperView.class,
+                ElytronMapperPresenter.MyProxy.class);
+
+        bindPresenter(ElytronSecurityRealmPresenter.class,
+                ElytronSecurityRealmPresenter.MyView.class,
+                ElytronSecurityRealmView.class,
+                ElytronSecurityRealmPresenter.MyProxy.class);
 
         bindPresenter(org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.class,
                 org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.MyView.class,

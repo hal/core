@@ -37,6 +37,12 @@ public class NameTokens {
     public static final String DataSourcePresenter = "datasources";
     public static final String DebugToolsPresenter = "debug-tools";
     public static final String EJB3Presenter = "ejb3";
+    public static final String ElytronPresenter = "elytron";
+    public static final String ElytronFinder = "elytron-finder";
+    public static final String ElytronFactoryPresenter = "elytron-factory-presenter";
+    public static final String ElytronMapperPresenter = "elytron-mapper-presenter";
+    public static final String ElytronSecurityRealmPresenter = "elytron-security-realm-presenter";
+    public static final String ElytronSSLPresenter = "elytron-ssl-presenter";
     public static final String HostInterfacesPresenter = "host-interfaces";
     public static final String HostJVMPresenter = "host-jvms";
     public static final String HostPropertiesPresenter = "host-properties";

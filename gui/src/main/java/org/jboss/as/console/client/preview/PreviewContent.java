@@ -126,6 +126,18 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/deployment_scanner.html")
     ExternalTextResource deployment_scanner();
 
+    @Source("content/elytron_factory.html")
+    ExternalTextResource elytron_factory();
+
+    @Source("content/elytron_mapper.html")
+    ExternalTextResource elytron_mapper();
+
+    @Source("content/elytron_settings.html")
+    ExternalTextResource elytron_settings();
+
+    @Source("content/elytron_security_realm.html")
+    ExternalTextResource elytron_security_realm();
+
     @Source("content/mail_sessions.html")
     ExternalTextResource mail_sessions();
 

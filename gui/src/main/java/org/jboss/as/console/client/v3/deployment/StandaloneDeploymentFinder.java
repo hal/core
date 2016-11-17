@@ -259,8 +259,6 @@ public class StandaloneDeploymentFinder
         placeManager.revealRelativePlace(new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowseContent).build());
     }
     
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-
     // ------------------------------------------------------ finder related methods
 
     @Override

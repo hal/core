@@ -42,9 +42,6 @@ import static org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPres
  */
 public class DataSourceMetrics implements SelectionAwareContext {
 
-
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-    
     private DataSourceMetricPresenter presenter;
     private DefaultCellTable<DataSource> table;
     private ListDataProvider<DataSource> dataProvider;

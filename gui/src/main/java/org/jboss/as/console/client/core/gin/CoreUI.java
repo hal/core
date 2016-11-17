@@ -106,6 +106,11 @@ import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronFactoryPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronFinder;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronMapperPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronSecurityRealmPresenter;
 import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
@@ -290,6 +295,12 @@ public interface CoreUI {
     AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter> getTransactionsPresenter();
     AsyncProvider<JMSBridgePresenter> getJMSBridgePresenter();
 
+    AsyncProvider<ElytronPresenter> getElytronPresenter();
+    AsyncProvider<ElytronFactoryPresenter> getElytronFactoryPresenter();
+    AsyncProvider<ElytronMapperPresenter> getElytronMapperPresenter();
+    AsyncProvider<ElytronSecurityRealmPresenter> getElytronSecurityRealmPresenter();
+    AsyncProvider<ElytronFinder> getElytronFinder();
+    
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
     AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
 
