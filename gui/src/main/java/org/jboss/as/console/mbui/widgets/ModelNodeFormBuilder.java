@@ -37,6 +37,7 @@ import org.jboss.dmr.client.Property;
 
 import static java.util.Arrays.asList;
 import static org.jboss.dmr.client.ModelDescriptionConstants.CAPABILITY_REFERENCE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.EXPRESSIONS_ALLOWED;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
 
 /**
@@ -330,9 +331,14 @@ public class ModelNodeFormBuilder {
                 if (null == formItem) {
                     switch (type) {
                         case BOOLEAN:
-                            formItem = new CheckBoxItem(attr.getName(), label);
-                            formItem.setRequired(isRequired);
-                            formItem.setEnabled(!readOnly && !isRuntime);
+                            ModelNode expressionsAllowedNode = attrDesc.get(EXPRESSIONS_ALLOWED);
+                            boolean expressionAllowed = expressionsAllowedNode.isDefined() && expressionsAllowedNode.asBoolean();
+
+                            CheckBoxItem checkBoxItem = new CheckBoxItem(attr.getName(), label);
+                            checkBoxItem.setRequired(isRequired);
+                            checkBoxItem.setEnabled(!readOnly && !isRuntime);
+                            checkBoxItem.setExpressionAllowed(expressionAllowed);
+                            formItem = checkBoxItem;
                             break;
                         case DOUBLE:
                             formItem = new DoubleFormItem(attr.getName(), label);

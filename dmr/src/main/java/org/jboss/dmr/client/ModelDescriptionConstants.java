@@ -202,5 +202,6 @@ public class ModelDescriptionConstants {
     public static final String WHOAMI = "whoami";
     public static final String WRITE_ATTRIBUTE_OPERATION = "write-attribute";
     public static final String UNDEFINE_ATTRIBUTE_OPERATION = "undefine-attribute";
+    public static final String EXPRESSIONS_ALLOWED = "expressions-allowed";
 }
 
