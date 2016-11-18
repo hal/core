@@ -83,16 +83,13 @@ public class DeploymentBrowseContentView extends SuspendableViewImpl implements 
                 fileLengthDisplay = formatFileUnits(fileLength);
             
             Anchor anchor = new Anchor(contentFile + " | " + fileLengthDisplay);
-            anchor.setEnabled(false);
-            anchor.setTitle("Download not implemented yet.");
-            //anchor.addClickHandler(clickEvent -> {
-            //    Anchor sourceAnchor = (Anchor) clickEvent.getSource();
-            //    String filepath = sourceAnchor.getText();
-            //    // retrieve only the path portion
-            //    filepath = filepath.substring(0, filepath.lastIndexOf('|') - 1);
-            //    //_log.info(" click file filepath: '" + filepath +  "'");
-            //    presenter.downloadFile(filepath);
-            //});
+            anchor.addClickHandler(clickEvent -> {
+                Anchor sourceAnchor = (Anchor) clickEvent.getSource();
+                String filepath = sourceAnchor.getText();
+                // retrieve only the path portion
+                filepath = filepath.substring(0, filepath.lastIndexOf('|') - 1);
+                presenter.downloadFile(filepath);
+            });
                     
             panel.add(anchor);
         }

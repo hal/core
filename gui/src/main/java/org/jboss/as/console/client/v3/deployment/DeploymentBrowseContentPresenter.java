@@ -23,11 +23,6 @@ package org.jboss.as.console.client.v3.deployment;
 
 import java.util.List;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -50,8 +45,9 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import static com.google.gwt.http.client.URL.encode;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.BROWSE_CONTENT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.DEPLOYMENT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Claudio Miranda
@@ -76,8 +72,6 @@ public class DeploymentBrowseContentPresenter
     private final BootstrapContext bootstrap;
     private String deploymentName;
 
-    private String managementUrl;
-
     @Inject
     public DeploymentBrowseContentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final RevealStrategy revealStrategy, final DeploymentStore deploymentStore,
@@ -88,7 +82,6 @@ public class DeploymentBrowseContentPresenter
         this.revealStrategy = revealStrategy;
         this.deploymentStore = deploymentStore;
         this.bootstrap = bootstrap;
-        managementUrl = bootstrap.getProperty(ApplicationProperties.DOMAIN_API) + "/";
     }
 
     @Override
@@ -136,75 +129,7 @@ public class DeploymentBrowseContentPresenter
     }
 
     public void downloadFile(String filepath) {
-
-        if (filepath != null) {
-
-            Operation operation = new Operation.Builder(READ_CONTENT_OPERATION, new ResourceAddress().add("deployment", deploymentName))
-                    .param(PATH, filepath)
-                    .build();
-
-            dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-                @Override
-                public void onFailure(final Throwable caught) {
-                    Console.error(Console.CONSTANTS.unableToReadDeployment(), caught.getMessage());
-                }
-
-                @Override
-                public void onSuccess(final DMRResponse dmrResponse) {
-                    ModelNode result = dmrResponse.get();
-                    if (result.isFailure()) {
-                        Console.error(Console.CONSTANTS.unableToReadDeployment(), result.getFailureDescription());
-                    } else {
-
-                        //_log.info("  read-content: " + result.asString());
-                        String mimeType = result.get("response-headers").get("attached-streams").get(0).get("mime-type").asString();
-                        //_log.info("  read-content mime-type: " + mimeType);
-
-                        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, encode(managementUrl));
-                        requestBuilder.setHeader("Accept", "application/dmr-encoded");
-                        requestBuilder.setHeader("Content-Type", "application/json");
-                        requestBuilder.setHeader("org.wildfly.useStreamAsResponse", "0");
-                        requestBuilder.setIncludeCredentials(true);
-
-                        ResourceAddress deployAddress = new ResourceAddress();
-                        deployAddress.add(DEPLOYMENT, deploymentName);
-
-                        Operation op = new Operation.Builder(READ_CONTENT_OPERATION, deployAddress)
-                                .param(PATH, filepath)
-                                .build();
-                        try {
-                            requestBuilder.sendRequest(op.toBase64String(), new RequestCallback() {
-                                @Override
-                                public void onResponseReceived(Request request, final Response response) {
-                                    if (response.getStatusCode() >= 400) {
-                                        Console.error("Failed to download file " +
-                                                filepath + " from deployment " + deploymentName + ". HTTP status code: "
-                                                + response.getStatusCode() + ". Message: "
-                                                + response.getStatusText());
-                                    } else {
-                                        //_log.info(" file 1: " + response.getText());
-                                        //openPrintWindow("<pre>" + SafeHtmlUtils.htmlEscape(response.getText()) + "</pre>");
-                                        String filename = filepath.substring(filepath.lastIndexOf("/") + 1);
-                                        downloadFile2(filename, response.getText(), mimeType);
-                                    }
-                                }
-                                @Override
-                                public void onError(Request request, Throwable exception) {
-                                    Console.error("Failed to download file " + filepath + " from deployment " + deploymentName + ". " + exception.getMessage());
-                                }
-                            });
-                        } catch (RequestException e) {
-                            Console.error("Failed to download file " + filepath + " from deployment " + deploymentName + ". " + e.getMessage());
-                        }
-                    }
-                }
-            });
-        }
-    }
-    public void downloadFileGET(String filepath) {
-
-        //_log.info("  deploystore selected: " + deploymentName);
-        Window.open(streamUrl(deploymentName, filepath), "arquivao", "");
+        Window.open(streamUrl(deploymentName, filepath), "", "");
     }
 
     private String streamUrl(final String deploymentName, String filepath) {
@@ -213,43 +138,5 @@ public class DeploymentBrowseContentPresenter
         url.append("deployment/").append(deploymentName).append("?operation=read-content&path=" + filepath + "&useStreamAsResponse");
         return url.toString();
     }
-
-
-    native void openPrintWindow(String contents) /*-{
-        var printWindow = window.open("", "");
-        if (printWindow && printWindow.top) {
-            printWindow.document.write(contents);
-        } else {
-            alert("The print feature works by opening a popup window, but our popup window was blocked by your browser.  If you can disable the blocker temporarily, you'll be able to print here.  Sorry!");
-        }
-    }-*/;
-    
-    // encodeURIComponent(
-    private native void downloadFile2(String filename, String content, String mime) /*-{
-        var pom = document.createElement('a');
-        pom.setAttribute('href', 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(content));
-        pom.setAttribute('download', filename);
-    
-        if (document.createEvent) {
-            var event = document.createEvent('MouseEvents');
-            event.initEvent('click', true, true);
-            pom.dispatchEvent(event);
-        }
-        else {
-            pom.click();
-        }
-    }-*/;
-    
-
-    private ModelNode baseAddress() {
-        ModelNode address = new ModelNode();
-        if (!bootstrap.isStandalone()) {
-            //address.add("host", serverStore.getSelectedServer().getHostName());
-            //address.add("server", serverStore.getSelectedServer().getServerName());
-        }
-        address.add("deployment", "logging");
-        return address;
-    }
-
 
 }
