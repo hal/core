@@ -105,9 +105,9 @@ public class SubsystemMetaData {
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("IIOP", NameTokens.IiopOpenJdk));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batch", "batch", NameTokens.Batch));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batch", "batch-jberet", NameTokens.BatchJberet));
-        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Elytron", "elytron", NameTokens.ElytronFinder));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security", "security", NameTokens.SecDomains));
+        groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security - Elytron", "elytron", NameTokens.ElytronFinder));
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("PicketLink", "picketlink-federation", NameTokens.PicketLinkFinder));
 
         groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));

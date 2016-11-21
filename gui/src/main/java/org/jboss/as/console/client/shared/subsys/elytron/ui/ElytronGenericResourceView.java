@@ -106,7 +106,6 @@ public class ElytronGenericResourceView {
         dataProvider = new ListDataProvider<>(providesKey);
         dataProvider.addDataDisplay(table);
         selectionModel = new SingleSelectionModel<>(providesKey);
-        table.setSelectionModel(selectionModel);
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {

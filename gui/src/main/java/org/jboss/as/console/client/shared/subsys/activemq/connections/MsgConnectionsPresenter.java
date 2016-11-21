@@ -41,6 +41,8 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpo
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
@@ -89,11 +91,13 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         void setConnetorServices(List<ActivemqConnectorService> services);
         void setBridges(List<ActivemqBridge> bridges);
         void setConnectionFactories(List<ActivemqConnectionFactory> factories);
+        void setPooledConnectionFactories(List<Property> models);
     }
     // @formatter:on
 
 
     static final String PARAMS_MAP = "params";
+    public static final AddressTemplate MESSAGING_SERVER = AddressTemplate.of("{selected.profile}/subsystem=messaging-activemq/server=*");
 
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
@@ -166,6 +170,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         loadConnectorServices();
         loadBridges();
         loadConnectionFactories();
+        loadPooledConnectionFactory();
     }
 
     private void loadProvider() {
@@ -1178,7 +1183,114 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             }
         });
     }
+    
+    private void loadPooledConnectionFactory() {
+        
+        org.jboss.as.console.client.v3.dmr.ResourceAddress pooledAddress = MESSAGING_SERVER
+                .resolve(statementContext, getCurrentServer());
+        Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, pooledAddress)
+                .param(CHILD_TYPE, "pooled-connection-factory")
+                .param(RECURSIVE, true)
+                .build();
 
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failed("Loading pooled connection factory " + getCurrentServer()),
+                            response.getFailureDescription());
+                } else {
+                    List<Property> model = response.get(RESULT).asPropertyList();
+                    getView().setPooledConnectionFactories(model);
+                }
+            }
+        });
+    }
+
+    public void addPooledConnectionFactory(ModelNode payload) {
+
+        ModelNode address = Baseadress.get();
+        address.add("subsystem", "messaging-activemq");
+        address.add("server", getCurrentServer());
+        String resourceName = payload.get(NAME).asString();
+        address.add("pooled-connection-factory", resourceName);
+
+        ModelNode operation = payload;
+        operation.get(ADDRESS).set(address);
+        operation.get(OP).set(ADD);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.addingFailed("Pooled Connection Factory " + resourceName),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.added("pooled Connection Factory " + resourceName));
+                }
+                loadPooledConnectionFactory();
+            }
+        });
+    }
+
+    public void onDeletePooledCF(final String name) {
+        ModelNode address = Baseadress.get();
+        address.add("subsystem", "messaging-activemq");
+        address.add("server", getCurrentServer());
+        address.add("pooled-connection-factory", name);
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(address);
+        operation.get(OP).set(REMOVE);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.deletionFailed("Pooled Connection Factory " + name),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.deleted("Pooled Connection Factory " + name));
+                }
+                loadPooledConnectionFactory();
+            }
+        });
+    }
+
+
+    public void onSavePooledCF(final String name, Map<String, Object> changeset) {
+        ModelNode address = Baseadress.get();
+        address.add("subsystem", "messaging-activemq");
+        address.add("server", getCurrentServer());
+        address.add("pooled-connection-factory", name);
+
+        ModelNode addressNode = new ModelNode();
+        addressNode.get(ADDRESS).set(address);
+
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode op = adapter.fromChangeset(changeset, addressNode);
+        
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.modificationFailed("Pooled Connector Factory " + name),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.modified("Pooled Connector Factory " + name));
+                }
+                loadPooledConnectionFactory();
+            }
+        });
+    }
+    
     @Override
     public SecurityFramework getSecurityFramework() {
         return securityFramework;
@@ -1193,4 +1305,5 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     public String getNameToken() {
         return getProxy().getNameToken();
     }
+
 }
