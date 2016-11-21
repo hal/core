@@ -23,17 +23,17 @@ import org.useware.kernel.gui.behaviour.StatementContext;
  */
 public class SelectionFilteringStatementContext extends FilteringStatementContext {
 
-    private String entityKey =  "selected.entity";
+    public static final String SELECTED_ENTITY =  "selected.entity";
 
     public SelectionFilteringStatementContext(final StatementContext delegate, final SelectionAwareContext viewEditor) {
         this(null, delegate, viewEditor);
     }
     
-    public SelectionFilteringStatementContext(String entityKey, final StatementContext delegate, final SelectionAwareContext viewEditor) {
+    public SelectionFilteringStatementContext(String SELECTED_ENTITY, final StatementContext delegate, final SelectionAwareContext viewEditor) {
         super(delegate, new Filter() {
             @Override
             public String filter(String key) {
-                if (entityKey.equals(key) && viewEditor.getSelection() != null) {
+                if (SELECTED_ENTITY.equals(key) && viewEditor.getSelection() != null) {
                     return viewEditor.getSelection();
                 }
                 return "*";

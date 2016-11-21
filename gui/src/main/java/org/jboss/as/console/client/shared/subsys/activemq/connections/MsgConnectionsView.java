@@ -26,6 +26,7 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
     private ConnectionFactoryList connectionFactories;
     private ConnectorOverview connectorOverview;
     private ConnectorServiceList connectorServiceList;
+    private PooledConnectionFactoryView pooledConnectionFactoryView;
     private BridgesList bridgesList;
 
     @Override
@@ -43,12 +44,14 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
         connectionFactories = new ConnectionFactoryList(presenter);
         connectorServiceList = new ConnectorServiceList(presenter);
         bridgesList = new BridgesList(presenter);
+        pooledConnectionFactoryView = new PooledConnectionFactoryView(presenter);
 
-        panel.addPage("Acceptor", acceptorOverview.asWidget()) ;
-        panel.addPage("Connector", connectorOverview.asWidget()) ;
-        panel.addPage("Connector Services", connectorServiceList.asWidget()) ;
-        panel.addPage("Connection Factories", connectionFactories.asWidget()) ;
-        panel.addPage("Bridges", bridgesList.asWidget()) ;
+        panel.addPage("Acceptor", acceptorOverview.asWidget());
+        panel.addPage("Connector", connectorOverview.asWidget());
+        panel.addPage("Connector Services", connectorServiceList.asWidget());
+        panel.addPage("Connection Factories", connectionFactories.asWidget());
+        panel.addPage("Pooled Connection Factory", pooledConnectionFactoryView.asWidget());
+        panel.addPage("Bridges", bridgesList.asWidget());
 
         // default page
         panel.showPage(0);
@@ -118,5 +121,10 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
     @Override
     public void setBridges(List<ActivemqBridge> bridges) {
         bridgesList.setBridges(bridges);
+    }
+
+    @Override
+    public void setPooledConnectionFactories(final List<Property> models) {
+        pooledConnectionFactoryView.setModel(models);
     }
 }
