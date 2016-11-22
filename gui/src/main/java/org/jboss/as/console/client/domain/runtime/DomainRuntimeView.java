@@ -375,7 +375,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(Server server) {
 
-                        LifecycleOperation op = server.getRuntimeState() == RuntimeState.STOPPED ?
+                        LifecycleOperation op = (server.getRuntimeState() == RuntimeState.STOPPED 
+                            || server.getRuntimeState() == RuntimeState.DISABLED) ?
                                 LifecycleOperation.START : LifecycleOperation.STOP;
 
                         if (LifecycleOperation.START == op) {

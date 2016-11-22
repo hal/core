@@ -34,6 +34,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
     private ActivemqMetricPresenter presenter;
     private TopicMetrics topicMetrics;
     private QueueMetrics queueMetrics;
+    private PooledConnectionFactoryRuntimeView pooledConnectionFactoryRuntimeView;
     private PagedView panel;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
@@ -43,6 +44,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
 
         this.topicMetrics = new TopicMetrics(presenter);
         this.queueMetrics= new QueueMetrics(presenter);
+        pooledConnectionFactoryRuntimeView = new PooledConnectionFactoryRuntimeView(presenter);
 
         LayoutPanel layout = new LayoutPanel();
 
@@ -105,6 +107,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
 
         panel.addPage("Queues", queueMetrics.asWidget()) ;
         panel.addPage("Topics", topicMetrics.asWidget()) ;
+        panel.addPage("Pooled Connection Factory", pooledConnectionFactoryRuntimeView.asWidget()) ;
 
         // default page
         panel.showPage(0);
@@ -139,7 +142,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
 
             queueMetrics.setProviderName(selectedProvider);
             topicMetrics.setProviderName(selectedProvider);
-            presenter.refreshQueuesAndTopics(selectedProvider);
+            presenter.refreshResources(selectedProvider);
 
             // move to first page if still showing topology
             if(0==panel.getPage())
@@ -170,5 +173,10 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
     @Override
     public void updateTopicMetrics(ModelNode result) {
         topicMetrics.updateFrom(result);
+    }
+
+    @Override
+    public void setPooledConnectionFactoryModel(List<Property> model) {
+        pooledConnectionFactoryRuntimeView.setModel(model);
     }
 }
