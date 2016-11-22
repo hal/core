@@ -16,6 +16,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.layout.SimpleLayout;
+import org.jboss.as.console.client.shared.subsys.activemq.model.PreparedTransaction;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.widgets.pages.PagedView;
@@ -34,6 +35,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
     private ActivemqMetricPresenter presenter;
     private TopicMetrics topicMetrics;
     private QueueMetrics queueMetrics;
+    private PreparedTransactionManagement preparedTransactions;
     private PagedView panel;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
@@ -43,6 +45,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
 
         this.topicMetrics = new TopicMetrics(presenter);
         this.queueMetrics= new QueueMetrics(presenter);
+        this.preparedTransactions = new PreparedTransactionManagement(presenter);
 
         LayoutPanel layout = new LayoutPanel();
 
@@ -92,7 +95,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
         statsColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         option.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         nameColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        
+
         Widget frontPage = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("JMS Messaging Provider")
@@ -105,6 +108,7 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
 
         panel.addPage("Queues", queueMetrics.asWidget()) ;
         panel.addPage("Topics", topicMetrics.asWidget()) ;
+        panel.addPage("Prepared Transactions", preparedTransactions.asWidget()) ;
 
         // default page
         panel.showPage(0);
@@ -170,5 +174,10 @@ public class ActivemqMetricView extends SuspendableViewImpl implements ActivemqM
     @Override
     public void updateTopicMetrics(ModelNode result) {
         topicMetrics.updateFrom(result);
+    }
+
+    @Override
+    public void setTransactions(List<PreparedTransaction> transactions) {
+        preparedTransactions.setTransactions(transactions);
     }
 }
