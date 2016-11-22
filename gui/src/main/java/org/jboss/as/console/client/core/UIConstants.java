@@ -539,6 +539,7 @@ public interface UIConstants extends Constants {
     String subsys_mail_session_desc();
     String subsys_messaging_queue_metric_desc();
     String subsys_messaging_topic_metric_desc();
+    String subsys_messaging_pooled_stats_desc();
     String subsys_modcluster_desc();
     String subsys_naming_jndiBindings();
     String subsys_naming_jndiView();
