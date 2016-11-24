@@ -94,12 +94,13 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
+            Console.info(Console.MESSAGES.added("Undertow filter"));
             loadFilters();
         }
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-
+            Console.error(Console.MESSAGES.addingFailed("Undertow filter"), t.getMessage());
         }
     };
 
