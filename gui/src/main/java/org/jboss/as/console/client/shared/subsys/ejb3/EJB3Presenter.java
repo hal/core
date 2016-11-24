@@ -27,6 +27,7 @@ import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -268,34 +269,64 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         window.setWidth(480);
         window.setHeight(360);
 
-        window.setWidget(
-                new AddResourceDialog(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
-                        descriptionRegistry.lookup(address),
-                        new AddResourceDialog.Callback() {
-                            @Override
-                            public void onAdd(ModelNode payload) {
-                                window.hide();
-                                operationDelegate.onCreateResource(
-                                        address, payload.get("name").asString(), payload, defaultOpCallbacks);
-                            }
-
-                            @Override
-                            public void onCancel() {
-                                window.hide();
-                            }
+        AddResourceDialog addResourceDialog = new AddResourceDialog(
+                Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                descriptionRegistry.lookup(address),
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        // a special handling is necessary, as derive-size and max-pool-size are alternatives
+                        // if payload specifies a derive-size=none we remove because derive-size default=none
+                        if ("none".equals(payload.get("derive-size").asString())) {
+                            payload.remove("derive-size");
                         }
-                )
-                .addFactory("passivation-store", attributeDescription ->  {
-                    SuggestionResource suggestionResource = new SuggestionResource("passivation-store", "Passivation store", false,
+                        window.hide();
+                        operationDelegate.onCreateResource(
+                                address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }
+        )
+                .addFactory("passivation-store", attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource("passivation-store",
+                            "Passivation store", false,
                             Console.MODULES.getCapabilities().lookup(EJB_PASSIVATION_STORE));
                     return suggestionResource.buildFormItem();
-                })
+                });
+        window.setWidget(addResourceDialog);
+        addResourceDialog.getForm().addFormValidator((formItems, formValidation) -> {
 
-        );
+            FormItem deriveSize = findFormItem(formItems, "derive-size");
+            FormItem maxPoolSize = findFormItem(formItems, "max-pool-size");
+            
+            boolean maxPoolValid = !deriveSize.isUndefined() || !"none".equals(deriveSize.getValue().toString());
+            boolean deriveSizeValid = !maxPoolSize.isUndefined();
+            
+            if (deriveSizeValid && maxPoolValid) {
+                formValidation.addError("derive-size");
+                deriveSize.setErrMessage("Only derive size or max pool size should be filled.");
+                deriveSize.setErroneous(true);
+            }
+        });
 
         window.setGlassEnabled(true);
         window.center();
     }
+
+    <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
+        FormItem selectedFormItem = null;
+        for (FormItem formItem : formItems) {
+            if (name.equals(formItem.getName())) {
+                selectedFormItem = formItem;
+                break;
+            }
+        }
+        return selectedFormItem;
+    }
+
 
 }
