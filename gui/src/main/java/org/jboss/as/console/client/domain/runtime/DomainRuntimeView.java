@@ -477,7 +477,30 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     }
                 }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/{implicit.host}/server-config=*", "restart")
+                        .setOperationAddress("/{implicit.host}/server-config=*", "restart"),
+
+                new MenuDelegate<Server>(
+                        "Force Shutdown", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        Feedback.confirm(
+                                "Shutdown Server",
+                                "Do you really want to shutdown server " + server.getName() + "?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed) {
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(),
+                                                    LifecycleOperation.KILL);
+                                        }
+                                    }
+                                });
+
+
+                    }
+                }, MenuDelegate.Role.Operation)
+                        .setOperationAddress("/{implicit.host}/server-config=*", "kill")
         );
 
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {

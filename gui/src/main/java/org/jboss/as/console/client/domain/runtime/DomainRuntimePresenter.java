@@ -387,9 +387,7 @@ public class DomainRuntimePresenter
                 Console.error("Server " + op.name() + " failed", caught.getMessage());
                 circuit.dispatch(new RefreshServer());
             }
-        }, dispatcher, hostInfoStore,
-                host, server
-        );
+        }, dispatcher, hostInfoStore, host, server);
         serverInstanceOp.run();
 
     }

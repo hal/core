@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -29,8 +31,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
-
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -75,7 +75,7 @@ public class ServerInstanceOp extends TopologyOp {
                 hostInfoStore.startServer(host, server, false, bc);
                 break;
             case KILL:
-                hostInfoStore.killServer(host, server, true, bc);
+                hostInfoStore.killServer(host, server, false, bc);
                 break;
             case RELOAD:
                 hostInfoStore.reloadServer(host, server, bc);
