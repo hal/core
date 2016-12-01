@@ -18,6 +18,10 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -31,10 +35,6 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.icons.Icons;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
@@ -157,7 +157,6 @@ final class HtmlGenerator {
         String uniqueServerName = host + "_" + server.getName();
         if (server.isRunning()) {
             appendLifecycleLink(STOP_SERVER_ID + uniqueServerName, null, host, server.getName(), "Stop Server");
-            appendLifecycleLink(KILL_SERVER_ID + uniqueServerName, null, host, server.getName(), "Force Shutdown");
             if (server.getFlag() == RELOAD_REQUIRED) {
                 appendHtmlConstant("<br/>");
                 appendLifecycleLink(RELOAD_SERVER_ID + uniqueServerName, null, host, server.getName(),
@@ -166,6 +165,8 @@ final class HtmlGenerator {
         } else {
             appendLifecycleLink(START_SERVER_ID + uniqueServerName, null, host, server.getName(), "Start Server");
         }
+        // add 'Force Shutdown' in any case to kill servers which might have the wrong state in the console
+        appendLifecycleLink(KILL_SERVER_ID + uniqueServerName, null, host, server.getName(), "Force Shutdown");
         endLinks();
 
         appendHtmlConstant("</td>");

@@ -71,7 +71,7 @@ public class ServerInstanceOp extends TopologyOp {
                 hostInfoStore.startServer(host, server, false, bc);
                 break;
             case KILL:
-                hostInfoStore.killServer(host, server, true, bc);
+                hostInfoStore.killServer(host, server, false, bc);
                 break;
             case RELOAD:
                 hostInfoStore.reloadServer(host, server, bc);
