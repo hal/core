@@ -24,7 +24,7 @@
     <description>HAL Core Console :: Parent Aggregator</description>
     <groupId>org.jboss.as</groupId>
     <artifactId>jboss-as-console-parent</artifactId>
-    <version>2.5.15.Final</version>
+    <version>2.5.16-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <parent>
