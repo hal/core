@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -21,9 +24,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -69,7 +69,7 @@ public class BeanPoolView {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddResourceDialog(BASE_ADDRESS);
+                presenter.onLaunchAddBeanPoolDialog(BASE_ADDRESS);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {

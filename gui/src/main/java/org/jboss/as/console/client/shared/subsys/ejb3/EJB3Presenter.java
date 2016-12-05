@@ -273,6 +273,35 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                 new AddResourceDialog.Callback() {
                     @Override
                     public void onAdd(ModelNode payload) {
+                        window.hide();
+                        operationDelegate.onCreateResource(
+                                address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        window.hide();
+                    }
+                }
+        );
+        window.setWidget(addResourceDialog);
+        window.setGlassEnabled(true);
+        window.center();
+    }
+    
+    public void onLaunchAddBeanPoolDialog(AddressTemplate address) {
+        String type = address.getResourceType();
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        AddResourceDialog addResourceDialog = new AddResourceDialog(
+                Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                descriptionRegistry.lookup(address),
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
                         // a special handling is necessary, as derive-size and max-pool-size are alternatives
                         // if payload specifies a derive-size=none we remove because derive-size default=none
                         if ("none".equals(payload.get("derive-size").asString())) {
@@ -292,12 +321,14 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         window.setWidget(addResourceDialog);
         addResourceDialog.getForm().addFormValidator((formItems, formValidation) -> {
 
+            // a special handling is necessary, as derive-size and max-pool-size are alternatives
+            // if payload specifies a derive-size=none we remove because derive-size default=none
             FormItem deriveSize = findFormItem(formItems, "derive-size");
             FormItem maxPoolSize = findFormItem(formItems, "max-pool-size");
             
-            boolean maxPoolValid = !deriveSize.isUndefined() || !"none".equals(deriveSize.getValue().toString());
-            boolean deriveSizeValid = !maxPoolSize.isUndefined();
-            
+            boolean deriveSizeValid = deriveSize.isUndefined() ? false : !"none".equals(deriveSize.getValue().toString());
+            boolean maxPoolValid = !maxPoolSize.isUndefined();
+
             if (deriveSizeValid && maxPoolValid) {
                 formValidation.addError("derive-size");
                 deriveSize.setErrMessage("Only derive size or max pool size should be filled.");
