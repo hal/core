@@ -332,7 +332,7 @@ public class DomainRuntimePresenter
     }
 
     public void onLaunchSuspendDialogue(Server server) {
-        window = new DefaultWindow("Suspend Server Group");
+        window = new DefaultWindow("Suspend Server");
         window.setWidth(480);
         window.setHeight(360);
         window.trapWidget(new ServerSuspendDialogue(this, server).asWidget());
