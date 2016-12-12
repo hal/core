@@ -58,7 +58,7 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
 
 
     public static final String FILTERS = "filters";
-    
+
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
@@ -72,9 +72,9 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         this.circuit = circuit;
         this.securityContext = securityContext;
         selectionModel = new SingleSelectionModel<>();
-        
+
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
-        // rewrite the resource descriptor to allow the use of ModelNodeFormBuilder 
+        // rewrite the resource descriptor to allow the use of ModelNodeFormBuilder
         ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
         ModelNode mechanismDescription = reqPropsDescription.get(FILTERS).get("value-type");
         reqPropsDescription.set(mechanismDescription);
@@ -113,8 +113,8 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         predefinedFilter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         patternFilter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         enablingColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        table.addColumn(predefinedFilter, "Pre-defined filter");
-        table.addColumn(patternFilter, "Pattern filter");
+        table.addColumn(predefinedFilter, "Pre-defined Filter");
+        table.addColumn(patternFilter, "Pattern Filter");
         table.addColumn(enablingColumn, "Enabling");
 
         // tools
@@ -133,15 +133,15 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
                 // pattern-filter and predefined-filter are mutually exclusive
                 FormItem<String> patternFilterFormItem = formItem(list, "pattern-filter");
                 FormItem<String> predefinedFilterFormItem = formItem(list, "predefined-filter");
-                if ((patternFilterFormItem.isUndefined() && predefinedFilterFormItem.isUndefined()) 
+                if ((patternFilterFormItem.isUndefined() && predefinedFilterFormItem.isUndefined())
                         || (!patternFilterFormItem.isUndefined() && !predefinedFilterFormItem.isUndefined())) {
                     predefinedFilterFormItem.setErrMessage("Please set either predefined filter or pattern filter.");
                     predefinedFilterFormItem.setErroneous(true);
                     formValidation.addError("predefined-filter");
                 }
             });
-            
-            
+
+
             DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Filter"));
             AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
                 @Override
@@ -151,7 +151,7 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
                         payload.remove("pattern-filter");
                     else if (payload.hasDefined("pattern-filter"))
                         payload.remove("predefined-filter");
-                    
+
                     circuit.dispatch(new AddListAttribute(ElytronStore.CONFIGURABLE_SASL_SERVER_FACTORY_ADDRESS,
                             FILTERS,
                             factoryName,
@@ -214,7 +214,7 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         if (prop.getValue().hasDefined(FILTERS)) {
             List<ModelNode> models = prop.getValue().get(FILTERS).asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);
