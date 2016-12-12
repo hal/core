@@ -88,48 +88,48 @@ public class FactoryView {
         aggregateHttpServerMechanismFactoryView = new ElytronGenericResourceView(circuit,
                 aggregatehttpservermechanismfactoryDescription, securityContext, "Aggregate HTTP Server Mechanism",
                 ElytronStore.AGGREGATE_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS);
-        
+
         aggregateSaslServerFactoryView = new ElytronGenericResourceView(circuit, aggregatesaslserverfactoryDescription,
                 securityContext, "Aggregate SASL Server", ElytronStore.AGGREGATE_SASL_SERVER_FACTORY_ADDRESS);
-        
+
         configurableHttpServerMechanismFactoryView = new ConfigurableHttpServerMechanismFactoryView(circuit,
                 configurablehttpservermechanismfactoryDescription, securityContext,
                 "Configurable HTTP Server Mechanism", ElytronStore.CONFIGURABLE_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS);
-        
+
         configurableSaslServerFactoryView = new ConfigurableSaslServerFactoryView(circuit,
                 configurablesaslserverfactoryDescription, securityContext, "Configurable SASL Server",
                 ElytronStore.CONFIGURABLE_SASL_SERVER_FACTORY_ADDRESS);
-        
+
         customCredentialSecurityFactoryView = new ElytronGenericResourceView(circuit,
                 customcredentialsecurityfactoryDescription, securityContext, "Custom Credential Security",
                 ElytronStore.CUSTOM_CREDENTIAL_SECURITY_FACTORY_ADDRESS);
-        
+
         httpAuthenticationFactoryView = new GenericAuthenticationFactoryView(circuit, httpauthenticationfactoryDescription,
                 securityContext, "HTTP Authentication", ElytronStore.HTTP_AUTHENTICATION_FACTORY_ADDRESS);
-        
+
         kerberosSecurityFactoryView = new ElytronGenericResourceView(circuit, kerberossecurityfactoryDescription,
                 securityContext, "Kerberos Security", ElytronStore.KERBEROS_SECURITY_FACTORY_ADDRESS);
-        
+
         mechanismProviderFilteringSaslServerFactoryView = new MechanismProviderFilteringSaslSserverFactoryView(circuit,
                 mechanismproviderfilteringsaslserverfactoryDescription, securityContext,
-                "Mechanism Provider Filtering Sasl Server",
+                "Mechanism Provider Filtering SASL Server",
                 ElytronStore.MECHANISM_PROVIDER_FILTERING_SASL_SERVER_FACTORY_ADDRESS);
-        
+
         providerHttpServerMechanismFactoryView = new ElytronGenericResourceView(circuit,
                 providerhttpservermechanismfactoryDescription, securityContext, "Provider HTTP Server Mechanism",
                 ElytronStore.PROVIDER_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS);
-        
+
         providerSaslServerFactoryView = new ElytronGenericResourceView(circuit, providersaslserverfactoryDescription,
                 securityContext, "Provider SASL Server", ElytronStore.PROVIDER_SASL_SERVER_FACTORY_ADDRESS);
-        
+
         saslAuthenticationFactoryView = new GenericAuthenticationFactoryView(circuit, saslauthenticationfactoryDescription,
                 securityContext, "SASL Authentication", ElytronStore.SASL_AUTHENTICATION_FACTORY_ADDRESS);
-        
+
         serviceLoaderHttpServerMechanismFactoryView = new ElytronGenericResourceView(circuit,
                 serviceloaderhttpservermechanismfactoryDescription, securityContext,
                 "Service Loader HTTP Server Mechanism",
                 ElytronStore.SERVICE_LOADER_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS);
-        
+
         serviceLoaderSaslServerFactoryView = new ElytronGenericResourceView(circuit,
                 serviceloadersaslserverfactoryDescription, securityContext, "Service Loader SASL Server",
                 ElytronStore.SERVICE_LOADER_SASL_SERVER_FACTORY_ADDRESS);
@@ -142,7 +142,7 @@ public class FactoryView {
         panel.addPage("Custom Credential Security", customCredentialSecurityFactoryView.asWidget());
         panel.addPage("HTTP Authentication", httpAuthenticationFactoryView.asWidget());
         panel.addPage("Kerberos Security", kerberosSecurityFactoryView.asWidget());
-        panel.addPage("Mechanism Provider Filtering Sasl",
+        panel.addPage("Mechanism Provider Filtering SASL",
                 mechanismProviderFilteringSaslServerFactoryView.asWidget());
         panel.addPage("Provider HTTP Server Mechanism", providerHttpServerMechanismFactoryView.asWidget());
         panel.addPage("Provider SASL Server", providerSaslServerFactoryView.asWidget());
