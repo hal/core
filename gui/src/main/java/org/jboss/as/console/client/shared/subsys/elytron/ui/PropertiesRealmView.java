@@ -131,10 +131,8 @@ public class PropertiesRealmView {
             }
         });
 
-        ComplexAttributeForm groupsPropertiesForm = new ComplexAttributeForm("groups-properties", securityContext, resourceDescription);
-        ComplexAttributeForm usersPropertiesForm = new ComplexAttributeForm("users-properties", securityContext, resourceDescription);
-        groupsPropertiesFormAssets = groupsPropertiesForm.build();
-        usersPropertiesFormAssets = usersPropertiesForm.build();
+        groupsPropertiesFormAssets = new ComplexAttributeForm("groups-properties", securityContext, resourceDescription).build();
+        usersPropertiesFormAssets = new ComplexAttributeForm("users-properties", securityContext, resourceDescription).build();
 
         groupsPropertiesFormAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -227,11 +225,18 @@ public class PropertiesRealmView {
                         String name = payload.remove(NAME).asString();
                         
                         String path = payload.remove("users-properties-path").asString();
-                        String relativeto = payload.remove("users-properties-relative-to").asString();
-
                         payload.get("users-properties").get("path").set(path);
-                        payload.get("users-properties").get("relative-to").set(relativeto);
                         
+                        ModelNode userPropertiesRelativeTo = payload.remove("users-properties-relative-to");
+                        if (userPropertiesRelativeTo.isDefined()) {
+                            String relativeto = userPropertiesRelativeTo.asString();
+                            payload.get("users-properties").get("relative-to").set(relativeto);
+                        }
+                        if (!payload.hasDefined("groups-properties")) {
+                            // special handling, as groups-properties is a nested object 
+                            // it should exist for the user be able to edit the properties as a ComplexAttributesForm
+                            payload.get("groups-properties").setEmptyObject();
+                        }
                         circuit.dispatch(new AddResourceGeneric(ElytronStore.PROPERTIES_REALM_ADDRESS, new Property(name, payload)));
                         dialog.hide();
                     }
@@ -259,5 +264,4 @@ public class PropertiesRealmView {
         }
         SelectionChangeEvent.fire(selectionModel);
     }
-    
 }

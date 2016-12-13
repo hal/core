@@ -58,14 +58,19 @@ public class ElytronPresenter extends
 
     public interface MyView extends View, HasPresenter<ElytronPresenter> {
         void initSSL(
-                List<Property> keyStore, 
-                List<Property> keyManager, 
-                List<Property> serverSSLContext, 
+                List<Property> keyStore,
+                List<Property> credentialStore,
+                List<Property> filteringKeyStore,
+                List<Property> ldapeyStore,
+                List<Property> keyManager,
+                List<Property> serverSSLContext,
+                List<Property> clientSSLContext,
                 List<Property> trustManager,
                 List<Property> securityDomain,
-                List<Property> securityProperty);
-        
-        void initRewriters(
+                List<Property> securityProperty,
+                List<Property> providerLoader);
+
+        void initTransformers(
                 List<Property> aggregateNameRewriter,
                 List<Property> chainedNameRewriter,
                 List<Property> constantNameRewriter,
@@ -109,28 +114,33 @@ public class ElytronPresenter extends
     @Override
     protected void onAction(Action action) {
         if (action instanceof ElytronConfigAction) {
-            
+
             getView().initSSL(
-                    store.getKeyStore(), 
-                    store.getKeyManager(), 
-                    store.getServerSSLContext(), 
+                    store.getKeyStore(),
+                    store.getCredentialStore(),
+                    store.getFilteringKeyStore(),
+                    store.getLdapKeyStore(),
+                    store.getKeyManager(),
+                    store.getServerSSLContext(),
+                    store.getClientSSLContext(),
                     store.getTrustManager(),
                     store.getSecurityDomain(),
-                    store.getSecurityProperty());
-            
-            getView().initRewriters(
-                    store.getAggregateNameRewriter(),
-                    store.getChainedNameRewriter(),
-                    store.getConstantNameRewriter(),
-                    store.getCustomNameRewriter(),
-                    store.getRegexNameValidatingRewriter(),
-                    store.getRegexNameRewriter()
+                    store.getSecurityProperty(),
+                    store.getProviderLoader());
+
+            getView().initTransformers(
+                    store.getAggregatePrincipalTransformer(),
+                    store.getChainedPrincipalTransformer(),
+                    store.getConstantPrincipalTransformer(),
+                    store.getCustomPrincipalTransformer(),
+                    store.getRegexValidatingPrincipalTransformer(),
+                    store.getRegexPrincipalTransformer()
             );
-            
+
             getView().initDirContext(
                     store.getDirContext()
             );
-            
+
         }
     }
 

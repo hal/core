@@ -58,7 +58,6 @@ import org.jboss.gwt.circuit.Dispatcher;
  */
 public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidget {
 
-
     private final ProvidesKey<ModelNode> nameProvider;
 
     private DefaultCellTable<ModelNode> table;
@@ -75,7 +74,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         this.securityContext = securityContext;
         this.nameProvider = modelNode -> modelNode.get("provider-name");
         selectionModel = new SingleSelectionModel<>(nameProvider);
-        
+
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
         ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
         ModelNode filtersDescription = reqPropsDescription.get("filters").get("value-type");
@@ -99,7 +98,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         panel.add(pager);
         return panel;
     }
-    
+
     private void setupTable() {
         table = new DefaultCellTable<>(5, nameProvider);
         table.setSelectionModel(selectionModel);
@@ -114,8 +113,8 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         mechanismNameColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         providerVersionColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         versionComparisonColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        table.addColumn(providerNameColumn, "Provider name");
-        table.addColumn(mechanismNameColumn, "Mechanism name");
+        table.addColumn(providerNameColumn, "Provider Name");
+        table.addColumn(mechanismNameColumn, "Mechanism Name");
         table.addColumn(providerVersionColumn, "Provider Version");
         table.addColumn(versionComparisonColumn, "Version Comparison");
         table.setColumnWidth(providerNameColumn, 30, Style.Unit.PCT);
@@ -123,7 +122,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         table.setColumnWidth(providerVersionColumn, 20, Style.Unit.PCT);
         table.setColumnWidth(versionComparisonColumn, 20, Style.Unit.PCT);
     }
-    
+
     private Column<ModelNode, String> createColumn(String attributeName) {
         return new TextColumn<ModelNode>() {
             @Override
@@ -132,7 +131,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
             }
         };
     }
-    
+
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
@@ -194,7 +193,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         if (prop.getValue().hasDefined("filters")) {
             List<ModelNode> models = prop.getValue().get("filters").asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);

@@ -38,6 +38,7 @@ public class PermissionMapperView {
     private SimplePermissionMapperView simplePermissionMapperEditor;
     private ElytronGenericResourceView logicalPermissionMapperEditor;
     private ElytronGenericResourceView customPermissionMapperEditor;
+    private ConstantPermissionMapperView constantPermissionMapperEditor;
 
     public PermissionMapperView(final Dispatcher circuit, final ResourceDescription rootDescription,
             final SecurityContext securityFramework) {
@@ -60,10 +61,15 @@ public class PermissionMapperView {
                 rootDescription.getChildDescription("custom-permission-mapper"), securityContext,
                 "Custom Permission Mapper", ElytronStore.CUSTOM_PERMISSION_MAPPER_ADDRESS);
 
+        constantPermissionMapperEditor = new ConstantPermissionMapperView(circuit,
+                rootDescription.getChildDescription("constant-permission-mapper"), securityContext,
+                "Constant Permission Mapper", ElytronStore.CONSTANT_PERMISSION_MAPPER_ADDRESS);
+
         PagedView panel = new PagedView(true);
         panel.addPage("Simple Permission Mapper", simplePermissionMapperEditor.asWidget());
         panel.addPage("Logical Permission Mapper", logicalPermissionMapperEditor.asWidget());
         panel.addPage("Custom Permission Mapper", customPermissionMapperEditor.asWidget());
+        panel.addPage("Constant Permission Mapper", constantPermissionMapperEditor.asWidget());
         // default page
         panel.showPage(0);
 
@@ -80,5 +86,9 @@ public class PermissionMapperView {
 
     public void updateSimplePermissionMapper(List<Property> models) {
         this.simplePermissionMapperEditor.update(models);
+    }
+    
+    public void updateConstantPermissionMapper(List<Property> models) {
+        this.constantPermissionMapperEditor.update(models);
     }
 }

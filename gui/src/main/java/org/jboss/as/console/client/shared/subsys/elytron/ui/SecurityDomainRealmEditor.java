@@ -70,7 +70,7 @@ public class SecurityDomainRealmEditor implements IsWidget {
         this.circuit = circuit;
         this.securityContext = securityContext;
         selectionModel = new SingleSelectionModel<>();
-        
+
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
         ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
         ModelNode filtersDescription = reqPropsDescription.get("realms").get("value-type");
@@ -94,31 +94,31 @@ public class SecurityDomainRealmEditor implements IsWidget {
         panel.add(pager);
         return panel;
     }
-    
+
     private void setupTable() {
         table = new DefaultCellTable<>(5);
         table.setSelectionModel(selectionModel);
 
         // columns
         Column<ModelNode, String> realmColumn = createColumn("realm");
-        Column<ModelNode, String> nameRewriterColumn = createColumn("name-rewriter");
+        Column<ModelNode, String> principalTransformColumn = createColumn("principal-transformer");
         Column<ModelNode, String> roleDecoderColumn = createColumn("role-decoder");
         Column<ModelNode, String> roleMapperColumn = createColumn("role-mapper");
         realmColumn.setSortable(true);
         realmColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        nameRewriterColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        principalTransformColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         roleDecoderColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         roleMapperColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(realmColumn, "Realm");
-        table.addColumn(nameRewriterColumn, "Name rewriter");
-        table.addColumn(roleDecoderColumn, "Role decoder");
-        table.addColumn(roleMapperColumn, "Role mapper");
+        table.addColumn(principalTransformColumn, "Name Transform");
+        table.addColumn(roleDecoderColumn, "Role Decoder");
+        table.addColumn(roleMapperColumn, "Role Mapper");
         table.setColumnWidth(realmColumn, 30, Style.Unit.PCT);
-        table.setColumnWidth(nameRewriterColumn, 30, Style.Unit.PCT);
+        table.setColumnWidth(principalTransformColumn, 30, Style.Unit.PCT);
         table.setColumnWidth(roleDecoderColumn, 20, Style.Unit.PCT);
         table.setColumnWidth(roleMapperColumn, 20, Style.Unit.PCT);
     }
-    
+
     private Column<ModelNode, String> createColumn(String attributeName) {
         return new TextColumn<ModelNode>() {
             @Override
@@ -127,7 +127,7 @@ public class SecurityDomainRealmEditor implements IsWidget {
             }
         };
     }
-    
+
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
@@ -141,7 +141,7 @@ public class SecurityDomainRealmEditor implements IsWidget {
                     .build();
             addFormAssets.getForm().setEnabled(true);
 
-            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Filter"));
+            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Realm"));
             AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
                 @Override
                 public void onAdd(ModelNode payload) {
@@ -189,7 +189,7 @@ public class SecurityDomainRealmEditor implements IsWidget {
         if (prop.getValue().hasDefined("realms")) {
             List<ModelNode> models = prop.getValue().get("realms").asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear();
             dataList.addAll(models);

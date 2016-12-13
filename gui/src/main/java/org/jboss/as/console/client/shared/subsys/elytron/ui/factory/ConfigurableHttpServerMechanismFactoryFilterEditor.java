@@ -61,7 +61,6 @@ import org.jboss.gwt.circuit.Dispatcher;
  */
 public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWidget {
 
-
     private final ProvidesKey<ModelNode> nameProvider;
 
     private DefaultCellTable<ModelNode> table;
@@ -78,7 +77,7 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
         this.securityContext = securityContext;
         this.nameProvider = modelNode -> modelNode.get("pattern-filter");
         selectionModel = new SingleSelectionModel<>(nameProvider);
-        
+
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
         ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
         ModelNode filtersDescription = reqPropsDescription.get("filters").get("value-type");
@@ -111,7 +110,7 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
             }
         };
         enablingColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        table.addColumn(patternColumn, "Pattern filter");
+        table.addColumn(patternColumn, "Pattern Filter");
         table.addColumn(enablingColumn, "Enabling");
         table.setColumnWidth(patternColumn, 70, Style.Unit.PCT);
         table.setColumnWidth(enablingColumn, 30, Style.Unit.PCT);
@@ -122,7 +121,7 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
 
             FormItem patternFilter = new TextBoxItem("pattern-filter", "Pattern Filter", true);
             ((TextBoxItem)patternFilter).setAllowWhiteSpace(true);
-            
+
             FormItem enabling = new CheckBoxItem("enabling", "Enabling");
             enabling.setRequired(true);
 
@@ -133,12 +132,12 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
                     .build();
             addFormAssets.getForm().setFields(patternFilter, enabling);
             addFormAssets.getForm().setEnabled(true);
-            
+
             DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Pattern filter"));
             AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
                 @Override
                 public void onAdd(ModelNode payload) {
-                    circuit.dispatch(new AddListAttribute(ElytronStore.CONFIGURABLE_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS, 
+                    circuit.dispatch(new AddListAttribute(ElytronStore.CONFIGURABLE_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS,
                             "filters",
                             factoryName,
                             payload));
@@ -188,7 +187,7 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
         if (prop.getValue().hasDefined("filters")) {
             List<ModelNode> models = prop.getValue().get("filters").asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);

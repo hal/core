@@ -41,7 +41,7 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
     private final SecurityFramework securityFramework;
     private ElytronPresenter presenter;
     private SSLView sslView;
-    private RewriterView rewriterView;
+    private TransformerView rewriterView;
     private DirContextView dirContextView;
 
     @Inject
@@ -57,16 +57,16 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
 
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription rootDescription = resourceDescriptionRegistry.lookup(ElytronStore.ROOT_ADDRESS);
-        
+
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-        
+
         sslView = new SSLView(circuit, rootDescription, securityContext);
-        rewriterView = new RewriterView(circuit, rootDescription, securityContext);
+        rewriterView = new TransformerView(circuit, rootDescription, securityContext);
         dirContextView = new DirContextView(circuit, rootDescription, securityContext);
 
         tabLayoutpanel.add(sslView.asWidget(), "SSL", true);
-        tabLayoutpanel.add(rewriterView.asWidget(), "Rewriter", true);
+        tabLayoutpanel.add(rewriterView.asWidget(), "Transformer", true);
         tabLayoutpanel.add(dirContextView.asWidget(), "Dir Context", true);
         tabLayoutpanel.selectTab(0);
 
@@ -74,27 +74,34 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
     }
 
     @Override
-    public void initSSL(final List<Property> keyStore, List<Property> keyManager, List<Property> serverSSLContext,
-            List<Property> trustManager, List<Property> securityDomainModel, List<Property> securityPropertyModel) {
+    public void initSSL(final List<Property> keyStore, List<Property> credentialStore,
+            List<Property> filteringKeyStore, List<Property> ldapKeyStore, List<Property> keyManager,
+            List<Property> serverSSLContext, List<Property> clientSSLContext, List<Property> trustManager,
+            List<Property> securityDomainModel, List<Property> securityPropertyModel, List<Property> providerLoaderModel) {
         sslView.updateKeyStore(keyStore);
+        sslView.updateCredentialStore(credentialStore);
+        sslView.updateFilteringKeyStore(filteringKeyStore);
+        sslView.updateLdapKeyStore(ldapKeyStore);
         sslView.updateKeyManager(keyManager);
         sslView.updateServerSSLContext(serverSSLContext);
+        sslView.updateClientSSLContext(clientSSLContext);
         sslView.updateTrustManager(trustManager);
         sslView.updateSecurityDomain(securityDomainModel);
         sslView.updateSecurityProperty(securityPropertyModel);
+        sslView.updateProviderLoader(providerLoaderModel);
     }
 
     @Override
-    public void initRewriters(final List<Property> aggregateNameRewriter, final List<Property> chainedNameRewriter,
-            final List<Property> constantNameRewriter, final List<Property> customNameRewriter,
-            final List<Property> regexNameValidatingRewriter, final List<Property> regexNameRewriter) {
+    public void initTransformers(final List<Property> aggregatePrincTransf, final List<Property> chainedPrincTransf,
+            final List<Property> constantPrincTransf, final List<Property> customPrincTransf,
+            final List<Property> regexValidatingPrincTransf, final List<Property> regexPrincTransf) {
 
-        rewriterView.updateAggregateNameRewriter(aggregateNameRewriter);
-        rewriterView.updateConstantNameRewriter(constantNameRewriter);
-        rewriterView.updateChainedNameRewriterView(chainedNameRewriter);
-        rewriterView.updateCustomNameRewriter(customNameRewriter);
-        rewriterView.updateRegexNameValidatingRewriter(regexNameValidatingRewriter);
-        rewriterView.updateRegexNameValidatingRewriter(regexNameRewriter);
+        rewriterView.updateAggregatePrincipalTransformer(aggregatePrincTransf);
+        rewriterView.updateConstantPrincipalTransformer(constantPrincTransf);
+        rewriterView.updateChainedPrincipalTransformer(chainedPrincTransf);
+        rewriterView.updateCustomPrincipalTransformer(customPrincTransf);
+        rewriterView.updateRegexValidatingPrincipalTransformer(regexValidatingPrincTransf);
+        rewriterView.updateRegexPrincipalTransformer(regexPrincTransf);
     }
 
     @Override

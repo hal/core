@@ -103,8 +103,8 @@ public class JdbcRealmView {
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
 
-        principalsQueryViewView = new JdbcRealmPrincipalsQueryView();
-        
+        principalsQueryViewView = new JdbcRealmPrincipalsQueryView(circuit, resourceDescription, securityContext);
+
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("JDBC Realm")
@@ -114,9 +114,9 @@ public class JdbcRealmView {
                 .addDetail("Principals Query", principalsQueryViewView.asWidget());
 
         selectionModel.addSelectionChangeHandler(event -> {
-            Property keyStore = selectionModel.getSelectedObject();
-            if (keyStore != null) {
-                principalsQueryViewView.update(keyStore.getValue().get("principal-query").asList());
+            Property selected = selectionModel.getSelectedObject();
+            if (selected != null) {
+                principalsQueryViewView.update(selected);
             } else {
                 principalsQueryViewView.clearValues();
             }
@@ -128,14 +128,14 @@ public class JdbcRealmView {
 
     private void onAdd() {
 
-        // manipulate the descriptions to allow the add UI operation be able to create the jdbc-realm 
+        // manipulate the descriptions to allow the add UI operation be able to create the jdbc-realm
         // with sql and datasource at least
         // because the principal-query is a LIST of OBJECTS
         ModelNode principalQueryAttr = resourceDescription.get("operations").get("add").get("request-properties");
 
         principalQueryAttr.get("principal-query-sql").set(principalQueryAttr.get("principal-query").get("value-type").get("sql"));
         principalQueryAttr.get("principal-query-datasource").set(principalQueryAttr.get("principal-query").get("value-type").get("data-source"));
-        
+
         ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                 .setResourceDescription(resourceDescription)
                 .setCreateMode(true)
@@ -144,7 +144,7 @@ public class JdbcRealmView {
                 .setSecurityContext(securityContext)
                 .build();
         addFormAssets.getForm().setEnabled(true);
-        
+
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("JDBC Realm"));
         AddResourceDialog addDialog = new AddResourceDialog(addFormAssets, resourceDescription,
                 new AddResourceDialog.Callback() {
@@ -184,5 +184,5 @@ public class JdbcRealmView {
         }
         SelectionChangeEvent.fire(selectionModel);
     }
-    
+
 }
