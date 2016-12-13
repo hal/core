@@ -70,7 +70,8 @@ public class ElytronMapperPresenter extends
         void initPermissionMapper(
                 List<Property> simplePermissionMapper,
                 List<Property> logicalPermissionMapper,
-                List<Property> customPermissionMapper
+                List<Property> customPermissionMapper,
+                List<Property> constantPermissionMapper
         );
         
         void initDecoder(
@@ -128,7 +129,8 @@ public class ElytronMapperPresenter extends
             getView().initPermissionMapper(
                 store.getSimplePermissionMapper(),
                 store.getLogicalPermissionMapper(),
-                store.getCustomPermissionMapper()
+                store.getCustomPermissionMapper(),
+                store.getConstantPermissionMapper()    
             );
             
             getView().initDecoder(

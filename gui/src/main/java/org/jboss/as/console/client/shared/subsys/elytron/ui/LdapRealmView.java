@@ -114,13 +114,14 @@ public class LdapRealmView {
         pager.setDisplay(table);
 
         identityMappingFormAsset = new ComplexAttributeForm("identity-mapping", securityContext, resourceDescription)
-                .exclude("otp-credential-mapper", "user-password-mapper")
+                .exclude("attribute-mapping", "new-identity-attributes", "otp-credential-mapper",
+                        "user-password-mapper", "x509-credential-mapper")
                 .build();
         ModelNode nodeIdenMapping = resourceDescription.get("attributes").get("identity-mapping").get("value-type");
-        
+
         ResourceDescription userPasswordMapperResource = new ResourceDescription(new ModelNode());
         userPasswordMapperResource.get(ATTRIBUTES).set(nodeIdenMapping);
-        
+
         userPasswordMapperFormAsset = new ComplexAttributeForm("user-password-mapper", securityContext,
                 userPasswordMapperResource).build();
 
@@ -172,22 +173,22 @@ public class LdapRealmView {
                 modelForm.getForm().edit(node.getValue());
                 if (node.getValue().hasDefined("identity-mapping"))
                     identityMappingFormAsset.getForm().edit(node.getValue().get("identity-mapping"));
-                
+
                 if (node.getValue().get("identity-mapping").hasDefined("attribute-mapping"))
                     identityAttributeMappingView.update(node.getValue().get("identity-mapping").get("attribute-mapping").asList());
-                else 
+                else
                     identityAttributeMappingView.clearValues();
-                
+
                 if (node.getValue().get("identity-mapping").hasDefined("new-identity-attributes"))
                     identityAttributeMappingView.update(node.getValue().get("identity-mapping").get("new-identity-attributes").asList());
-                else 
+                else
                     identityAttributeMappingView.clearValues();
-                
+
                 if (node.getValue().get("identity-mapping").hasDefined("user-password-mapper"))
                     userPasswordMapperFormAsset.getForm().edit(node.getValue().get("identity-mapping").get("user-password-mapper"));
-                else 
+                else
                     userPasswordMapperFormAsset.getForm().clearValues();
-                
+
                 if (node.getValue().get("identity-mapping").hasDefined("otp-credential-mapper"))
                     otpCredentialMapperFormAsset.getForm().edit(node.getValue().get("identity-mapping").get("otp-credential-mapper"));
                 else
@@ -208,14 +209,14 @@ public class LdapRealmView {
 
     private void onAdd() {
 
-        // manipulate the descriptions to allow the add UI operation be able to create the jdbc-realm 
+        // manipulate the descriptions to allow the add UI operation be able to create the jdbc-realm
         // with sql and datasource at least
         // because the principal-query is a LIST of OBJECTS
         //ModelNode principalQueryAttr = resourceDescription.get("operations").get("add").get("request-properties");
         //
         //principalQueryAttr.get("principal-query-sql").set(principalQueryAttr.get("principal-query").get("value-type").get("sql"));
         //principalQueryAttr.get("principal-query-datasource").set(principalQueryAttr.get("principal-query").get("value-type").get("data-source"));
-        
+
         ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                 .setResourceDescription(resourceDescription)
                 .setCreateMode(true)
@@ -224,7 +225,7 @@ public class LdapRealmView {
                 .setSecurityContext(securityContext)
                 .build();
         addFormAssets.getForm().setEnabled(true);
-        
+
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("LDAP Realm"));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
@@ -269,5 +270,5 @@ public class LdapRealmView {
         }
         SelectionChangeEvent.fire(selectionModel);
     }
-    
+
 }

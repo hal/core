@@ -24,9 +24,10 @@ package org.jboss.as.console.client.shared.subsys.elytron.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -34,9 +35,22 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.subsys.elytron.store.AddListAttribute;
+import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
+import org.jboss.as.console.client.shared.subsys.elytron.store.RemoveListAttribute;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.Dispatcher;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -45,14 +59,25 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
 
 
     private final ProvidesKey<ModelNode> nameProvider;
-
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
+    private Dispatcher circuit;
+    private ResourceDescription resourceDescription;
+    private SecurityContext securityContext;
+    private String jdbcRealmName;
 
-    JdbcRealmPrincipalsQueryView() {
+    JdbcRealmPrincipalsQueryView(final Dispatcher circuit, ResourceDescription resourceDescription,
+            SecurityContext securityContext) {
+        this.circuit = circuit;
+        this.securityContext = securityContext;
         this.nameProvider = modelNode -> modelNode.get("sql");
         selectionModel = new SingleSelectionModel<>(nameProvider);
+
+        this.resourceDescription = new ResourceDescription(resourceDescription.clone());
+        ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
+        ModelNode filtersDescription = reqPropsDescription.get("principal-query").get("value-type");
+        reqPropsDescription.set(filtersDescription);
     }
 
     @SuppressWarnings("unchecked")
@@ -74,11 +99,20 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
             }
         };
         nameColumn.setSortable(true);
-        
-        table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
-        //table.setColumnWidth(nameColumn, 30, Style.Unit.PCT);
-        //table.getColumnSortList().push(nameColumn);
+        Column<ModelNode, String> datasourceColumn = new TextColumn<ModelNode>() {
+            @Override
+            public String getValue(ModelNode node) {
+                return node.get("data-source").asString();
+            }
+        };
 
+        table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
+        table.addColumn(datasourceColumn, "Datasource");
+        table.setColumnWidth(nameColumn, 85, Style.Unit.PCT);
+        table.setColumnWidth(datasourceColumn, 15, Style.Unit.PCT);
+        datasourceColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+        panel.add(setupTableButtons());
         panel.add(table);
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
@@ -86,17 +120,72 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
         return panel;
     }
 
-    public void update(List<ModelNode> aliases) {
+    private ToolStrip setupTableButtons() {
+        ToolStrip tools = new ToolStrip();
+        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+
+            ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
+                    .setResourceDescription(resourceDescription)
+                    .setCreateMode(true)
+                    .unsorted()
+                    .exclude("clear-password-mapper", "bcrypt-mapper", "salted-simple-digest-mapper",
+                            "simple-digest-mapper", "scram-mapper")
+                    .setCreateNameAttribute(false)
+                    .setSecurityContext(securityContext)
+                    .build();
+            addFormAssets.getForm().setEnabled(true);
+
+            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Principal Query"));
+            AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
+                @Override
+                public void onAdd(ModelNode payload) {
+                    circuit.dispatch(new AddListAttribute(ElytronStore.JDBC_REALM_ADDRESS,
+                            "principal-query",
+                            jdbcRealmName,
+                            payload));
+                    dialog.hide();
+                }
+
+                @Override
+                public void onCancel() {
+                    dialog.hide();
+                }
+            };
+            AddResourceDialog addDialog = new AddResourceDialog(addFormAssets, resourceDescription, callback);
+            dialog.setWidth(480);
+            dialog.setHeight(360);
+            dialog.setWidget(addDialog);
+            dialog.setGlassEnabled(true);
+            dialog.center();
+        });
+        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+            final ModelNode selection = selectionModel.getSelectedObject();
+            if (selection != null) {
+                Feedback.confirm("Principal Query", Console.MESSAGES.deleteConfirm("Principal Query "  + selection.get("sql").asString()),
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                circuit.dispatch(new RemoveListAttribute(
+                                        ElytronStore.JDBC_REALM_ADDRESS,
+                                        jdbcRealmName,
+                                        "principal-query",
+                                        selection));
+                            }
+                        });
+            }
+        });
+        tools.addToolButtonRight(addButton);
+        tools.addToolButtonRight(removeButton);
+        return tools;
+    }
+
+
+    public void update(Property prop) {
+        jdbcRealmName = prop.getName();
+        List<ModelNode> aliases = prop.getValue().get("principal-query").asList();
         table.setRowCount(aliases.size(), true);
-
-        //Collections.sort(aliases, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
-
         List<ModelNode> dataList = dataProvider.getList();
         dataList.clear(); // cannot call setList() as that breaks the sort handler
         dataList.addAll(aliases);
-
-        // Make sure the new values are properly sorted
-        ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 
     public void clearValues() {

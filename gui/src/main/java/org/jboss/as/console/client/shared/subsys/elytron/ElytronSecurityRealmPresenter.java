@@ -67,9 +67,12 @@ public class ElytronSecurityRealmPresenter extends
                 List<Property> aggregateRealm,
                 List<Property> customModifiableRealm,
                 List<Property> customRealm,
+                List<Property> identityRealm,
+                List<Property> tokenRealm,
                 List<Property> mappedRegexRealmMapper,
                 List<Property> simpleRegexRealmMapper,
-                List<Property> customRealmMapper);
+                List<Property> customRealmMapper,
+                List<Property> constantRealmMapper);
 
     }
     // @formatter:on
@@ -114,9 +117,12 @@ public class ElytronSecurityRealmPresenter extends
                     store.getAggregateRealm(),
                     store.getCustomModifiableRealm(),
                     store.getCustomRealm(),
+                    store.getIdentityRealm(),
+                    store.getTokenRealm(),
                     store.getMappedRegexRealmMapper(),
                     store.getSimpleRegexRealmMapper(),
-                    store.getCustomRealmMapper());
+                    store.getCustomRealmMapper(),
+                    store.getConstantRealmMapper());
         }
     }
 

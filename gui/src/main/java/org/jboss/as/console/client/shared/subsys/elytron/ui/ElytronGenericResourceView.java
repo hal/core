@@ -116,7 +116,7 @@ public class ElytronGenericResourceView {
 
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
-        
+
         ModelNodeFormBuilder formBuilder = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(resourceDescription)
@@ -126,44 +126,53 @@ public class ElytronGenericResourceView {
         modelForm.getForm().addFormValidator((formItemList, formValidation) -> {
             addFormValidatorOnAddDialog(formItemList, formValidation);
         });
-        
-        modelForm.getForm().setToolsCallback(new FormCallback() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyResourceGeneric(addressTemplate, selectionModel.getSelectedObject().getName(), changeset));
-            }
 
-            @Override
-            public void onCancel(final Object entity) {
-                modelForm.getForm().cancel();
-            }
-        });
-
-        VerticalPanel formPanel = new VerticalPanel();
-        formPanel.setStyleName("fill-layout-width");
-        formPanel.add(modelForm.getHelp().asWidget());
-        formPanel.add(modelForm.getForm().asWidget());
+        List<String> forItems = modelForm.getForm().getFormItemNames();
+        int numberOfFormItems = forItems.size();
 
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline(title)
                 .setDescription(SafeHtmlUtils.fromString(resourceDescription.get(DESCRIPTION).asString()))
                 .setMasterTools(tools)
-                .setMaster(Console.MESSAGES.available(title), table)
-                .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
-        for (String detailName: additionalTabDetails().keySet()) {
-            layoutBuilder.addDetail(detailName, additionalTabDetails().get(detailName));
+                .setMaster(Console.MESSAGES.available(title), table);
+
+        if (numberOfFormItems > 0) {
+            modelForm.getForm().setToolsCallback(new FormCallback() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public void onSave(final Map changeset) {
+                    circuit.dispatch(new ModifyResourceGeneric(addressTemplate, selectionModel.getSelectedObject().getName(), changeset));
+                }
+
+                @Override
+                public void onCancel(final Object entity) {
+                    modelForm.getForm().cancel();
+                }
+            });
+
+            VerticalPanel formPanel = new VerticalPanel();
+            formPanel.setStyleName("fill-layout-width");
+            formPanel.add(modelForm.getHelp().asWidget());
+            formPanel.add(modelForm.getForm().asWidget());
+
+            layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
+        }
+
+
+        Map<String, Widget> tabDetails = additionalTabDetails();
+        for (String detailName: tabDetails.keySet()) {
+            layoutBuilder.addDetail(detailName, tabDetails.get(detailName));
         }
 
         selectionModel.addSelectionChangeHandler(event -> {
-            Property keyManagerProp = selectionModel.getSelectedObject();
-            if (keyManagerProp != null) {
-                modelForm.getForm().edit(keyManagerProp.getValue());
+            Property selectedProperty = selectionModel.getSelectedObject();
+            if (selectedProperty != null) {
+                modelForm.getForm().edit(selectedProperty.getValue());
             } else {
                 modelForm.getForm().clearValues();
             }
-            selectTableItem(keyManagerProp);
+            selectTableItem(selectedProperty);
         });
         table.setSelectionModel(selectionModel);
 
@@ -203,7 +212,7 @@ public class ElytronGenericResourceView {
             addFormAssets.getForm().setEnabled(true);
             addDialog = new AddResourceDialog(addFormAssets, resourceDescription, callback);
         }
-        
+
         Widget addDialogWidget = addDialog.asWidget();
         addDialog.getForm().addFormValidator((formItemList, formValidation) -> {
             addFormValidatorOnAddDialog(formItemList, formValidation);
@@ -229,10 +238,6 @@ public class ElytronGenericResourceView {
     public void excludesFormAttributes(String... excludes) {
         this.excludes.addAll(Arrays.asList(excludes));
     }
-    
-    public Map<String, Widget> additionalTabDetails() {
-        return Collections.emptyMap();
-    }
 
     <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
         FormItem selectedFormItem = null;
@@ -248,11 +253,15 @@ public class ElytronGenericResourceView {
     public void setOnAddFormRequiredOnly(final boolean onAddFormRequiredOnly) {
         this.onAddFormRequiredOnly = onAddFormRequiredOnly;
     }
-    
+
+    public Map<String, Widget> additionalTabDetails() {
+        return Collections.emptyMap();
+    }
+
     protected void onAddCallback(final ModelNode payload) { }
 
     protected void selectTableItem(final Property keyManagerProp) {  }
-    
+
     protected void addFormValidatorOnAddDialog(List<FormItem> formItemList, FormValidation formValidation) {}
 
 }

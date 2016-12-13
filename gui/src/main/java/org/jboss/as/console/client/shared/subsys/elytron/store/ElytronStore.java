@@ -71,12 +71,17 @@ public class ElytronStore extends ChangeSupport {
 
     public static final String ROOT = "{selected.profile}/subsystem=elytron";
     public static final AddressTemplate ROOT_ADDRESS = AddressTemplate.of(ROOT);
-    
+
     public static final AddressTemplate KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("key-store=*");
     public static final AddressTemplate KEY_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("key-managers=*");
     public static final AddressTemplate SERVER_SSL_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("server-ssl-context=*");
+    public static final AddressTemplate CLIENT_SSL_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("client-ssl-context=*");
     public static final AddressTemplate TRUST_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("trust-managers=*");
-    
+    public static final AddressTemplate CREDENTIAL_STORE_ADDRESS = AddressTemplate.of(ROOT).append("credential-store=*");
+    public static final AddressTemplate FILTERING_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("filtering-key-store=*");
+    public static final AddressTemplate LDAP_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("ldap-key-store=*");
+    public static final AddressTemplate PROVIDER_LOADER_ADDRESS = AddressTemplate.of(ROOT).append("provider-loader=*");
+
     public static final AddressTemplate PROPERTIES_REALM_ADDRESS = AddressTemplate.of(ROOT).append("properties-realm=*");
     public static final AddressTemplate FILESYSTEM_REALM_ADDRESS = AddressTemplate.of(ROOT).append("filesystem-realm=*");
     public static final AddressTemplate JDBC_REALM_ADDRESS = AddressTemplate.of(ROOT).append("jdbc-realm=*");
@@ -85,16 +90,20 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate AGGREGATE_REALM_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-realm=*");
     public static final AddressTemplate CUSTOM_MODIFIABLE_REALM_ADDRESS = AddressTemplate.of(ROOT).append("custom-modifiable-realm=*");
     public static final AddressTemplate CUSTOM_REALM_ADDRESS = AddressTemplate.of(ROOT).append("custom-realm=*");
+    public static final AddressTemplate IDENTITY_REALM_ADDRESS = AddressTemplate.of(ROOT).append("identity-realm=*");
+    public static final AddressTemplate TOKEN_REALM_ADDRESS = AddressTemplate.of(ROOT).append("token-realm=*");
+
     public static final AddressTemplate MAPPED_REGEX_REALM_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("mapped-regex-realm-mapper=*");
     public static final AddressTemplate SIMPLE_REGEX_REALM_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("simple-regex-realm-mapper=*");
     public static final AddressTemplate CUSTOM_REALM_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("custom-realm-mapper=*");
-    
-    public static final AddressTemplate AGGREGATE_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-name-rewriter=*");
-    public static final AddressTemplate CHAINED_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("chained-name-rewriter=*");
-    public static final AddressTemplate CONSTANT_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("constant-name-rewriter=*");
-    public static final AddressTemplate CUSTOM_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("custom-name-rewriter=*");
-    public static final AddressTemplate REGEX_NAME_VALIDATING_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("regex-name-validating-rewriter=*");
-    public static final AddressTemplate REGEX_NAME_REWRITER_ADDRESS = AddressTemplate.of(ROOT).append("regex-name-rewriter=*");
+    public static final AddressTemplate CONSTANT_REALM_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("constant-realm-mapper=*");
+
+    public static final AddressTemplate AGGREGATE_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-principal-transformer=*");
+    public static final AddressTemplate CHAINED_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("chained-principal-transformer=*");
+    public static final AddressTemplate CONSTANT_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("constant-principal-transformer=*");
+    public static final AddressTemplate CUSTOM_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("custom-principal-transformer=*");
+    public static final AddressTemplate REGEX_VALIDATING_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("regex-validating-principal-transformer=*");
+    public static final AddressTemplate REGEX_TRANSFORMER_ADDRESS = AddressTemplate.of(ROOT).append("regex-principal-transformer=*");
 
     public static final AddressTemplate AGGREGATE_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-http-server-mechanism-factory=*");
     public static final AddressTemplate AGGREGATE_SASL_SERVER_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-sasl-server-factory=*");
@@ -109,18 +118,19 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate SASL_AUTHENTICATION_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("sasl-authentication-factory=*");
     public static final AddressTemplate SERVICE_LOADER_HTTP_SERVER_MECHANISM_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("service-loader-http-server-mechanism-factory=*");
     public static final AddressTemplate SERVICE_LOADER_SASL_SERVER_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("service-loader-sasl-server-factory=*");
-    
+
     public static final AddressTemplate ADD_PREFIX_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("add-prefix-role-mapper=*");
     public static final AddressTemplate ADD_SUFFIX_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("add-suffix-role-mapper=*");
     public static final AddressTemplate AGGREGATE_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-role-mapper=*");
     public static final AddressTemplate CONSTANT_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("constant-role-mapper=*");
     public static final AddressTemplate CUSTOM_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("custom-role-mapper=*");
     public static final AddressTemplate LOGICAL_ROLE_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("logical-role-mapper=*");
-    
+
     public static final AddressTemplate SIMPLE_PERMISSION_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("simple-permission-mapper=*");
     public static final AddressTemplate LOGICAL_PERMISSION_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("logical-permission-mapper=*");
     public static final AddressTemplate CUSTOM_PERMISSION_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("custom-permission-mapper=*");
-    
+    public static final AddressTemplate CONSTANT_PERMISSION_MAPPER_ADDRESS = AddressTemplate.of(ROOT).append("constant-permission-mapper=*");
+
     public static final AddressTemplate AGGREGATE_PRINCIPAL_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-principal-decoder=*");
     public static final AddressTemplate CONCATENATING_PRINCIPAL_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("concatenating-principal-decoder=*");
     public static final AddressTemplate CONSTANT_PRINCIPAL_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("constant-principal-decoder=*");
@@ -128,10 +138,10 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate X500_PRINCIPAL_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("x500-attribute-principal-decoder=*");
     public static final AddressTemplate CUSTOM_ROLE_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("custom-role-decoder=*");
     public static final AddressTemplate SIMPLE_ROLE_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("simple-role-decoder=*");
-    
+
     public static final AddressTemplate SECURITY_DOMAIN_ADDRESS = AddressTemplate.of(ROOT).append("security-domain=*");
     public static final AddressTemplate SECURITY_PROPERTY_ADDRESS = AddressTemplate.of(ROOT).append("security-property=*");
-    
+
     public static final AddressTemplate DIR_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("dir-context=*");
 
     private final DispatchAsync dispatcher;
@@ -140,8 +150,12 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> keyStore;
     private final List<Property> keyManager;
     private final List<Property> serverSSLContext;
+    private final List<Property> clientSSLContext;
     private final List<Property> trustManager;
-    
+    private final List<Property> credentialStore;
+    private final List<Property> filteringKeyStore;
+    private final List<Property> ldapKeyStore;
+
     private final List<Property> propertiesRealm;
     private final List<Property> filesystemRealm;
     private final List<Property> jdbcRealm;
@@ -150,16 +164,21 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> aggregateRealm;
     private final List<Property> customModifiableRealm;
     private final List<Property> customRealm;
+    private final List<Property> identityRealm;
+    private final List<Property> tokenRealm;
+    private final List<Property> providerLoader;
+
     private final List<Property> mappedRegexRealmMapper;
     private final List<Property> simpleRegexRealmMapper;
     private final List<Property> customRealmMapper;
-    
-    private final List<Property> aggregateNameRewriter;
-    private final List<Property> chainedNameRewriter;
-    private final List<Property> constantNameRewriter;
-    private final List<Property> customNameRewriter;
-    private final List<Property> regexNameValidatingRewriter;
-    private final List<Property> regexNameRewriter;
+    private final List<Property> constantRealmMapper;
+
+    private final List<Property> aggregatePrincipalTransformer;
+    private final List<Property> chainedPrincipalTransformer;
+    private final List<Property> constantPrincipalTransformer;
+    private final List<Property> customPrincipalTransformer;
+    private final List<Property> regexValidatingPrincipalTransformer;
+    private final List<Property> regexPrincipalTransformer;
 
     private final List<Property> aggregateHttpServerMechanismFactory;
     private final List<Property> aggregateSaslServerFactory;
@@ -174,18 +193,19 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> saslAuthenticationFactory;
     private final List<Property> serviceLoaderHttpServerMechanismFactory;
     private final List<Property> serviceLoaderSaslServerFactory;
-    
+
     private final List<Property> addPrefixRoleMapper;
     private final List<Property> addSuffixRoleMapper;
     private final List<Property> aggregateRoleMapper;
     private final List<Property> constantRoleMapper;
     private final List<Property> customRoleMapper;
     private final List<Property> logicalRoleMapper;
-    
+
     private final List<Property> simplePermissionMapper;
     private final List<Property> logicalPermissionMapper;
     private final List<Property> customPermissionMapper;
-    
+    private final List<Property> constantPermissionMapper;
+
     private final List<Property> aggregatePrincipalDecoder;
     private final List<Property> concatenatingPrincipalDecoder;
     private final List<Property> constantPrincipalDecoder;
@@ -193,22 +213,27 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> x500PrincipalDecoder;
     private final List<Property> customRoleDecoder;
     private final List<Property> simpleRoleDecoder;
-    
+
     private final List<Property> securityDomain;
     private final List<Property> securityProperty;
     private final List<Property> dirContext;
-    
+
     @Inject
     public ElytronStore(final DispatchAsync dispatcher, StatementContext statementContext) {
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
-        
+
         this.keyStore = new ArrayList<>();
         this.keyManager = new ArrayList<>();
         this.serverSSLContext = new ArrayList<>();
+        this.clientSSLContext = new ArrayList<>();
         this.trustManager = new ArrayList<>();
-        
+        this.credentialStore = new ArrayList<>();
+        this.filteringKeyStore = new ArrayList<>();
+        this.ldapKeyStore = new ArrayList<>();
+        this.providerLoader = new ArrayList<>();
+
         this.propertiesRealm = new ArrayList<>();
         this.filesystemRealm = new ArrayList<>();
         this.jdbcRealm = new ArrayList<>();
@@ -217,16 +242,20 @@ public class ElytronStore extends ChangeSupport {
         this.aggregateRealm = new ArrayList<>();
         this.customModifiableRealm = new ArrayList<>();
         this.customRealm = new ArrayList<>();
+        this.identityRealm= new ArrayList<>();
+        this.tokenRealm = new ArrayList<>();
+
         this.mappedRegexRealmMapper = new ArrayList<>();
         this.simpleRegexRealmMapper = new ArrayList<>();
         this.customRealmMapper = new ArrayList<>();
-        
-        this.aggregateNameRewriter= new ArrayList<>();
-        this.chainedNameRewriter = new ArrayList<>();
-        this.constantNameRewriter = new ArrayList<>();
-        this.customNameRewriter = new ArrayList<>();
-        this.regexNameValidatingRewriter = new ArrayList<>();
-        this.regexNameRewriter = new ArrayList<>();
+        this.constantRealmMapper = new ArrayList<>();
+
+        this.aggregatePrincipalTransformer = new ArrayList<>();
+        this.chainedPrincipalTransformer = new ArrayList<>();
+        this.constantPrincipalTransformer = new ArrayList<>();
+        this.customPrincipalTransformer = new ArrayList<>();
+        this.regexValidatingPrincipalTransformer = new ArrayList<>();
+        this.regexPrincipalTransformer = new ArrayList<>();
 
         this.aggregateHttpServerMechanismFactory = new ArrayList<>();
         this.aggregateSaslServerFactory = new ArrayList<>();
@@ -252,6 +281,7 @@ public class ElytronStore extends ChangeSupport {
         simplePermissionMapper = new ArrayList<>();
         logicalPermissionMapper = new ArrayList<>();
         customPermissionMapper = new ArrayList<>();
+        constantPermissionMapper = new ArrayList<>();
 
         aggregatePrincipalDecoder = new ArrayList<>();
         concatenatingPrincipalDecoder = new ArrayList<>();
@@ -260,13 +290,11 @@ public class ElytronStore extends ChangeSupport {
         x500PrincipalDecoder = new ArrayList<>();
         customRoleDecoder = new ArrayList<>();
         simpleRoleDecoder = new ArrayList<>();
-        
+
         securityDomain = new ArrayList<>();
         securityProperty = new ArrayList<>();
-        
+
         dirContext = new ArrayList<>();
-        
-        
     }
 
 
@@ -279,9 +307,9 @@ public class ElytronStore extends ChangeSupport {
         Operation opRealElytron = new Operation.Builder(READ_RESOURCE_OPERATION, rootAddress)
                 .param(RECURSIVE, true)
                 .build();
-        
+
         dispatcher.execute(new DMRAction(opRealElytron), new AsyncCallback<DMRResponse>() {
-            
+
             @Override
             public void onFailure(final Throwable caught) {
                 channel.nack(caught);
@@ -298,7 +326,13 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "key-store", keyStore);
                     populate(payload, "key-managers", keyManager);
                     populate(payload, "server-ssl-context", serverSSLContext);
+                    populate(payload, "client-ssl-context", clientSSLContext);
                     populate(payload, "trust-managers", trustManager);
+                    populate(payload, "credential-store", credentialStore);
+                    populate(payload, "filtering-key-store", filteringKeyStore);
+                    populate(payload, "ldap-key-store", ldapKeyStore);
+                    populate(payload, "provider-loader", providerLoader);
+
                     populate(payload, "properties-realm", propertiesRealm);
                     populate(payload, "filesystem-realm", filesystemRealm);
                     populate(payload, "jdbc-realm", jdbcRealm);
@@ -307,16 +341,20 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "aggregate-realm", aggregateRealm);
                     populate(payload, "custom-modifiable-realm", customModifiableRealm);
                     populate(payload, "custom-realm", customRealm);
+                    populate(payload, "identity-realm", identityRealm);
+                    populate(payload, "token-realm", tokenRealm);
+
                     populate(payload, "mapped-regex-realm-mapper", mappedRegexRealmMapper);
                     populate(payload, "simple-regex-realm-mapper", simpleRegexRealmMapper);
                     populate(payload, "custom-realm-mapper", customRealmMapper);
-                    
-                    populate(payload, "aggregate-name-rewriter", aggregateNameRewriter);
-                    populate(payload, "chained-name-rewriter", chainedNameRewriter);
-                    populate(payload, "constant-name-rewriter", constantNameRewriter);
-                    populate(payload, "custom-name-rewriter", customNameRewriter);
-                    populate(payload, "regex-name-validating-rewriter", regexNameValidatingRewriter);
-                    populate(payload, "regex-name-rewriter", regexNameRewriter);
+                    populate(payload, "constant-realm-mapper", constantRealmMapper);
+
+                    populate(payload, "aggregate-principal-transformer", aggregatePrincipalTransformer);
+                    populate(payload, "chained-principal-transformer", chainedPrincipalTransformer);
+                    populate(payload, "constant-principal-transformer", constantPrincipalTransformer);
+                    populate(payload, "custom-principal-transformer", customPrincipalTransformer);
+                    populate(payload, "regex-validating-principal-transformer", regexValidatingPrincipalTransformer);
+                    populate(payload, "regex-principal-transformer", regexPrincipalTransformer);
 
                     populate(payload, "aggregate-http-server-mechanism-factory", aggregateHttpServerMechanismFactory);
                     populate(payload, "aggregate-sasl-server-factory", aggregateSaslServerFactory);
@@ -345,6 +383,7 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "simple-permission-mapper", simplePermissionMapper);
                     populate(payload, "logical-permission-mapper", logicalPermissionMapper);
                     populate(payload, "custom-permission-mapper", customPermissionMapper);
+                    populate(payload, "constant-permission-mapper", constantPermissionMapper);
 
                     populate(payload, "aggregate-principal-decoder", aggregatePrincipalDecoder);
                     populate(payload, "concatenating-principal-decoder", concatenatingPrincipalDecoder);
@@ -353,10 +392,10 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "x500-attribute-principal-decoder", x500PrincipalDecoder);
                     populate(payload, "custom-role-decoder", customRoleDecoder);
                     populate(payload, "simple-role-decoder", simpleRoleDecoder);
-                    
+
                     populate(payload, "security-domain", securityDomain);
                     populate(payload, "security-property", securityProperty);
-                    
+
                     populate(payload, "dir-context", dirContext);
 
                     channel.ack();
@@ -364,7 +403,7 @@ public class ElytronStore extends ChangeSupport {
             }
         });
     }
-    
+
     private void populate(ModelNode payload, String resourceName, List<Property> listToPopulate) {
         listToPopulate.clear();
         if (payload.hasDefined(resourceName)) {
@@ -434,7 +473,7 @@ public class ElytronStore extends ChangeSupport {
             }
         });
     }
-    
+
     @Process(actionType = RemoveListAttribute.class)
     public void removeItemFromAttributeList(final RemoveListAttribute action, final Dispatcher.Channel channel) {
         ResourceAddress address = action.getAddress().resolve(statementContext, action.getResourceName());
@@ -461,12 +500,28 @@ public class ElytronStore extends ChangeSupport {
         return keyStore;
     }
 
+    public List<Property> getCredentialStore() {
+        return credentialStore;
+    }
+
+    public List<Property> getFilteringKeyStore() {
+        return filteringKeyStore;
+    }
+
+    public List<Property> getLdapKeyStore() {
+        return ldapKeyStore;
+    }
+
     public List<Property> getKeyManager() {
         return keyManager;
     }
 
     public List<Property> getServerSSLContext() {
         return serverSSLContext;
+    }
+
+    public List<Property> getClientSSLContext() {
+        return clientSSLContext;
     }
 
     public List<Property> getTrustManager() {
@@ -505,6 +560,14 @@ public class ElytronStore extends ChangeSupport {
         return customRealm;
     }
 
+    public List<Property> getIdentityRealm() {
+        return identityRealm;
+    }
+
+    public List<Property> getTokenRealm() {
+        return tokenRealm;
+    }
+
     public List<Property> getMappedRegexRealmMapper() {
         return mappedRegexRealmMapper;
     }
@@ -517,28 +580,32 @@ public class ElytronStore extends ChangeSupport {
         return customRealmMapper;
     }
 
-    public List<Property> getAggregateNameRewriter() {
-        return aggregateNameRewriter;
+    public List<Property> getConstantRealmMapper() {
+        return constantRealmMapper;
     }
 
-    public List<Property> getChainedNameRewriter() {
-        return chainedNameRewriter;
+    public List<Property> getAggregatePrincipalTransformer() {
+        return aggregatePrincipalTransformer;
     }
 
-    public List<Property> getConstantNameRewriter() {
-        return constantNameRewriter;
+    public List<Property> getChainedPrincipalTransformer() {
+        return chainedPrincipalTransformer;
     }
 
-    public List<Property> getCustomNameRewriter() {
-        return customNameRewriter;
+    public List<Property> getConstantPrincipalTransformer() {
+        return constantPrincipalTransformer;
     }
 
-    public List<Property> getRegexNameValidatingRewriter() {
-        return regexNameValidatingRewriter;
+    public List<Property> getCustomPrincipalTransformer() {
+        return customPrincipalTransformer;
     }
 
-    public List<Property> getRegexNameRewriter() {
-        return regexNameRewriter;
+    public List<Property> getRegexValidatingPrincipalTransformer() {
+        return regexValidatingPrincipalTransformer;
+    }
+
+    public List<Property> getRegexPrincipalTransformer() {
+        return regexPrincipalTransformer;
     }
 
     public List<Property> getServiceLoaderSaslServerFactory() {
@@ -633,6 +700,10 @@ public class ElytronStore extends ChangeSupport {
         return simplePermissionMapper;
     }
 
+    public List<Property> getConstantPermissionMapper() {
+        return constantPermissionMapper;
+    }
+
     public List<Property> getLogicalRoleMapper() {
         return logicalRoleMapper;
     }
@@ -667,5 +738,9 @@ public class ElytronStore extends ChangeSupport {
 
     public List<Property> getDirContext() {
         return dirContext;
+    }
+
+    public List<Property> getProviderLoader() {
+        return providerLoader;
     }
 }

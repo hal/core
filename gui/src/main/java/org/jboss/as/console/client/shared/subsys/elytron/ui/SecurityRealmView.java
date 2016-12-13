@@ -42,9 +42,8 @@ public class SecurityRealmView {
     private ElytronGenericResourceView aggregateRealmView;
     private ElytronGenericResourceView customModifiableRealmView;
     private ElytronGenericResourceView customRealmView;
-    private ElytronGenericResourceView mappedRegexRealmMapperView;
-    private ElytronGenericResourceView simpleRegexRealmMapperView;
-    private ElytronGenericResourceView customRealmMapperView;
+    private ElytronGenericResourceView identityRealmView;
+    private TokenRealmView tokenRealmView;
 
     public SecurityRealmView(final Dispatcher circuit, final ResourceDescription rootDescription,
             final SecurityContext securityFramework) {
@@ -63,9 +62,8 @@ public class SecurityRealmView {
         ResourceDescription aggregateRealmDescription = rootDescription.getChildDescription("aggregate-realm");
         ResourceDescription customModifiableRealmDescription = rootDescription.getChildDescription("custom-modifiable-realm");
         ResourceDescription customRealmDescription = rootDescription.getChildDescription("custom-realm");
-        ResourceDescription mappedRegexRealmMapperDescription = rootDescription.getChildDescription("mapped-regex-realm-mapper");
-        ResourceDescription simpleRegexRealmMapperDescription = rootDescription.getChildDescription("simple-regex-realm-mapper");
-        ResourceDescription customRealmMapperDescription = rootDescription.getChildDescription("custom-realm-mapper");
+        ResourceDescription identityRealmDescription = rootDescription.getChildDescription("identity-realm");
+        ResourceDescription tokenRealmDescription = rootDescription.getChildDescription("token-realm");
         
         propertiesRealmView = new PropertiesRealmView(circuit, propsRealmDescription, securityContext);
         filesystemRealmView = new ElytronGenericResourceView(circuit, filesystemRealmDescription, securityContext, "Filesystem Realm",
@@ -74,19 +72,17 @@ public class SecurityRealmView {
         ldapView = new LdapRealmView(circuit, ldapRealmDescription, securityContext);
         keyStoreRealmView = new ElytronGenericResourceView(circuit, keystoreRealmDescription, securityContext, "Keystore Realm",
                 ElytronStore.KEYSTORE_REALM_ADDRESS);
-        aggregateRealmView= new ElytronGenericResourceView(circuit, aggregateRealmDescription, securityContext, "Aggregate Realm",
+        aggregateRealmView = new ElytronGenericResourceView(circuit, aggregateRealmDescription, securityContext, "Aggregate Realm",
                 ElytronStore.AGGREGATE_REALM_ADDRESS);
-        customModifiableRealmView= new ElytronGenericResourceView(circuit, customModifiableRealmDescription, securityContext, "Custom Modifiable Realm",
+        customModifiableRealmView = new ElytronGenericResourceView(circuit, customModifiableRealmDescription, securityContext, "Custom Modifiable Realm",
                 ElytronStore.CUSTOM_MODIFIABLE_REALM_ADDRESS);
-        customRealmView= new ElytronGenericResourceView(circuit, customRealmDescription, securityContext, "Custom Realm",
+        customRealmView = new ElytronGenericResourceView(circuit, customRealmDescription, securityContext, "Custom Realm",
                 ElytronStore.CUSTOM_REALM_ADDRESS);
-        mappedRegexRealmMapperView = new ElytronGenericResourceView(circuit, mappedRegexRealmMapperDescription, securityContext, "Mapped Regex Realm Mapper",
-                ElytronStore.MAPPED_REGEX_REALM_MAPPER_ADDRESS);
-        simpleRegexRealmMapperView= new ElytronGenericResourceView(circuit, simpleRegexRealmMapperDescription, securityContext, "Simple Realm Mapper",
-                ElytronStore.SIMPLE_REGEX_REALM_MAPPER_ADDRESS);
-        customRealmMapperView= new ElytronGenericResourceView(circuit, customRealmMapperDescription, securityContext, "Custom Realm Mapper",
-                ElytronStore.CUSTOM_REALM_MAPPER_ADDRESS);
-        
+        identityRealmView = new ElytronGenericResourceView(circuit, identityRealmDescription, securityContext, "Identity Realm",
+                ElytronStore.IDENTITY_REALM_ADDRESS);
+        tokenRealmView = new TokenRealmView(circuit, tokenRealmDescription, securityContext, "Token Realm",
+                ElytronStore.TOKEN_REALM_ADDRESS);
+
         PagedView panel = new PagedView(true);
         panel.addPage("Properties Realm", propertiesRealmView.asWidget());
         panel.addPage("Filesystem Realm", filesystemRealmView.asWidget());
@@ -96,9 +92,8 @@ public class SecurityRealmView {
         panel.addPage("Aggregate Realm", aggregateRealmView.asWidget());
         panel.addPage("Custom Modifiable Realm", customModifiableRealmView.asWidget());
         panel.addPage("Custom Realm", customRealmView.asWidget());
-        panel.addPage("Mapped Regex Realm Mapper", mappedRegexRealmMapperView.asWidget());
-        panel.addPage("Simple Regex Realm Mapper", simpleRegexRealmMapperView.asWidget());
-        panel.addPage("Custom Realm Mapper", customRealmMapperView.asWidget());
+        panel.addPage("Identity Realm", identityRealmView.asWidget());
+        panel.addPage("Token Realm", tokenRealmView.asWidget());
         // default page
         panel.showPage(0);
         
@@ -136,16 +131,13 @@ public class SecurityRealmView {
     public void updateCustomRealm(final List<Property> models) {
         customRealmView.update(models);
     }
-    
-    public void updateMappedRegexRealmMapper(final List<Property> models) {
-        mappedRegexRealmMapperView.update(models);
+
+    public void updateIdentityRealm(final List<Property> models) {
+        identityRealmView.update(models);
     }
-    
-    public void updateSimpleRegexRealmMapper(final List<Property> models) {
-        simpleRegexRealmMapperView.update(models);
+
+    public void updateTokenmRealm(final List<Property> models) {
+        tokenRealmView.update(models);
     }
-    
-    public void updateCustomRealmMapper(final List<Property> models) {
-        customRealmMapperView.update(models);
-    }
+
 }

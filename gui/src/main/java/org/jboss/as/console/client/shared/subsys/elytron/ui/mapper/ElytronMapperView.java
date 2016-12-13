@@ -96,11 +96,13 @@ public class ElytronMapperView extends SuspendableViewImpl implements ElytronMap
     @Override
     public void initPermissionMapper(final List<Property> simplePermissionMapper,
             final List<Property> logicalPermissionMapper,
-            final List<Property> customPermissionMapper) {
+            final List<Property> customPermissionMapper,
+            final List<Property> constantPermissionMapper) {
 
         permissionMapperView.updateSimplePermissionMapper(simplePermissionMapper);
         permissionMapperView.updateLogicalPermissionMapper(logicalPermissionMapper);
         permissionMapperView.updateCustomPermissionMapper(customPermissionMapper);
+        permissionMapperView.updateConstantPermissionMapper(constantPermissionMapper);
     }
 
     @Override

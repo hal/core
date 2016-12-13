@@ -23,44 +23,46 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
-public class GenericRewriterView extends ElytronGenericResourceView {
+public class ProviderLoaderView extends ElytronGenericResourceView {
 
-    public GenericRewriterView(final Dispatcher circuit,
+    private ProviderLoaderEditor providerLoaderItem;
+
+    public ProviderLoaderView(final Dispatcher circuit,
             final ResourceDescription resourceDescription,
             final SecurityContext securityContext, final String title,
             final AddressTemplate addressTemplate) {
         super(circuit, resourceDescription, securityContext, title, addressTemplate);
+        excludesFormAttributes("providers");
     }
 
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
+        providerLoaderItem = new ProviderLoaderEditor();
+        additionalWidgets.put("Providers", providerLoaderItem.asWidget());
         return additionalWidgets;
     }
 
     @Override
     public void update(final List<Property> models) {
         super.update(models);
+        if (models.isEmpty()) {
+            providerLoaderItem.clearValues();
+        }
     }
 
     @Override
-    protected void addFormValidatorOnAddDialog(final List<FormItem> formItemList,
-            final FormValidation formValidation) {
-        FormItem nameRewritersItem = findFormItem(formItemList, "name-rewriters");
-        ListItem nameRewritersList = (ListItem) nameRewritersItem;
-        if (nameRewritersList.getValue().size() < 2) {
-            formValidation.addError("name-rewriters");
-            nameRewritersItem.setErrMessage("At least two itens should be specified.");
-            nameRewritersItem.setErroneous(true);
+    protected void selectTableItem(final Property prop) {
+        if (prop != null) {
+            providerLoaderItem.update(prop);
+        } else {
+            providerLoaderItem.clearValues();
         }
     }
 

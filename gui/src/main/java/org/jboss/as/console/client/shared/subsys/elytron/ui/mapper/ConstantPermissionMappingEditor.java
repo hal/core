@@ -19,11 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.elytron.ui.factory;
+package org.jboss.as.console.client.shared.subsys.elytron.ui.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -40,7 +41,6 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -54,9 +54,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
-public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
-
-    public static final String FILTERS = "filters";
+public class ConstantPermissionMappingEditor implements IsWidget {
 
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
@@ -64,19 +62,18 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
     private Dispatcher circuit;
     private ResourceDescription resourceDescription;
     private SecurityContext securityContext;
-    private String factoryName;
+    private String permissionMapping;
 
-    ConfigurableSaslServerFactoryFilterEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
+    ConstantPermissionMappingEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
         this.circuit = circuit;
         this.securityContext = securityContext;
         selectionModel = new SingleSelectionModel<>();
-
+        
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
-        // rewrite the resource descriptor to allow the use of ModelNodeFormBuilder
         ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
-        ModelNode mechanismDescription = reqPropsDescription.get(FILTERS).get("value-type");
-        reqPropsDescription.set(mechanismDescription);
+        ModelNode filtersDescription = reqPropsDescription.get("permissions").get("value-type");
+        reqPropsDescription.set(filtersDescription);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,39 +81,52 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("fill-layout-width");
 
-        // table
-        table = new DefaultCellTable<>(5);
+        setupTable();
         dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
+
+        panel.add(setupTableButtons());
+
+        panel.add(table);
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
+        panel.add(pager);
+        return panel;
+    }
+    
+    private void setupTable() {
+        table = new DefaultCellTable<>(5);
         table.setSelectionModel(selectionModel);
 
         // columns
-        Column<ModelNode, String> predefinedFilter = new TextColumn<ModelNode>() {
+        Column<ModelNode, String> classNameColumn = createColumn("class-name");
+        Column<ModelNode, String> moduleColumn = createColumn("module");
+        Column<ModelNode, String> targetNameColumn = createColumn("target-name");
+        Column<ModelNode, String> actionColumn = createColumn("action");
+        classNameColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        moduleColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        targetNameColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        actionColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        table.addColumn(classNameColumn, "Class name");
+        table.addColumn(moduleColumn, "Module");
+        table.addColumn(targetNameColumn, "Target name");
+        table.addColumn(actionColumn, "Action");
+        table.setColumnWidth(classNameColumn, 40, Style.Unit.PCT);
+        table.setColumnWidth(moduleColumn, 20, Style.Unit.PCT);
+        table.setColumnWidth(targetNameColumn, 25, Style.Unit.PCT);
+        table.setColumnWidth(actionColumn, 15, Style.Unit.PCT);
+    }
+    
+    private Column<ModelNode, String> createColumn(String attributeName) {
+        return new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.hasDefined("predefined-filter") ? node.get("predefined-filter").asString() : "";
+                return node.hasDefined(attributeName) ? node.get(attributeName).asString() : "";
             }
         };
-        Column<ModelNode, String> patternFilter = new TextColumn<ModelNode>() {
-            @Override
-            public String getValue(ModelNode node) {
-                return node.hasDefined("pattern-filter") ? node.get("pattern-filter").asString() : "";
-            }
-        };
-        Column<ModelNode, String> enablingColumn = new TextColumn<ModelNode>() {
-            @Override
-            public String getValue(ModelNode property) {
-                return property.hasDefined("enabling") ? property.get("enabling").asString() : "";
-            }
-        };
-        predefinedFilter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        patternFilter.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        enablingColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        table.addColumn(predefinedFilter, "Pre-defined Filter");
-        table.addColumn(patternFilter, "Pattern Filter");
-        table.addColumn(enablingColumn, "Enabling");
-
-        // tools
+    }
+    
+    private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
@@ -124,36 +134,19 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
                     .setResourceDescription(resourceDescription)
                     .setCreateMode(true)
                     .unsorted()
+                    .exclude("permissions")
                     .setCreateNameAttribute(false)
                     .setSecurityContext(securityContext)
                     .build();
             addFormAssets.getForm().setEnabled(true);
-            addFormAssets.getForm().addFormValidator((list, formValidation) -> {
-                // pattern-filter and predefined-filter are mutually exclusive
-                FormItem<String> patternFilterFormItem = formItem(list, "pattern-filter");
-                FormItem<String> predefinedFilterFormItem = formItem(list, "predefined-filter");
-                if ((patternFilterFormItem.isUndefined() && predefinedFilterFormItem.isUndefined())
-                        || (!patternFilterFormItem.isUndefined() && !predefinedFilterFormItem.isUndefined())) {
-                    predefinedFilterFormItem.setErrMessage("Please set either predefined filter or pattern filter.");
-                    predefinedFilterFormItem.setErroneous(true);
-                    formValidation.addError("predefined-filter");
-                }
-            });
 
-
-            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Filter"));
+            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Permission"));
             AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
                 @Override
                 public void onAdd(ModelNode payload) {
-                    // pattern-filter and predefined-filter are mutually exclusive attributes
-                    if (payload.hasDefined("predefined-filter"))
-                        payload.remove("pattern-filter");
-                    else if (payload.hasDefined("pattern-filter"))
-                        payload.remove("predefined-filter");
-
-                    circuit.dispatch(new AddListAttribute(ElytronStore.CONFIGURABLE_SASL_SERVER_FACTORY_ADDRESS,
-                            FILTERS,
-                            factoryName,
+                    circuit.dispatch(new AddListAttribute(ElytronStore.CONSTANT_PERMISSION_MAPPER_ADDRESS,
+                            "permissions",
+                            permissionMapping,
                             payload));
                     dialog.hide();
                 }
@@ -173,14 +166,13 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
-                Feedback.confirm("Filter", Console.MESSAGES.deleteConfirm("filter "
-                        + (selection.hasDefined("predefined-filter") ? selection.get("predefined-filter").asString() : selection.get("pattern-filter").asString())),
+                Feedback.confirm("Filter", Console.MESSAGES.deleteConfirm("Permission "  + selection.get("class-name").asString()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveListAttribute(
-                                        ElytronStore.CONFIGURABLE_SASL_SERVER_FACTORY_ADDRESS,
-                                        factoryName,
-                                        FILTERS,
+                                        ElytronStore.CONSTANT_PERMISSION_MAPPER_ADDRESS,
+                                        permissionMapping,
+                                        "permissions",
                                         selection));
                             }
                         });
@@ -188,32 +180,15 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
         });
         tools.addToolButtonRight(addButton);
         tools.addToolButtonRight(removeButton);
-        panel.add(tools);
-
-        panel.add(table);
-        DefaultPager pager = new DefaultPager();
-        pager.setDisplay(table);
-        panel.add(pager);
-        return panel;
+        return tools;
     }
-
-    @SuppressWarnings("unchecked")
-    private <T> FormItem<T> formItem(List<FormItem> formItems, String name) {
-        for (FormItem formItem : formItems) {
-            if (name.equals(formItem.getName())) {
-                return formItem;
-            }
-        }
-        return null;
-    }
-
 
     public void update(Property prop) {
-        factoryName = prop.getName();
-        if (prop.getValue().hasDefined(FILTERS)) {
-            List<ModelNode> models = prop.getValue().get(FILTERS).asList();
+        permissionMapping = prop.getName();
+        if (prop.getValue().hasDefined("permissions")) {
+            List<ModelNode> models = prop.getValue().get("permissions").asList();
             table.setRowCount(models.size(), true);
-
+    
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);

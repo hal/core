@@ -41,6 +41,7 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
     private final SecurityFramework securityFramework;
     private ElytronSecurityRealmPresenter presenter;
     private SecurityRealmView securityRealmView;
+    private SecurityRealmMapperView securityRealmMapperView;
 
     @Inject
     public ElytronSecurityRealmView(final Dispatcher circuit, final ResourceDescriptionRegistry resourceDescriptionRegistry,
@@ -60,8 +61,10 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
         tabLayoutpanel.addStyleName("default-tabpanel");
         
         securityRealmView = new SecurityRealmView(circuit, rootDescription, securityContext);
+        securityRealmMapperView = new SecurityRealmMapperView(circuit, rootDescription, securityContext);
 
         tabLayoutpanel.add(securityRealmView.asWidget(), "Security Realm", true);
+        tabLayoutpanel.add(securityRealmMapperView.asWidget(), "Security Realm Mapper", true);
         tabLayoutpanel.selectTab(0);
         return tabLayoutpanel;
     }
@@ -70,7 +73,10 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
     public void initSecurityRealm(List<Property> propertiesRealm, List<Property> filesystemRealm, 
             List<Property> jdbcRealm, List<Property> ldapRealm, List<Property> keystoreRealm, 
             List<Property> aggregateRealm, List<Property> customModifiableRealm, List<Property> customRealm,
-            List<Property> mappedRegexRealmMapper, List<Property> simpleRegexRealmMapper, List<Property> customRealmMapper) {
+            List<Property> identityRealm, List<Property> tokenRealm,
+            List<Property> mappedRegexRealmMapper, List<Property> simpleRegexRealmMapper, List<Property> customRealmMapper,
+            List<Property> constantRealmMapper) {
+        
         securityRealmView.updatePropertiesRealm(propertiesRealm);
         securityRealmView.updateFilesystemRealm(filesystemRealm);
         securityRealmView.updateJdbcRealm(jdbcRealm);
@@ -79,9 +85,14 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
         securityRealmView.updateAggregateRealm(aggregateRealm);
         securityRealmView.updateCustomModifiableRealm(customModifiableRealm);
         securityRealmView.updateCustomRealm(customRealm);
-        securityRealmView.updateMappedRegexRealmMapper(mappedRegexRealmMapper);
-        securityRealmView.updateSimpleRegexRealmMapper(simpleRegexRealmMapper);
-        securityRealmView.updateCustomRealmMapper(customRealmMapper);
+        securityRealmView.updateIdentityRealm(identityRealm);
+        securityRealmView.updateTokenmRealm(tokenRealm);
+        
+        
+        securityRealmMapperView.updateMappedRegexRealmMapper(mappedRegexRealmMapper);
+        securityRealmMapperView.updateSimpleRegexRealmMapper(simpleRegexRealmMapper);
+        securityRealmMapperView.updateCustomRealmMapper(customRealmMapper);
+        securityRealmMapperView.updateConstantRealmMapper(constantRealmMapper);
     }
 
     @Override

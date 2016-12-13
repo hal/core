@@ -51,7 +51,7 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
     public static final String FACTORY = "Factory";
     public static final String MAPPER_DECODER = "Mapper / Decoder";
     public static final String SECURITY_REALM = "Security Realm";
-    public static final String SSL = "SSL";
+    public static final String OTHER = "Other";
 
     private ElytronFinder presenter;
     private LayoutPanel previewCanvas;
@@ -129,13 +129,13 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
             public void createPreview(final FinderItem data, final AsyncCallback<SafeHtml> callback) {
                 if (FACTORY.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_factory(), callback);
-                    
+
                 } else if (MAPPER_DECODER.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_mapper(), callback);
-                    
-                } else if (SSL.equals(data.getTitle())) {
+
+                } else if (OTHER.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_settings(), callback);
-                    
+
                 } else if (SECURITY_REALM.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_security_realm(), callback);
                 }
@@ -161,16 +161,16 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
 
 
         List<FinderItem> settings = new ArrayList<>();
-        settings.add(new FinderItem(FACTORY, () 
+        settings.add(new FinderItem(FACTORY, ()
                 -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronFactoryPresenter)), false));
-        
-        settings.add(new FinderItem(MAPPER_DECODER, () 
+
+        settings.add(new FinderItem(MAPPER_DECODER, ()
                 -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronMapperPresenter)), false));
-        
-        settings.add(new FinderItem(SSL, () 
+
+        settings.add(new FinderItem(OTHER, ()
                 -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronPresenter)), false));
-        
-        settings.add(new FinderItem(SECURITY_REALM, () 
+
+        settings.add(new FinderItem(SECURITY_REALM, ()
                 -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronSecurityRealmPresenter)), false));
 
         links.updateFrom(settings);
