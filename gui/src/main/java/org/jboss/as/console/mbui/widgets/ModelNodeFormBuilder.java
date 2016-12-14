@@ -63,6 +63,7 @@ public class ModelNodeFormBuilder {
     private boolean includeOptionals = true; // only important if createMode == true
     private boolean singleton = false;
     private boolean createNameField = true;
+    private boolean includeDeprecated;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -137,6 +138,15 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
+    /**
+     * Include the deprecated attributes in the form.
+     *
+     */
+    public ModelNodeFormBuilder includeDeprecated(boolean includes) {
+        this.includeDeprecated = includes;
+        return  this;
+    }
+
     public ModelNodeFormBuilder setSingleton(boolean singleton) {
         this.singleton = singleton;
         return this;
@@ -159,7 +169,7 @@ public class ModelNodeFormBuilder {
         }
         return this;
     }
-    
+
     public ModelNodeFormBuilder setCreateNameAttribute(boolean create) {
         createNameField = create;
         return this;
@@ -263,7 +273,7 @@ public class ModelNodeFormBuilder {
                 ModelNode attrDesc = attr.getValue();
 
                 // skip deprecated attributes
-                if (attrDesc.hasDefined("deprecated")) {
+                if (attrDesc.hasDefined("deprecated") && !includeDeprecated) {
                     //Log.error("Skip deprecated attribute '" + attr.getName() + "'");
                     continue;
                 }

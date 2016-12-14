@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.tools;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -12,9 +15,6 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -60,6 +60,7 @@ public class FormView {
             // construct new form (expensive)
             ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                     .setResourceDescription(description)
+                    .includeDeprecated(true)
                     .setSecurityContext(securityContext);
 
             formAssets = builder.build();
