@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.tools;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
@@ -18,8 +23,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
@@ -39,11 +42,6 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -254,6 +252,7 @@ public class ChildView {
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setCreateMode(true)
                 .setSingleton(isSingleton)
+                .includeDeprecated(true)
                 .setResourceDescription(description)
                 .setSecurityContext(securityContext);
 
