@@ -21,6 +21,8 @@
  */
 package org.jboss.dmr.client.dispatch.impl;
 
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -30,8 +32,6 @@ import elemental.xml.XMLHttpRequest;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
-
-import java.util.Map;
 
 /**
  * @author Harald Pehl
@@ -94,6 +94,9 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
         xhr.open("POST", endpointConfig.getUploadUrl(), true);
         xhr.setRequestHeader(UPLOAD_HEADER_NAME, UPLOAD_HEADER_VALUE);
         xhr.setWithCredentials(true);
+        String bearerToken = DMRHandler.getBearerToken();
+        if (bearerToken != null)
+            xhr.setRequestHeader("Authorization", "Bearer " + bearerToken);
         xhr.send(formData);
 
         return new UploadDispatchRequest();

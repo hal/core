@@ -19,10 +19,16 @@
 
 package org.jboss.dmr.client.dispatch.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.rbac.ResourceAccessLog;
@@ -32,9 +38,6 @@ import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -67,7 +70,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private boolean trackInvocations = diagnostics.isEnabled();
     private DMREndpointConfig endpointConfig = GWT.create(DMREndpointConfig.class);
     private ResourceAccessLog resourceLog = ResourceAccessLog.INSTANCE;
-
+    
     private RequestBuilder postRequestBuilder() {
         // lazy init, because endpointConfig.getUrl() is not initialized at construction time
         if (prb == null) {
@@ -78,10 +81,27 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         }
         return prb;
     }
+    
     private static native void redirect(String url)/*-{
         $wnd.location = url;
     }-*/;
 
+    /**
+      * Obtains the bearer token from keycloak object attached to the window.
+      *
+      * @return
+      */
+    public static native String getBearerToken()/*-{
+        // keycloak object is created at App.html
+        var keycloak = $wnd.keycloak
+        if (keycloak != null && $wnd.keycloak.token != null) {
+            return $wnd.keycloak.token;
+        }
+
+        return null;
+    }-*/;
+
+    
     private static String getToken(ModelNode operation)
     {
         StringBuffer sb = new StringBuffer();
@@ -317,6 +337,13 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             requestBuilder = postRequestBuilder();
             requestBuilder.setRequestData(operation.toBase64String());
         }
+
+        // obtain the bearer token and use it to set an Authorization "Bearer" header
+        String bearerToken = getBearerToken();
+        if (bearerToken != null) {
+            requestBuilder.setHeader("Authorization", "Bearer " + bearerToken);
+        }
+        
         return requestBuilder;
     }
 

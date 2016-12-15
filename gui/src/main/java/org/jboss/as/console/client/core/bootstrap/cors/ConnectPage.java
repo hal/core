@@ -51,14 +51,14 @@ public class ConnectPage implements IsWidget {
                         if (server == null) {
                             status(StatusMessage.error(Console.CONSTANTS.bs_connect_interface_no_selection()));
                         } else {
-                            serverSetup.pingServer(server, new AsyncCallback<Void>() {
+                            serverSetup.pingServer(server, new AsyncCallback<SSOChecker>() {
                                 @Override
                                 public void onFailure(final Throwable caught) {
                                     status(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                                 }
 
                                 @Override
-                                public void onSuccess(final Void result) {
+                                public void onSuccess(final SSOChecker result) {
                                     serverSetup.onConnect(server);
                                 }
                             });

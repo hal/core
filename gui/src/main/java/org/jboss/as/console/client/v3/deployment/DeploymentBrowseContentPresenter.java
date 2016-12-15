@@ -38,11 +38,13 @@ import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.tools.DownloadUtil;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.BROWSE_CONTENT;
@@ -129,7 +131,12 @@ public class DeploymentBrowseContentPresenter
     }
 
     public void downloadFile(String filepath) {
-        Window.open(streamUrl(deploymentName, filepath), "", "");
+        String filename = filepath.substring(filepath.lastIndexOf("/") + 1);
+        if (bootstrap.isSsoEnabled()) {
+            DownloadUtil.downloadHttpGet(streamUrl(deploymentName, filepath), filename, DMRHandler.getBearerToken());
+              
+        } else
+            Window.open(streamUrl(deploymentName, filepath), "", "");
     }
 
     private String streamUrl(final String deploymentName, String filepath) {

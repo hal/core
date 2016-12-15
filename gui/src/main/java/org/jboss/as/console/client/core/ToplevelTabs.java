@@ -18,11 +18,11 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.inject.Inject;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.inject.Inject;
 
 /**
  * Configuration for the top level tabs.
@@ -97,8 +97,12 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
             //tabs.add(new Config(NameTokens.ServerPresenter, "Domain", false));
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Runtime", true));
         }
-        if(bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
-            tabs.add(new Config(NameTokens.AccessControlFinder, "Access Control", true));
+        if (bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
+            String accessControlNameToken = NameTokens.AccessControlFinder;
+            if (bootstrapContext.isSsoEnabled()) {
+                accessControlNameToken = NameTokens.SSOAccessControlFinder;
+            }
+            tabs.add(new Config(accessControlNameToken, "Access Control", true));
             // tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
             tabs.add(new Config(NameTokens.PatchingPresenter, "Patching", true));
         }

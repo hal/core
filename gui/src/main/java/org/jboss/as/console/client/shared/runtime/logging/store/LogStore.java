@@ -21,6 +21,14 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.store;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -34,24 +42,18 @@ import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
+import org.jboss.as.console.client.tools.DownloadUtil;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.google.gwt.http.client.URL.encode;
 import static java.lang.Math.max;
@@ -244,6 +246,10 @@ public class LogStore extends ChangeSupport {
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(fileName)));
         requestBuilder.setHeader("Accept", "text/plain");
         requestBuilder.setHeader("Content-Type", "text/plain");
+        String bearerToken = DMRHandler.getBearerToken();
+        if (bearerToken != null)
+            requestBuilder.setHeader("Authorization", "Bearer " + bearerToken);
+            
         requestBuilder.setIncludeCredentials(true);
         try {
             // store the request in order to cancel it later
@@ -276,7 +282,11 @@ public class LogStore extends ChangeSupport {
 
     @Process(actionType = DownloadLogFile.class)
     public void downloadLogFile(final DownloadLogFile action, final Dispatcher.Channel channel) {
-        Window.open(streamUrl(action.getName()), "", "");
+        if (bootstrap.isSsoEnabled()) 
+            DownloadUtil.downloadHttpGet(streamUrl(action.getName()), action.getName(), DMRHandler.getBearerToken());
+        else 
+            Window.open(streamUrl(action.getName()), "", "");
+        
         channel.ack();
     }
 

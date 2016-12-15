@@ -1,11 +1,9 @@
 package org.jboss.as.console.client.core.bootstrap.hal;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.ui.HTML;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.LogoutCmd;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -15,6 +13,12 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  * @date 9/17/13
  */
 public class InsufficientPrivileges implements ScheduledCommand {
+
+    private boolean ssoEnabled;
+
+    public InsufficientPrivileges(boolean ssoEnabled) {
+        this.ssoEnabled = ssoEnabled;
+    }
 
     @Override
     public void execute() {
@@ -27,7 +31,7 @@ public class InsufficientPrivileges implements ScheduledCommand {
                 Console.CONSTANTS.common_label_logout(),
                 event -> {
                     window.hide();
-                    new LogoutCmd().execute();
+                    new LogoutCmd(ssoEnabled).execute();
                 },
                 Console.CONSTANTS.common_label_cancel(),
                 event -> {}

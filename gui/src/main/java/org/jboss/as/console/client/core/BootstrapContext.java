@@ -19,20 +19,18 @@
 
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.rbac.StandardRole;
-
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.inject.Inject;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
  * @author Heiko Braun
@@ -57,6 +55,7 @@ public class BootstrapContext implements ApplicationProperties {
     private String runAs;
     private List<ProfileRecord> initialProfiles;
     private long majorVersion;
+    private boolean ssoEnabled;
 
     @Inject
     public BootstrapContext() {
@@ -246,4 +245,28 @@ public class BootstrapContext implements ApplicationProperties {
     public long getMajorVersion() {
         return majorVersion;
     }
+
+    public boolean isSsoEnabled() {
+        return ssoEnabled;
+    }
+
+    public void setSsoEnabled(final boolean ssoEnabled) {
+        this.ssoEnabled = ssoEnabled;
+    }
+
+    /**
+     * Obtains the authentication server url (keycloak admin console) from keycloak object attached to the window.
+     *
+     * @return The auth-server-url parameter extracted from <pre>/keycloak/adapter/wildfly-console/</pre>
+     */
+    public static native String retrieveSsoAuthUrl()/*-{
+        // keycloak object is created at App.html
+        var keycloak = $wnd.keycloak
+        if (keycloak != null && $wnd.keycloak.authServerUrl != null) {
+            return $wnd.keycloak.authServerUrl;
+        }
+
+        return null;
+    }-*/;
+
 }

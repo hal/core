@@ -192,13 +192,17 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
         }
 
         if (su) {
-            HomepageSection accessControlSection = new HomepageSection(NameTokens.AccessControlFinder,
+            String accessControlNameToken = NameTokens.AccessControlFinder;
+            if (bootstrapContext.isSsoEnabled()) 
+                accessControlNameToken = NameTokens.SSOAccessControlFinder;
+            
+            HomepageSection accessControlSection = new HomepageSection(accessControlNameToken,
                     constants.homepage_access_control_section(),
                     constants.homepage_access_control_step_intro(),
                     constants.homepage_access_control_step1(),
                     constants.homepage_access_control_step2());
             accessControlModule = new HomepageModule(
-                    NameTokens.AccessControlFinder,
+                    accessControlNameToken,
                     "images/homepage/access_control.png",
                     "Access Control",
                     constants.homepage_access_control_sub_header(),
