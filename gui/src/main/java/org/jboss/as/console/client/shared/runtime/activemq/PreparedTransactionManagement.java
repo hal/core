@@ -1,27 +1,24 @@
 /*
- * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
- * as indicated by the @author tags. All rights reserved.
- * See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2016 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
  *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU Lesser General Public License, v. 2.1.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public License,
- * v.2.1 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA  02110-1301, USA.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
-package org.jboss.as.console.client.shared.subsys.activemq;
+package org.jboss.as.console.client.shared.runtime.activemq;
 
 import java.util.List;
 
-import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.model.PreparedTransaction;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -37,26 +34,20 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 
-public class PreparedTransactionsView extends SuspendableViewImpl implements PreparedTransactionsPresenter.MyView {
+public class PreparedTransactionManagement {
+    private ActivemqMetricPresenter presenter;
 
-    private PreparedTransactionsPresenter presenter;
     private ListDataProvider<PreparedTransaction> dataProvider;
     private DefaultCellTable<PreparedTransaction> table;
 
-    private ContentHeaderLabel serverName;
     private ToolButton commitButton;
     private ToolButton rollbackButton;
 
-    @Override
-    public void setPresenter(PreparedTransactionsPresenter presenter) {
+    public PreparedTransactionManagement(ActivemqMetricPresenter presenter) {
         this.presenter = presenter;
     }
 
-    @Override
-    public Widget createWidget() {
-        serverName = new ContentHeaderLabel();
-        serverName.setHTML("Prepared transactions: Provider " + presenter.getCurrentServer());
-
+    Widget asWidget() {
         ToolStrip topLevelTools = new ToolStrip();
         commitButton = new ToolButton("Commit", new ClickHandler() {
 
@@ -110,8 +101,9 @@ public class PreparedTransactionsView extends SuspendableViewImpl implements Pre
         table.setColumnWidth(dateColumn, 120, Unit.PX);
 
         OneToOneLayout builder = new OneToOneLayout()
+                .setPlain(true)
                 .setTitle("Prepared Transactions")
-                .setHeadlineWidget(serverName)
+                .setHeadlineWidget(new ContentHeaderLabel("Prepared Transactions"))
                 .setDescription("Prepared transactions management.")
                 .setMaster("", table.asWidget())
                 .setMasterTools(topLevelTools.asWidget());
@@ -119,7 +111,6 @@ public class PreparedTransactionsView extends SuspendableViewImpl implements Pre
         return builder.build();
     }
 
-    @Override
     public void setTransactions(List<PreparedTransaction> transactions) {
         if (transactions.isEmpty()) {
             commitButton.setEnabled(false);

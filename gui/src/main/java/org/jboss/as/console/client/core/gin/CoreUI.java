@@ -292,7 +292,6 @@ public interface CoreUI {
     AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter> getActivemqMsgConnectionsPresenter();
     AsyncProvider<org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter> getMsgClusteringPresenter();
     AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter> getActivemqMsgClusteringPresenter();
-    AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter> getTransactionsPresenter();
     AsyncProvider<JMSBridgePresenter> getJMSBridgePresenter();
 
     AsyncProvider<ElytronPresenter> getElytronPresenter();
@@ -300,7 +299,7 @@ public interface CoreUI {
     AsyncProvider<ElytronMapperPresenter> getElytronMapperPresenter();
     AsyncProvider<ElytronSecurityRealmPresenter> getElytronSecurityRealmPresenter();
     AsyncProvider<ElytronFinder> getElytronFinder();
-    
+
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
     AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
 

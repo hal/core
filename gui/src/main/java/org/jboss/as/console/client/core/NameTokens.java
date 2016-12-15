@@ -99,7 +99,6 @@ public class NameTokens {
     public static final String ActivemqMsgConnectionsPresenter = "activemq-messaging-connections";
     public static final String MsgClusteringPresenter  =  "messaging-cluster";
     public static final String ActivemqMsgClusteringPresenter =  "activemq-messaging-cluster";
-    public static final String ActivemqTransactions = "activemq-transactions";
     public static final String ToolsPresenter = "tools";
     public static final String PathManagementPresenter = "path" ;
 
