@@ -91,7 +91,7 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
     }
 
 
-    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+    CrudOperationDelegate.Callback defaultAddOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
             Console.info(Console.MESSAGES.added("Undertow filter"));
@@ -101,6 +101,19 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
             Console.error(Console.MESSAGES.addingFailed("Undertow filter"), t.getMessage());
+        }
+    };
+
+    CrudOperationDelegate.Callback defaultSaveOpCallbacks = new CrudOperationDelegate.Callback() {
+        @Override
+        public void onSuccess(AddressTemplate address, String name) {
+            Console.info(Console.MESSAGES.saved("Undertow filter"));
+            loadFilters();
+        }
+
+        @Override
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            Console.error(Console.MESSAGES.saveFailed("Undertow filter"), t.getMessage());
         }
     };
 
@@ -215,7 +228,7 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
                     public void onAdd(ModelNode payload) {
                         window.hide();
                         operationDelegate.onCreateResource(
-                                address, payload.get("name").asString(), payload, defaultOpCallbacks);
+                                address, payload.get("name").asString(), payload, defaultAddOpCallbacks);
                     }
 
                     @Override
@@ -230,14 +243,14 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
     }
     
     public void onRemoveResource(final AddressTemplate address, final String name) {
-        operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
+        operationDelegate.onRemoveResource(address, name, defaultAddOpCallbacks);
     }
 
     /**
      * Save an existent filter.
      */
     public void onSaveFilter(AddressTemplate address, String name, Map changeset) {
-        operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
+        operationDelegate.onSaveResource(address, name, changeset, defaultSaveOpCallbacks);
     }
 
     public PlaceManager getPlaceManager() {
