@@ -85,14 +85,14 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
 
         leftPanel = new PagedView(true);
 
-        customFilterEditor = new FilterEditor(presenter, CUSTOM_ADDRESS, "Custom Filter");
-        errorPageList = new FilterEditor(presenter, ERROR_PAGE_ADDRESS, "Error Page");
-        expressionList = new FilterEditor(presenter, EXPRESSION_ADDRESS, "Expression");
-        gzipList = new FilterEditor(presenter, GZIP_ADDRESS, "Gzip");
-        modclusterList = new FilterEditor(presenter, MODCLUSTER_ADDRESS, "ModCluster");
-        requestLimitList = new FilterEditor(presenter, REQUEST_LIMIT_ADDRESS, "Request Limit");
-        responseHeaderList = new FilterEditor(presenter, RESPONSE_HEADER_ADDRESS, "Response Header");
-        rewriteList = new FilterEditor(presenter, REWRITE_ADDRESS, "Rewrite");
+        customFilterEditor = new FilterEditor(presenter, CUSTOM_ADDRESS, "Custom Filter", false);
+        errorPageList = new FilterEditor(presenter, ERROR_PAGE_ADDRESS, "Error Page", false);
+        expressionList = new FilterEditor(presenter, EXPRESSION_ADDRESS, "Expression", false);
+        gzipList = new FilterEditor(presenter, GZIP_ADDRESS, "Gzip", false);
+        modclusterList = new FilterEditor(presenter, MODCLUSTER_ADDRESS, "ModCluster", true);
+        requestLimitList = new FilterEditor(presenter, REQUEST_LIMIT_ADDRESS, "Request Limit", false);
+        responseHeaderList = new FilterEditor(presenter, RESPONSE_HEADER_ADDRESS, "Response Header", false);
+        rewriteList = new FilterEditor(presenter, REWRITE_ADDRESS, "Rewrite", false);
 
         leftPanel.addPage("Custom Filter", customFilterEditor.asWidget());
         leftPanel.addPage("Error Page", errorPageList.asWidget());

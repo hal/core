@@ -87,7 +87,9 @@ public abstract class AbstractListenerView implements IsWidget {
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext)
+                .includeDeprecated(true)
+                .build();
 
 
         formAssets.getForm().setToolsCallback(new FormCallback() {

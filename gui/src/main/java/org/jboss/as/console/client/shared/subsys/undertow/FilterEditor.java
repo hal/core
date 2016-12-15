@@ -52,6 +52,7 @@ import org.jboss.dmr.client.Property;
 public class FilterEditor {
 
     private FilterPresenter presenter;
+    private final boolean showDeprecated;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
     private final SingleSelectionModel<Property> selectionModel;
@@ -60,8 +61,9 @@ public class FilterEditor {
     private final AddressTemplate addressTemplate;
     private final String title;
 
-    public FilterEditor(FilterPresenter presenter, AddressTemplate addressTemplate, String title) {
+    public FilterEditor(FilterPresenter presenter, AddressTemplate addressTemplate, String title, boolean showDeprecated) {
         this.presenter = presenter;
+        this.showDeprecated = showDeprecated;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<>();
         this.dataProvider.addDataDisplay(table);
@@ -88,7 +90,9 @@ public class FilterEditor {
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext)
+                .includeDeprecated(showDeprecated)
+                .build();
 
 
         VerticalPanel formPanel =  null;
