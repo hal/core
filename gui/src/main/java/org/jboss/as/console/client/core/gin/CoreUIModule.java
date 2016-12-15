@@ -469,12 +469,12 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ElytronFinder.MyView.class,
                 ElytronFinderView.class,
                 ElytronFinder.MyProxy.class);
-        
+
         bindPresenter(ElytronPresenter.class,
                 ElytronPresenter.MyView.class,
                 ElytronView.class,
                 ElytronPresenter.MyProxy.class);
-        
+
         bindPresenter(ElytronFactoryPresenter.class,
                 ElytronFactoryPresenter.MyView.class,
                 ElytronFactoryView.class,
@@ -519,11 +519,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyView.class,
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringView.class,
                 org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyProxy.class);
-
-        bindPresenter(org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.class,
-                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.MyView.class,
-                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsView.class,
-                org.jboss.as.console.client.shared.subsys.activemq.PreparedTransactionsPresenter.MyProxy.class);
 
         bindPresenter(JMSBridgePresenter.class,
                 JMSBridgePresenter.MyView.class,
@@ -903,7 +898,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(EagerLoadGroups.class).in(Singleton.class);
         bind(BootstrapSteps.class).in(Singleton.class);
         bind(Bootstrapper.class).in(Singleton.class);
-        
+
         bind(Capabilities.class).in(Singleton.class);
 
         bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);

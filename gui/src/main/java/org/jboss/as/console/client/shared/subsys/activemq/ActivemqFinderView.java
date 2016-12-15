@@ -153,7 +153,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
         }, true);
         settings.add(messagingPoviderFinderItem);
         settings.add(new FinderItem(JMS_BRIDGE, () -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.JMSBridge)), false));
-        
+
         settingsColumn.addSelectionChangeHandler(event -> {
             if (settingsColumn.hasSelectedItem()) {
                 columnManager.reduceColumnsTo(1);
@@ -214,11 +214,6 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
                 new MenuDelegate<>("Clustering", provider ->
                         placeManager.revealRelativePlace(
                                 new PlaceRequest.Builder().nameToken(NameTokens.ActivemqMsgClusteringPresenter)
-                                        .with("name", provider.getName()).build())),
-
-                new MenuDelegate<>("Prepared Transactions", provider ->
-                        placeManager.revealRelativePlace(
-                                new PlaceRequest.Builder().nameToken(NameTokens.ActivemqTransactions)
                                         .with("name", provider.getName()).build())),
 
                 new MenuDelegate<>(Console.MESSAGES.providerSettings(), presenter::onLaunchProviderSettings),

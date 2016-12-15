@@ -1,10 +1,13 @@
 package org.jboss.as.console.client.shared.runtime.activemq;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -22,7 +25,9 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.activemq.model.PreparedTransaction;
 import org.jboss.as.console.client.shared.subsys.messaging.AggregatedJMSModel;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
@@ -78,6 +83,8 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
 
         void setSelectedProvider(String name);
         void setPooledConnectionFactoryModel(List<Property> model);
+
+        void setTransactions(List<PreparedTransaction> transactions);
     }
 
     private final PlaceManager placemanager;
@@ -212,6 +219,8 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
                 getView().setQueues(result.getQueues());
             }
         });
+
+        loadTransactions();
     }
 
     private void loadQueueMetrics() {
@@ -390,5 +399,81 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
 
     public String getCurrentServer() {
         return currentServer;
+    }
+
+    protected void onCommit(PreparedTransaction transaction) {
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging-activemq");
+        operation.get(ADDRESS).add("server", currentServer);
+        operation.get(OP).set("commit-prepared-transaction");
+        operation.get("transaction-as-base-64").set(transaction.getXid());
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to commit transaction", response.getFailureDescription());
+                }
+                loadTransactions();
+            }
+        });
+    }
+
+    protected void onRollback(PreparedTransaction transaction) {
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging-activemq");
+        operation.get(ADDRESS).add("server", currentServer);
+        operation.get(OP).set("rollback-prepared-transaction");
+        operation.get("transaction-as-base-64").set(transaction.getXid());
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to rollback transaction", response.getFailureDescription());
+                }
+                loadTransactions();
+            }
+        });
+    }
+
+    private List<PreparedTransaction> parseTransactions(List<ModelNode> transactions) {
+        RegExp transactionPattern = RegExp.compile("^(.*) base64: ([^ ]*)");
+        List<PreparedTransaction> preparedTransactions = new ArrayList<>();
+
+        for(ModelNode t : transactions) {
+            MatchResult match = transactionPattern.exec(t.asString());
+            if (match == null) {
+                Console.error("Error parsing prepared transactions");
+                break;
+            }
+            preparedTransactions.add(new PreparedTransaction(match.getGroup(2), match.getGroup(1)));
+        }
+        return preparedTransactions;
+    }
+
+    private void loadTransactions() {
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging-activemq");
+        operation.get(ADDRESS).add("server", currentServer);
+        operation.get(OP).set("list-prepared-transactions");
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                ModelNode transactions = response.get(RESULT);
+                if (response.isFailure()) {
+                    Console.error("Unable to load transaction", response.getFailureDescription());
+                } else {
+                    getView().setTransactions(parseTransactions(transactions.asList()));
+                }
+            }
+        });
     }
 }
