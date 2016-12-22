@@ -115,8 +115,15 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
                                 node.get("dynamic").asBoolean());
                         for (ModelNode registrationAddress : node.get("registration-points").asList()) {
                             String resAddress = registrationAddress.asString();
-                            resAddress = resAddress.replace("profile=*", "{selected.profile}");
-                            resAddress = resAddress.replaceAll("^/host=\\w*/", "/{selected.host}/");
+                            // this corner case is to enable the use of capability org.wildfly.domain.profile
+                            // to ask for all profiles. The other cases, is specific to HAL to use the {selected.profile}
+                            // keyword to search resources under a specific profile
+                            boolean notProfileCapability = !"org.wildfly.domain.profile".equals(capability.getName());
+                            if (notProfileCapability)
+                                resAddress = resAddress.replace("profile=*", "{selected.profile}");
+                            boolean startsWithHost = "/host=".equals(resAddress.substring(0, 6));
+                            if (startsWithHost)
+                                resAddress = resAddress.replaceAll("^/host=\\w*/", "/{selected.host}/");
                             capability.addTemplate(AddressTemplate.of(resAddress));
                         }
                         capabilities.register(capability);
@@ -131,9 +138,9 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
         control.proceed();
     }
 
-    /* 
-         There are no capabilities registered for the following addresses, so this is an emulation 
-         unfortunately, there is no capability-reference also, so, each attribute that wants to have 
+    /*
+         There are no capabilities registered for the following addresses, so this is an emulation
+         unfortunately, there is no capability-reference also, so, each attribute that wants to have
          the auto-complete, must add the SuggestionResource as a factory.
      */
     private void registerManualCapabilities() {

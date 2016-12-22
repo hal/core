@@ -1,9 +1,9 @@
 package org.jboss.as.console.mbui.widgets;
 
+import java.util.List;
+
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -120,8 +120,8 @@ public class AddressUtils {
             i++;
         }
 
-        if(tuples.isEmpty())
-            sb.append("ROOT"); // better then empty string
+        //if(tuples.isEmpty())
+        //    sb.append("ROOT"); // better then empty string
 
         return sb.toString();
     }

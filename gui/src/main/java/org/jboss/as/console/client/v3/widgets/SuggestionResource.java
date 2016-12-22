@@ -54,7 +54,7 @@ public class SuggestionResource {
 
     private MultipleWordSuggest oracle;
     private SuggestBoxItem suggestBoxItem;
-    
+
     public SuggestionResource(String name, String label, boolean required, final AddressTemplate template) {
         this(name, label, required, singleton(template));
     }
@@ -65,7 +65,7 @@ public class SuggestionResource {
             @Override
             public void clearValue() {
                 super.clearValue();
-                // read resources, because as the widget is created before values are updated, 
+                // read resources, because as the widget is created before values are updated,
                 // so, when the user edits the bean, read target resources to update its list.
                 readResources(templates);
             }
@@ -80,21 +80,23 @@ public class SuggestionResource {
     public FormItem buildFormItem() {
         return suggestBoxItem;
     }
-    
+
     private void readResources(final Iterable<AddressTemplate> templates) {
 
         Iterator<AddressTemplate> iter = templates.iterator();
         List<Operation> ops = new ArrayList<>();
         while (iter.hasNext()) {
             AddressTemplate addressTemplate = iter.next();
-            
+
+            // the response must contains the full resource address to display to the user
+            // that is why read-resource is used instead of read-children-names(child-type)
             ResourceAddress res = addressTemplate.resolve(Console.MODULES.getCoreGUIContext());
             Operation op = new Operation.Builder(READ_RESOURCE_OPERATION, res)
                 .build();
-            
+
             ops.add(op);
         }
-        
+
         Composite composite = new Composite(ops);
 
         Console.MODULES.getDispatchAsync().execute(new DMRAction(composite), new AsyncCallback<DMRResponse>() {
@@ -112,27 +114,29 @@ public class SuggestionResource {
                     ModelNode payload = result.get(RESULT);
 
                     int numberOfSteps = payload.asList().size();
-                    
+
                     List<SuggestOracle.Suggestion> resources = new ArrayList<>();
                     oracle.clear();
                     for (int nr = 1; nr <= numberOfSteps; nr++) {
 
                         ModelNode step = payload.get("step-" + nr);
-                        if (step.get(RESULT).isDefined()) {
+                        if (step.hasDefined(RESULT)) {
                             ModelNode resourceResult = step.get(RESULT);
 
                             for (ModelNode p : resourceResult.asList()) {
 
-                                ModelNode address = p.get(ADDRESS);
-                                String formattedName = formatAddressName(address);
-                                
-                                // the dropdown should contain the replacement value, instead of display string.
-                                String replacementValue = formattedName.substring(formattedName.lastIndexOf(" = ") + 3);
-                                resources.add(new MultiWordSuggestOracle.MultiWordSuggestion(replacementValue, formattedName));
+                                if (p.hasDefined(ADDRESS)) {
+                                    ModelNode address = p.get(ADDRESS);
+                                    String formattedName = formatAddressName(address);
+
+                                    // the dropdown should contain the replacement value, instead of display string.
+                                    String replacementValue = formattedName.substring(formattedName.lastIndexOf(" = ") + 3);
+                                    resources.add(new MultiWordSuggestOracle.MultiWordSuggestion(replacementValue, formattedName));
+                                }
                             }
                         }
                     }
-                    // the default suggestion list is used when the user doesn't type in the textbox, then all 
+                    // the default suggestion list is used when the user doesn't type in the textbox, then all
                     // options are listed.
                     oracle.setDefaultSuggestions(resources);
                     // the list added here, is used when the user types letters in the textbox.
@@ -140,7 +144,7 @@ public class SuggestionResource {
 
                 }
             }
-            
+
             // decompose the address into a formatted string to be displayed
             // in the drop-down list. This is important, so the users knows the full resource address.
             // example: profile = full / subsystem = batch-jberet / thread-pool = batch_pool1
