@@ -18,4 +18,9 @@ public interface Path {
     @Binding(detypedName = "relative-to")
     String getRelativeTo();
     void setRelativeTo(String Rel);
+
+    @Binding(detypedName = "read-only")
+    boolean isReadOnly();
+    void setReadOnly(boolean b);
+
 }

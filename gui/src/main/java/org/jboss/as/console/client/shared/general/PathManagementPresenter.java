@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.general;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -17,17 +21,12 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -35,14 +34,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 10/15/12
  */
-public class PathManagementPresenter extends Presenter<PathManagementPresenter.MyView, PathManagementPresenter.MyProxy> {
+public class PathManagementPresenter
+        extends Presenter<PathManagementPresenter.MyView, PathManagementPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PathManagementPresenter)
-    @SearchIndex(keywords = {"file-system"})
-    @AccessControl(resources = {"path=*"})
+    @RequiredResources(resources = {"path=*"})
     public interface MyProxy extends Proxy<PathManagementPresenter>, Place {
     }
+
 
     public interface MyView extends View {
         void setPresenter(PathManagementPresenter presenter);
@@ -64,7 +64,6 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.entityAdapter = new EntityAdapter<Path>(Path.class, propertyMetaData);
-
     }
 
     @Override
@@ -93,13 +92,10 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("Paths"), response.getFailureDescription());
-                }
-                else
-                {
-                    List<ModelNode> payload = response.get("result").asList();
+                } else {
+                    List<ModelNode> payload = response.get(RESULT).asList();
 
                     List<Path> paths = new ArrayList<Path>();
                     for (ModelNode item : payload) {
@@ -130,19 +126,21 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
         window.center();
     }
 
-    public void onDeletePath(final Path path) {
+    public void onDeletePath(String pathName) {
         ModelNode operation = new ModelNode();
         operation.get(OP).set(REMOVE);
-        operation.get(ADDRESS).add("path", path.getName());
+        operation.get(ADDRESS).add("path", pathName);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
-                    Console.info(Console.MESSAGES.deleted("Path " + path.getName()));
-                else
-                    Console.error(Console.MESSAGES.deletionFailed("Path " + path.getName()), response.getFailureDescription());
+                if (ModelAdapter.wasSuccess(response)) {
+                    Console.info(Console.MESSAGES.deleted("Path " + pathName));
+                } else {
+                    Console.error(Console.MESSAGES.deletionFailed("Path " + pathName),
+                            response.getFailureDescription());
+                }
 
                 loadPathInformation();
             }
@@ -164,10 +162,10 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.modificationFailed("Path " + name), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.modified("Path " + name));
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.modificationFailed("Path " + name),
+                            response.getFailureDescription());
+                } else { Console.info(Console.MESSAGES.modified("Path " + name)); }
 
                 loadPathInformation();
             }
@@ -186,20 +184,30 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
         operation.get(ADDRESS).add("path", path.getName());
 
         // TODO: workaround ....
-        if(null==path.getRelativeTo() || path.getRelativeTo().equals(""))
-            operation.remove("relative-to");
+        if (null == path.getRelativeTo() || path.getRelativeTo().equals("")) { operation.remove("relative-to"); }
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(ModelAdapter.wasSuccess(response))
-                    Console.info(Console.MESSAGES.added("Path "+path.getName()));
-                else
-                    Console.error(Console.MESSAGES.addingFailed("Path " + path.getName()), response.getFailureDescription());
+                if (!response.isFailure()) {
+                    Console.info(Console.MESSAGES.added("Path " + path.getName()));
+                } else {
+                    Console.error(Console.MESSAGES.addingFailed("Path " + path.getName()),
+                            response.getFailureDescription());
+                }
 
                 loadPathInformation();
             }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error(Console.MESSAGES.addingFailed("Path " + path.getName()), caught.getMessage());
+            }
         });
+    }
+
+    public EntityAdapter<Path> getEntityAdapter() {
+        return entityAdapter;
     }
 }
