@@ -21,6 +21,11 @@
  */
 package org.jboss.as.console.client.v3.widgets.wizard;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.google.common.collect.Iterables;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -39,11 +44,6 @@ import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * General purpose wizard relying on a context for the common data and an enum representing the states of the different
@@ -200,6 +200,9 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
             window.setHeight(height);
             window.trapWidget(asWidget());
             window.setGlassEnabled(true);
+            window.addCloseHandler(closeEvent -> {
+                onCancel();
+            });
         } else {
             window.setTitle(title);
         }
