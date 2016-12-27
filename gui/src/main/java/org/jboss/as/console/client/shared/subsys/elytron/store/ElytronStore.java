@@ -143,6 +143,8 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate SECURITY_PROPERTY_ADDRESS = AddressTemplate.of(ROOT).append("security-property=*");
 
     public static final AddressTemplate DIR_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("dir-context=*");
+    public static final AddressTemplate AUTHENTICATION_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("authentication-context=*");
+    public static final AddressTemplate AUTHENTICATION_CONF_ADDRESS = AddressTemplate.of(ROOT).append("authentication-configuration=*");
 
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
@@ -217,6 +219,8 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> securityDomain;
     private final List<Property> securityProperty;
     private final List<Property> dirContext;
+    private final List<Property> authenticationContext;
+    private final List<Property> authenticationconfiguration;
 
     @Inject
     public ElytronStore(final DispatchAsync dispatcher, StatementContext statementContext) {
@@ -295,6 +299,8 @@ public class ElytronStore extends ChangeSupport {
         securityProperty = new ArrayList<>();
 
         dirContext = new ArrayList<>();
+        authenticationContext = new ArrayList<>();
+        authenticationconfiguration = new ArrayList<>();
     }
 
 
@@ -397,6 +403,8 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "security-property", securityProperty);
 
                     populate(payload, "dir-context", dirContext);
+                    populate(payload, "authentication-context", authenticationContext);
+                    populate(payload, "authentication-configuration", authenticationconfiguration);
 
                     channel.ack();
                 }
@@ -742,5 +750,13 @@ public class ElytronStore extends ChangeSupport {
 
     public List<Property> getProviderLoader() {
         return providerLoader;
+    }
+
+    public List<Property> getAuthenticationContext() {
+        return authenticationContext;
+    }
+
+    public List<Property> getAuthenticationconfiguration() {
+        return authenticationconfiguration;
     }
 }

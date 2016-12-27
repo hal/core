@@ -72,7 +72,9 @@ public class ElytronSecurityRealmPresenter extends
                 List<Property> mappedRegexRealmMapper,
                 List<Property> simpleRegexRealmMapper,
                 List<Property> customRealmMapper,
-                List<Property> constantRealmMapper);
+                List<Property> constantRealmMapper,
+                List<Property> authContext,
+                List<Property> authConfiguration);
 
     }
     // @formatter:on
@@ -122,7 +124,9 @@ public class ElytronSecurityRealmPresenter extends
                     store.getMappedRegexRealmMapper(),
                     store.getSimpleRegexRealmMapper(),
                     store.getCustomRealmMapper(),
-                    store.getConstantRealmMapper());
+                    store.getConstantRealmMapper(),
+                    store.getAuthenticationContext(),
+                    store.getAuthenticationconfiguration());
         }
     }
 
