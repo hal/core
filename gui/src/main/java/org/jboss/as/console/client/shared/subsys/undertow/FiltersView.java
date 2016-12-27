@@ -47,8 +47,9 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
     private static final String REQUEST_LIMIT = "request-limit";
     private static final String RESPONSE_HEADER = "response-header";
     private static final String REWRITE = "rewrite";
-    
-    private static final AddressTemplate BASE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=undertow/configuration=filter");
+
+    private static final AddressTemplate BASE_ADDRESS = AddressTemplate
+            .of("{selected.profile}/subsystem=undertow/configuration=filter");
     private static final AddressTemplate CUSTOM_ADDRESS = BASE_ADDRESS.append(CUSTOM_FILTER + "=*");
     private static final AddressTemplate ERROR_PAGE_ADDRESS = BASE_ADDRESS.append(ERROR_PAGE + "=*");
     private static final AddressTemplate EXPRESSION_ADDRESS = BASE_ADDRESS.append(EXPRESSION_FILTER + "=*");
@@ -57,7 +58,7 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
     private static final AddressTemplate REQUEST_LIMIT_ADDRESS = BASE_ADDRESS.append(REQUEST_LIMIT + "=*");
     private static final AddressTemplate RESPONSE_HEADER_ADDRESS = BASE_ADDRESS.append(RESPONSE_HEADER + "=*");
     private static final AddressTemplate REWRITE_ADDRESS = BASE_ADDRESS.append(REWRITE + "=*");
-    
+
     private FilterPresenter presenter;
 
     private PagedView leftPanel;
@@ -110,54 +111,54 @@ public class FiltersView extends SuspendableViewImpl implements FilterPresenter.
         layout.add(panelWidget);
         layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
         layout.setWidgetTopHeight(panelWidget, 40, Style.Unit.PX, 100, Style.Unit.PCT);
-        
+
         return layout;
     }
 
     @Override
     public void setFilters(List<ModelNode> filters) {
-        for (ModelNode prop: filters) {
+        for (ModelNode prop : filters) {
 
             if (prop.has(CUSTOM_FILTER)) {
-                
+
                 List<Property> customList = prop.get(CUSTOM_FILTER).asPropertyList();
                 customFilterEditor.updateValuesFromModel(customList);
-                
+
             } else if (prop.has(ERROR_PAGE)) {
-                
+
                 List<Property> errorPagesList = prop.get(ERROR_PAGE).asPropertyList();
                 errorPageList.updateValuesFromModel(errorPagesList);
-                
+
             } else if (prop.has(EXPRESSION_FILTER)) {
-                
+
                 List<Property> expressionResList = prop.get(EXPRESSION_FILTER).asPropertyList();
                 expressionList.updateValuesFromModel(expressionResList);
-                
+
             } else if (prop.has(GZIP)) {
-                
+
                 List<Property> result = prop.get(GZIP).asPropertyList();
                 gzipList.updateValuesFromModel(result);
-                
+
             } else if (prop.has(MODCLUSTER)) {
-                
+
                 List<Property> result = prop.get(MODCLUSTER).asPropertyList();
                 modclusterList.updateValuesFromModel(result);
-                
+
             } else if (prop.has(REQUEST_LIMIT)) {
-                
+
                 List<Property> result = prop.get(REQUEST_LIMIT).asPropertyList();
                 requestLimitList.updateValuesFromModel(result);
-                
+
             } else if (prop.has(RESPONSE_HEADER)) {
-                
+
                 List<Property> result = prop.get(RESPONSE_HEADER).asPropertyList();
                 responseHeaderList.updateValuesFromModel(result);
-                
+
             } else if (prop.has(REWRITE)) {
-                
+
                 List<Property> result = prop.get(REWRITE).asPropertyList();
                 rewriteList.updateValuesFromModel(result);
-                
+
             }
         }
     }
