@@ -40,8 +40,10 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
     private final ResourceDescriptionRegistry resourceDescriptionRegistry;
     private final SecurityFramework securityFramework;
     private ElytronSecurityRealmPresenter presenter;
+
     private SecurityRealmView securityRealmView;
     private SecurityRealmMapperView securityRealmMapperView;
+    private AuthenticationView authenticationView;
 
     @Inject
     public ElytronSecurityRealmView(final Dispatcher circuit, final ResourceDescriptionRegistry resourceDescriptionRegistry,
@@ -56,27 +58,29 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
 
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription rootDescription = resourceDescriptionRegistry.lookup(ElytronStore.ROOT_ADDRESS);
-        
+
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-        
+
         securityRealmView = new SecurityRealmView(circuit, rootDescription, securityContext);
         securityRealmMapperView = new SecurityRealmMapperView(circuit, rootDescription, securityContext);
+        authenticationView = new AuthenticationView(circuit, rootDescription, securityContext);
 
         tabLayoutpanel.add(securityRealmView.asWidget(), "Security Realm", true);
         tabLayoutpanel.add(securityRealmMapperView.asWidget(), "Security Realm Mapper", true);
+        tabLayoutpanel.add(authenticationView.asWidget(), "Authentication", true);
         tabLayoutpanel.selectTab(0);
         return tabLayoutpanel;
     }
 
     @Override
-    public void initSecurityRealm(List<Property> propertiesRealm, List<Property> filesystemRealm, 
-            List<Property> jdbcRealm, List<Property> ldapRealm, List<Property> keystoreRealm, 
+    public void initSecurityRealm(List<Property> propertiesRealm, List<Property> filesystemRealm,
+            List<Property> jdbcRealm, List<Property> ldapRealm, List<Property> keystoreRealm,
             List<Property> aggregateRealm, List<Property> customModifiableRealm, List<Property> customRealm,
             List<Property> identityRealm, List<Property> tokenRealm,
             List<Property> mappedRegexRealmMapper, List<Property> simpleRegexRealmMapper, List<Property> customRealmMapper,
-            List<Property> constantRealmMapper) {
-        
+            List<Property> constantRealmMapper, List<Property> authContext, List<Property> authConfiguration) {
+
         securityRealmView.updatePropertiesRealm(propertiesRealm);
         securityRealmView.updateFilesystemRealm(filesystemRealm);
         securityRealmView.updateJdbcRealm(jdbcRealm);
@@ -87,12 +91,15 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
         securityRealmView.updateCustomRealm(customRealm);
         securityRealmView.updateIdentityRealm(identityRealm);
         securityRealmView.updateTokenmRealm(tokenRealm);
-        
-        
+
+
         securityRealmMapperView.updateMappedRegexRealmMapper(mappedRegexRealmMapper);
         securityRealmMapperView.updateSimpleRegexRealmMapper(simpleRegexRealmMapper);
         securityRealmMapperView.updateCustomRealmMapper(customRealmMapper);
         securityRealmMapperView.updateConstantRealmMapper(constantRealmMapper);
+
+        authenticationView.updateAuthenticationConfiguration(authConfiguration);
+        authenticationView.updateAuthenticationContext(authContext);
     }
 
     @Override

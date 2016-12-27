@@ -50,7 +50,7 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
 
     public static final String FACTORY = "Factory";
     public static final String MAPPER_DECODER = "Mapper / Decoder";
-    public static final String SECURITY_REALM = "Security Realm";
+    public static final String SECURITY_REALM = "Security Realm / Authentication";
     public static final String OTHER = "Other";
 
     private ElytronFinder presenter;
