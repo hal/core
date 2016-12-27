@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
@@ -60,6 +61,7 @@ public class FilterEditor {
     private ResourceDescription definition;
     private final AddressTemplate addressTemplate;
     private final String title;
+    private ModelNodeFormBuilder.FormAssets formAssets;
 
     public FilterEditor(FilterPresenter presenter, AddressTemplate addressTemplate, String title, boolean showDeprecated) {
         this.presenter = presenter;
@@ -87,7 +89,7 @@ public class FilterEditor {
 
         table.addColumn(nameColumn, "Name");
 
-        final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+        formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
@@ -110,31 +112,30 @@ public class FilterEditor {
                     formAssets.getForm().cancel();
                 }
             });
-            
+
             formPanel = new VerticalPanel();
             formPanel.setStyleName("fill-layout-width");
             formPanel.add(formAssets.getHelp().asWidget());
             formPanel.add(formAssets.getForm().asWidget());
-            
+
             selectionModel.addSelectionChangeHandler(event -> {
                 Property selectedItem = selectionModel.getSelectedObject();
-                if (selectedItem!=null) {
+                if (selectedItem != null) {
                     formAssets.getForm().edit(selectedItem.getValue());
                 } else {
                     formAssets.getForm().clearValues();
                 }
             });
-            
         }
-        
+
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline(title)
                 .setDescription(SafeHtmlUtils.fromString(definition.get(ModelDescriptionConstants.DESCRIPTION).asString()))
                 .setMasterTools(tableToolsButtons())
                 .setMaster(Console.MESSAGES.available(title), table);
-        
-    
+
+
         if (hasAttributes)
             layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
@@ -164,10 +165,12 @@ public class FilterEditor {
 
     public void updateValuesFromModel(List<Property> filters) {
         dataProvider.setList(filters);
+        table.selectDefaultEntity();
         if (filters.isEmpty()) {
             selectionModel.clear();
-        } else {
-            table.selectDefaultEntity();
+            formAssets.getForm().clearValues();
         }
+        SelectionChangeEvent.fire(selectionModel);
+
     }
 }

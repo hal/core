@@ -69,24 +69,28 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
 
     private DefaultWindow window;
 
-    @RequiredResources( resources = {
-            "{selected.profile}/subsystem=undertow/configuration=filter" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/custom-filter=*" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/error-page=*" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/expression-filter=*" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/gzip=*" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/mod-cluster=*" ,
-            "{selected.profile}/subsystem=undertow/configuration=filter/request-limit=*" ,
+
+    @RequiredResources(resources = {
+            "{selected.profile}/subsystem=undertow/configuration=filter",
+            "{selected.profile}/subsystem=undertow/configuration=filter/custom-filter=*",
+            "{selected.profile}/subsystem=undertow/configuration=filter/error-page=*",
+            "{selected.profile}/subsystem=undertow/configuration=filter/expression-filter=*",
+            "{selected.profile}/subsystem=undertow/configuration=filter/gzip=*",
+            "{selected.profile}/subsystem=undertow/configuration=filter/mod-cluster=*",
+            "{selected.profile}/subsystem=undertow/configuration=filter/request-limit=*",
             "{selected.profile}/subsystem=undertow/configuration=filter/response-header=*",
-            "{selected.profile}/subsystem=undertow/configuration=filter/rewrite=*" },
+            "{selected.profile}/subsystem=undertow/configuration=filter/rewrite=*"},
             recursive = true)
     @ProxyCodeSplit
     @NameToken(NameTokens.UndertowFilters)
     public interface MyProxy extends Proxy<FilterPresenter>, Place {
     }
 
+
     public interface MyView extends View {
+
         void setFilters(List<ModelNode> filters);
+
         void setPresenter(FilterPresenter presenter);
     }
 
@@ -143,7 +147,7 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
         this.securityFramework = securityFramework;
         this.descriptionRegistry = descriptionRegistry;
 
-        this.statementContext =  new FilteringStatementContext(
+        this.statementContext = new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {
                     @Override
@@ -196,11 +200,9 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure()) {
+                if (response.isFailure()) {
                     Log.error("Failed to load servlet container details", response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     ModelNode data = response.get(RESULT);
                     List<ModelNode> resList = data.asList();
                     getView().setFilters(resList);
@@ -213,8 +215,6 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
     // -----------------------
 
     public void onLaunchAddResourceDialog(final AddressTemplate address, String title) {
-
-        String type = address.getResourceType();
 
         window = new DefaultWindow(Console.MESSAGES.createTitle(title));
         window.setWidth(480);
@@ -241,7 +241,7 @@ public class FilterPresenter extends Presenter<FilterPresenter.MyView, FilterPre
         window.setGlassEnabled(true);
         window.center();
     }
-    
+
     public void onRemoveResource(final AddressTemplate address, final String name) {
         operationDelegate.onRemoveResource(address, name, defaultAddOpCallbacks);
     }
