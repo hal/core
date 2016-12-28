@@ -19,6 +19,12 @@ package org.jboss.as.console.client.shared.runtime.activemq;
 
 import java.util.List;
 
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.model.PreparedTransaction;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -26,15 +32,8 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
-import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SingleSelectionModel;
-
 public class PreparedTransactionManagement {
+
     private ActivemqMetricPresenter presenter;
 
     private ListDataProvider<PreparedTransaction> dataProvider;
@@ -49,26 +48,22 @@ public class PreparedTransactionManagement {
 
     Widget asWidget() {
         ToolStrip topLevelTools = new ToolStrip();
-        commitButton = new ToolButton("Commit", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                if (getSelectedTransaction() == null) return;
-                presenter.onCommit(getSelectedTransaction());
-            }
+        commitButton = new ToolButton("Commit", event -> {
+            if (getSelectedTransaction() == null) { return; }
+            presenter.onCommit(getSelectedTransaction());
         });
-        rollbackButton = new ToolButton("Rollback", new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                if (getSelectedTransaction() == null) return;
-                presenter.onRollback(getSelectedTransaction());
-            }
+        rollbackButton = new ToolButton("Rollback", event -> {
+            if (getSelectedTransaction() == null) { return; }
+            presenter.onRollback(getSelectedTransaction());
+        });
+        ToolButton refreshBtn = new ToolButton(Console.CONSTANTS.common_label_refresh(), event -> {
+            presenter.loadTransactions();
         });
         commitButton.setEnabled(false);
         rollbackButton.setEnabled(false);
         topLevelTools.addToolButtonRight(commitButton);
         topLevelTools.addToolButtonRight(rollbackButton);
+        topLevelTools.addToolButtonRight(refreshBtn);
 
         table = new DefaultCellTable<PreparedTransaction>(10, PreparedTransaction::getXid);
 

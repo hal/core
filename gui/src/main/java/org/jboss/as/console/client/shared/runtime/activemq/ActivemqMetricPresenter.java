@@ -25,7 +25,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.activemq.model.PreparedTransaction;
 import org.jboss.as.console.client.shared.subsys.messaging.AggregatedJMSModel;
@@ -58,7 +57,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
 
     public static final AddressTemplate RUNTIME_MESSAGING_SERVER = AddressTemplate.
             of("/{implicit.host}/{selected.server}/subsystem=messaging-activemq/server=*");
-    
+
     @ProxyCodeSplit
     @NameToken(NameTokens.ActivemqMetricPresenter)
     @RequiredResources(resources = {
@@ -195,7 +194,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
             }
         });
     }
-    
+
     public void refreshQueuesAndTopics(String selectedProvider) {
 
         getView().clearSamples();
@@ -456,7 +455,7 @@ public class ActivemqMetricPresenter extends CircuitPresenter<ActivemqMetricPres
         return preparedTransactions;
     }
 
-    private void loadTransactions() {
+    public void loadTransactions() {
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "messaging-activemq");
