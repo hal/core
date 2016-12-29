@@ -8,7 +8,6 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -28,27 +27,23 @@ import org.jboss.dmr.client.ModelNode;
  * @author Heiko Braun
  * @date 2/27/13
  */
-public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyView{
+public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyView {
 
     private TXLogPresenter presenter;
 
     private DefaultCellTable<TXRecord> table;
     private ListDataProvider<TXRecord> dataProvider;
+    private final SingleSelectionModel<TXRecord> selectionModel;
 
     private ParticipantsPanel participantsPanel;
 
     public TXLogView() {
 
-        table = new DefaultCellTable<TXRecord>(
-                8,
-                new ProvidesKey<TXRecord>() {
-                    @Override
-                    public Object getKey(TXRecord item) {
-                        return item.getId();
-                    }
-                });
-
-        dataProvider = new ListDataProvider<TXRecord>();
+        ProvidesKey<TXRecord> providesKey = TXRecord::getId;
+        this.selectionModel = new SingleSelectionModel<>(providesKey);
+        table = new DefaultCellTable<>(8, providesKey);
+        this.table.setSelectionModel(selectionModel);
+        dataProvider = new ListDataProvider<>(providesKey);
         dataProvider.addDataDisplay(table);
 
         TextColumn<TXRecord> id = new TextColumn<TXRecord>() {
@@ -88,8 +83,8 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
             @Override
             public ModelNode getAddress() {
                 ModelNode address = RuntimeBaseAddress.get();
-                address.add("subsystem","transactions");
-                address.add("log-store","log-store");
+                address.add("subsystem", "transactions");
+                address.add("log-store", "log-store");
 
                 return address;
             }
@@ -108,7 +103,7 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         final ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                final TXRecord record = getSelectedRecord();
+                final TXRecord record = selectionModel.getSelectedObject();
 
                 if (record != null) {
                     Feedback.confirm(
@@ -117,8 +112,7 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
                             new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean confirmed) {
-                                    if (confirmed)
-                                        presenter.onDeleteRecord(record);
+                                    if (confirmed) { presenter.onDeleteRecord(record); }
                                 }
                             }
                     );
@@ -128,32 +122,15 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         tools.addToolButtonRight(removeButton);
 
         // lazy load the participant details
-        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                TXRecord selection = getSelectedRecord();
-                if(selection!=null)
-                {
-                    presenter.onLoadParticipants(selection);
-                }
-            }
-        }) ;
-
-
-        // handle deselection
-        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                TXRecord selection = getSelectedRecord();
-                if(null==selection)
-                {
-                    participantsPanel.clear();
-                    recordForm.clearValues();
-                }
+        selectionModel.addSelectionChangeHandler(selectionChangeEvent -> {
+            TXRecord selection = selectionModel.getSelectedObject();
+            if (selection != null) {
+                presenter.onLoadParticipants(selection);
+            } else {
+                participantsPanel.clear();
+                recordForm.clearValues();
             }
         });
-
-
 
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
             @Override
@@ -174,11 +151,6 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         return layout.build();
     }
 
-    private TXRecord getSelectedRecord() {
-        SingleSelectionModel<TXRecord> selectionModel = (SingleSelectionModel<TXRecord>)table.getSelectionModel();
-        return selectionModel.getSelectedObject();
-    }
-
     @Override
     public void setPresenter(TXLogPresenter presenter) {
         this.presenter = presenter;
@@ -195,8 +167,11 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
     @Override
     public void updateFrom(List<TXRecord> records) {
         dataProvider.setList(records);
-
         table.selectDefaultEntity();
+        if (records.isEmpty()) {
+            selectionModel.clear();
+            participantsPanel.clear();
+        }
     }
 
     @Override

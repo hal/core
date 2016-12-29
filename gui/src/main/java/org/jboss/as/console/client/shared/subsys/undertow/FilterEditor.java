@@ -24,6 +24,7 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -66,12 +67,12 @@ public class FilterEditor {
     public FilterEditor(FilterPresenter presenter, AddressTemplate addressTemplate, String title, boolean showDeprecated) {
         this.presenter = presenter;
         this.showDeprecated = showDeprecated;
-        this.table = new DefaultCellTable(5);
-        this.dataProvider = new ListDataProvider<>();
-        this.dataProvider.addDataDisplay(table);
         ProvidesKey<Property> providesKey = Property::getName;
         this.selectionModel = new SingleSelectionModel<>(providesKey);
-        this.table.setSelectionModel(new SingleSelectionModel<Property>());
+        this.table = new DefaultCellTable(5, providesKey);
+        this.table.setSelectionModel(selectionModel);
+        this.dataProvider = new ListDataProvider<>(providesKey);
+        this.dataProvider.addDataDisplay(table);
         securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
         definition = presenter.getDescriptionRegistry().lookup(addressTemplate);
         this.addressTemplate = addressTemplate;
@@ -104,7 +105,7 @@ public class FilterEditor {
             formAssets.getForm().setToolsCallback(new FormCallback() {
                 @Override
                 public void onSave(Map changeset) {
-                    presenter.onSaveFilter(addressTemplate, getCurrentSelection().getName(), changeset);
+                    presenter.onSaveFilter(addressTemplate, selectionModel.getSelectedObject().getName(), changeset);
                 }
 
                 @Override
@@ -139,7 +140,6 @@ public class FilterEditor {
         if (hasAttributes)
             layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
 
-        table.setSelectionModel(selectionModel);
         return layoutBuilder.build();
     }
 
@@ -148,19 +148,22 @@ public class FilterEditor {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
             presenter.onLaunchAddResourceDialog(addressTemplate, title);
         }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), event -> Feedback.confirm(Console.MESSAGES.deleteTitle("Container"),
-            Console.MESSAGES.deleteConfirm(title + " '" + getCurrentSelection().getName() + "'"),
-            isConfirmed -> {
-                if (isConfirmed) {
-                    presenter.onRemoveResource(addressTemplate, getCurrentSelection().getName());
-                }
-            })));
+        ToolButton btnRemove = new ToolButton(Console.CONSTANTS.common_label_delete(),
+                (ClickEvent event) -> {
+                    Property selected = selectionModel.getSelectedObject();
+                    if (selected != null) {
+                        Feedback.confirm(Console.MESSAGES.deleteTitle("Container"),
+                                Console.MESSAGES.deleteConfirm(
+                                        title + " '" + selected.getName() + "'"),
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.onRemoveResource(addressTemplate, selected.getName());
+                                    }
+                                });
+                    }
+                });
+        tools.addToolButtonRight(btnRemove);
         return tools;
-    }
-
-    private Property getCurrentSelection() {
-        Property selection = ((SingleSelectionModel<Property>) table.getSelectionModel()).getSelectedObject();
-        return selection;
     }
 
     public void updateValuesFromModel(List<Property> filters) {
