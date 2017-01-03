@@ -53,6 +53,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
@@ -76,8 +78,8 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         selectionModel = new SingleSelectionModel<>(nameProvider);
 
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
-        ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
-        ModelNode filtersDescription = reqPropsDescription.get("filters").get("value-type");
+        ModelNode reqPropsDescription = this.resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        ModelNode filtersDescription = reqPropsDescription.get("filters").get(VALUE_TYPE);
         reqPropsDescription.set(filtersDescription);
     }
 
@@ -127,7 +129,17 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
         return new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.hasDefined(attributeName) ? node.get(attributeName).asString() : "";
+                String val = "";
+                if (node.hasDefined(attributeName)) {
+                    val = node.get(attributeName).asString();
+                } else {
+                    ModelNode attributeDescription = resourceDescription.get(ATTRIBUTES).get("filters").get(VALUE_TYPE)
+                            .get(attributeName);
+                    if (attributeDescription.hasDefined(DEFAULT)) {
+                        val = attributeDescription.get(DEFAULT).asString();
+                    }
+                }
+                return val;
             }
         };
     }
