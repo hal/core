@@ -139,8 +139,10 @@ public class ChildView {
             @Override
             public void onClick(ClickEvent event) {
                 ModelNode selection = selectionModel.getSelectedObject();
-                if (selection != null)
+                if (selection != null) {
                     presenter.onRemoveChildResource(currentAddress, selection);
+                    selectionModel.clear();
+                }
             }
         });
         tools.addToolButtonRight(remove);
