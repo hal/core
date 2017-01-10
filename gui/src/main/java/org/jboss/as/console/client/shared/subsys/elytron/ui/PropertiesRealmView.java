@@ -15,6 +15,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.elytron.ui;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -117,7 +119,7 @@ public class PropertiesRealmView {
                 .setConfigOnly()
                 .setSecurityContext(securityContext);
         modelFormAsset = formBuilder.build();
-        
+
         modelFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
@@ -138,8 +140,8 @@ public class PropertiesRealmView {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.PROPERTIES_REALM_ADDRESS, "groups-properties", 
-                        selectionModel.getSelectedObject().getName(), groupsPropertiesFormAssets.getForm().getUpdatedEntity()));
+                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.PROPERTIES_REALM_ADDRESS, "groups-properties",
+                        selectionModel.getSelectedObject().getName(), handleUndefinedProperties(groupsPropertiesFormAssets.getForm().getUpdatedEntity())));
             }
 
             @Override
@@ -147,12 +149,24 @@ public class PropertiesRealmView {
                 groupsPropertiesFormAssets.getForm().cancel();
             }
         });
-        
+        groupsPropertiesFormAssets.getForm().addFormValidator((items, outcome) -> {
+            // "path" is a required attribute, if "relative-to" is set "path" must be set as well
+            Collections.sort(items, (a,b) -> a.getName().compareTo(b.getName()));
+            FormItem path = items.get(0);
+            FormItem relativeTo = items.get(1);
+
+            if (!relativeTo.isUndefined() && path.isUndefined()) {
+                path.setErrMessage("Must be set if \"Relative to\" is set");
+                path.setErroneous(true);
+                outcome.addError("path");
+            }
+        });
+
         usersPropertiesFormAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.PROPERTIES_REALM_ADDRESS, "users-properties", 
+                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.PROPERTIES_REALM_ADDRESS, "users-properties",
                         selectionModel.getSelectedObject().getName(), usersPropertiesFormAssets.getForm().getUpdatedEntity()));
             }
 
@@ -161,7 +175,7 @@ public class PropertiesRealmView {
                 usersPropertiesFormAssets.getForm().cancel();
             }
         });
-        
+
 
         VerticalPanel formPanel = new VerticalPanel();
         formPanel.setStyleName("fill-layout-width");
@@ -184,9 +198,9 @@ public class PropertiesRealmView {
                 modelFormAsset.getForm().edit(currentProp.getValue());
                 if (currentProp.getValue().hasDefined("groups-properties"))
                     groupsPropertiesFormAssets.getForm().edit(currentProp.getValue().get("groups-properties"));
-                else 
-                    groupsPropertiesFormAssets.getForm().clearValues();
-                    
+                else
+                    groupsPropertiesFormAssets.getForm().edit(getEmptyProperties());
+
                 if (currentProp.getValue().hasDefined("users-properties"))
                     usersPropertiesFormAssets.getForm().edit(currentProp.getValue().get("users-properties"));
             } else {
@@ -206,7 +220,7 @@ public class PropertiesRealmView {
 
         principalQueryAttr.get("users-properties-path").set(principalQueryAttr.get("users-properties").get("value-type").get("path"));
         principalQueryAttr.get("users-properties-relative-to").set(principalQueryAttr.get("users-properties").get("value-type").get("relative-to"));
-        
+
         ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                 .setResourceDescription(resourceDescription)
                 .setCreateMode(true)
@@ -223,19 +237,14 @@ public class PropertiesRealmView {
                     public void onAdd(ModelNode payload) {
                         // The instance name must be part of the model node!
                         String name = payload.remove(NAME).asString();
-                        
+
                         String path = payload.remove("users-properties-path").asString();
                         payload.get("users-properties").get("path").set(path);
-                        
+
                         ModelNode userPropertiesRelativeTo = payload.remove("users-properties-relative-to");
                         if (userPropertiesRelativeTo.isDefined()) {
                             String relativeto = userPropertiesRelativeTo.asString();
                             payload.get("users-properties").get("relative-to").set(relativeto);
-                        }
-                        if (!payload.hasDefined("groups-properties")) {
-                            // special handling, as groups-properties is a nested object 
-                            // it should exist for the user be able to edit the properties as a ComplexAttributesForm
-                            payload.get("groups-properties").setEmptyObject();
                         }
                         circuit.dispatch(new AddResourceGeneric(ElytronStore.PROPERTIES_REALM_ADDRESS, new Property(name, payload)));
                         dialog.hide();
@@ -263,5 +272,16 @@ public class PropertiesRealmView {
             selectionModel.clear();
         }
         SelectionChangeEvent.fire(selectionModel);
+    }
+
+    private ModelNode getEmptyProperties() {
+        ModelNode node = new ModelNode();
+        node.get("path");
+        node.get("relative-to");
+        return node;
+    }
+
+    private ModelNode handleUndefinedProperties(ModelNode node) {
+        return (node.hasDefined("path") || node.hasDefined("relative-to")) ? node : node.clear();
     }
 }
