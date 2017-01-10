@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -74,7 +73,12 @@ public class ProviderView implements MessagingAddress {
             "journal-sync-non-transactional",
             "journal-sync-transactional",
             "journal-type",
-            "create-journal-dir"
+            "journal-datasource",
+            "journal-database",
+            "journal-messages-table",
+            "journal-large-messages-table",
+            "journal-bindings-table",
+            "create-journal-dir",
     };
 
     private final static String[] DIRECTORY = new String[]{
