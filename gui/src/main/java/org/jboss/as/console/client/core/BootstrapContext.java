@@ -31,6 +31,7 @@ import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.rbac.StandardRole;
+import org.jboss.as.console.client.semver.Version;
 
 /**
  * @author Heiko Braun
@@ -55,6 +56,7 @@ public class BootstrapContext implements ApplicationProperties {
     private String runAs;
     private List<ProfileRecord> initialProfiles;
     private long majorVersion;
+    private Version managementVersion;
     private boolean ssoEnabled;
 
     @Inject
@@ -269,4 +271,11 @@ public class BootstrapContext implements ApplicationProperties {
         return null;
     }-*/;
 
+    public Version getManagementVersion() {
+        return managementVersion;
+    }
+
+    public void setManagementVersion(final Version managementVersion) {
+        this.managementVersion = managementVersion;
+    }
 }

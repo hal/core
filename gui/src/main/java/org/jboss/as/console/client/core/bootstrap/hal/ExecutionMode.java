@@ -19,24 +19,30 @@
 
 package org.jboss.as.console.client.core.bootstrap.hal;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.semver.ManagementModel;
+import org.jboss.as.console.client.semver.Version;
 import org.jboss.as.console.client.shared.Preferences;
+import org.jboss.as.console.client.v3.dmr.Composite;
+import org.jboss.as.console.client.v3.dmr.Operation;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES_ONLY;
+import static org.jboss.dmr.client.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
@@ -56,73 +62,16 @@ public class ExecutionMode implements BootstrapStep {
 
         final BootstrapContext context = control.getContext();
 
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set(COMPOSITE);
-        operation.get(ADDRESS).setEmptyList();
-
-        ModelNode step;
-        List<ModelNode> steps = new ArrayList<ModelNode>();
-
-        // exec type
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("process-type");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-        // product name
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("product-name");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-        // release codename
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("release-codename");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-        // product version
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("product-version");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-        // release version
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("release-version");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
+        // root resource attributes
+        Operation op1 = new Operation.Builder(READ_RESOURCE_OPERATION, ResourceAddress.ROOT)
+                .param(ATTRIBUTES_ONLY, true)
+                .param(INCLUDE_RUNTIME, true)
+                .build();
 
         // whoami
-        step = new ModelNode();
-        step.get(OP).set("whoami");
-        step.get(ADDRESS).setEmptyList();
-        step.get("verbose").set(true);
-        steps.add(step);
+        Operation op2 = new Operation.Builder("whoami", ResourceAddress.ROOT).param("verbose", true).build();
 
-        // server name (to be used in browser's title - HAL-503)
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("name");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-         // server name (to be used in browser's title - HAL-503)
-        step = new ModelNode();
-        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        step.get(NAME).set("management-major-version");
-        step.get(ADDRESS).setEmptyList();
-        steps.add(step);
-
-
-        operation.get(STEPS).set(steps);
-
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(new Composite(op1, op2)), new AsyncCallback<DMRResponse>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -139,38 +88,50 @@ public class ExecutionMode implements BootstrapStep {
                     context.setlastError(new RuntimeException(response.getFailureDescription()));
                     control.abort();
                 } else {
+                    ModelNode rootAttributes = response.get(RESULT).get("step-1").get(RESULT);
+
                     // capture exec mode
-                    ModelNode execMode = response.get(RESULT).get("step-1");
-                    boolean isServer = execMode.get(RESULT).asString().equals("Server");
+                    boolean isServer = rootAttributes.get("process-type").asString().equals("Server");
                     context.setProperty(BootstrapContext.STANDALONE, Boolean.valueOf(isServer).toString());
 
+
                     // product name, release codename
-                    ModelNode productName = response.get(RESULT).get("step-2");
-                    ModelNode releaseCodename = response.get(RESULT).get("step-3");
-                    if (productName.get(RESULT).isDefined()) {
-                        context.setProductName(productName.get(RESULT).asString());
-                    } else if (releaseCodename.get(RESULT).isDefined()) {
-                        context.setProductName(releaseCodename.get(RESULT).asString());
+                    ModelNode productName = rootAttributes.get("product-name");
+                    ModelNode releaseCodename = rootAttributes.get("release-codename");
+                    if (productName.isDefined()) {
+                        context.setProductName(productName.asString());
+                    } else if (releaseCodename.isDefined()) {
+                        context.setProductName(releaseCodename.asString());
                     }
 
                     // product version, release version
-                    ModelNode productVersion = response.get(RESULT).get("step-4");
-                    ModelNode releaseVersion = response.get(RESULT).get("step-5");
-                    if (productVersion.get(RESULT).isDefined()) {
-                        context.setProductVersion(productVersion.get(RESULT).asString());
-                    } else if (releaseVersion.get(RESULT).isDefined()) {
-                        context.setProductVersion(releaseVersion.get(RESULT).asString());
+                    ModelNode productVersion = rootAttributes.get("product-version");
+                    ModelNode releaseVersion = rootAttributes.get("release-version");
+                    if (productVersion.isDefined()) {
+                        context.setProductVersion(productVersion.asString());
+                    } else if (releaseVersion.isDefined()) {
+                        context.setProductVersion(releaseVersion.asString());
                     }
 
-                    ModelNode whoami = response.get(RESULT).get("step-6");
-                    ModelNode whoamiResult = whoami.get(RESULT);
+                    ModelNode serverName = rootAttributes.get("name");
+                    if (serverName.isDefined()) {
+                        context.setServerName(serverName.asString());
+                    }
+                    ModelNode majorVersion = rootAttributes.get("management-major-version");
+                    if (majorVersion.isDefined()) {
+                        context.setMajorVersion(majorVersion.asLong());
+                    }
+                    Version version = ManagementModel.parseVersion(rootAttributes);
+                    context.setManagementVersion(version);
 
-                    String username = whoamiResult.get("identity").get("username").asString();
+                    ModelNode whoami = response.get(RESULT).get("step-2").get(RESULT);
+
+                    String username = whoami.get("identity").get("username").asString();
                     context.setPrincipal(username);
                     Set<String> mappedRoles = new HashSet<String>();
-                    if(whoamiResult.hasDefined("mapped-roles"))
+                    if(whoami.hasDefined("mapped-roles"))
                     {
-                        List<ModelNode> roles = whoamiResult.get("mapped-roles").asList();
+                        List<ModelNode> roles = whoami.get("mapped-roles").asList();
                         for(ModelNode role : roles)
                         {
                             final String roleName = role.asString();
@@ -186,16 +147,6 @@ public class ExecutionMode implements BootstrapStep {
                         context.setRunAs(runAsRole);
                     }
                     Preferences.clear(Preferences.Key.RUN_AS_ROLE);
-
-                    ModelNode serverName = response.get(RESULT).get("step-7");
-                    if (serverName.get(RESULT).isDefined()) {
-                        context.setServerName(serverName.get(RESULT).asString());
-                    }
-
-                    ModelNode majorVersion = response.get(RESULT).get("step-8");
-                    if (majorVersion.get(RESULT).isDefined()) {
-                        context.setMajorVersion(majorVersion.get(RESULT).asLong());
-                    }
 
                     control.proceed();
                 }

@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.bootstrap.hal.BootstrapStep;
+import org.jboss.as.console.client.semver.ManagementModel;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -78,64 +79,71 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
 
     @Override
     public void execute(final Control<BootstrapContext> control) {
-
-        ResourceAddress address = control.getContext().isStandalone()
-                ? new ResourceAddress()
-                : new ResourceAddress().add(HOST, hostStore.getSelectedHost());
-        address.add("core-service", "capability-registry");
-
-        ModelNode possibleCapabilitiesKey = new ModelNode();
-        possibleCapabilitiesKey.add("possible-capabilities");
-
-        Operation operation = new Operation.Builder(QUERY_OPERATION, address)
-                .param("select", possibleCapabilitiesKey)
-                .build();
-
         final BootstrapContext context = control.getContext();
+        if (ManagementModel.supportsCapabilitiesRegistry(context.getManagementVersion())) {
+            ResourceAddress address = control.getContext().isStandalone()
+                    ? new ResourceAddress()
+                    : new ResourceAddress().add(HOST, hostStore.getSelectedHost());
+            address.add("core-service", "capability-registry");
 
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            ModelNode possibleCapabilitiesKey = new ModelNode();
+            possibleCapabilitiesKey.add("possible-capabilities");
 
-            @Override
-            public void onFailure(Throwable caught) {
-                context.setlastError(caught);
-                control.abort();
-            }
+            Operation operation = new Operation.Builder(QUERY_OPERATION, address)
+                    .param("select", possibleCapabilitiesKey)
+                    .build();
 
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
+            dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
 
-                if (response.isFailure()) {
-                    context.setlastError(new RuntimeException(response.getFailureDescription()));
+                @Override
+                public void onFailure(Throwable caught) {
+                    registerManualCapabilities(); // fallback
+                    context.setlastError(caught);
                     control.abort();
-                } else {
-                    for (ModelNode node : response.get(RESULT).get("possible-capabilities").asList()) {
-
-                        Capability capability = new Capability(node.get(NAME).asString(),
-                                node.get("dynamic").asBoolean());
-                        for (ModelNode registrationAddress : node.get("registration-points").asList()) {
-                            String resAddress = registrationAddress.asString();
-                            // this corner case is to enable the use of capability org.wildfly.domain.profile
-                            // to ask for all profiles. The other cases, is specific to HAL to use the {selected.profile}
-                            // keyword to search resources under a specific profile
-                            boolean notProfileCapability = !"org.wildfly.domain.profile".equals(capability.getName());
-                            if (notProfileCapability)
-                                resAddress = resAddress.replace("profile=*", "{selected.profile}");
-                            boolean startsWithHost = "/host=".equals(resAddress.substring(0, 6));
-                            if (startsWithHost)
-                                resAddress = resAddress.replaceAll("^/host=\\w*/", "/{selected.host}/");
-                            capability.addTemplate(AddressTemplate.of(resAddress));
-                        }
-                        capabilities.register(capability);
-
-                    }
-                    registerManualCapabilities();
                 }
 
-            }
-        });
+                @Override
+                public void onSuccess(DMRResponse result) {
+                    ModelNode response = result.get();
 
-        control.proceed();
+                    if (response.isFailure()) {
+                        registerManualCapabilities(); // fallback
+                        context.setlastError(new RuntimeException(response.getFailureDescription()));
+                        control.abort();
+                    } else {
+                        for (ModelNode node : response.get(RESULT).get("possible-capabilities").asList()) {
+
+                            Capability capability = new Capability(node.get(NAME).asString(),
+                                    node.get("dynamic").asBoolean());
+                            for (ModelNode registrationAddress : node.get("registration-points").asList()) {
+                                String resAddress = registrationAddress.asString();
+                                // this corner case is to enable the use of capability org.wildfly.domain.profile
+                                // to ask for all profiles. The other cases, is specific to HAL to use the {selected.profile}
+                                // keyword to search resources under a specific profile
+                                boolean notProfileCapability = !"org.wildfly.domain.profile".equals(
+                                        capability.getName());
+                                if (notProfileCapability) {
+                                    resAddress = resAddress.replace("profile=*", "{selected.profile}");
+                                }
+                                boolean startsWithHost = "/host=".equals(resAddress.substring(0, 6));
+                                if (startsWithHost) {
+                                    resAddress = resAddress.replaceAll("^/host=\\w*/", "/{selected.host}/");
+                                }
+                                capability.addTemplate(AddressTemplate.of(resAddress));
+                            }
+                            capabilities.register(capability);
+
+                        }
+                        registerManualCapabilities();
+                        control.proceed();
+                    }
+
+                }
+            });
+        } else {
+            registerManualCapabilities();
+            control.proceed();
+        }
     }
 
     /*

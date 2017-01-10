@@ -65,6 +65,7 @@ public class BootstrapSteps {
     }
 
     public BootstrapStep[] steps() {
+
         return new BootstrapStep[] {
                 loadGoogleViz,
                 executionMode,
