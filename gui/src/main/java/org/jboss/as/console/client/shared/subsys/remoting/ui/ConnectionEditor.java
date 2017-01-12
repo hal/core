@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.ui;
 
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -39,8 +41,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;

@@ -34,11 +34,11 @@ public class SSLView {
     private ResourceDescription rootDescription;
     private SecurityContext securityContext;
 
-    private KeystoreView keystoreView;
-    private ElytronGenericResourceView credentialstoreView;
+    private GenericStoreView keystoreView;
+    private GenericStoreView credentialstoreView;
     private ElytronGenericResourceView filteringKeystoreView;
     private LdapKeystoreView ldapKeystoreView;
-    private KeyManagerView keyManagerView;
+    private GenericStoreView keyManagerView;
     private ElytronGenericResourceView serverSSLContextView;
     private ElytronGenericResourceView clientSSLContextView;
     private ElytronGenericResourceView trustManagerView;
@@ -67,10 +67,10 @@ public class SSLView {
         ResourceDescription securityPropertyDescription = rootDescription.getChildDescription("security-property");
         ResourceDescription providerLoaderDescription = rootDescription.getChildDescription("provider-loader");
 
-        keystoreView = new KeystoreView(circuit, keyStoreDescription, securityContext, "Key Store",
+        keystoreView = new GenericStoreView(circuit, keyStoreDescription, securityContext, "Key Store",
                 ElytronStore.KEY_STORE_ADDRESS);
 
-        credentialstoreView = new ElytronGenericResourceView(circuit, credentialStoreDescription, securityContext, "Credential Store",
+        credentialstoreView = new GenericStoreView(circuit, credentialStoreDescription, securityContext, "Credential Store",
                 ElytronStore.CREDENTIAL_STORE_ADDRESS);
 
         filteringKeystoreView = new ElytronGenericResourceView(circuit, filteringKeyStoreDescription, securityContext, "Filtering Key Store",
@@ -79,7 +79,7 @@ public class SSLView {
         ldapKeystoreView = new LdapKeystoreView(circuit, ldapKeyStoreDescription, securityContext, "LDAP Key Store",
                 ElytronStore.LDAP_KEY_STORE_ADDRESS);
 
-        keyManagerView = new KeyManagerView(circuit, keyManagerDescription, securityContext, "Key Manager",
+        keyManagerView = new GenericStoreView(circuit, keyManagerDescription, securityContext, "Key Manager",
                 ElytronStore.KEY_MANAGER_ADDRESS);
 
         serverSSLContextView = new ElytronGenericResourceView(circuit, serverSSLContextDescription, securityContext,

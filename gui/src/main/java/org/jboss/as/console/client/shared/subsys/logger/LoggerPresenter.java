@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.logger;
 
+import java.util.List;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -32,9 +35,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -226,12 +226,10 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
     }
 
     public void onSaveResource(final AddressTemplate address, Map<String, Object> changeset) {
-
         operationDelegate.onSaveResource(address, null, changeset, defaultOpCallbacks);
     }
 
     public void onSaveNamedResource(AddressTemplate address, String name, Map changeset) {
-        System.out.println(changeset);
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 

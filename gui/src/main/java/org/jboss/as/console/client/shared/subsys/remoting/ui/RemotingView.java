@@ -21,6 +21,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.ui;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -37,8 +39,6 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.List;
 
 import static org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore.*;
 
@@ -59,7 +59,7 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
     private RemotingEditor remoteHttpConnectorEditor;
     private ConnectionEditor localOutboundConnectionEditor;
     private ConnectionEditor outboundConnectionEditor;
-    private ConnectionEditor remoteOutboundConnectionEditor;
+    private RemoteOutboundConnectionView remoteOutboundConnectionEditor;
 
     @Inject
     public RemotingView(DispatchAsync dispatcher, Dispatcher circuit, SecurityFramework securityFramework,
@@ -94,7 +94,7 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
         outboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
                 OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(OUTBOUND_CONNECTION_ADDRESS),
                 "Outbound Connection");
-        remoteOutboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
+        remoteOutboundConnectionEditor = new RemoteOutboundConnectionView(dispatcher, circuit, securityContext, statementContext,
                 REMOTE_OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(REMOTE_OUTBOUND_CONNECTION_ADDRESS),
                 "Remote Outbound Connection");
 

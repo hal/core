@@ -39,8 +39,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.StringUtils;
 import org.jboss.as.console.client.shared.subsys.elytron.store.AddListAttribute;
-import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.shared.subsys.elytron.store.RemoveListAttribute;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
@@ -67,7 +67,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
 
     public static final String MECHANISM_CONFIGURATIONS = "mechanism-configurations";
-    
+
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
@@ -78,7 +78,8 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
     private ModelNodeForm mechanismConfigurationForm;
     private VerticalPanel popupLayout = new VerticalPanel();
     private DefaultWindow mechanismConfigurationWindow;
-    
+    private AddressTemplate addressTemplate;
+
     // button to hide the mechanism-configuration detail window
     // the cancel button is not displayed
     DialogueOptions popupDialogOptions = new DialogueOptions(Console.CONSTANTS.common_label_done(),
@@ -102,9 +103,10 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
     );
 
     GenericAuthenticationMechanismFactoryEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
-            SecurityContext securityContext) {
+            SecurityContext securityContext, final AddressTemplate addressTemplate) {
         this.circuit = circuit;
         this.securityContext = securityContext;
+        this.addressTemplate = addressTemplate;
         selectionModel = new SingleSelectionModel<>();
 
         // tweak to use ModelNodeFormBuilder automatic form generation
@@ -146,7 +148,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
         Column<ModelNode, ModelNode> linkOpenDetailsColumn = new Column<ModelNode, ModelNode>(
                 new ViewLinkCell<>(Console.CONSTANTS.common_label_view(), new ActionCell.Delegate<ModelNode>() {
-                    
+
                     @Override
                     public void execute(ModelNode selection) {
                         showMechanismConfigurationModal(selection);
@@ -166,11 +168,11 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
         panel.add(mainTableTools());
         panel.add(table);
-        
+
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
         panel.add(pager);
-        
+
         // ===================== mechanism configuration form popup
         popupLayout.setStyleName("window-content");
 
@@ -184,14 +186,14 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
                 .exclude("mechanism-realm-configurations")
                 .build();
         mechanismConfigurationForm = mechanismConfigurationFormView.getForm();
-        
+
         popupDialogOptions.showCancel(false);
         Widget formWidget = mechanismConfigurationFormView.getForm().asWidget();
         popupLayout.add(formWidget);
-        
+
         return panel;
     }
-    
+
     private ToolStrip mainTableTools() {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
@@ -234,7 +236,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
                         }
 
                     }
-                    circuit.dispatch(new AddListAttribute(ElytronStore.HTTP_AUTHENTICATION_FACTORY_ADDRESS,
+                    circuit.dispatch(new AddListAttribute(addressTemplate,
                             MECHANISM_CONFIGURATIONS,
                             factoryName,
                             payload));
@@ -260,7 +262,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveListAttribute(
-                                        ElytronStore.HTTP_AUTHENTICATION_FACTORY_ADDRESS,
+                                        addressTemplate,
                                         factoryName,
                                         MECHANISM_CONFIGURATIONS,
                                         selection));
@@ -277,7 +279,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
         mechanismConfigurationForm.editTransient(selection);
         Widget windowContent = new WindowContentBuilder(popupLayout, popupDialogOptions).build();
-        
+
         mechanismConfigurationWindow = new DefaultWindow("Mechanism Configuration");
         mechanismConfigurationWindow.setWidth(480);
         mechanismConfigurationWindow.setHeight(430);
@@ -291,7 +293,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
         if (prop.getValue().hasDefined(MECHANISM_CONFIGURATIONS)) {
             List<ModelNode> models = prop.getValue().get(MECHANISM_CONFIGURATIONS).asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear();
             dataList.addAll(models);

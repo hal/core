@@ -28,6 +28,7 @@ import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -74,7 +75,7 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
     }
 
     @Override
-    public void initSecurityRealm(List<Property> propertiesRealm, List<Property> filesystemRealm,
+    public void initSecurityRealm(ModelNode rootNode, List<Property> propertiesRealm, List<Property> filesystemRealm,
             List<Property> jdbcRealm, List<Property> ldapRealm, List<Property> keystoreRealm,
             List<Property> aggregateRealm, List<Property> customModifiableRealm, List<Property> customRealm,
             List<Property> identityRealm, List<Property> tokenRealm,
@@ -98,6 +99,7 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
         securityRealmMapperView.updateCustomRealmMapper(customRealmMapper);
         securityRealmMapperView.updateConstantRealmMapper(constantRealmMapper);
 
+        authenticationView.updateDefaultAuthenticationContext(rootNode);
         authenticationView.updateAuthenticationConfiguration(authConfiguration);
         authenticationView.updateAuthenticationContext(authContext);
     }

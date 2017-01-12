@@ -36,9 +36,7 @@ import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
 
 import static java.util.Arrays.asList;
-import static org.jboss.dmr.client.ModelDescriptionConstants.CAPABILITY_REFERENCE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.EXPRESSIONS_ALLOWED;
-import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -66,7 +64,6 @@ public class ModelNodeFormBuilder {
     private boolean includeDeprecated;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
-
 
     public interface FormItemFactory {
 
@@ -178,7 +175,7 @@ public class ModelNodeFormBuilder {
     public FormAssets build() {
 
         // pre-requisite
-        if (createMode && !modelDescription.hasDefined("operations")) {
+        if (createMode && !modelDescription.hasDefined(OPERATIONS)) {
             throw new IllegalStateException("Operation descriptions not defined");
         }
 
@@ -187,15 +184,15 @@ public class ModelNodeFormBuilder {
         this.form.setNumColumns(2);
         this.form.setEnabled(false);
 
-        assert modelDescription.hasDefined("attributes") : "Invalid model description. Expected child 'attributes'";
+        assert modelDescription.hasDefined(ATTRIBUTES) : "Invalid model description. Expected child 'attributes'";
 
 
         List<Property> attributeDescriptions = new ArrayList<Property>();
-        if (createMode && modelDescription.get("operations").get("add").hasDefined("request-properties")) {
-            attributeDescriptions = modelDescription.get("operations").get("add").get("request-properties")
+        if (createMode && modelDescription.get(OPERATIONS).get(ADD).hasDefined(REQUEST_PROPERTIES)) {
+            attributeDescriptions = modelDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES)
                     .asPropertyList();
         } else if (!createMode) {
-            attributeDescriptions = modelDescription.get("attributes").asPropertyList();
+            attributeDescriptions = modelDescription.get(ATTRIBUTES).asPropertyList();
         }
 
         // sort fields
@@ -384,7 +381,6 @@ public class ModelNodeFormBuilder {
                             formItem.setRequired(isRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
 
-
                             break;
                         case LIST:
                             formItem = new ListItem(attr.getName(), label);
@@ -397,12 +393,13 @@ public class ModelNodeFormBuilder {
                                 Set<String> allowedValues = new HashSet<String>(allowed.size());
                                 for (ModelNode value : allowed) { allowedValues.add(value.asString()); }
 
-                                final boolean isNillable = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE)
-                                        .asBoolean() && defaultValues.isEmpty();
-                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, isNillable);
+                                final boolean allowEmptyOption = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE)
+                                        .asBoolean();
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, allowEmptyOption);
                                 combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
                                 combo.setRequired(isRequired);
+                                combo.setDefaultToFirstOption(true);
 
                                 formItem = combo;
                             } else {
@@ -411,7 +408,6 @@ public class ModelNodeFormBuilder {
                                     // there is no capability-reference
                                     TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
                                     textBoxItem.setAllowWhiteSpace(true);
-
                                     textBoxItem.setRequired(isRequired);
                                     textBoxItem.setEnabled(!readOnly && !isRuntime);
 
@@ -423,7 +419,7 @@ public class ModelNodeFormBuilder {
 
                             break;
                         case OBJECT:
-                            if (attrDesc.has("value-type") && attrDesc.get("value-type").asString().equals("STRING")) {
+                            if (attrDesc.has(VALUE_TYPE) && attrDesc.get(VALUE_TYPE).asString().equals("STRING")) {
                                 PropertyListItem propList = new PropertyListItem(attr.getName(), label);
                                 propList.setRequired(isRequired);
                                 propList.setEnabled(!readOnly && !isRuntime);
@@ -460,13 +456,13 @@ public class ModelNodeFormBuilder {
         FormItem nameItem = null;
         if (createMode) {
             for (FormItem item : requiredItems) {
-                if ("name".equals(item.getName())) {
+                if (NAME.equals(item.getName())) {
                     nameItem = item;
                     break;
                 }
             }
             for (FormItem item : optionalItems) {
-                if ("name".equals(item.getName())) {
+                if (NAME.equals(item.getName())) {
                     nameItem = item;
                     break;
                 }
