@@ -45,7 +45,8 @@ public class GenericAuthenticationFactoryView extends ElytronGenericResourceView
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
-        mechanismEditor = new GenericAuthenticationMechanismFactoryEditor(circuit, resourceDescription, securityContext);
+        mechanismEditor = new GenericAuthenticationMechanismFactoryEditor(circuit, resourceDescription, securityContext,
+                addressTemplate);
         additionalWidgets.put("Mechanism Configurations", mechanismEditor.asWidget());
         return additionalWidgets;
     }

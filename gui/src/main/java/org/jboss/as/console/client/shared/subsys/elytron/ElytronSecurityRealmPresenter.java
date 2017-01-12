@@ -40,6 +40,7 @@ import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.shared.subsys.elytron.store.InitElytron;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -59,6 +60,7 @@ public class ElytronSecurityRealmPresenter extends
     public interface MyView extends View, HasPresenter<ElytronSecurityRealmPresenter> {
 
         void initSecurityRealm(
+                ModelNode rootNode,
                 List<Property> propertiesRealm,
                 List<Property> filesystemRealm,
                 List<Property> jdbcRealm,
@@ -111,6 +113,7 @@ public class ElytronSecurityRealmPresenter extends
         if (action instanceof ElytronConfigAction) {
 
             getView().initSecurityRealm(
+                    store.getRootNode(),
                     store.getPropertiesRealm(),
                     store.getFilesystemRealm(),
                     store.getJdbcRealm(),

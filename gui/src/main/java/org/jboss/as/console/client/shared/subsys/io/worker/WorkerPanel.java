@@ -21,11 +21,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import com.google.gwt.core.client.GWT;
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.io.IOPanel;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
@@ -36,8 +36,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.Map;
 
 /**
  * @author Harald Pehl
@@ -56,7 +54,7 @@ public class WorkerPanel extends IOPanel {
 
         ToolStrip tools = buildTools();
         DefaultCellTable<Property> table = setupTable();
-        Widget formPanel = buildFormPanel(definition, securityContext);
+        Widget formPanel = buildFormPanel(definition, securityContext, false);
 
         // putting everything together
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()

@@ -23,7 +23,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -67,9 +66,4 @@ public class AuthenticationContextView extends ElytronGenericResourceView {
         }
     }
 
-    @Override
-    protected void onAddCallback(final ModelNode payload) {
-        // add the default-realm to the realms list.
-        //payload.get("match-rules").setEmptyList().add("realm", payload.get("default-realm").asString());
-    }
 }

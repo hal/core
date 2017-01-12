@@ -149,6 +149,8 @@ public class ElytronStore extends ChangeSupport {
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final CrudOperationDelegate operationDelegate;
+
+    private ModelNode rootNode;
     private final List<Property> keyStore;
     private final List<Property> keyManager;
     private final List<Property> serverSSLContext;
@@ -329,6 +331,7 @@ public class ElytronStore extends ChangeSupport {
                 } else {
                     ModelNode payload = result.get(RESULT);
 
+                    rootNode = payload;
                     populate(payload, "key-store", keyStore);
                     populate(payload, "key-managers", keyManager);
                     populate(payload, "server-ssl-context", serverSSLContext);
@@ -503,6 +506,9 @@ public class ElytronStore extends ChangeSupport {
         });
     }
 
+    public ModelNode getRootNode() {
+        return rootNode;
+    }
 
     public List<Property> getKeyStore() {
         return keyStore;

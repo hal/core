@@ -22,6 +22,7 @@ import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -36,6 +37,7 @@ public class AuthenticationView {
 
     private AuthenticationConfigurationView authenticationConfigurationView;
     private AuthenticationContextView authenticationContextView;
+    private DefaultAuthenticationView defaultAuthenticationView;
 
     public AuthenticationView(final Dispatcher circuit, final ResourceDescription rootDescription,
             final SecurityContext securityFramework) {
@@ -53,14 +55,21 @@ public class AuthenticationView {
                 ElytronStore.AUTHENTICATION_CONF_ADDRESS);
         authenticationContextView = new AuthenticationContextView(circuit, authContextDescription, securityContext, "Authentication Context",
                 ElytronStore.AUTHENTICATION_CONTEXT_ADDRESS);
+        defaultAuthenticationView = new DefaultAuthenticationView(circuit, rootDescription, securityContext, "Default Authentication Context",
+                ElytronStore.ROOT_ADDRESS);
 
         PagedView panel = new PagedView(true);
+        panel.addPage("Default Authentication Context", defaultAuthenticationView.asWidget());
         panel.addPage("Authentication Configuration", authenticationConfigurationView.asWidget());
         panel.addPage("Authentication Context", authenticationContextView.asWidget());
         // default page
         panel.showPage(0);
 
         return panel.asWidget();
+    }
+
+    public void updateDefaultAuthenticationContext(final ModelNode model) {
+        defaultAuthenticationView.update(model);
     }
 
     public void updateAuthenticationConfiguration(final List<Property> models) {

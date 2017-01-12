@@ -21,11 +21,12 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import com.google.gwt.core.client.GWT;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -39,9 +40,6 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -88,7 +86,6 @@ public class WorkerStore extends ChangeSupport {
         op.get(ADDRESS).set(address.resolve(statementContext));
         op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         op.get(CHILD_TYPE).set("worker");
-        op.get(INCLUDE_RUNTIME).set(true);
 
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override

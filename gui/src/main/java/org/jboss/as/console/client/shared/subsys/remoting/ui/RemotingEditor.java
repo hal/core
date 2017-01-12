@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.ui;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -40,15 +43,14 @@ import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.as.console.client.shared.subsys.remoting.ui.RemotingSelectionAwareContext.SELECTED_ENTITY;
 
@@ -129,6 +131,7 @@ abstract class RemotingEditor implements IsWidget {
         formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(resourceDescription)
+                .includeDeprecated(true)
                 .setSecurityContext(securityContext).build();
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -141,6 +144,7 @@ abstract class RemotingEditor implements IsWidget {
                 formAssets.getForm().cancel();
             }
         });
+        formAssets.getForm().addFormValidator((formItems, outcome) -> registerFormValidator(formItems, outcome));
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -159,6 +163,10 @@ abstract class RemotingEditor implements IsWidget {
         formPanel.add(formAssets.getHelp().asWidget());
         formPanel.add(formAssets.getForm().asWidget());
         return formPanel;
+    }
+
+    protected void registerFormValidator(List<FormItem> formItems, FormValidation outcome) {
+        // let implementation do their logic
     }
 
     protected PropertyEditor propertyEditor() {

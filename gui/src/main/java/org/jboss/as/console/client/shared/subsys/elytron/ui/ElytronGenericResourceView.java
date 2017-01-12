@@ -62,7 +62,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 public class ElytronGenericResourceView {
 
     protected final Dispatcher circuit;
-    protected final ResourceDescription resourceDescription;
+    protected ResourceDescription resourceDescription;
     protected String title;
     protected AddressTemplate addressTemplate;
     protected final SecurityContext securityContext;
@@ -202,13 +202,7 @@ public class ElytronGenericResourceView {
             addDialog = new AddResourceDialog(securityContext, resourceDescription, callback);
             addDialog.setRequiredOnly(onAddFormRequiredOnly);
         } else {
-            ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
-                    .setResourceDescription(resourceDescription)
-                    .setCreateMode(true)
-                    .unsorted()
-                    .exclude(excludes.toArray(new String[excludes.size()]))
-                    .setSecurityContext(securityContext)
-                    .build();
+            ModelNodeFormBuilder.FormAssets addFormAssets = customFormOnAdd();
             addFormAssets.getForm().setEnabled(true);
             addDialog = new AddResourceDialog(addFormAssets, resourceDescription, callback);
         }
@@ -224,6 +218,15 @@ public class ElytronGenericResourceView {
         dialog.center();
     }
 
+    protected ModelNodeFormBuilder.FormAssets customFormOnAdd() {
+        return new ModelNodeFormBuilder()
+                .setResourceDescription(resourceDescription)
+                .setCreateMode(true)
+                .unsorted()
+                .exclude(excludes.toArray(new String[excludes.size()]))
+                .setSecurityContext(securityContext)
+                .build();
+    }
 
     public void update(final List<Property> models) {
         dataProvider.setList(models);
