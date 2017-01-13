@@ -1,9 +1,16 @@
 package org.jboss.as.console.mbui.widgets;
 
+import java.util.List;
+
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
 
 /**
  *
@@ -70,7 +77,17 @@ public class ComplexAttributeForm {
 
     private ResourceDescription getAttributeDescription() {
         ModelNode desc = new ModelNode();
-        desc.get("attributes").set(resourceDescriptionDelegate.get("attributes").get(attributeName).get("value-type"));
+        desc.get(ATTRIBUTES).set(resourceDescriptionDelegate.get(ATTRIBUTES).get(attributeName).get(VALUE_TYPE));
+        boolean nillable = resourceDescriptionDelegate.get(ATTRIBUTES).get(attributeName).hasDefined(NILLABLE) ?
+                resourceDescriptionDelegate.get(ATTRIBUTES).get(attributeName).get(NILLABLE).asBoolean() : false;
+        if (nillable) {
+            // if the attribute is nillable all sub-attributes must be nillable
+            // a custom validator is needed since this suppresses validation of required attributes
+            List<Property> properties = desc.get("attributes").asPropertyList();
+            for (Property p : properties) {
+                desc.get(ATTRIBUTES).get(p.getName()).get(NILLABLE).set(true);
+            }
+        }
         return new ResourceDescription(desc);
     }
 
@@ -155,12 +172,12 @@ public class ComplexAttributeForm {
 
     /**
      * Exclude any attribute from the automatic form mapping.
-     * 
+     *
      * @param attributes The list of attribute names.
-     * @return this This ComplexAttributeForm instance. 
+     * @return this This ComplexAttributeForm instance.
      */
     public ComplexAttributeForm exclude(String... attributes) {
-        excludes = attributes; 
+        excludes = attributes;
         return this;
     }
 }
