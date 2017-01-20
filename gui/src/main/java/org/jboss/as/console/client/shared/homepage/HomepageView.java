@@ -193,9 +193,9 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
 
         if (su) {
             String accessControlNameToken = NameTokens.AccessControlFinder;
-            if (bootstrapContext.isSsoEnabled()) 
+            if (bootstrapContext.isSsoEnabled())
                 accessControlNameToken = NameTokens.SSOAccessControlFinder;
-            
+
             HomepageSection accessControlSection = new HomepageSection(accessControlNameToken,
                     constants.homepage_access_control_section(),
                     constants.homepage_access_control_step_intro(),
@@ -266,7 +266,7 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                     constants.homepage_help_wildfly_issues_text()));
             generalResources.appendChild(helpLink("http://wildfly.org/news/", constants.homepage_help_latest_news()));
 
-            getHelp.appendChild(helpLink("http://www.jboss.org/developer-materials/",
+            getHelp.appendChild(helpLink("http://developers.redhat.com/products/eap/learn/",
                     constants.homepage_help_tutorials_text()));
             getHelp.appendChild(helpLink("https://community.jboss.org/en/wildfly?view=discussions",
                     constants.homepage_help_user_forums_text()));
