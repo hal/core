@@ -35,6 +35,7 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.MapAttributeAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.MapAttributePropertyManager;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -63,6 +64,8 @@ class JMSBridgeList {
 
     private PropertyEditor sourceContextEditor;
     private PropertyEditor targetContextEditor;
+    private ModelNodeFormBuilder.FormAssets sourceCredentialRefForm;
+    private ModelNodeFormBuilder.FormAssets targetCredentialRefForm;
 
     JMSBridgeList(JMSBridgePresenter presenter) {
         this.presenter = presenter;
@@ -84,16 +87,20 @@ class JMSBridgeList {
         };
         table.addColumn(nameColumn, "Name");
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework()
+                .getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(JMSBRIDGE_TEMPLATE);
 
         formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
-                .exclude("source-context", "target-context")
+                // they are complex attributes
+                .exclude("source-context", "target-context", "source-credential-reference", "target-credential-reference")
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
-                .addFactory("source-password", attributeDescription -> new PasswordBoxItem("source-password", "Source Password", false))
-                .addFactory("target-password", attributeDescription -> new PasswordBoxItem("target-password", "Target Password", false))
+                .addFactory("source-password",
+                        attributeDescription -> new PasswordBoxItem("source-password", "Source Password", false))
+                .addFactory("target-password",
+                        attributeDescription -> new PasswordBoxItem("target-password", "Target Password", false))
                 .build();
 
         // this is the save operation when the user click at the "edit" link
@@ -113,10 +120,14 @@ class JMSBridgeList {
         // from the table list.
         JMSBridgeSelectionAwareContext jmsBridgeSelectionContext = new JMSBridgeSelectionAwareContext(
                 presenter.getStatementContext(), this);
-        
+
         AddressTemplate jmsBridgeTemplate = JMSBRIDGE_TEMPLATE
                 .replaceWildcards(JMSBridgeSelectionAwareContext.SELECTED_ENTITY);
-        
+
+        sourceCredentialRefForm = createComplexForm("source-credential-reference");
+        targetCredentialRefForm = createComplexForm("target-credential-reference");
+
+
         // there are two attributes source-context,target-context, they are of type=OBJECT and value-type=STRING
         // they store key=value properties
         // then, they are added as PropertyEditor
@@ -131,34 +142,61 @@ class JMSBridgeList {
                 .setMasterTools(tableButtons())
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formAssets.asWidget())
                 .addDetail("Source Context", sourceContextEditor.asWidget())
-                .addDetail("Target Context", targetContextEditor.asWidget());
+                .addDetail("Target Context", targetContextEditor.asWidget())
+                .addDetail("Source Credential Reference", sourceCredentialRefForm.asWidget())
+                .addDetail("Target Credential Reference", targetCredentialRefForm.asWidget());
 
         selectionModel.addSelectionChangeHandler(event -> updatePropertiesData(null));
 
         return layout.build();
     }
-    
+
+    private ModelNodeFormBuilder.FormAssets createComplexForm(final String complexAttributeName) {
+
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework()
+                .getSecurityContext(presenter.getProxy().getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(JMSBRIDGE_TEMPLATE);
+
+        ModelNodeFormBuilder.FormAssets formAsset = new ComplexAttributeForm( complexAttributeName, securityContext,
+                definition).build();
+
+        formAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                presenter.saveAttribute(complexAttributeName, getSelectedEntity().getName(),
+                        formAsset.getForm().getUpdatedEntity());
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                formAsset.getForm().cancel();
+            }
+        });
+        return formAsset;
+    }
+
     private ToolStrip tableButtons() {
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(
-            new ToolButton(Console.CONSTANTS.common_label_add(),
-                clickEvent -> presenter.onLaunchAddJMSBridgeDialog()));
+                new ToolButton(Console.CONSTANTS.common_label_add(),
+                        clickEvent -> presenter.onLaunchAddJMSBridgeDialog()));
 
 
         tools.addToolButtonRight(
-            new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
-                Console.MESSAGES.deleteTitle("JMS Bridge"),
-                Console.MESSAGES.deleteConfirm("JMS Bridge " + getSelectedEntity().getName()),
-                isConfirmed -> {
-                    if (isConfirmed) {
-                        presenter.onDeleteJmsBridge(getSelectedEntity().getName());
-                    }
-                })));
+                new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
+                        Console.MESSAGES.deleteTitle("JMS Bridge"),
+                        Console.MESSAGES.deleteConfirm("JMS Bridge " + getSelectedEntity().getName()),
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                presenter.onDeleteJmsBridge(getSelectedEntity().getName());
+                            }
+                        })));
         return tools;
     }
-    
-    // 
-    private PropertyEditor buildProperties(String attributeName, JMSBridgeSelectionAwareContext statementContext, 
+
+    //
+    private PropertyEditor buildProperties(String attributeName, JMSBridgeSelectionAwareContext statementContext,
             AddressTemplate addressTemplate) {
         MapAttributePropertyManager propertyManager = new MapAttributePropertyManager(
                 addressTemplate,
@@ -169,28 +207,31 @@ class JMSBridgeList {
         PropertyEditor propertyEditor = new PropertyEditor.Builder(propertyManager)
                 .addDialog(addDialog)
                 .build();
-        
+
         return propertyEditor;
     }
-    
+
     /*
         This update the table itens for the source-context and target-context attributes
         The source item may be the user selectable item or the default (the first).
      */
     private void updatePropertiesData(Property bridge) {
         Property selectedItem = getSelectedEntity();
-        if (bridge != null)
-            selectedItem = bridge;
+        if (bridge != null) { selectedItem = bridge; }
         if (selectedItem != null) {
             ModelNode sourceContextNode = selectedItem.getValue().get("source-context");
             ModelNode targetContextNode = selectedItem.getValue().get("target-context");
             sourceContextEditor.update(sourceContextNode.asPropertyList());
             targetContextEditor.update(targetContextNode.asPropertyList());
             formAssets.getForm().edit(selectedItem.getValue());
+            sourceCredentialRefForm.getForm().edit(selectedItem.getValue().get("source-credential-reference"));
+            targetCredentialRefForm.getForm().edit(selectedItem.getValue().get("target-credential-reference"));
         } else {
             formAssets.getForm().clearValues();
             sourceContextEditor.clearValues();
             targetContextEditor.clearValues();
+            sourceCredentialRefForm.getForm().clearValues();
+            targetCredentialRefForm.getForm().clearValues();
         }
         sourceContextEditor.enableToolButtons(selectedItem != null);
         targetContextEditor.enableToolButtons(selectedItem != null);

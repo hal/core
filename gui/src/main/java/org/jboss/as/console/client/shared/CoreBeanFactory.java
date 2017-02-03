@@ -70,6 +70,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqMessagin
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaBootstrapContext;
@@ -131,6 +132,7 @@ public interface CoreBeanFactory {
 
     AutoBean<DataSource> dataSource();
     AutoBean<XADataSource> xaDataSource();
+    AutoBean<CredentialReference> credentialReference();
     AutoBean<PoolConfig> poolConfig();
 
     // method names must reflect the type names. Hence the ActiveMQ autobeans are suffixed with 'Activemq'

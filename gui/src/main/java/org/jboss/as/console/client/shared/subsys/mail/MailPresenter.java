@@ -3,6 +3,7 @@ package org.jboss.as.console.client.shared.subsys.mail;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -18,17 +19,22 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -38,12 +44,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter.MyProxy> {
 
 
-
+    public static final AddressTemplate MAIL_SMTP_SERVER_TEMPLATE = AddressTemplate.of("{selected.profile}/subsystem=mail/mail-session=*/server=smtp");
+    public static final AddressTemplate MAIL_SERVER_TEMPLATE = AddressTemplate.of("{selected.profile}/subsystem=mail/mail-session=*/server=*");
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
-    @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
+    @RequiredResources(resources = {
+            "{selected.profile}/subsystem=mail/mail-session=*",
+            "{selected.profile}/subsystem=mail/mail-session=*/server=smtp"
+    })
     public interface MyProxy extends Proxy<MailPresenter>, Place {}
 
 
@@ -60,14 +69,18 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     private final BeanMetaData beanMetaData;
     private final EntityAdapter<MailServerDefinition> serverAdapter;
     private final EntityAdapter<MailSession> adapter;
+    private final EntityAdapter<CredentialReference> credentialReferenceAdapter;
 
     private DefaultWindow window;
+    private ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private StatementContext statementContext;
 
 
     @Inject
     public MailPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                          DispatchAsync dispatcher, RevealStrategy revealStrategy, ApplicationMetaData metaData,
-                         BeanFactory beanFactory) {
+                         BeanFactory beanFactory, final ResourceDescriptionRegistry resourceDescriptionRegistry,
+            StatementContext statementContext) {
 
         super(eventBus, view, proxy);
 
@@ -76,8 +89,11 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
         this.beanMetaData = metaData.getBeanMetaData(MailSession.class);
-        this.adapter = new EntityAdapter<MailSession>(MailSession.class, metaData);
-        this.serverAdapter = new EntityAdapter<MailServerDefinition>(MailServerDefinition.class, metaData);
+        this.adapter = new EntityAdapter<>(MailSession.class, metaData);
+        this.serverAdapter = new EntityAdapter<>(MailServerDefinition.class, metaData);
+        this.credentialReferenceAdapter = new EntityAdapter<>(CredentialReference.class, metaData);
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -107,64 +123,65 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
 
     private void loadMailSession(final String sessionName) {
-            ModelNode operation = beanMetaData.getAddress().asSubresource(Baseadress.get());
-            operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-            operation.get(RECURSIVE).set(true);
+        ModelNode operation = beanMetaData.getAddress().asSubresource(Baseadress.get());
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(RECURSIVE).set(true);
 
-            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-                @Override
-                public void onSuccess(DMRResponse result) {
-                    ModelNode response = result.get();
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+            ModelNode response = result.get();
 
-                    if (response.isFailure()) {
-                        Console.error(Console.MESSAGES.failed("Mail Sessions"));
-                    } else {
-                        List<Property> items = response.get(RESULT).asPropertyList();
+            if (response.isFailure()) {
+                Console.error(Console.MESSAGES.failed("Mail Sessions"));
+            } else {
+                List<Property> items = response.get(RESULT).asPropertyList();
 
-                        for (Property item : items) {
+                for (Property item : items) {
+                    if(item.getName().equals(sessionName)) {
 
+                        ModelNode model = item.getValue();
+                        MailSession mailSession = adapter.fromDMR(model);
+                        mailSession.setName(item.getName());
 
-                            if(item.getName().equals(sessionName)) {
-
-                                ModelNode model = item.getValue();
-                                MailSession mailSession = adapter.fromDMR(model);
-                                mailSession.setName(item.getName());
-
-                                if (model.hasDefined("server")) {
-                                    List<Property> serverList = model.get("server").asPropertyList();
-                                    for (Property server : serverList) {
-                                        if (server.getName().equals(ServerType.smtp.name())) {
-                                            MailServerDefinition smtpServer = serverAdapter.fromDMR(server.getValue());
-                                            smtpServer.setType(ServerType.smtp);
-                                            mailSession.setSmtpServer(smtpServer);
-                                        } else if (server.getName().equals(ServerType.imap.name())) {
-                                            MailServerDefinition imap = serverAdapter.fromDMR(server.getValue());
-                                            imap.setType(ServerType.imap);
-                                            mailSession.setImapServer(imap);
-                                        } else if (server.getName().equals(ServerType.pop3.name())) {
-                                            MailServerDefinition pop = serverAdapter.fromDMR(server.getValue());
-                                            pop.setType(ServerType.pop3);
-                                            mailSession.setPopServer(pop);
-                                        }
-                                    }
-
+                        if (model.hasDefined(SERVER)) {
+                            List<Property> serverList = model.get(SERVER).asPropertyList();
+                            for (Property server : serverList) {
+                                ModelNode serverValue = server.getValue();
+                                if (server.getName().equals(ServerType.smtp.name())) {
+                                    MailServerDefinition smtpServer = serverAdapter.fromDMR(serverValue);
+                                    smtpServer.setType(ServerType.smtp);
+                                    mailSession.setSmtpServer(smtpServer);
+                                    setCredentialReference(smtpServer, serverValue);
+                                } else if (server.getName().equals(ServerType.imap.name())) {
+                                    MailServerDefinition imap = serverAdapter.fromDMR(serverValue);
+                                    imap.setType(ServerType.imap);
+                                    mailSession.setImapServer(imap);
+                                    setCredentialReference(imap, serverValue);
+                                } else if (server.getName().equals(ServerType.pop3.name())) {
+                                    MailServerDefinition pop = serverAdapter.fromDMR(serverValue);
+                                    pop.setType(ServerType.pop3);
+                                    mailSession.setPopServer(pop);
+                                    setCredentialReference(pop, serverValue);
                                 }
-
-                                getView().updateFrom(mailSession);
-                                break;
                             }
-
                         }
-
-
-
-
+                        getView().updateFrom(mailSession);
+                        break;
                     }
-
                 }
-            });
-        }
+            }
+            }
+        });
+    }
 
+    private void setCredentialReference(MailServerDefinition mailServer, ModelNode serverValue) {
+        if (serverValue.hasDefined(CREDENTIAL_REFERENCE)) {
+            ModelNode cred = serverValue.get(CREDENTIAL_REFERENCE);
+            CredentialReference credentialReference = credentialReferenceAdapter.fromDMR(cred);
+            mailServer.setCredentialReference(credentialReference);
+        }
+    }
 
     @Override
     protected void revealInParent() {
@@ -191,7 +208,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.modificationFailed("Mail Server"), response.getFailureDescription());
                 } else {
-                    Console.info(Console.MESSAGES.modified("Mail Server"+type.toString()));
+                    Console.info(Console.MESSAGES.modified("Mail Server "+type.toString()));
                 }
                 loadMailSession(sessionName);
             }
@@ -244,4 +261,48 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         });
     }
 
+    public void onSaveComplexAttribute(final String sessionName, final ServerType type, final ModelNode payload) {
+        ResourceAddress address = MAIL_SERVER_TEMPLATE.resolve(statementContext, sessionName, type.name());
+        for (Property prop : payload.asPropertyList()) {
+            if (!prop.getValue().isDefined()) {
+                payload.remove(prop.getName());
+            }
+        }
+        ModelNode operation;
+        if (payload.asList().size()  > 0) {
+            ModelNodeAdapter adapter = new ModelNodeAdapter();
+            operation = adapter.fromComplexAttribute(address, CREDENTIAL_REFERENCE, payload);
+        } else {
+            // if the payload is empty, undefine the complex attribute
+            // otherwise an empty attribute is a defined attribute and as the user wants to remove all
+            // values, it is better to undefine it.
+            operation = new ModelNode();
+            operation.get(ADDRESS).set(address);
+            operation.get(OP).set(UNDEFINE_ATTRIBUTE_OPERATION);
+            operation.get(NAME).set(CREDENTIAL_REFERENCE);
+        }
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.MESSAGES.modificationFailed("Mail Server"), caught.getMessage());
+                loadMailSession(sessionName);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                Console.info(Console.MESSAGES.modified("Mail Server "+type.toString()));
+                loadMailSession(sessionName);
+            }
+        });
+    }
+
+
+    public ResourceDescriptionRegistry getResourceDescriptionRegistry() {
+        return resourceDescriptionRegistry;
+    }
+
+    public EntityAdapter<CredentialReference> getCredentialReferenceAdapter() {
+        return credentialReferenceAdapter;
+    }
 }

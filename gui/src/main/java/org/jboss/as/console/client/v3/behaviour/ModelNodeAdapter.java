@@ -81,9 +81,9 @@ public class ModelNodeAdapter {
         for (String key : changeSet.keySet()) {
             Object value = changeSet.get(key);
 
-            if (value.equals(FormItem.VALUE_SEMANTICS.UNDEFINED)) {
-                payload.get(key).set(ModelType.UNDEFINED);
-            } else {
+            // exclude undefined fields and not set them as undefined
+            // as wildfly throws error when set the fieds of value-type to undefined.
+            if (!value.equals(FormItem.VALUE_SEMANTICS.UNDEFINED)) {
                 // set value, including type conversion
                 setValue(payload.get(key), value);
             }

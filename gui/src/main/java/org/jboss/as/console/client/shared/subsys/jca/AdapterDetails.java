@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -15,10 +19,6 @@ import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.Property;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -69,7 +69,7 @@ public class AdapterDetails {
                 .setConfigOnly()
                 .setSecurityContext(securityContext)
                 .setResourceDescription(description)
-                .include("wm-security", "wm-security-default-groups", "wm-security-default-principal", "wm-security-domain",
+                .include("wm-elytron-enabled", "wm-security", "wm-security-default-groups", "wm-security-default-principal", "wm-security-domain",
                         "wm-security-mapping-groups", "wm-security-mapping-required", "wm-security-mapping-users")
                 .build();
 

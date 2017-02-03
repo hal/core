@@ -133,5 +133,8 @@ public interface Modcluster {
     Integer getWorkerTimeout();
     void setWorkerTimeout(Integer workerTimeout);
 
+    @Binding(detypedName="ssl-context")
+    public String getSslContext();
+    public void setSslContext(String ctx);
 
 }

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
 import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
@@ -27,4 +28,9 @@ public interface MailServerDefinition {
     @Binding(detypedName = "ssl")
     boolean isSsl();
     void setSsl(boolean b);
+
+    @Binding(skip=true)
+    CredentialReference getCredentialReference();
+    void setCredentialReference(CredentialReference credential);
+
 }

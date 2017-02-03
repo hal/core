@@ -85,7 +85,7 @@ public class JMSBridgePresenter
 
     @Inject
     public JMSBridgePresenter(EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher, RevealStrategy revealStrategy, SecurityFramework securityFramework, 
+            DispatchAsync dispatcher, RevealStrategy revealStrategy, SecurityFramework securityFramework,
             ResourceDescriptionRegistry descriptionRegistry, StatementContext statementContext) {
         super(eventBus, view, proxy);
 
@@ -103,7 +103,7 @@ public class JMSBridgePresenter
         // so register handlers to get notified about property modifications
         addVisibleHandler(PropertyAddedEvent.TYPE, this);
         addVisibleHandler(PropertyRemovedEvent.TYPE, this);
-        
+
         getView().setPresenter(this);
     }
 
@@ -177,7 +177,7 @@ public class JMSBridgePresenter
         });
 
     }
-    
+
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
@@ -190,7 +190,7 @@ public class JMSBridgePresenter
     public StatementContext getStatementContext() {
         return statementContext;
     }
-    
+
     public DispatchAsync getDispatcher() {
         return dispatcher;
     }
@@ -215,6 +215,7 @@ public class JMSBridgePresenter
         ModelNodeFormBuilder.FormAssets resourceAdapterAssets = new ModelNodeFormBuilder()
                 .setCreateMode(true)
                 .setConfigOnly()
+                .exclude("source-credential-reference", "target-credential-reference")
                 .setResourceDescription(resourceDescription)
                 .setSecurityContext(securityContext)
                 .build();
@@ -225,7 +226,7 @@ public class JMSBridgePresenter
             @Override
             public void onAdd(ModelNode payload) {
                 dialog.hide();
-                
+
                 final ResourceAddress fqAddress =
                         JMSBRIDGE_TEMPLATE.resolve(statementContext, payload.get(NAME).asString());
 
@@ -259,5 +260,28 @@ public class JMSBridgePresenter
         dialog.setWidget(addDialog);
         dialog.setGlassEnabled(true);
         dialog.center();
+    }
+
+    public void saveAttribute(final String complexAttributeName, final String resourceName, final ModelNode payload) {
+        ResourceAddress address = JMSBRIDGE_TEMPLATE.resolve(statementContext, resourceName);
+        Operation operation = new Operation.Builder(WRITE_ATTRIBUTE_OPERATION, address)
+                .param(NAME, complexAttributeName)
+                .param(VALUE, payload)
+                .build();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to save JMS Bridge attribute " + complexAttributeName + " for resource " + resourceName, response.getFailureDescription());
+                } else {
+                    Console.info("Successfully saved JMS Bridge " + resourceName);
+                    loadBridges(); // refresh
+                }
+            }
+        });
+
     }
 }

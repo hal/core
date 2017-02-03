@@ -14,6 +14,7 @@ import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_SSL_CONTEXT;
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_LISTENER;
 
 /**
@@ -48,8 +49,11 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         FormItem connector = new SuggestionResource("connector", "Connector", true,
             Console.MODULES.getCapabilities().lookup(UNDERTOW_LISTENER))
             .buildFormItem();
+        FormItem sslContext = new SuggestionResource("sslContext", "SSL Context", false,
+                Console.MODULES.getCapabilities().lookup(SECURITY_SSL_CONTEXT))
+                .buildFormItem();
 
-        form.setFields(connector, loadBalancingGroup, balancer, advertiseSocket, advertiseKey, advertise);
+        form.setFields(connector, loadBalancingGroup, balancer, advertiseSocket, advertiseKey, advertise, sslContext);
 
         // ---
 

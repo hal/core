@@ -45,6 +45,7 @@ public class SSLView {
     private SecurityDomainView securityDomainView;
     private ElytronGenericResourceView securityPropertyView;
     private ProviderLoaderView providerLoaderView;
+    private ElytronGenericResourceView aggregateProvidersView;
 
     public SSLView(final Dispatcher circuit, final ResourceDescription rootDescription,
             final SecurityContext securityFramework) {
@@ -66,6 +67,7 @@ public class SSLView {
         ResourceDescription securityDomainDescription = rootDescription.getChildDescription("security-domain");
         ResourceDescription securityPropertyDescription = rootDescription.getChildDescription("security-property");
         ResourceDescription providerLoaderDescription = rootDescription.getChildDescription("provider-loader");
+        ResourceDescription aggregateProvidersDescription = rootDescription.getChildDescription("aggregate-providers");
 
         keystoreView = new GenericStoreView(circuit, keyStoreDescription, securityContext, "Key Store",
                 ElytronStore.KEY_STORE_ADDRESS);
@@ -100,6 +102,9 @@ public class SSLView {
         providerLoaderView = new ProviderLoaderView(circuit, providerLoaderDescription, securityContext,
                 "Provider Loader", ElytronStore.PROVIDER_LOADER_ADDRESS);
 
+        aggregateProvidersView = new ElytronGenericResourceView(circuit, aggregateProvidersDescription, securityContext,
+                "Aggregate Providers", ElytronStore.AGGREGATE_PROVIDERS_ADDRESS);
+
         PagedView panel = new PagedView(true);
         panel.addPage("Key Store", keystoreView.asWidget());
         panel.addPage("Credential Store", credentialstoreView.asWidget());
@@ -112,6 +117,7 @@ public class SSLView {
         panel.addPage("Security Domain", securityDomainView.asWidget());
         panel.addPage("Security Property", securityPropertyView.asWidget());
         panel.addPage("Provider Loader", providerLoaderView.asWidget());
+        panel.addPage("Aggregate Providers", aggregateProvidersView.asWidget());
         // default page
         panel.showPage(0);
 
@@ -160,6 +166,10 @@ public class SSLView {
 
     public void updateProviderLoader(List<Property> models) {
         providerLoaderView.update(models);
+    }
+
+    public void updateAggregateProviders(List<Property> models) {
+        aggregateProvidersView.update(models);
     }
 
 }

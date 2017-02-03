@@ -68,7 +68,8 @@ public class ElytronPresenter extends
                 List<Property> trustManager,
                 List<Property> securityDomain,
                 List<Property> securityProperty,
-                List<Property> providerLoader);
+                List<Property> providerLoader,
+                List<Property> aggregateProvidersModel);
 
         void initTransformers(
                 List<Property> aggregateNameRewriter,
@@ -126,7 +127,8 @@ public class ElytronPresenter extends
                     store.getTrustManager(),
                     store.getSecurityDomain(),
                     store.getSecurityProperty(),
-                    store.getProviderLoader());
+                    store.getProviderLoader(),
+                    store.getAggregateProviders());
 
             getView().initTransformers(
                     store.getAggregatePrincipalTransformer(),

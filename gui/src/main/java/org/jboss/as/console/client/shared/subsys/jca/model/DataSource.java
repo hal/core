@@ -76,8 +76,20 @@ public interface DataSource {
     String getUsername();
     void setUsername(String user);
 
+    @Binding(detypedName = "authentication-context")
+    String getAuthenticationContext();
+    void setAuthenticationContext(String ctx);
+
+    @Binding(detypedName = "elytron-enabled")
+    Boolean isElytronEnabled();
+    void setElytronEnabled(Boolean b);
+
     String getPassword();
     void setPassword(String password);
+
+    @Binding(skip=true)
+    CredentialReference getCredentialReference();
+    void setCredentialReference(CredentialReference credential);
 
     // regular DS attributes below
 

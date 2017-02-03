@@ -74,7 +74,7 @@ public class BootstrapServerSetup {
                     context.setSsoEnabled(ssoChecker.isSsoEnabled());
                 }
             });
-            
+
             // Test whether this console is served from a WildFly / EAP instance
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "/management");
             requestBuilder.setCallback(new RequestCallback() {
@@ -132,7 +132,7 @@ public class BootstrapServerSetup {
             }
         });
     }
-    
+
     void pingServerManagement(final BootstrapServer server, final AsyncCallback<SSOChecker> callback) {
         final String managementEndpoint = getServerUrl(server) + "/management";
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, managementEndpoint);
@@ -163,13 +163,11 @@ public class BootstrapServerSetup {
         }
     }
 
-    static java.util.logging.Logger _log = java.util.logging.Logger.getLogger("org.jboss");
-    
     void checkSsoEnabled(String serverUrl, final AsyncCallback<SSOChecker> callback) {
         final String keycloakAdapterEndpoint = serverUrl + "/keycloak/adapter/wildfly-console";
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, keycloakAdapterEndpoint);
         requestBuilder.setCallback(new RequestCallback() {
-            
+
             @Override
             public void onResponseReceived(final Request request, final Response response) {
                 int statusCode = response.getStatusCode();

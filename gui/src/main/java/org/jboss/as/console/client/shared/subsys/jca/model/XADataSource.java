@@ -76,6 +76,26 @@ public interface XADataSource extends DataSource {
     String getRecoveryPluginClassName();
     void setRecoveryPluginClassName(String s);
 
+    @Binding(detypedName = "recovery-authentication-context")
+    String getRecoveryAuthenticationContext();
+    void setRecoveryAuthenticationContext(String s);
+
+    @Binding(detypedName = "recovery-elytron-enabled")
+    Boolean isRecoveryElytronEnabled();
+    void setRecoveryElytronEnabled(Boolean b);
+
+    @Binding(detypedName = "recovery-security-domain")
+    String getRecoverySecurityDomain();
+    void setRecoverySecurityDomain(String s);
+
+    @Binding(detypedName = "recovery-username")
+    String getRecoveryUsername();
+    void setRecoveryUsername(String s);
+
+    @Binding(detypedName = "recovery-password")
+    String getRecoveryPassword();
+    void setRecoveryPassword(String s);
+
     @Binding(detypedName = "spy")
     Boolean isSpy();
     void setSpy(Boolean b);

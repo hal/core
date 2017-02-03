@@ -119,6 +119,7 @@ public class ElytronGenericResourceView {
 
         ModelNodeFormBuilder formBuilder = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .createValidators(true)
                 .setResourceDescription(resourceDescription)
                 .exclude(excludes.toArray(new String[excludes.size()]))
                 .setSecurityContext(securityContext);
@@ -225,6 +226,7 @@ public class ElytronGenericResourceView {
                 .unsorted()
                 .exclude(excludes.toArray(new String[excludes.size()]))
                 .setSecurityContext(securityContext)
+                .createValidators(true)
                 .build();
     }
 

@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ModifyComplexAttribute;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -34,12 +33,12 @@ import org.jboss.gwt.circuit.Dispatcher;
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
-public class AuthenticationConfigurationView extends ElytronGenericResourceView {
+public class ElytronResourceWithCredentialReferenceView extends ElytronGenericResourceView {
 
     public static final String COMPLEX_ATTRIBUTE = "credential-reference";
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
 
-    public AuthenticationConfigurationView(final Dispatcher circuit,
+    public ElytronResourceWithCredentialReferenceView(final Dispatcher circuit,
             final ResourceDescription resourceDescription,
             final SecurityContext securityContext, final String title,
             final AddressTemplate addressTemplate) {
@@ -56,7 +55,7 @@ public class AuthenticationConfigurationView extends ElytronGenericResourceView 
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.AUTHENTICATION_CONF_ADDRESS, COMPLEX_ATTRIBUTE,
+                circuit.dispatch(new ModifyComplexAttribute(addressTemplate, COMPLEX_ATTRIBUTE,
                         selectionModel.getSelectedObject().getName(), credentialReferenceFormAsset.getForm().getUpdatedEntity()));
             }
 
