@@ -35,7 +35,7 @@ public class AuthenticationView {
     private ResourceDescription rootDescription;
     private SecurityContext securityContext;
 
-    private AuthenticationConfigurationView authenticationConfigurationView;
+    private ElytronResourceWithCredentialReferenceView authenticationConfigurationView;
     private AuthenticationContextView authenticationContextView;
     private DefaultAuthenticationView defaultAuthenticationView;
 
@@ -51,7 +51,7 @@ public class AuthenticationView {
         ResourceDescription authContextDescription = rootDescription.getChildDescription("authentication-context");
         ResourceDescription authConfDescription = rootDescription.getChildDescription("authentication-configuration");
 
-        authenticationConfigurationView = new AuthenticationConfigurationView(circuit, authConfDescription, securityContext, "Authentication Configuration",
+        authenticationConfigurationView = new ElytronResourceWithCredentialReferenceView(circuit, authConfDescription, securityContext, "Authentication Configuration",
                 ElytronStore.AUTHENTICATION_CONF_ADDRESS);
         authenticationContextView = new AuthenticationContextView(circuit, authContextDescription, securityContext, "Authentication Context",
                 ElytronStore.AUTHENTICATION_CONTEXT_ADDRESS);

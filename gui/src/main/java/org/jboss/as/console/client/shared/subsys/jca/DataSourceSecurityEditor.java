@@ -40,22 +40,50 @@ public class DataSourceSecurityEditor extends FormEditor<DataSource>{
                 Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
         FormItem securityDomain = suggestionResource.buildFormItem();
 
-        TextBoxItem user = new TextBoxItem("username", "Username") {
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
-        PasswordBoxItem pass = new PasswordBoxItem("password", "Password") {
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-        };
+        TextBoxItem user = new TextBoxItem("username", "Username", false);
+        PasswordBoxItem pass = new PasswordBoxItem("password", "Password", false);
         CheckBoxItem allowMultipleUsers = new CheckBoxItem("allowMultipleUsers", "Allow Multiple Users");
+        TextBoxItem authContext = new TextBoxItem("authenticationContext", "Authentication Context", false);
+        CheckBoxItem elytronEnabled = new CheckBoxItem("elytronEnabled", "Elytron enabled");
+        elytronEnabled.setRequired(false);
 
-        getForm().setFields(user, pass, securityDomain, allowMultipleUsers);
+        getForm().setFields(user, pass, securityDomain, allowMultipleUsers, authContext, elytronEnabled);
+        getForm().addFormValidator((formItems, formValidator) -> {
+
+            // validates the "requires" constraint of authentication-context
+            // authentication-context requires elytron-enabled
+            boolean authCtxSet = !authContext.isUndefined()  && authContext.getValue().trim().length() > 0;
+            boolean elytronEnabledSet = elytronEnabled.getValue();
+
+            if (authCtxSet && !elytronEnabledSet) {
+                formValidator.addError("elytronEnabled");
+                elytronEnabled.setErrMessage("This field is required if Authentication Context is set.");
+                elytronEnabled.setErroneous(true);
+            }
+
+            // validates the "alternatives" constraint
+            boolean securityDomainSet = !securityDomain.isUndefined() && securityDomain.getValue().toString().trim().length() > 0;
+            boolean userSet = !user.isUndefined()  && user.getValue().trim().length() > 0;
+            if (elytronEnabledSet && (securityDomainSet || userSet)) {
+                formValidator.addError("elytronEnabled");
+                elytronEnabled.setErrMessage("This field must not be used in combination with Security Domain or Username.");
+                elytronEnabled.setErroneous(true);
+            }
+            if (securityDomainSet && userSet) {
+                formValidator.addError("username");
+                user.setErrMessage("This field must not be used in combination with Security Domain.");
+                user.setErroneous(true);
+            }
+
+            boolean passwdSet = !pass.isUndefined() && pass.getValue().trim().length() > 0;
+            if (passwdSet && !userSet) {
+                formValidator.addError("username");
+                user.setErrMessage("This field is required if Password is set.");
+                user.setErroneous(true);
+            }
+        });
 
         return super.asWidget();
     }
+
 }

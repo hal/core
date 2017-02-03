@@ -101,6 +101,8 @@ public class IiopOpenJdkView extends SuspendableViewImpl implements IiopOpenJdkP
                     return suggestionResource.buildFormItem();
                 })
                 .setResourceDescription(resourceDescription)
+                .createValidators(true)
+                .includeDeprecated(true)
                 .setSecurityContext(securityContext);
         formAssets = builder.build();
         formAssets.getForm().setToolsCallback(new FormCallback() {

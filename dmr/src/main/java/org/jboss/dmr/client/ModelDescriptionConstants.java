@@ -44,6 +44,7 @@ public class ModelDescriptionConstants {
     public static final String BROWSE_CONTENT = "browse-content";
     public static final String CANCELLED = "cancelled";
     public static final String CAPABILITY_REFERENCE = "capability-reference";
+    public static final String CREDENTIAL_REFERENCE = "credential-reference";
     public static final String CHILD_TYPE = "child-type";
     public static final String CHILDREN = "children";
     public static final String COMPOSITE = "composite";

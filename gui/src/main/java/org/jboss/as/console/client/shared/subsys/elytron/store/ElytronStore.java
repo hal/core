@@ -46,11 +46,9 @@ public class ElytronStore extends ChangeSupport {
 
     class ChannelCallback implements CrudOperationDelegate.Callback {
 
-        private final StatementContext context;
         private final Dispatcher.Channel channel;
 
-        ChannelCallback(StatementContext context, final Dispatcher.Channel channel) {
-            this.context = context;
+        ChannelCallback(final Dispatcher.Channel channel) {
             this.channel = channel;
         }
 
@@ -81,9 +79,11 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate FILTERING_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("filtering-key-store=*");
     public static final AddressTemplate LDAP_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("ldap-key-store=*");
     public static final AddressTemplate PROVIDER_LOADER_ADDRESS = AddressTemplate.of(ROOT).append("provider-loader=*");
+    public static final AddressTemplate AGGREGATE_PROVIDERS_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-providers=*");
 
     public static final AddressTemplate PROPERTIES_REALM_ADDRESS = AddressTemplate.of(ROOT).append("properties-realm=*");
     public static final AddressTemplate FILESYSTEM_REALM_ADDRESS = AddressTemplate.of(ROOT).append("filesystem-realm=*");
+    public static final AddressTemplate CACHING_REALM_ADDRESS = AddressTemplate.of(ROOT).append("caching-realm=*");
     public static final AddressTemplate JDBC_REALM_ADDRESS = AddressTemplate.of(ROOT).append("jdbc-realm=*");
     public static final AddressTemplate LDAP_REALM_ADDRESS = AddressTemplate.of(ROOT).append("ldap-realm=*");
     public static final AddressTemplate KEYSTORE_REALM_ADDRESS = AddressTemplate.of(ROOT).append("key-store-realm=*");
@@ -159,10 +159,13 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> credentialStore;
     private final List<Property> filteringKeyStore;
     private final List<Property> ldapKeyStore;
+    private final List<Property> providerLoader;
+    private final List<Property> aggregateProviders;
 
     private final List<Property> propertiesRealm;
     private final List<Property> filesystemRealm;
     private final List<Property> jdbcRealm;
+    private final List<Property> cachingRealm;
     private final List<Property> ldapRealm;
     private final List<Property> keystoreRealm;
     private final List<Property> aggregateRealm;
@@ -170,7 +173,6 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> customRealm;
     private final List<Property> identityRealm;
     private final List<Property> tokenRealm;
-    private final List<Property> providerLoader;
 
     private final List<Property> mappedRegexRealmMapper;
     private final List<Property> simpleRegexRealmMapper;
@@ -239,10 +241,12 @@ public class ElytronStore extends ChangeSupport {
         this.filteringKeyStore = new ArrayList<>();
         this.ldapKeyStore = new ArrayList<>();
         this.providerLoader = new ArrayList<>();
+        this.aggregateProviders= new ArrayList<>();
 
         this.propertiesRealm = new ArrayList<>();
         this.filesystemRealm = new ArrayList<>();
         this.jdbcRealm = new ArrayList<>();
+        this.cachingRealm = new ArrayList<>();
         this.ldapRealm = new ArrayList<>();
         this.keystoreRealm = new ArrayList<>();
         this.aggregateRealm = new ArrayList<>();
@@ -341,9 +345,11 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "filtering-key-store", filteringKeyStore);
                     populate(payload, "ldap-key-store", ldapKeyStore);
                     populate(payload, "provider-loader", providerLoader);
+                    populate(payload, "aggregate-providers", aggregateProviders);
 
                     populate(payload, "properties-realm", propertiesRealm);
                     populate(payload, "filesystem-realm", filesystemRealm);
+                    populate(payload, "caching-realm", cachingRealm);
                     populate(payload, "jdbc-realm", jdbcRealm);
                     populate(payload, "ldap-realm", ldapRealm);
                     populate(payload, "key-store-realm", keystoreRealm);
@@ -428,19 +434,19 @@ public class ElytronStore extends ChangeSupport {
     public void addResourceGeneric(final AddResourceGeneric action, final Dispatcher.Channel channel) {
         operationDelegate.onCreateResource(action.getAddress(),
                 action.getProperty().getName(), action.getProperty().getValue(),
-                new ChannelCallback(statementContext, channel));
+                new ChannelCallback(channel));
     }
 
     @Process(actionType = ModifyResourceGeneric.class)
     public void modifyResourceGeneric(final ModifyResourceGeneric action, final Dispatcher.Channel channel) {
         operationDelegate.onSaveResource(action.getAddress(), action.getName(), action.getChangedValues(),
-                new ChannelCallback(statementContext, channel));
+                new ChannelCallback(channel));
     }
 
     @Process(actionType = RemoveResourceGeneric.class)
     public void removeResourceGeneric(final RemoveResourceGeneric action, final Dispatcher.Channel channel) {
         operationDelegate.onRemoveResource(action.getAddress(), action.getName(),
-                new ChannelCallback(statementContext, channel));
+                new ChannelCallback(channel));
     }
 
     @Process(actionType = ModifyComplexAttribute.class)
@@ -453,13 +459,13 @@ public class ElytronStore extends ChangeSupport {
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                new ChannelCallback(statementContext, channel)
+                new ChannelCallback(channel)
                         .onFailure(action.getAddress(), action.getComplexAttributeName(), caught);
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
-                new ChannelCallback(statementContext, channel).onSuccess(action.getAddress(), action.getComplexAttributeName());
+                new ChannelCallback(channel).onSuccess(action.getAddress(), action.getComplexAttributeName());
             }
         });
     }
@@ -474,13 +480,13 @@ public class ElytronStore extends ChangeSupport {
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                new ChannelCallback(statementContext, channel)
+                new ChannelCallback(channel)
                         .onFailure(action.getAddress(), action.getAttributeName(), caught);
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
-                new ChannelCallback(statementContext, channel).onSuccess(action.getAddress(), action.getAttributeName());
+                new ChannelCallback(channel).onSuccess(action.getAddress(), action.getAttributeName());
             }
         });
     }
@@ -495,13 +501,13 @@ public class ElytronStore extends ChangeSupport {
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                new ChannelCallback(statementContext, channel)
+                new ChannelCallback(channel)
                         .onFailure(action.getAddress(), action.getAttributeName(), caught);
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
-                new ChannelCallback(statementContext, channel).onSuccess(action.getAddress(), action.getAttributeName());
+                new ChannelCallback(channel).onSuccess(action.getAddress(), action.getAttributeName());
             }
         });
     }
@@ -764,5 +770,13 @@ public class ElytronStore extends ChangeSupport {
 
     public List<Property> getAuthenticationconfiguration() {
         return authenticationconfiguration;
+    }
+
+    public List<Property> getAggregateProviders() {
+        return aggregateProviders;
+    }
+
+    public List<Property> getCachingRealm() {
+        return cachingRealm;
     }
 }

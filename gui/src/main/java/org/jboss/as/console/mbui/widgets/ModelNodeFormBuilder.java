@@ -62,6 +62,7 @@ public class ModelNodeFormBuilder {
     private boolean singleton = false;
     private boolean createNameField = true;
     private boolean includeDeprecated;
+    private boolean createValidators;
 
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
@@ -144,6 +145,14 @@ public class ModelNodeFormBuilder {
         return  this;
     }
 
+    /**
+     * Adds FormValidators related to the "alternatives" and "requires" constraints.
+     */
+    public ModelNodeFormBuilder createValidators(boolean create) {
+        this.createValidators = create;
+        return this;
+    }
+
     public ModelNodeFormBuilder setSingleton(boolean singleton) {
         this.singleton = singleton;
         return this;
@@ -221,7 +230,9 @@ public class ModelNodeFormBuilder {
         SafeHtmlBuilder helpTexts = new SafeHtmlBuilder();
         helpTexts.appendHtmlConstant("<table class='help-attribute-descriptions'>");
 
-        Map<String, ModelNode> defaultValues = new HashMap<String, ModelNode>();
+        Map<String, ModelNode> defaultValues = new HashMap<>();
+        Map<String, ModelNode> alternatives = new HashMap<>();
+        Map<String, ModelNode> requires = new HashMap<>();
         int numWritable = 0;
 
         boolean hasRequired = false;
@@ -307,6 +318,18 @@ public class ModelNodeFormBuilder {
 
                 // count writable attributes
                 if (!readOnly && !isRuntime) { numWritable++; }
+
+                // count the requires attributes, for later validation
+                if (createValidators && attrDesc.hasDefined("requires")) {
+                    ModelNode requiresValue = attrDesc.get("requires");
+                    requires.put(attr.getName(), requiresValue);
+                }
+
+                // count the alternatives attributes, for later validation
+                if (createValidators && attrDesc.hasDefined("alternatives")) {
+                    ModelNode alternativesValue = attrDesc.get("alternatives");
+                    alternatives.put(attr.getName(), alternativesValue);
+                }
 
                 // -------
                 // help
@@ -451,7 +474,6 @@ public class ModelNodeFormBuilder {
             }
         }
 
-
         // some resources already contain a name attribute
         FormItem nameItem = null;
         if (createMode) {
@@ -509,6 +531,65 @@ public class ModelNodeFormBuilder {
 
         FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
         formAssets.setUnsupportedTypes(unsupportedTypes);
+        if (createValidators) {
+            form.addFormValidator((formItems, formValidation) -> {
+
+                // validates the "requires" constraint
+                for (String attr: requires.keySet()) {
+                    List<ModelNode> requiredAttrs = requires.get(attr).asList();
+                    FormItem sourceFormItem = findFormItem(formItems, attr);
+                    // iterate over the "requires" attribute list
+
+                    boolean sourceItemDefined = isFormItemDefined(sourceFormItem);
+                    for (ModelNode reqAttr: requiredAttrs) {
+                        String requiredAttrName = reqAttr.asString();
+                        FormItem item = findFormItem(formItems, requiredAttrName);
+
+                        boolean itemUndefined = !isFormItemDefined(item);
+                        if (sourceItemDefined && itemUndefined) {
+                            formValidation.addError(requiredAttrName);
+                            item.setErrMessage("This is a required attribute if " + sourceFormItem.getTitle()+ " is used.");
+                            item.setErroneous(true);
+                            break;
+                        }
+                    }
+                }
+                // validates the "alternatives" constraint
+                for (String attr: alternatives.keySet()) {
+                    List<ModelNode> alternativeAttrs = alternatives.get(attr).asList();
+
+                    FormItem sourceFormItem = findFormItem(formItems, attr);
+                    // only checks if the attribute is used
+
+                    boolean fieldIsInUse = isFormItemDefined(sourceFormItem);
+
+                    if (fieldIsInUse) {
+                        StringBuilder buff = new StringBuilder();
+                        int i = 0;
+                        int size = alternativeAttrs.size();
+                        boolean alternativeUsed = false;
+                        for (ModelNode reqAttr : alternativeAttrs) {
+                            String alternativeAttrName = reqAttr.asString();
+                            FormItem item = findFormItem(formItems, alternativeAttrName);
+                            buff.append(item.getTitle());
+                            if (i++ + 1 < size)
+                                buff.append(", ");
+                            boolean fieldAltIsInUse = isFormItemDefined(item);
+
+                            if (fieldAltIsInUse) {
+                                alternativeUsed = true;
+                                break;
+                            }
+                        }
+                        if (alternativeUsed) {
+                            formValidation.addError(attr);
+                            sourceFormItem.setErrMessage("This field should not be used if the following fields are used: " + buff);
+                            sourceFormItem.setErroneous(true);
+                        }
+                    }
+                }
+            });
+        }
         return formAssets;
     }
 
@@ -520,6 +601,19 @@ public class ModelNodeFormBuilder {
             required = false;
         }
         return required;
+    }
+
+    private boolean isFormItemDefined(FormItem item) {
+        ModelNode sourceMetadata = (ModelNode) item.getMetadata();
+
+        // the boolean type always comes as defined, so we must distinguish the boolean types
+        // the string type always comes defined, the string length is evaluated if is set by the user
+        boolean sourceBooleanType = ModelType.BOOLEAN.equals(sourceMetadata.get(TYPE).asType());
+        boolean defined = (sourceBooleanType && Boolean.parseBoolean(item.getValue().toString()))
+                        || (!sourceBooleanType && !item.isUndefined()
+                            && item.getValue().toString().trim().length() > 0);
+
+        return defined;
     }
 
     private FormItem createSuggestBoxForCapabilityReference(final Property property, String label, boolean required) {
@@ -534,6 +628,17 @@ public class ModelNodeFormBuilder {
             }
         }
         return formItem;
+    }
+
+    private <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
+        FormItem selectedFormItem = null;
+        for (FormItem formItem : formItems) {
+            if (name.equals(formItem.getName())) {
+                selectedFormItem = formItem;
+                break;
+            }
+        }
+        return selectedFormItem;
     }
 
     public ModelNodeFormBuilder setRequiredOnly(boolean requiredOnly) {

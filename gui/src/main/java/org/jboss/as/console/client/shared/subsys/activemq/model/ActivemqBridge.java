@@ -1,8 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.activemq.model;
 
-import org.jboss.as.console.client.widgets.forms.Binding;
-
 import java.util.List;
+
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
+import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
  * @author Heiko Braun
@@ -65,4 +66,9 @@ public interface ActivemqBridge {
     @Binding(detypedName = "discovery-group")
     String getDiscoveryGroup();
     void setDiscoveryGroup(String group);
+
+    @Binding(skip=true)
+    CredentialReference getCredentialReference();
+    void setCredentialReference(CredentialReference credential);
+
 }

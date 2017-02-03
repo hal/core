@@ -40,6 +40,7 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnecto
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSQueue;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ConnectorType;
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.Operation;
@@ -98,6 +99,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
     static final String PARAMS_MAP = "params";
     public static final AddressTemplate MESSAGING_SERVER = AddressTemplate.of("{selected.profile}/subsystem=messaging-activemq/server=*");
+    public static final AddressTemplate BRIDGE_TEMPLATE = MESSAGING_SERVER.append("bridge=*");
 
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
@@ -113,6 +115,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     private EntityAdapter<ActivemqConnectorService> connectorServiceAdapter;
     private EntityAdapter<ActivemqBridge> bridgeAdapter;
     private EntityAdapter<ActivemqConnectionFactory> factoryAdapter;
+    private final EntityAdapter<CredentialReference> credentialReferenceAdapter;
     private LoadJMSCmd loadJMSCmd;
     private DefaultWindow propertyWindow;
 
@@ -138,6 +141,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         connectorServiceAdapter = new EntityAdapter<>(ActivemqConnectorService.class, propertyMetaData);
         bridgeAdapter = new EntityAdapter<>(ActivemqBridge.class, propertyMetaData);
         factoryAdapter = new EntityAdapter<>(ActivemqConnectionFactory.class, propertyMetaData);
+        this.credentialReferenceAdapter = new EntityAdapter<>(CredentialReference.class, propertyMetaData);
         loadJMSCmd = new LoadJMSCmd(dispatcher, factory, propertyMetaData);
     }
 
@@ -190,6 +194,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         );
     }
 
+
     public void loadBridges() {
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(Baseadress.get());
@@ -214,6 +219,11 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
                         ModelNode svc = prop.getValue();
                         ActivemqBridge entity = bridgeAdapter.fromDMR(svc);
                         entity.setName(prop.getName());
+                        if (svc.hasDefined(CREDENTIAL_REFERENCE)) {
+                            ModelNode cred = svc.get(CREDENTIAL_REFERENCE);
+                            CredentialReference credentialReference = credentialReferenceAdapter.fromDMR(cred);
+                            entity.setCredentialReference(credentialReference);
+                        }
 
                         entity.setStaticConnectors(EntityAdapter.modelToList(svc, "static-connectors"));
                         bridges.add(entity);
@@ -1148,7 +1158,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             }
         });
     }
-    
+
     private void loadConnectionFactories() {
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(Baseadress.get());
@@ -1183,9 +1193,9 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             }
         });
     }
-    
+
     private void loadPooledConnectionFactory() {
-        
+
         org.jboss.as.console.client.v3.dmr.ResourceAddress pooledAddress = MESSAGING_SERVER
                 .resolve(statementContext, getCurrentServer());
         Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, pooledAddress)
@@ -1274,7 +1284,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
         final ModelNodeAdapter adapter = new ModelNodeAdapter();
         ModelNode op = adapter.fromChangeset(changeset, addressNode);
-        
+
         dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
@@ -1290,7 +1300,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             }
         });
     }
-    
+
     @Override
     public SecurityFramework getSecurityFramework() {
         return securityFramework;
@@ -1304,6 +1314,50 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     @Override
     public String getNameToken() {
         return getProxy().getNameToken();
+    }
+
+    public void saveAttribute(final String resourceName, final ModelNode payload) {
+        org.jboss.as.console.client.v3.dmr.ResourceAddress address = BRIDGE_TEMPLATE.resolve(statementContext, currentServer, resourceName);
+        for (Property prop : payload.asPropertyList()) {
+            if (!prop.getValue().isDefined()) {
+                payload.remove(prop.getName());
+            }
+        }
+        ModelNode operation;
+        if (payload.asList().size()  > 0) {
+            org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter adapter = new org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter();
+            operation = adapter.fromComplexAttribute(address, CREDENTIAL_REFERENCE, payload);
+        } else {
+            // if the payload is empty, undefine the complex attribute
+            // otherwise an empty attribute is a defined attribute and as the user wants to remove all
+            // values, it is better to undefine it.
+            operation = new ModelNode();
+            operation.get(ADDRESS).set(address);
+            operation.get(OP).set(UNDEFINE_ATTRIBUTE_OPERATION);
+            operation.get(NAME).set(CREDENTIAL_REFERENCE);
+        }
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.MESSAGES.modificationFailed("Bridge " + resourceName),
+                        caught.getMessage());
+                loadBridges();
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                Console.info(Console.MESSAGES.modified("Bridge " + resourceName));
+                loadBridges();
+            }
+        });
+    }
+
+
+
+
+    public EntityAdapter<CredentialReference> getCredentialReferenceAdapter() {
+        return credentialReferenceAdapter;
     }
 
 }

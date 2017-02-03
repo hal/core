@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.activemq.forms;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -19,9 +22,6 @@ import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -119,6 +119,7 @@ public class DefaultBridgeForm {
 
     public void setQueueNames(List<String> queueNames) {
         oracle.addAll(queueNames);
+        oracle.setDefaultSuggestionsFromText(queueNames);
     }
 
 

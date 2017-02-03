@@ -36,6 +36,7 @@ public class SecurityRealmView {
 
     private PropertiesRealmView propertiesRealmView;
     private ElytronGenericResourceView filesystemRealmView;
+    private ElytronGenericResourceView cachingRealmView;
     private JdbcRealmView jdbcRealmView;
     private LdapRealmView ldapView;
     private ElytronGenericResourceView keyStoreRealmView;
@@ -57,6 +58,7 @@ public class SecurityRealmView {
         ResourceDescription propsRealmDescription = rootDescription.getChildDescription("properties-realm");
         ResourceDescription filesystemRealmDescription = rootDescription.getChildDescription("filesystem-realm");
         ResourceDescription jdbcRealmDescription = rootDescription.getChildDescription("jdbc-realm");
+        ResourceDescription cachingRealmDescription = rootDescription.getChildDescription("caching-realm");
         ResourceDescription ldapRealmDescription = rootDescription.getChildDescription("ldap-realm");
         ResourceDescription keystoreRealmDescription = rootDescription.getChildDescription("key-store-realm");
         ResourceDescription aggregateRealmDescription = rootDescription.getChildDescription("aggregate-realm");
@@ -64,11 +66,13 @@ public class SecurityRealmView {
         ResourceDescription customRealmDescription = rootDescription.getChildDescription("custom-realm");
         ResourceDescription identityRealmDescription = rootDescription.getChildDescription("identity-realm");
         ResourceDescription tokenRealmDescription = rootDescription.getChildDescription("token-realm");
-        
+
         propertiesRealmView = new PropertiesRealmView(circuit, propsRealmDescription, securityContext);
         filesystemRealmView = new ElytronGenericResourceView(circuit, filesystemRealmDescription, securityContext, "Filesystem Realm",
                 ElytronStore.FILESYSTEM_REALM_ADDRESS);
-        jdbcRealmView = new JdbcRealmView(circuit, jdbcRealmDescription, securityContext); 
+        cachingRealmView = new ElytronGenericResourceView(circuit, cachingRealmDescription, securityContext, "Caching Realm",
+                ElytronStore.CACHING_REALM_ADDRESS);
+        jdbcRealmView = new JdbcRealmView(circuit, jdbcRealmDescription, securityContext);
         ldapView = new LdapRealmView(circuit, ldapRealmDescription, securityContext);
         keyStoreRealmView = new ElytronGenericResourceView(circuit, keystoreRealmDescription, securityContext, "Keystore Realm",
                 ElytronStore.KEYSTORE_REALM_ADDRESS);
@@ -86,6 +90,7 @@ public class SecurityRealmView {
         PagedView panel = new PagedView(true);
         panel.addPage("Properties Realm", propertiesRealmView.asWidget());
         panel.addPage("Filesystem Realm", filesystemRealmView.asWidget());
+        panel.addPage("Caching Realm", cachingRealmView.asWidget());
         panel.addPage("JDBC Realm", jdbcRealmView.asWidget());
         panel.addPage("LDAP Realm", ldapView.asWidget());
         panel.addPage("Key Store Realm", keyStoreRealmView.asWidget());
@@ -96,10 +101,10 @@ public class SecurityRealmView {
         panel.addPage("Token Realm", tokenRealmView.asWidget());
         // default page
         panel.showPage(0);
-        
+
         return panel.asWidget();
     }
-    
+
     public void updatePropertiesRealm(List<Property> nodes) {
         propertiesRealmView.update(nodes);
     }
@@ -107,27 +112,31 @@ public class SecurityRealmView {
     public void updateFilesystemRealm(final List<Property> models) {
         filesystemRealmView.update(models);
     }
-    
+
+    public void updateCachingRealm(final List<Property> models) {
+        cachingRealmView.update(models);
+    }
+
     public void updateJdbcRealm(final List<Property> models) {
         jdbcRealmView.update(models);
     }
-    
+
     public void updateLdapRealm(final List<Property> models) {
         ldapView.update(models);
     }
-    
+
     public void updateKeystoreRealm(final List<Property> models) {
         keyStoreRealmView.update(models);
     }
-    
+
     public void updateAggregateRealm(final List<Property> models) {
         aggregateRealmView.update(models);
     }
-    
+
     public void updateCustomModifiableRealm(final List<Property> models) {
         customModifiableRealmView.update(models);
     }
-    
+
     public void updateCustomRealm(final List<Property> models) {
         customRealmView.update(models);
     }

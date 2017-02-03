@@ -34,7 +34,7 @@ public class DirContextView {
     private ResourceDescription rootDescription;
     private SecurityContext securityContext;
 
-    private ElytronGenericResourceView dirContextView;
+    private ElytronResourceWithCredentialReferenceView dirContextView;
 
     public DirContextView(final Dispatcher circuit, final ResourceDescription rootDescription,
             final SecurityContext securityFramework) {
@@ -46,20 +46,20 @@ public class DirContextView {
     public Widget asWidget() {
 
         ResourceDescription keyStoreDescription = rootDescription.getChildDescription("dir-context");
-        
-        dirContextView = new ElytronGenericResourceView(circuit, keyStoreDescription, securityContext, "Dir Context", 
+
+        dirContextView = new ElytronResourceWithCredentialReferenceView(circuit, keyStoreDescription, securityContext, "Dir Context",
                 ElytronStore.DIR_CONTEXT_ADDRESS);
         // necessary, as there are some read-only attributes, they should be filled at creation time.
         dirContextView.setOnAddFormRequiredOnly(false);
-        
+
         PagedView panel = new PagedView(true);
         panel.addPage("Dir Context", dirContextView.asWidget());
         // default page
         panel.showPage(0);
-        
+
         return panel.asWidget();
     }
-    
+
     public void updateKeyStore(List<Property> keyStore) {
         dirContextView.update(keyStore);
     }

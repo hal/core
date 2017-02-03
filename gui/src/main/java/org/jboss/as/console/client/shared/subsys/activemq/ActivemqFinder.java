@@ -65,10 +65,7 @@ import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_ADDRESS;
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PROVIDER_TEMPLATE;
 import static org.jboss.as.console.client.shared.subsys.activemq.MessagingAddress.PATH_ADDRESS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Claudio Miranda
@@ -282,6 +279,29 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                 loadProvider();
             }
         });
+    }
+
+    public void saveAttribute(final String complexAttributeName, final String resourceName, final Map changeset) {
+
+        ResourceAddress address = PROVIDER_TEMPLATE.resolve(statementContext, resourceName);
+        final org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter adapter = new org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter();
+        ModelNode operation = adapter.fromComplexAttributeChangeSet(address, complexAttributeName, changeset);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failedToModifyMessagingProvider(resourceName),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES
+                            .successfullyModifiedMessagingProvider(resourceName));
+                }
+            }
+        });
+
     }
 
     public void onLaunchProviderSettings(Property provider) {

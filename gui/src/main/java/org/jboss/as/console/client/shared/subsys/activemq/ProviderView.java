@@ -29,6 +29,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -38,6 +39,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
 
 public class ProviderView implements MessagingAddress {
 
@@ -55,6 +57,7 @@ public class ProviderView implements MessagingAddress {
     };
 
     private final static String[] SECURITY = new String[]{
+            "elytron-domain",
             "security-domain",
             "security-enabled",
             "security-invalidation-interval",
@@ -63,23 +66,24 @@ public class ProviderView implements MessagingAddress {
     };
 
     private final static String[] JOURNAL = new String[]{
+            "create-journal-dir",
+            "journal-bindings-table",
             "journal-buffer-size",
             "journal-buffer-timeout",
             "journal-compact-min-files",
             "journal-compact-percentage",
+            "journal-database",
+            "journal-datasource",
             "journal-file-size",
+            "journal-large-messages-table",
             "journal-max-io",
+            "journal-messages-table",
             "journal-min-files",
+            "journal-page-store-table",
+            "journal-pool-files",
             "journal-sync-non-transactional",
             "journal-sync-transactional",
-            "journal-type",
-            "journal-datasource",
-            "journal-database",
-            "journal-messages-table",
-            "journal-large-messages-table",
-            "journal-bindings-table",
-            "journal-paging-table",
-            "create-journal-dir",
+            "journal-type"
     };
 
     private final static String[] DIRECTORY = new String[]{
@@ -95,6 +99,7 @@ public class ProviderView implements MessagingAddress {
     private ModelNodeFormBuilder.FormAssets journalDirForm;
     private ModelNodeFormBuilder.FormAssets largeMessagesDirForm;
     private ModelNodeFormBuilder.FormAssets pagingDirForm;
+    private ModelNodeFormBuilder.FormAssets clusterCredentialRefFormAsset;
     private Property provider;
     private HTML title;
 
@@ -128,7 +133,7 @@ public class ProviderView implements MessagingAddress {
                 .setSecurityContext(securityContext)
                 .addFactory(
                         "thread-pool-max-size",
-                        new ModelNodeFormBuilder.FormItemFactory(){
+                        new ModelNodeFormBuilder.FormItemFactory() {
                             @Override
                             public FormItem create(Property attr) {
                                 FormItem formItem = new NumberBoxItem(attr.getName(), "Thread Pool Size", true);
@@ -140,18 +145,39 @@ public class ProviderView implements MessagingAddress {
                 ).build();
         commonForm.getForm().setToolsCallback(callback);
 
+        boolean securityDomainRequired = definition.get(ATTRIBUTES).get("security-domain").get("required").asBoolean();
+
         // security
         secForm = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .includeDeprecated(true)
+                .createValidators(true)
                 .include(SECURITY)
-                .addFactory("security-domain", attributeDescription ->  {
-                    SuggestionResource suggestionResource = new SuggestionResource("security-domain", "Security domain", true,
+                .addFactory("security-domain", attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource("security-domain", "Security domain",
+                            securityDomainRequired,
                             Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
                     return suggestionResource.buildFormItem();
                 })
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
         secForm.getForm().setToolsCallback(callback);
+
+        clusterCredentialRefFormAsset = new ComplexAttributeForm("cluster-credential-reference", securityContext,
+                definition).build();
+
+        clusterCredentialRefFormAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                presenter.saveAttribute("cluster-credential-reference", provider.getName(), changeset);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                clusterCredentialRefFormAsset.getForm().cancel();
+            }
+        });
 
         // journal
         journalForm = new ModelNodeFormBuilder()
@@ -202,6 +228,7 @@ public class ProviderView implements MessagingAddress {
                 .setDescription(definition.get("description").asString())
                 .addDetail(Console.CONSTANTS.common_label_attributes(), commonForm.asWidget())
                 .addDetail("Security", secForm.asWidget())
+                .addDetail("Cluster Credential Reference", clusterCredentialRefFormAsset.asWidget())
                 .addDetail("Journal", journalForm.asWidget())
                 .addDetail("Bindings Directory", bindingsDirForm.asWidget())
                 .addDetail("Journal Directory", journalDirForm.asWidget())
@@ -218,6 +245,7 @@ public class ProviderView implements MessagingAddress {
         secForm.getForm().edit(provider.getValue());
         journalForm.getForm().edit(provider.getValue());
         ModelNode path = provider.getValue().get("path");
+        clusterCredentialRefFormAsset.getForm().edit(provider.getValue());
         if (path.isDefined()) {
             bindingsDirForm.getForm().edit(path.get("bindings-directory"));
             journalDirForm.getForm().edit(path.get("journal-directory"));

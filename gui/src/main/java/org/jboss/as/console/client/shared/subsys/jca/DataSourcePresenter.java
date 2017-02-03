@@ -33,7 +33,6 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -44,16 +43,19 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.model.CredentialReference;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
 import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
 import org.jboss.as.console.client.shared.subsys.jca.model.DriverStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.RequiredResources;
-import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
@@ -64,60 +66,58 @@ import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.V
 public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
         implements PropertyManagement {
 
-    private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
-    private final CurrentProfileSelection currentProfileSelection;
-    private final DataSourceTemplates dataSourceTemplates;
-    private boolean hasBeenRevealed = false;
-    private DefaultWindow window;
-
-    private DataSourceStore dataSourceStore;
-    private DriverStrategy driverRegistry;
-    private RevealStrategy revealStrategy;
-    private ApplicationProperties bootstrap;
-    private DefaultWindow propertyWindow;
-    private List<DataSource> datasources;
-    private List<JDBCDriver> drivers;
-    private String selectedDatasource;
+    public static final AddressTemplate DATASOURCE_TEMPLATE = AddressTemplate
+            .of("/{selected.profile}/subsystem=datasources/data-source=*");
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourcePresenter)
-    @RequiredResources(resources = {
-            "/{selected.profile}/subsystem=datasources/data-source=*"}
-    )
-    @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc"})
+    @RequiredResources(resources = {"/{selected.profile}/subsystem=datasources/data-source=*"})
     public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
-
 
     public interface MyView extends SuspendableView {
 
         void setPresenter(DataSourcePresenter presenter);
+
         void updateDataSource(DataSource ds);
+
         void enableDSDetails(boolean b);
+
         void setPoolConfig(String name, PoolConfig poolConfig);
+
         void setConnectionProperties(String reference, List<PropertyRecord> properties);
+
         void showVerifyConncectionResult(final String name, VerifyResult result);
     }
+
+    private final DispatchAsync dispatcher;
+    private final BeanFactory beanFactory;
+    private final CurrentProfileSelection currentProfileSelection;
+    private DefaultWindow window;
+    private DataSourceStore dataSourceStore;
+    private DriverStrategy driverRegistry;
+    private RevealStrategy revealStrategy;
+    private ResourceDescriptionRegistry resourceDescriptionRegistry;
+    private DefaultWindow propertyWindow;
+    private List<JDBCDriver> drivers;
+    private String selectedDatasource;
 
 
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
-                               DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
-                               DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection,
-                               DataSourceTemplates dataSourceTemplates) {
+            DriverRegistry driverRegistry, RevealStrategy revealStrategy,
+            DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection,
+            final ResourceDescriptionRegistry resourceDescriptionRegistry) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
         this.currentProfileSelection = currentProfileSelection;
-        this.dataSourceTemplates = dataSourceTemplates;
 
         this.dataSourceStore = dataSourceStore;
         this.driverRegistry = driverRegistry.create();
         this.revealStrategy = revealStrategy;
-        this.bootstrap = bootstrap;
-        this.datasources = new ArrayList<DataSource>();
-        this.drivers = new ArrayList<JDBCDriver>();
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.drivers = new ArrayList<>();
     }
 
     @Override
@@ -174,16 +174,17 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     public void onSaveDSDetails(final String name, Map<String, Object> changedValues) {
         getView().enableDSDetails(false);
-        if(changedValues.size()>0)
-        {
-            dataSourceStore.updateDataSource(name, changedValues, new SimpleCallback<ResponseWrapper<Boolean>> (){
+        if (changedValues.size() > 0) {
+            dataSourceStore.updateDataSource(name, changedValues, new SimpleCallback<ResponseWrapper<Boolean>>() {
 
                 @Override
                 public void onSuccess(ResponseWrapper<Boolean> response) {
-                    if(response.getUnderlying())
-                        Console.info(Console.MESSAGES.saved("Datasource "+name));
-                    else
-                        Console.error(Console.MESSAGES.saveFailed("Datasource ") + name, response.getResponse().toString());
+                    if (response.getUnderlying()) {
+                        Console.info(Console.MESSAGES.saved("Datasource " + name));
+                    } else {
+                        Console.error(Console.MESSAGES.saveFailed("Datasource ") + name,
+                                response.getResponse().toString());
+                    }
 
                     loadDataSource();
                 }
@@ -205,13 +206,15 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     }
 
     public void onSavePoolConfig(final String editedName, Map<String, Object> changeset, final boolean isXA) {
-        dataSourceStore.savePoolConfig(isXA, editedName, changeset, new SimpleCallback<ResponseWrapper<Boolean>>(){
+        dataSourceStore.savePoolConfig(isXA, editedName, changeset, new SimpleCallback<ResponseWrapper<Boolean>>() {
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
-                if(result.getUnderlying())
-                    Console.info(Console.MESSAGES.saved("Pool Settings "+editedName));
-                else
-                    Console.error(Console.MESSAGES.saveFailed("Pool Settings "+ editedName), result.getResponse().toString());
+                if (result.getUnderlying()) {
+                    Console.info(Console.MESSAGES.saved("Pool Settings " + editedName));
+                } else {
+                    Console.error(Console.MESSAGES.saveFailed("Pool Settings " + editedName),
+                            result.getResponse().toString());
+                }
 
                 loadPoolConfig(isXA, editedName);
             }
@@ -220,13 +223,15 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     public void onDeletePoolConfig(final String editedName, PoolConfig entity, final boolean isXA) {
 
-        dataSourceStore.deletePoolConfig(isXA, editedName, new SimpleCallback<ResponseWrapper<Boolean>>(){
+        dataSourceStore.deletePoolConfig(isXA, editedName, new SimpleCallback<ResponseWrapper<Boolean>>() {
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
-                if(result.getUnderlying())
-                    Console.info(Console.MESSAGES.modified("pool setting "+editedName));
-                else
-                    Console.error(Console.MESSAGES.modificationFailed("pool setting " + editedName), result.getResponse().toString());
+                if (result.getUnderlying()) {
+                    Console.info(Console.MESSAGES.modified("pool setting " + editedName));
+                } else {
+                    Console.error(Console.MESSAGES.modificationFailed("pool setting " + editedName),
+                            result.getResponse().toString());
+                }
 
                 loadPoolConfig(isXA, editedName);
             }
@@ -245,7 +250,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     }
 
     public void onLoadConnectionProperties(final String datasourceName) {
-        dataSourceStore.loadConnectionProperties(datasourceName, new SimpleCallback<List<PropertyRecord>>(){
+        dataSourceStore.loadConnectionProperties(datasourceName, new SimpleCallback<List<PropertyRecord>>() {
 
             @Override
             public void onSuccess(List<PropertyRecord> propertyRecords) {
@@ -262,10 +267,11 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         dataSourceStore.createConnectionProperty(reference, prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                if(success)
-                    Console.info(Console.MESSAGES.added("Connection property "+prop.getKey()));
-                else
-                    Console.error(Console.MESSAGES.addingFailed("Connection property "+prop.getKey()));
+                if (success) {
+                    Console.info(Console.MESSAGES.added("Connection property " + prop.getKey()));
+                } else {
+                    Console.error(Console.MESSAGES.addingFailed("Connection property " + prop.getKey()));
+                }
 
                 onLoadConnectionProperties(reference);
             }
@@ -277,10 +283,11 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         dataSourceStore.deleteConnectionProperty(reference, prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                if(success)
-                    Console.info(Console.MESSAGES.deleted("Connection property "+prop.getKey()));
-                else
-                    Console.error(Console.MESSAGES.deletionFailed("Connection property "+prop.getKey()));
+                if (success) {
+                    Console.info(Console.MESSAGES.deleted("Connection property " + prop.getKey()));
+                } else {
+                    Console.error(Console.MESSAGES.deletionFailed("Connection property " + prop.getKey()));
+                }
 
                 onLoadConnectionProperties(reference);
             }
@@ -315,10 +322,11 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         dataSourceStore.doFlush(isXA, editedName, flushOp, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                if(success)
+                if (success) {
                     Console.info(Console.MESSAGES.successful("Flush Pool"));
-                else
+                } else {
                     Console.error(Console.MESSAGES.failed("Flush Pool"));
+                }
             }
         });
     }
@@ -330,11 +338,14 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
                 boolean enabled = entity.isEnabled();
-                String text = enabled ? Console.MESSAGES.successDisabled("Datasource " + entity.getName()) :Console.MESSAGES.successEnabled("Datasource " + entity.getName()) ;
+                String text = enabled ? Console.MESSAGES
+                        .successDisabled("Datasource " + entity.getName()) : Console.MESSAGES
+                        .successEnabled("Datasource " + entity.getName());
                 if (result.getUnderlying()) {
                     Console.info(text);
                 } else {
-                    Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(), result.getResponse().toString());
+                    Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(),
+                            result.getResponse().toString());
                 }
 
                 loadDataSource();
@@ -342,5 +353,33 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 getEventBus().fireEvent(new RefreshDSFinderEvent(false, selectedDatasource));
             }
         });
+    }
+
+    public ResourceDescriptionRegistry getResourceDescriptionRegistry() {
+        return resourceDescriptionRegistry;
+    }
+
+    public EntityAdapter<CredentialReference> getCredentialReferenceAdapter() {
+        return dataSourceStore.getCredentialReferenceAdapter();
+    }
+
+    public void onSaveComplexAttribute(final String dsName, final String complexAttributeName,
+            final ModelNode payload) {
+        dataSourceStore.saveComplexAttribute(DATASOURCE_TEMPLATE, dsName, complexAttributeName, payload,
+                new SimpleCallback<ResponseWrapper<Boolean>>() {
+
+                    @Override
+                    public void onSuccess(ResponseWrapper<Boolean> response) {
+                        if (response.getUnderlying()) {
+                            Console.info(Console.MESSAGES.saved("Datasource " + dsName));
+                        } else {
+                            Console.error(Console.MESSAGES.saveFailed("Datasource ") + dsName,
+                                    response.getResponse().toString());
+                        }
+
+                        loadDataSource();
+                    }
+
+                });
     }
 }

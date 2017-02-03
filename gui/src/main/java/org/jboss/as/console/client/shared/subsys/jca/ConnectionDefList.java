@@ -1,5 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -30,13 +37,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -118,6 +118,9 @@ public class ConnectionDefList {
         };
 
         String[] secAttributes = new String[] {
+                "authentication-context",
+                "authentication-context-and-application",
+                "elytron-enabled",
                 "security-application",
                 "security-domain",
                 "security-domain-and-application"
@@ -132,6 +135,8 @@ public class ConnectionDefList {
 
         String[] recoveryAttributes = new String[] {
                 "no-recovery",
+                "recovery-authentication-context",
+                "recovery-elytron-enabled",
                 "recovery-user",
                 "recovery-password",
                 "recovery-security-domain",
@@ -141,6 +146,7 @@ public class ConnectionDefList {
 
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setConfigOnly()
+                .createValidators(true)
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .exclude(poolAttributes, secAttributes, validationAttributes, recoveryAttributes);
@@ -211,6 +217,7 @@ public class ConnectionDefList {
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
+                .createValidators(true)
                 .include(secAttributes);
 
         secAssets = secBuilder.build();
@@ -234,6 +241,7 @@ public class ConnectionDefList {
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .include(recoveryAttributes)
+                .createValidators(true)
                 .addFactory("recovery-password", new ModelNodeFormBuilder.FormItemFactory() {
                     @Override
                     public FormItem create(Property attributeDescription) {

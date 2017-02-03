@@ -15,18 +15,14 @@
  */
 package org.jboss.as.console.client.shared.subsys.elytron.ui;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
-import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
 /**
@@ -39,17 +35,6 @@ public class GenericTransformerView extends ElytronGenericResourceView {
             final SecurityContext securityContext, final String title,
             final AddressTemplate addressTemplate) {
         super(circuit, resourceDescription, securityContext, title, addressTemplate);
-    }
-
-    @Override
-    public Map<String, Widget> additionalTabDetails() {
-        Map<String, Widget> additionalWidgets = new HashMap<>();
-        return additionalWidgets;
-    }
-
-    @Override
-    public void update(final List<Property> models) {
-        super.update(models);
     }
 
     @Override

@@ -77,7 +77,8 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
     public void initSSL(final List<Property> keyStore, List<Property> credentialStore,
             List<Property> filteringKeyStore, List<Property> ldapKeyStore, List<Property> keyManager,
             List<Property> serverSSLContext, List<Property> clientSSLContext, List<Property> trustManager,
-            List<Property> securityDomainModel, List<Property> securityPropertyModel, List<Property> providerLoaderModel) {
+            List<Property> securityDomainModel, List<Property> securityPropertyModel, List<Property> providerLoaderModel,
+            List<Property> aggregateProvidersModel) {
         sslView.updateKeyStore(keyStore);
         sslView.updateCredentialStore(credentialStore);
         sslView.updateFilteringKeyStore(filteringKeyStore);
@@ -89,6 +90,7 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
         sslView.updateSecurityDomain(securityDomainModel);
         sslView.updateSecurityProperty(securityPropertyModel);
         sslView.updateProviderLoader(providerLoaderModel);
+        sslView.updateAggregateProviders(aggregateProvidersModel);
     }
 
     @Override

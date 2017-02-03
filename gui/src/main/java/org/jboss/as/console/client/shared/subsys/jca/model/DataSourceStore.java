@@ -19,12 +19,16 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.shared.model.ResponseWrapper;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-
 import java.util.List;
 import java.util.Map;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.model.ResponseWrapper;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -33,22 +37,34 @@ import java.util.Map;
 public interface DataSourceStore {
 
     void loadDataSources(AsyncCallback<List<DataSource>> callback);
-    void loadDataSource(String name, boolean isXA, final AsyncCallback<DataSource> callback) ;
+
+    void loadDataSource(String name, boolean isXA, final AsyncCallback<DataSource> callback);
+
     void loadXADataSources(final AsyncCallback<List<XADataSource>> callback);
+
     void createDataSource(DataSource datasource, AsyncCallback<ResponseWrapper<Boolean>> callback);
+
     void deleteDataSource(DataSource dataSource, AsyncCallback<Boolean> callback);
+
     void enableDataSource(DataSource dataSource, boolean doEnable, AsyncCallback<ResponseWrapper<Boolean>> callback);
 
-    void updateDataSource(String name, Map<String,Object> changedValues, AsyncCallback<ResponseWrapper<Boolean>> callback);
+    void updateDataSource(String name, Map<String, Object> changedValues,
+            AsyncCallback<ResponseWrapper<Boolean>> callback);
 
     void createXADataSource(XADataSource datasource, AsyncCallback<ResponseWrapper<Boolean>> callback);
 
     void enableXADataSource(XADataSource entity, boolean doEnable, AsyncCallback<ResponseWrapper<Boolean>> callback);
+
     void deleteXADataSource(XADataSource entity, AsyncCallback<Boolean> callback);
-    void updateXADataSource(String name, Map<String, Object> changedValues, AsyncCallback<ResponseWrapper<Boolean>> callback);
+
+    void updateXADataSource(String name, Map<String, Object> changedValues,
+            AsyncCallback<ResponseWrapper<Boolean>> callback);
 
     void loadPoolConfig(boolean isXA, String name, AsyncCallback<ResponseWrapper<PoolConfig>> callback);
-    void savePoolConfig(boolean isXA, String dsName, Map<String, Object> changeset, AsyncCallback<ResponseWrapper<Boolean>> simpleCallback);
+
+    void savePoolConfig(boolean isXA, String dsName, Map<String, Object> changeset,
+            AsyncCallback<ResponseWrapper<Boolean>> simpleCallback);
+
     void deletePoolConfig(boolean isXA, String dsName, AsyncCallback<ResponseWrapper<Boolean>> callback);
 
     void loadXAProperties(String dataSourceName, AsyncCallback<List<PropertyRecord>> callback);
@@ -56,11 +72,22 @@ public interface DataSourceStore {
     void verifyConnection(String dataSourceName, boolean isXA, AsyncCallback<ResponseWrapper<Boolean>> callback);
 
     void loadConnectionProperties(String reference, AsyncCallback<List<PropertyRecord>> callback);
+
     void createConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
+
     void deleteConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
 
     void createXAConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
+
     void deleteXAConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
 
     void doFlush(boolean xa, String editedName, String flushOp, AsyncCallback<Boolean> callback);
+
+    EntityAdapter<CredentialReference> getCredentialReferenceAdapter();
+    EntityAdapter<XADataSource> getXaDataSourceAdapter();
+
+    void saveComplexAttribute(AddressTemplate template, String dsName, String complexAttributeName, ModelNode payload,
+            final AsyncCallback<ResponseWrapper<Boolean>> callback);
+
+    void saveXARecovery(String dsName, Map changeset, SimpleCallback<ResponseWrapper<Boolean>> simpleCallback);
 }

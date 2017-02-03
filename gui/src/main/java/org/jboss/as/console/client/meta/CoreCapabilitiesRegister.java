@@ -51,6 +51,7 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
     public static final String NETWORK_SOCKET_BINDING = "org.wildfly.network.socket-binding";
     public static final String DATASOURCE = "org.wildfly.data-source";
     public static final String SECURITY_DOMAIN = "org.wildfly.security.legacy-security-domain";
+    public static final String SECURITY_SSL_CONTEXT = "org.wildfly.security.ssl-context";
     public static final String STATELESS_SESSION_BEAN_POOL = "org.wildfly.ejb3.slsb-pool";
     public static final String EJB_CACHE = "org.wildfly.ejb3.cache";
     public static final String EJB_PASSIVATION_STORE = "org.wildfly.ejb3.passivation-store";
