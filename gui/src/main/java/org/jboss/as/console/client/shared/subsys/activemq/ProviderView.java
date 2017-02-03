@@ -78,7 +78,7 @@ public class ProviderView implements MessagingAddress {
             "journal-messages-table",
             "journal-large-messages-table",
             "journal-bindings-table",
-            "journal-paging-table",
+            "journal-page-store-table",
             "create-journal-dir",
     };
 
