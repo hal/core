@@ -51,7 +51,7 @@ public class ModelNodeFormBuilder {
     private ModelNode modelDescription;
     private Set<String> includes = new LinkedHashSet<>();
     private Set<String> excludes = new HashSet<>();
-    private SafeHtml help;
+    private Set<String> mutuallyExclusives = new HashSet<>();
 
     private boolean runtimeAttributes = true;
     private boolean configAttributes = true;
@@ -155,6 +155,13 @@ public class ModelNodeFormBuilder {
 
     public ModelNodeFormBuilder setSingleton(boolean singleton) {
         this.singleton = singleton;
+        return this;
+    }
+
+    public ModelNodeFormBuilder mutuallyExclusives(String... attributeName) {
+        if (attributeName != null && attributeName.length != 0) {
+            this.mutuallyExclusives.addAll(asList(attributeName));
+        }
         return this;
     }
 
@@ -588,6 +595,43 @@ public class ModelNodeFormBuilder {
                         }
                     }
                 }
+
+                // validates the mutually exclusive attributes
+                if (mutuallyExclusives.size() > 0) {
+                    StringBuilder buff = new StringBuilder();
+                    boolean fieldIsInUse = false;
+
+                    // these two default items are the default attribute where to bind the error message
+                    FormItem defaultFormItem = null;
+                    String defaultAttribute = null;
+                    int i = 0;
+                    int size = mutuallyExclusives.size();
+                    for (String attr : mutuallyExclusives) {
+                        FormItem item = findFormItem(formItems, attr);
+
+                        if (defaultAttribute == null)
+                            defaultAttribute = attr;
+
+                        if (defaultFormItem == null)
+                            defaultFormItem = item;
+
+                        buff.append(item.getTitle());
+                        if (i++ + 1 < size)
+                            buff.append(", ");
+
+                        fieldIsInUse = isFormItemDefined(item);
+                        if (fieldIsInUse) {
+                            break;
+                        }
+                    }
+
+                    if (!fieldIsInUse) {
+                        formValidation.addError(defaultAttribute);
+                        defaultFormItem.setErrMessage("At least one of these attributes should be set: " + buff);
+                        defaultFormItem.setErroneous(true);
+                    }
+                }
+
             });
         }
         return formAssets;
