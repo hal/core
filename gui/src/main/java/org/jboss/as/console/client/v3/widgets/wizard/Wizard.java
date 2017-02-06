@@ -201,6 +201,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
             window.trapWidget(asWidget());
             window.setGlassEnabled(true);
             window.addCloseHandler(closeEvent -> {
+                // calls the cancel() to remove the datasource as the user wants to cancel the ADD operation.
                 onCancel();
             });
         } else {
