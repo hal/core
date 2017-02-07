@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -45,9 +48,6 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.jboss.ballroom.client.widgets.forms.FormItem.VALUE_SEMANTICS.UNDEFINED;
 
@@ -276,7 +276,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         } else {
             ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
                     .put("enabled", true)
-                    .put("ccm", true)
+                    .put("use-ccm", true)
                     .put("jta", true);
 
             if ("".equals(datasource.getUsername())) { builder.put("username", UNDEFINED); }
@@ -315,7 +315,7 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         } else {
             ImmutableMap.Builder<String, Object> builder = ImmutableMap.<String, Object>builder()
                     .put("enabled", true)
-                    .put("ccm", true);
+                    .put("use-ccm", true);
 
             if ("".equals(updatedEntity.getUsername())) { builder.put("userName", UNDEFINED); }
             if ("".equals(updatedEntity.getPassword())) { builder.put("password", UNDEFINED); }

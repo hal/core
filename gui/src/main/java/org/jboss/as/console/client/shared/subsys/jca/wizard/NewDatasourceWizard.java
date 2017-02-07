@@ -76,6 +76,14 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
 
     private final DataSourceFinder presenter;
     private final DataSourceStore dataSourceStore;
+    // the Wizard.open method calls addCloseHandler that calls onClose()
+    // the close handler is called when the modal window is closed,
+    // either when the user clicked at "finish" button or cancels the operation
+    // if the modal window is closed or user press "esc" or click at x to close the window
+
+    // then, if the user tested the datasource, it is added to the profile
+    // and as the cancel() is called, we need to ensure to not remove the datasource.
+    private boolean saveDatasource;
 
     public NewDatasourceWizard(final DataSourceFinder presenter,
             final DataSourceStore dataSourceStore,
@@ -225,6 +233,10 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
 
     @Override
     protected void finish() {
+        // it is important to set it before the super.finish() call as it will call cancel() before
+        // finishing super.finish() call.
+        // this way the variable controls the rule to not remove the datasource in the cancel()
+        saveDatasource = true;
         super.finish();
         if (context.xa) {
             presenter.onCreateXADatasource(context.asXADataSource(), context.dataSourceCreatedByTest);
@@ -236,7 +248,8 @@ public class NewDatasourceWizard<T extends DataSource> extends Wizard<Context<T>
     @Override
     protected void cancel() {
         super.cancel();
-        if (context.dataSourceCreatedByTest) {
+        if (!saveDatasource && context.dataSourceCreatedByTest) {
+            saveDatasource = false;
             // cleanup
             AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>() {
                 @Override
