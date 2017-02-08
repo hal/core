@@ -22,10 +22,17 @@ import java.util.Map;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -40,6 +47,15 @@ public class SecurityDomainView extends ElytronGenericResourceView {
             final AddressTemplate addressTemplate) {
         super(circuit, resourceDescription, securityContext, title, addressTemplate);
         excludesFormAttributes("realms");
+
+        // repackage realms inner attributes to show up in the ADD modal dialog
+        ModelNode reqPropsDescription = resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        ModelNode realmDesc = reqPropsDescription.get("realms").get(VALUE_TYPE);
+        reqPropsDescription.get("realm-name").set(realmDesc.get("realm")).get(NILLABLE).set(false);
+        reqPropsDescription.get("realm-principal-transformer").set(realmDesc.get("principal-transformer"))
+                .get(NILLABLE).set(true);
+        reqPropsDescription.get("realm-role-decoder").set(realmDesc.get("role-decoder")).get(NILLABLE).set(true);
+        reqPropsDescription.get("realm-role-mapper").set(realmDesc.get("role-mapper")).get(NILLABLE).set(true);
     }
 
     @Override
@@ -68,8 +84,35 @@ public class SecurityDomainView extends ElytronGenericResourceView {
     }
 
     @Override
-    protected void onAddCallback(final ModelNode payload) {
-        // add the default-realm to the realms list.
-        payload.get("realms").setEmptyList().add("realm", payload.get("default-realm").asString());
+    protected ModelNodeFormBuilder.FormAssets customFormOnAdd() {
+        ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+            .setResourceDescription(resourceDescription)
+            .setCreateMode(true)
+            .unsorted()
+            .exclude("realms", "default-realm")
+            .setSecurityContext(securityContext)
+            .createValidators(true)
+            .build();
+
+        return formAssets;
     }
+
+    @Override
+    protected void onAddCallbackBeforeSubmit(final ModelNode payload) {
+        // repackage the payload to create the "realms" attribute of type LIST
+        // and create each "realm" from the repackaged description.
+        ModelNode realm = new ModelNode();
+        realm.get("realm").set(payload.get("realm-name"));
+        realm.get("principal-transformer").set(payload.get("realm-principal-transformer"));
+        realm.get("role-decoder").set(payload.get("realm-role-decoder"));
+        realm.get("role-mapper").set(payload.get("realm-role-mapper"));
+        ModelNode m = payload.get("realms").setEmptyList();
+        m.add(realm);
+        payload.get("default-realm").set(payload.get("realm-name"));
+        payload.remove("realm-name");
+        payload.remove("realm-principal-transformer");
+        payload.remove("realm-role-decoder");
+        payload.remove("realm-role-mapper");
+    }
+
 }
