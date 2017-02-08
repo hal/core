@@ -110,7 +110,7 @@ public class SecurityDomainRealmEditor implements IsWidget {
         roleDecoderColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         roleMapperColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(realmColumn, "Realm");
-        table.addColumn(principalTransformColumn, "Name Transform");
+        table.addColumn(principalTransformColumn, "Principal Transform");
         table.addColumn(roleDecoderColumn, "Role Decoder");
         table.addColumn(roleMapperColumn, "Role Mapper");
         table.setColumnWidth(realmColumn, 30, Style.Unit.PCT);

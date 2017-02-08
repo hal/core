@@ -56,13 +56,13 @@ public class GenericStoreView extends ElytronGenericResourceView {
         ModelNode reqPropsDescription = resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
         ModelNode credRefDescription = reqPropsDescription.get(COMPLEX_ATTRIBUTE).get(VALUE_TYPE);
         reqPropsDescription.get("credential-reference-store").set(credRefDescription.get("store")).get("nillable")
-                .set(false);
+                .set(true);
         reqPropsDescription.get("credential-reference-alias").set(credRefDescription.get("alias")).get("nillable")
-                .set(false);
+                .set(true);
         reqPropsDescription.get("credential-reference-type").set(credRefDescription.get("type")).get("nillable")
-                .set(false);
+                .set(true);
         reqPropsDescription.get("credential-reference-clear-text").set(credRefDescription.get("clear-text"))
-                .get("nillable").set(false);
+                .get("nillable").set(true);
 
         excludesFormAttributes(COMPLEX_ATTRIBUTE);
     }
@@ -149,7 +149,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
     }
 
     @Override
-    protected void onAddCallback(final ModelNode payload) {
+    protected void onAddCallbackBeforeSubmit(final ModelNode payload) {
         payload.get(COMPLEX_ATTRIBUTE).setEmptyObject();
         safeGet(payload, "credential-reference-store", "store");
         safeGet(payload, "credential-reference-alias", "alias");

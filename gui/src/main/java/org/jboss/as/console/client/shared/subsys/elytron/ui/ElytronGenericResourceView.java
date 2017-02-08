@@ -188,7 +188,7 @@ public class ElytronGenericResourceView {
             public void onAdd(ModelNode payload) {
                 // The instance name must be part of the model node!
                 String name = payload.get(NAME).asString();
-                onAddCallback(payload);
+                onAddCallbackBeforeSubmit(payload);
                 circuit.dispatch(new AddResourceGeneric(addressTemplate, new Property(name, payload)));
                 dialog.hide();
             }
@@ -240,11 +240,16 @@ public class ElytronGenericResourceView {
         SelectionChangeEvent.fire(selectionModel);
     }
 
-    public void excludesFormAttributes(String... excludes) {
+    /**
+     * On the "ADD" modal dialog, excludes the attributes sets in the parameter.
+     *
+     * @param excludes Attributes to exclude as varargs.
+     */
+    public final void excludesFormAttributes(String... excludes) {
         this.excludes.addAll(Arrays.asList(excludes));
     }
 
-    <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
+    final <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
         FormItem selectedFormItem = null;
         for (FormItem formItem : formItems) {
             if (name.equals(formItem.getName())) {
@@ -255,7 +260,12 @@ public class ElytronGenericResourceView {
         return selectedFormItem;
     }
 
-    public void setOnAddFormRequiredOnly(final boolean onAddFormRequiredOnly) {
+    /**
+     * On the "ADD" modal dialog, shows only the "required" attributes.
+     *
+     * @param onAddFormRequiredOnly
+     */
+    public final void setOnAddFormRequiredOnly(final boolean onAddFormRequiredOnly) {
         this.onAddFormRequiredOnly = onAddFormRequiredOnly;
     }
 
@@ -263,7 +273,12 @@ public class ElytronGenericResourceView {
         return Collections.emptyMap();
     }
 
-    protected void onAddCallback(final ModelNode payload) { }
+    /**
+     * Call this implementation if there is a need to customize the payload before submit it to the ElytronStore.
+     *
+     * @param payload
+     */
+    protected void onAddCallbackBeforeSubmit(final ModelNode payload) { }
 
     protected void selectTableItem(final Property keyManagerProp) {  }
 
