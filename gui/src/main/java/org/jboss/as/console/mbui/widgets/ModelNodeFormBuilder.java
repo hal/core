@@ -51,7 +51,7 @@ public class ModelNodeFormBuilder {
     private ModelNode modelDescription;
     private Set<String> includes = new LinkedHashSet<>();
     private Set<String> excludes = new HashSet<>();
-    private Set<String> mutuallyExclusives = new HashSet<>();
+    private Set<String> requiresAtLeastOne = new HashSet<>();
 
     private boolean runtimeAttributes = true;
     private boolean configAttributes = true;
@@ -158,9 +158,13 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
-    public ModelNodeFormBuilder mutuallyExclusives(String... attributeName) {
+    /**
+     *  Adds a validator to the form, to require at least one of them to be filled.
+     *  Requires use of createValidators(true)
+     */
+    public ModelNodeFormBuilder requiresAtLeastOne(String... attributeName) {
         if (attributeName != null && attributeName.length != 0) {
-            this.mutuallyExclusives.addAll(asList(attributeName));
+            this.requiresAtLeastOne.addAll(asList(attributeName));
         }
         return this;
     }
@@ -597,7 +601,7 @@ public class ModelNodeFormBuilder {
                 }
 
                 // validates the mutually exclusive attributes
-                if (mutuallyExclusives.size() > 0) {
+                if (requiresAtLeastOne.size() > 0) {
                     StringBuilder buff = new StringBuilder();
                     boolean fieldIsInUse = false;
 
@@ -605,8 +609,8 @@ public class ModelNodeFormBuilder {
                     FormItem defaultFormItem = null;
                     String defaultAttribute = null;
                     int i = 0;
-                    int size = mutuallyExclusives.size();
-                    for (String attr : mutuallyExclusives) {
+                    int size = requiresAtLeastOne.size();
+                    for (String attr : requiresAtLeastOne) {
                         FormItem item = findFormItem(formItems, attr);
 
                         if (defaultAttribute == null)

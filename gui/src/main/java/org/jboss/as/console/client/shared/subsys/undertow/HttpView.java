@@ -1,20 +1,22 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @since 05/09/14
  */
 public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyView {
+
     private HttpPresenter presenter;
 
     private PagedView panel;
@@ -24,6 +26,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     private AJPListenerView ajpView;
     private HostView hostView;
     private SubsystemView subsystemView;
+    private ApplicationSecurityDomainResourceView applicationSecurityDomainResourceView;
 
     @Override
     public void setPresenter(HttpPresenter presenter) {
@@ -43,6 +46,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
         httpsView = new HttpsListenerView(presenter);
         ajpView = new AJPListenerView(presenter);
         hostView = new HostView(presenter);
+        applicationSecurityDomainResourceView = new ApplicationSecurityDomainResourceView(presenter);
 
         panel.addPage("HTTP Server", serverList.asWidget());
         panel.addPage("HTTP Listener", httpView.asWidget());
@@ -58,6 +62,8 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
 
         tabLayoutpanel.add(subsystemView.asWidget(), "General Config");
         tabLayoutpanel.add(panel.asWidget(), "HTTP Server");
+        tabLayoutpanel.add(applicationSecurityDomainResourceView.asWidget(),
+                Console.CONSTANTS.undertowApplicationSecurityDomain());
 
         return tabLayoutpanel;
     }
@@ -73,23 +79,27 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     }
 
     @Override
+    public void updateApplicationSecurityDomain(final List<Property> model) {
+        applicationSecurityDomainResourceView.update(model);
+    }
+
+    @Override
     public void setServer(List<Property> server) {
         serverList.setServer(server);
     }
 
     @Override
     public void setServerSelection(String name) {
-        if(null==name)
-        {
+        if (null == name) {
             panel.showPage(0);
-        }
-        else{
+        } else {
 
             presenter.loadDetails();
 
             // move to first page if still showing topology
-            if(0==panel.getPage())
+            if (0 == panel.getPage()) {
                 panel.showPage(1);
+            }
         }
     }
 

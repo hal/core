@@ -588,6 +588,7 @@ public interface UIConstants extends Constants {
     String unauthorizedAdd();
     String unauthorizedRemove();
     String undertowDescription();
+    String undertowApplicationSecurityDomain();
     String unmanagedDeploymentArchiveDescription();
     String unmanagedDeploymentPathDescription();
     String unmanagedDeploymentRelativeToDescription();

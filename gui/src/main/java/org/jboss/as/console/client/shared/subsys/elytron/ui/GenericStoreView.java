@@ -116,7 +116,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
                 .unsorted()
                 .exclude(COMPLEX_ATTRIBUTE)
                 .createValidators(true)
-                .mutuallyExclusives("credential-reference-store", "credential-reference-alias",
+                .requiresAtLeastOne("credential-reference-store", "credential-reference-alias",
                         "credential-reference-type", "credential-reference-clear-text")
                 .setSecurityContext(securityContext);
 
