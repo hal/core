@@ -24,6 +24,8 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Operation;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
@@ -52,45 +54,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
         implements CommonHttpPresenter {
 
-    private final PlaceManager placeManager;
-    private final RevealStrategy revealStrategy;
-    private final DispatchAsync dispatcher;
-    private final CrudOperationDelegate operationDelegate;
-    private final FilteringStatementContext statementContext;
-
-    private String currentServer;
-    private DefaultWindow window;
-    
-    // the selected host in the host setting view.
-    private String selectedHost;
-
-    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
-        @Override
-        public void onSuccess(AddressTemplate address, String name) {
-
-            Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
-
-            if(address.getResourceType().equals("server"))
-                loadServer();
-            else {
-                loadDetails();
-                loadGeneralSettings();
-            }
-        }
-
-        @Override
-        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
-        }
-    };
-
-    private SecurityFramework securityFramework;
-    private ResourceDescriptionRegistry descriptionRegistry;
-
-
     @RequiredResources(
             resources = {
                     "{selected.profile}/subsystem=undertow",
+                    "{selected.profile}/subsystem=undertow/application-security-domain=*",
+                    "{selected.profile}/subsystem=undertow/application-security-domain=*/setting=single-sign-on",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*",
                     "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*/filter-ref=*",
@@ -102,8 +70,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     @NameToken(NameTokens.HttpPresenter)
     public interface MyProxy extends Proxy<HttpPresenter>, Place {
     }
-
     public interface MyView extends View {
+
         void setPresenter(HttpPresenter presenter);
 
         void setServer(List<Property> server);
@@ -121,7 +89,56 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         void setConfig(ModelNode data);
 
         void selectModifiedHost(String hostname);
+
+        void updateApplicationSecurityDomain(List<Property> model);
     }
+    public static final AddressTemplate UNDERTOW =
+            AddressTemplate.of("{selected.profile}/subsystem=undertow");
+    public static final AddressTemplate APPLICATION_SECURITY_DOMAIN =
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/application-security-domain=*");
+    public static final AddressTemplate APPLICATION_SECURITY_DOMAIN_SSO =
+            AddressTemplate
+                    .of("{selected.profile}/subsystem=undertow/application-security-domain=*/setting=single-sign-on");
+
+    private static List<Property> failSafeGetCollection(ModelNode item) {
+        if (item.isDefined()) {
+            return item.asPropertyList();
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
+    private final PlaceManager placeManager;
+    private final RevealStrategy revealStrategy;
+    private final DispatchAsync dispatcher;
+    private final CrudOperationDelegate operationDelegate;
+    private final FilteringStatementContext statementContext;
+    private String currentServer;
+    private DefaultWindow window;
+    // the selected host in the host setting view.
+    private String selectedHost;
+    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+        @Override
+        public void onSuccess(AddressTemplate address, String name) {
+
+            Console.info(
+                    Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
+
+            if (address.getResourceType().equals("server")) {
+                loadServer();
+            } else {
+                loadDetails();
+                loadGeneralSettings();
+                loadApplicationSecurityDomain();
+            }
+        }
+
+        @Override
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), t.getMessage());
+        }
+    };
+    private SecurityFramework securityFramework;
+    private ResourceDescriptionRegistry descriptionRegistry;
 
     @Inject
     public HttpPresenter(
@@ -138,15 +155,16 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         this.securityFramework = securityFramework;
         this.descriptionRegistry = descriptionRegistry;
 
-        this.statementContext =  new FilteringStatementContext(
+        this.statementContext = new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {
                     @Override
                     public String filter(String key) {
-                        if ("undertow.server".equals(key))
+                        if ("undertow.server".equals(key)) {
                             return currentServer;
-                        else
+                        } else {
                             return null;
+                        }
                     }
 
                     @Override
@@ -154,9 +172,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                         return null;
                     }
                 }
-        ) {
-
-        };
+        );
 
         this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
@@ -169,7 +185,6 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         return descriptionRegistry;
     }
 
-
     @Override
     public String getNameToken() {
         return getProxy().getNameToken();
@@ -181,12 +196,12 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         getView().setPresenter(this);
     }
 
-
     @Override
     protected void onReset() {
         super.onReset();
         loadGeneralSettings();
         loadServer();
+        loadApplicationSecurityDomain();
     }
 
     private void loadServer() {
@@ -230,9 +245,36 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         currentServer = request.getParameter("name", null);
     }
 
+    public void loadApplicationSecurityDomain() {
+        ResourceAddress address = UNDERTOW.resolve(statementContext);
+        Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
+                .param(CHILD_TYPE, "application-security-domain")
+                .param(RECURSIVE, true)
+                .build();
+
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to load undertow application security domain", response.getFailureDescription());
+                } else {
+                    ModelNode data = response.get(RESULT);
+                    getView().updateApplicationSecurityDomain(data.asPropertyList());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error("Failed to load undertow application security domain", caught.getMessage());
+            }
+        });
+    }
+
     public void loadGeneralSettings() {
-
-
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).set(Baseadress.get());
@@ -244,12 +286,9 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Log.error("Failed to load undertow configuration", response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Console.error("Failed to load undertow configuration", response.getFailureDescription());
+                } else {
                     ModelNode data = response.get(RESULT);
                     getView().setConfig(data);
                 }
@@ -258,12 +297,12 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         });
     }
 
-
     public void loadDetails() {
 
         // no server selected
-        if(null==currentServer)
+        if (null == currentServer) {
             return;
+        }
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -278,30 +317,21 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Log.error("Failed to load http server details", response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     ModelNode data = response.get(RESULT);
                     getView().setHttpListener(failSafeGetCollection(data.get("http-listener")));
                     getView().setAjpListener(failSafeGetCollection(data.get("ajp-listener")));
                     getView().setHttpsListener(failSafeGetCollection(data.get("https-listener")));
                     getView().setHosts(failSafeGetCollection(data.get("host")));
-                    if (selectedHost != null)
+                    if (selectedHost != null) {
                         getView().selectModifiedHost(selectedHost);
+                    }
                 }
 
             }
         });
-    }
-
-    private static List<Property> failSafeGetCollection(ModelNode item) {
-        if(item.isDefined())
-            return item.asPropertyList();
-        else
-            return Collections.EMPTY_LIST;
     }
 
     // -----------------------
@@ -309,7 +339,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     public void onLaunchAddResourceDialog(final AddressTemplate address) {
         onLaunchAddResourceDialog(address, null);
     }
-    
+
     public void onLaunchAddResourceDialog(AddressTemplate address, String hostname) {
 
         String type = address.getResourceType();
@@ -319,8 +349,9 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         window.setHeight(360);
 
         ResourceDescription lookup = descriptionRegistry.lookup(address);
-        if (hostname != null) 
+        if (hostname != null) {
             address = address.replaceWildcards(hostname);
+        }
         window.setWidget(newAddResourceDialog(lookup, address));
         window.setGlassEnabled(true);
         window.center();
@@ -344,9 +375,9 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         FormItem priorityItem = null;
         if (attrDesc.hasDefined("min") && attrDesc.hasDefined("max")) {
             priorityItem = new NumberBoxItem(
-                "priority", Console.CONSTANTS.common_label_priority(),
-                attrDesc.get("min").asLong(),
-                attrDesc.get("max").asLong()
+                    "priority", Console.CONSTANTS.common_label_priority(),
+                    attrDesc.get("min").asLong(),
+                    attrDesc.get("max").asLong()
             );
         }
         priorityItem.setRequired(false);
@@ -358,22 +389,24 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                 Console.MODULES.getCapabilities().lookup(UNDERTOW_RESPONSE_FILTER))
                 .buildFormItem();
 
-        // a modelnodeformbuilder.formassets is used to pass as parameter to AddResourceDialog 
+        // a modelnodeformbuilder.formassets is used to pass as parameter to AddResourceDialog
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setResourceDescription(resoourceDescription)
-                .setSecurityContext(Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter));
+                .setSecurityContext(
+                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter));
         ModelNodeFormBuilder.FormAssets formAssets = builder.build();
         ModelNodeForm form = formAssets.getForm();
         form.setFields(responseFilterName, predicateItem, priorityItem);
         form.setEnabled(true);
-        
+
         AddResourceDialog addResourceDialog = new AddResourceDialog(formAssets,
                 resoourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
                     public void onAdd(ModelNode payload) {
                         window.hide();
-                        operationDelegate.onCreateResource(resolvedAddress, payload.get(NAME).asString(), payload, defaultOpCallbacks);
+                        operationDelegate.onCreateResource(resolvedAddress, payload.get(NAME).asString(), payload,
+                                defaultOpCallbacks);
                     }
 
                     @Override
@@ -388,7 +421,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     }
 
-    private AddResourceDialog newAddResourceDialog(ResourceDescription resourceDescription, final AddressTemplate address) {
+    private AddResourceDialog newAddResourceDialog(ResourceDescription resourceDescription,
+            final AddressTemplate address) {
         return new AddResourceDialog(
                 Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
                 resourceDescription,
@@ -396,7 +430,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     @Override
                     public void onAdd(ModelNode payload) {
                         window.hide();
-                        operationDelegate.onCreateResource(address, payload.get(NAME).asString(), payload, defaultOpCallbacks);
+                        operationDelegate
+                                .onCreateResource(address, payload.get(NAME).asString(), payload, defaultOpCallbacks);
                     }
 
                     @Override
@@ -407,16 +442,41 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         );
     }
 
+    public void onCreateResource(final AddressTemplate addressTemplate, ModelNode payload) {
+        operationDelegate.onCreateResource(addressTemplate, payload.get(NAME).asString(), payload, defaultOpCallbacks);
+    }
+
     public void onRemoveResource(final AddressTemplate address, final String name) {
 
         operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
     }
 
-    public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
+    public void onAddSingleSignOn(String resourceName, ModelNode payload) {
 
+        operationDelegate.onCreateResource(APPLICATION_SECURITY_DOMAIN_SSO, resourceName, payload, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(AddressTemplate address, String name) {
+                Console.info(Console.MESSAGES.successfullyModifiedResource(address.resolve(statementContext, name).toString()));
+                loadApplicationSecurityDomain();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.error("Failed to create undertow application security domain single sign-on", t.getMessage());
+            }
+        });
+
+    }
+
+
+    public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
-    
+
+    public void onSaveComplexAttribute(final AddressTemplate address, String name, String attributeName, ModelNode payload) {
+        operationDelegate.onSaveComplexAttribute(address, name, attributeName, payload, defaultOpCallbacks);
+    }
+
     void setSelectedHost(String host) {
         this.selectedHost = host;
     }

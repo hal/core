@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -152,12 +151,7 @@ public class ElytronGenericResourceView {
                 }
             });
 
-            VerticalPanel formPanel = new VerticalPanel();
-            formPanel.setStyleName("fill-layout-width");
-            formPanel.add(modelForm.getHelp().asWidget());
-            formPanel.add(modelForm.getForm().asWidget());
-
-            layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), formPanel);
+            layoutBuilder.addDetail(Console.CONSTANTS.common_label_attributes(), modelForm.asWidget());
         }
 
 
