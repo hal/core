@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import java.util.Map;
 
+import com.google.common.collect.Iterables;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
@@ -14,6 +15,7 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_APPLICATION_SECURITY_DOMAIN;
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.EJB_CACHE;
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.STATELESS_SESSION_BEAN_POOL;
@@ -66,7 +68,8 @@ public class ContainerView {
                 })
                 .addFactory("default-security-domain", attributeDescription ->  {
                     SuggestionResource suggestionResource = new SuggestionResource("default-security-domain", "Default security domain", false,
-                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
+                            Iterables.concat(Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN),
+                                    Console.MODULES.getCapabilities().lookup(EJB_APPLICATION_SECURITY_DOMAIN)));
                     return suggestionResource.buildFormItem();
                 })
                 .addFactory("default-sfsb-cache", attributeDescription ->  {
