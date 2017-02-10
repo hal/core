@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
@@ -86,6 +85,11 @@ public class EJBView extends SuspendableViewImpl implements EJB3Presenter.MyView
     @Override
     public void updateClusterPassivationStore(List<Property> properties) {
         stateView.updateClusterPassivationStore(properties);
+    }
+
+    @Override
+    public void updateSecurityDomains(List<Property> properties) {
+        subsystemView.updateSecurityDomains(properties);
     }
 
     @Override

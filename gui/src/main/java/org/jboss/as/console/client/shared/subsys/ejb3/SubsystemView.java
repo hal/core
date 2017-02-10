@@ -19,6 +19,7 @@ public class SubsystemView {
     private ThreadPoolView threadPoolView;
     private RemotingProfileView remotingProfileView;
     private ContainerView containerView;
+    private ApplicationSecurityDomainView securityDomainView;
 
 
     public SubsystemView(EJB3Presenter presenter) {
@@ -30,12 +31,14 @@ public class SubsystemView {
         containerView = new ContainerView(presenter);
         threadPoolView = new ThreadPoolView(presenter);
         remotingProfileView = new RemotingProfileView(presenter);
+        securityDomainView = new ApplicationSecurityDomainView(presenter);
 
         panel = new PagedView(true);
 
         panel.addPage("Container", containerView.asWidget());
         panel.addPage("Thread Pools", threadPoolView.asWidget());
         panel.addPage("Remoting Profiles", remotingProfileView.asWidget());
+        panel.addPage("Security Domains Mapping", securityDomainView.asWidget());
 
         // default page
         panel.showPage(0);
@@ -53,6 +56,10 @@ public class SubsystemView {
 
     public void updateRemotingProfiles(List<Property> properties) {
         remotingProfileView.setData(properties);
+    }
+
+    public void updateSecurityDomains(List<Property> properties) {
+        securityDomainView.setData(properties);
     }
 
 

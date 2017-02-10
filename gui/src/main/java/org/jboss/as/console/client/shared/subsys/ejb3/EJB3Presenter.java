@@ -82,7 +82,8 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                     "{selected.profile}/subsystem=ejb3/file-passivation-store=*",
                     "{selected.profile}/subsystem=ejb3/cluster-passivation-store=*",
                     "{selected.profile}/subsystem=ejb3/passivation-store=*",
-                    "{selected.profile}/subsystem=ejb3/strict-max-bean-instance-pool=*"
+                    "{selected.profile}/subsystem=ejb3/strict-max-bean-instance-pool=*",
+                    "{selected.profile}/subsystem=ejb3/application-security-domain=*"
             }
     )
     @ProxyCodeSplit
@@ -113,6 +114,8 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         void updateFilePassivationStore(List<Property> properties);
 
         void updateClusterPassivationStore(List<Property> properties);
+
+        void updateSecurityDomains(List<Property> properties);
     }
 
     @Inject
@@ -174,6 +177,7 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                     getView().updatePassivationStores(payload.get("passivation-store").asPropertyList());
                     getView().updateFilePassivationStore(payload.get("file-passivation-store").asPropertyList());
                     getView().updateClusterPassivationStore(payload.get("cluster-passivation-store").asPropertyList());
+                    getView().updateSecurityDomains(payload.get("application-security-domain").asPropertyList());
 
                     // singleton resources
                     ModelNode service = payload.get("service");
