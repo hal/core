@@ -266,8 +266,8 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
 
     public void launchAddPrincipalDialog(final Principal.Type type) {
         PrincipalDialog dialog = new PrincipalDialog(type, accessControlStore, circuit, this);
-        openWindow(type == Principal.Type.USER ? Console.MESSAGES.addUserToRole() :
-                Console.MESSAGES.addGroupToRole(), WINDOW_WIDTH, 250, dialog);
+        openWindow(type == Principal.Type.USER ? Console.MESSAGES.addUser() : ((UIMessages) GWT
+                .create(UIMessages.class)).addGroup(), WINDOW_WIDTH, 250, dialog);
     }
 
     public void launchAddScopedRoleDialog() {
@@ -291,8 +291,8 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
                     Console.MESSAGES.allPrincipalsAreAlreadyMembersOf(role.getName()));
         } else {
             MemberDialog dialog = new MemberDialog(role, include, unassignedPrincipals, circuit, this);
-            openWindow(include ? Console.MESSAGES.addMember() :
-                    Console.MESSAGES.excludeMember(), WINDOW_WIDTH, 400, dialog);
+            openWindow(include ? Console.MESSAGES.addMember() : ((UIMessages) GWT
+                    .create(UIMessages.class)).excludeMember(), WINDOW_WIDTH, 400, dialog);
         }
     }
 
@@ -307,8 +307,8 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
                     .allRolesAreAlreadyAssignedTo(principal.getNameAndRealm()));
         } else {
             AssignmentDialog dialog = new AssignmentDialog(principal, include, unassignedRoles, circuit, this);
-            openWindow(include ? Console.MESSAGES.assignRole() :
-                    Console.MESSAGES.excludeRole(), WINDOW_WIDTH, 400, dialog);
+            openWindow(include ? Console.MESSAGES.assignRole() : ((UIMessages) GWT
+                    .create(UIMessages.class)).excludeRole(), WINDOW_WIDTH, 400, dialog);
         }
     }
 }
