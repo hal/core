@@ -234,7 +234,6 @@ public class ModelNodeFormBuilder {
         // in any case remove attributes marked for exclusion
         includes.removeAll(excludes);
 
-
         LinkedList<FormItem> requiredItems = new LinkedList<FormItem>();
         LinkedList<FormItem> optionalItems = new LinkedList<FormItem>();
 
@@ -600,7 +599,7 @@ public class ModelNodeFormBuilder {
                     }
                 }
 
-                // validates the mutually exclusive attributes
+                // validates if at least one attribute of the given list is set.
                 if (requiresAtLeastOne.size() > 0) {
                     StringBuilder buff = new StringBuilder();
                     boolean fieldIsInUse = false;

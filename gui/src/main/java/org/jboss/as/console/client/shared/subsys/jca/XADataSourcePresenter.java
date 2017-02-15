@@ -495,4 +495,28 @@ public class XADataSourcePresenter extends Presenter<XADataSourcePresenter.MyVie
 
                 });
     }
+
+    /**
+     * Saves the changes into data-source or xa-data-source using ModelNodeAdapter instead of autobean DataSource
+     *
+     * @param template The AddressTemplate to use
+     * @param dsName the datasource name
+     * @param changeset
+     */
+    public void onSaveDatasource(AddressTemplate template, final String dsName, final Map changeset) {
+        dataSourceStore.saveDatasource(template, dsName, changeset,
+                new SimpleCallback<ResponseWrapper<Boolean>>() {
+
+                    @Override
+                    public void onSuccess(ResponseWrapper<Boolean> response) {
+                        if (response.getUnderlying()) {
+                            Console.info(Console.MESSAGES.saved("Datasource " + dsName));
+                        } else {
+                            Console.error(Console.MESSAGES.saveFailed("Datasource ") + dsName,
+                                    response.getResponse().toString());
+                        }
+                        loadXADataSource();
+                    }
+                });
+    }
 }

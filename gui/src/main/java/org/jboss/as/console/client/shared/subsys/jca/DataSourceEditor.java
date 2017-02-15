@@ -33,17 +33,20 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.as.console.client.widgets.forms.FormEditor;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter.DATASOURCE_TEMPLATE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 
@@ -57,12 +60,12 @@ public class DataSourceEditor {
     private DataSourceDetails details;
     private PoolConfigurationView poolConfig;
     private ConnectionProperties connectionProps;
-    private FormEditor<DataSource> securityEditor;
     private DataSourceValidationEditor validationEditor;
     private DataSourceConnectionEditor connectionEditor;
     private DataSourceTimeoutEditor<DataSource> timeoutEditor;
     private DataSourceStatementEditor<DataSource> statementEditor;
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
+    private ModelNodeFormBuilder.FormAssets securityFormAsset;
     private ToolButton disableBtn;
     private DataSource selectedEntity = null;
     private HTML title;
@@ -124,14 +127,37 @@ public class DataSourceEditor {
 
         connectionEditor = new DataSourceConnectionEditor(presenter, formCallback);
 
-        securityEditor = new DataSourceSecurityEditor(formCallback);
-
-        // credential-reference attribute
         SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription resourceDescription = presenter.getResourceDescriptionRegistry()
                 .lookup(DATASOURCE_TEMPLATE);
+
+        securityFormAsset = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext)
+                .createValidators(true)
+                .include("user-name", "password", "allow-multiple-users", "authentication-context", "elytron-enabled", "security-domain")
+                .addFactory("security-domain", attributeDescription -> new SuggestionResource("security-domain", "Security Domain", false,
+                            Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
+                .addFactory("password", attributeDescription -> new PasswordBoxItem("password", "Password", false))
+                .build();
+
+        securityFormAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                presenter.onSaveDatasource(DATASOURCE_TEMPLATE, selectedEntity.getName(), changeset);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                securityFormAsset.getForm().cancel();
+            }
+        });
+
+        // credential-reference attribute
         credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE,
-                securityFramework.getSecurityContext(presenter.getProxy().getNameToken()), resourceDescription).build();
+                securityContext, resourceDescription).build();
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
@@ -197,7 +223,7 @@ public class DataSourceEditor {
                 .addDetail(Console.CONSTANTS.common_label_attributes(), details.asWidget())
                 .addDetail("Connection", connectionEditor.asWidget())
                 .addDetail("Pool", poolConfig.asWidget())
-                .addDetail("Security", securityEditor.asWidget())
+                .addDetail("Security", securityFormAsset.asWidget())
                 .addDetail("Credential Reference", credentialReferenceFormAsset.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_properties(), connectionProps.asWidget())
                 .addDetail("Validation", validationEditor.asWidget())
@@ -223,7 +249,9 @@ public class DataSourceEditor {
         connectionProps.clearProperties();
 
         connectionEditor.getForm().edit(ds);
-        securityEditor.getForm().edit(ds);
+
+        ModelNode datasourceBean = presenter.getDataSourceAdapter().fromEntity(ds);
+        securityFormAsset.getForm().edit(datasourceBean);
         if (ds.getCredentialReference() != null) {
             ModelNode bean = presenter.getCredentialReferenceAdapter().fromEntity(ds.getCredentialReference());
             credentialReferenceFormAsset.getForm().edit(bean);

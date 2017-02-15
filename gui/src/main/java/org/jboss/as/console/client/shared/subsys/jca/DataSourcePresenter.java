@@ -363,8 +363,11 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         return dataSourceStore.getCredentialReferenceAdapter();
     }
 
-    public void onSaveComplexAttribute(final String dsName, final String complexAttributeName,
-            final ModelNode payload) {
+    public EntityAdapter<DataSource> getDataSourceAdapter() {
+        return dataSourceStore.getDataSourceAdapter();
+    }
+
+    public void onSaveComplexAttribute(final String dsName, final String complexAttributeName, final ModelNode payload) {
         dataSourceStore.saveComplexAttribute(DATASOURCE_TEMPLATE, dsName, complexAttributeName, payload,
                 new SimpleCallback<ResponseWrapper<Boolean>>() {
 
@@ -381,5 +384,29 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                     }
 
                 });
+    }
+
+    /**
+     * Saves the changes into data-source or xa-data-source using ModelNodeAdapter instead of autobean DataSource
+     *
+     * @param template The AddressTemplate to use
+     * @param dsName the datasource name
+     * @param changeset
+     */
+    public void onSaveDatasource(AddressTemplate template, final String dsName, final Map changeset) {
+        dataSourceStore.saveDatasource(template, dsName, changeset,
+            new SimpleCallback<ResponseWrapper<Boolean>>() {
+
+                @Override
+                public void onSuccess(ResponseWrapper<Boolean> response) {
+                    if (response.getUnderlying()) {
+                        Console.info(Console.MESSAGES.saved("Datasource " + dsName));
+                    } else {
+                        Console.error(Console.MESSAGES.saveFailed("Datasource ") + dsName,
+                                response.getResponse().toString());
+                    }
+                    loadDataSource();
+                }
+            });
     }
 }
