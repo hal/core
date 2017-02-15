@@ -48,6 +48,13 @@ public interface DataSourceStore {
 
     void enableDataSource(DataSource dataSource, boolean doEnable, AsyncCallback<ResponseWrapper<Boolean>> callback);
 
+    /**
+     * Saves the changes into data-source the autobean DataSource, not suitable for ModelNodeFormBuilder.FormAsset
+     *
+     * @param name the datasource name
+     * @param changedValues
+     * @param callback
+     */
     void updateDataSource(String name, Map<String, Object> changedValues,
             AsyncCallback<ResponseWrapper<Boolean>> callback);
 
@@ -84,7 +91,21 @@ public interface DataSourceStore {
     void doFlush(boolean xa, String editedName, String flushOp, AsyncCallback<Boolean> callback);
 
     EntityAdapter<CredentialReference> getCredentialReferenceAdapter();
+
     EntityAdapter<XADataSource> getXaDataSourceAdapter();
+
+    EntityAdapter<DataSource> getDataSourceAdapter();
+
+    /**
+     * Saves the changes into data-source or xa-data-source using ModelNodeAdapter instead of autobean DataSource
+     *
+     * @param addressTemplate The AddressTemplate to use
+     * @param dsName the datasource name
+     * @param changeset
+     * @param callback
+     */
+    void saveDatasource(AddressTemplate addressTemplate, String dsName, Map changeset,
+            SimpleCallback<ResponseWrapper<Boolean>> callback);
 
     void saveComplexAttribute(AddressTemplate template, String dsName, String complexAttributeName, ModelNode payload,
             final AsyncCallback<ResponseWrapper<Boolean>> callback);

@@ -26,17 +26,19 @@ import org.jboss.as.console.client.v3.widgets.AddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
 import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 
 /**
  * @author Heiko Braun
@@ -137,7 +139,7 @@ public class ConnectionDefList {
                 "no-recovery",
                 "recovery-authentication-context",
                 "recovery-elytron-enabled",
-                "recovery-user",
+                "recovery-username",
                 "recovery-password",
                 "recovery-security-domain",
                 "recovery-plugin-class-name",
@@ -193,19 +195,8 @@ public class ConnectionDefList {
         incrementerClass.setRequired(false);
         incrementerClass.setValueMap(Ordering.natural().immutableSortedCopy(incNames));
 
-        poolBuilder.addFactory("capacity-incrementer-class", new ModelNodeFormBuilder.FormItemFactory() {
-            @Override
-            public FormItem create(Property attributeDescription) {
-                return incrementerClass;
-            }
-        });
-
-        poolBuilder.addFactory("capacity-decrementer-class", new ModelNodeFormBuilder.FormItemFactory() {
-            @Override
-            public FormItem create(Property attributeDescription) {
-                return decrementerClass;
-            }
-        });
+        poolBuilder.addFactory("capacity-incrementer-class", attributeDescription -> incrementerClass);
+        poolBuilder.addFactory("capacity-decrementer-class", attributeDescription -> decrementerClass);
 
         poolAssets = poolBuilder.build();
         poolAssets.getForm().setToolsCallback(callback);
@@ -218,6 +209,8 @@ public class ConnectionDefList {
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .createValidators(true)
+                .addFactory("security-domain", attributeDescription -> new SuggestionResource("security-domain", "Security Domain",
+                        false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
                 .include(secAttributes);
 
         secAssets = secBuilder.build();
@@ -242,14 +235,9 @@ public class ConnectionDefList {
                 .setSecurityContext(securityContext)
                 .include(recoveryAttributes)
                 .createValidators(true)
-                .addFactory("recovery-password", new ModelNodeFormBuilder.FormItemFactory() {
-                    @Override
-                    public FormItem create(Property attributeDescription) {
-
-                        PasswordBoxItem item = new PasswordBoxItem("recovery-password", "Recovery Password", false);
-                        return item;
-                    }
-                });
+                .addFactory("recovery-password", attributeDescription -> new PasswordBoxItem("recovery-password", "Recovery Password", false))
+                .addFactory("recovery-security-domain", attributeDescription -> new SuggestionResource("recovery-security-domain", "Recovery Security Domain",
+                        false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem());
 
         recoveryAssets = recoveryBuilder.build();
         recoveryAssets.getForm().setToolsCallback(callback);

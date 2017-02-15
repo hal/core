@@ -463,6 +463,28 @@ public class DataSourceStoreImpl implements DataSourceStore {
     }
 
     @Override
+    public void saveDatasource(AddressTemplate addressTemplate, final String dsName, final Map changeset,
+            final SimpleCallback<ResponseWrapper<Boolean>> callback) {
+
+        ResourceAddress address = addressTemplate.resolve(statementContext, dsName);
+        ModelNodeAdapter adapter = new ModelNodeAdapter();
+
+        ModelNode operation = adapter.fromChangeSet(address, changeset);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                callback.onFailure(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                callback.onSuccess(ModelAdapter.wrapBooleanResponse(response));
+            }
+        });
+    }
+
+    @Override
     public void saveComplexAttribute(AddressTemplate template, String dsName, String complexAttributeName, ModelNode payload,
             final AsyncCallback<ResponseWrapper<Boolean>> callback) {
 
@@ -787,11 +809,16 @@ public class DataSourceStoreImpl implements DataSourceStore {
         return xaDataSourceAdapter;
     }
 
+    public EntityAdapter<DataSource> getDataSourceAdapter() {
+        return dataSourceAdapter;
+    }
+
     @Override
     public void saveXARecovery(final String dsName, final Map changeset,
             final SimpleCallback<ResponseWrapper<Boolean>> callback) {
         ResourceAddress address = XADATASOURCE_TEMPLATE.resolve(statementContext, dsName);
         ModelNodeAdapter adapter = new ModelNodeAdapter();
+
         ModelNode operation = adapter.fromChangeSet(address, changeset);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {

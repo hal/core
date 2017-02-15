@@ -36,17 +36,20 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter.XADATASOURCE_TEMPLATE;
 
 /**
@@ -60,10 +63,11 @@ public class XADataSourceEditor implements PropertyManagement {
     private PropertyEditor propertyEditor;
     private PoolConfigurationView poolConfig;
     private XADataSourceConnection connectionEditor;
-    private DataSourceSecurityEditor securityEditor;
+    //private DataSourceSecurityEditor securityEditor;
     private DataSourceValidationEditor validationEditor;
     private DataSourceTimeoutEditor<XADataSource> timeoutEditor;
     private DataSourceStatementEditor<XADataSource> statementEditor;
+    private ModelNodeFormBuilder.FormAssets securityFormAsset;
     private ModelNodeFormBuilder.FormAssets recoveryFormAsset;
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
     private ToolButton disableBtn;
@@ -140,13 +144,36 @@ public class XADataSourceEditor implements PropertyManagement {
         };
 
         connectionEditor = new XADataSourceConnection(presenter, xaCallback);
-        securityEditor = new DataSourceSecurityEditor(dsCallback);
 
-        // credential-reference attribute
         SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription resourceDescription = presenter.getResourceDescriptionRegistry()
                 .lookup(XADATASOURCE_TEMPLATE);
-        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
+
+        securityFormAsset = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext)
+                .createValidators(true)
+                .include("user-name", "password", "allow-multiple-users", "authentication-context", "elytron-enabled", "security-domain")
+                .addFactory("security-domain", attributeDescription -> new SuggestionResource("security-domain", "Security Domain", false,
+                        Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
+                .addFactory("password", attributeDescription -> new PasswordBoxItem("password", "Password", false))
+                .build();
+
+        securityFormAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                presenter.onSaveDatasource(XADATASOURCE_TEMPLATE, selectedEntity.getName(), changeset);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                securityFormAsset.getForm().cancel();
+            }
+        });
+
+        // credential-reference attribute
         credentialReferenceFormAsset = new ComplexAttributeForm("credential-reference",
                 securityContext, resourceDescription).build();
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
@@ -175,6 +202,9 @@ public class XADataSourceEditor implements PropertyManagement {
                 .createValidators(true)
                 .include("recovery-authentication-context", "recovery-elytron-enabled", "recovery-security-domain",
                         "recovery-username", "recovery-password", "recovery-plugin-class-name")
+                .addFactory("recovery-security-domain", attributeDescription -> new SuggestionResource("recovery-security-domain", "Recovery Security Domain", false,
+                        Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
+                .addFactory("recovery-password", attributeDescription -> new PasswordBoxItem("recovery-password", "Recovery Password", false))
                 .build();
         recoveryFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -220,7 +250,7 @@ public class XADataSourceEditor implements PropertyManagement {
                 .addDetail(Console.CONSTANTS.common_label_attributes(), details.asWidget())
                 .addDetail("Connection", connectionEditor.asWidget())
                 .addDetail("Pool", poolConfig.asWidget())
-                .addDetail("Security", securityEditor.asWidget())
+                .addDetail("Security", securityFormAsset.asWidget())
                 .addDetail("Credential Reference", credentialReferenceFormAsset.asWidget())
                 .addDetail("Properties", propertyEditor.asWidget())
                 .addDetail("Validation", validationEditor.asWidget())
@@ -247,14 +277,14 @@ public class XADataSourceEditor implements PropertyManagement {
         String suffix = ds.isEnabled() ? " (enabled)" : " (disabled)";
         title.setHTML("JDBC datasource '" + ds.getName() + "'" + suffix);
 
-
         String nextState = ds.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS
                 .common_label_enable();
         disableBtn.setText(nextState);
 
         details.getForm().edit(ds);
         connectionEditor.getForm().edit(ds);
-        securityEditor.getForm().edit(ds);
+        ModelNode datasourceBean = presenter.getXaDataSourceAdapter().fromEntity(ds);
+        securityFormAsset.getForm().edit(datasourceBean);
 
         if (ds.getCredentialReference() != null) {
             ModelNode bean = presenter.getCredentialReferenceAdapter().fromEntity(ds.getCredentialReference());
@@ -266,8 +296,7 @@ public class XADataSourceEditor implements PropertyManagement {
 
         validationEditor.getForm().edit(ds);
         timeoutEditor.getForm().edit(ds);
-        ModelNode xaBean = presenter.getXaDataSourceAdapter().fromEntity(ds);
-        recoveryFormAsset.getForm().edit(xaBean);
+        recoveryFormAsset.getForm().edit(datasourceBean);
 
         presenter.loadXAProperties(ds.getName());
         presenter.loadPoolConfig(true, ds.getName());

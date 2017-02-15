@@ -14,11 +14,14 @@ import org.jboss.as.console.client.v3.widgets.AddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
 import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.Property;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 
 /**
  * @author Heiko Braun
@@ -26,7 +29,8 @@ import org.jboss.dmr.client.Property;
  */
 public class AdapterDetails {
 
-    private final static AddressTemplate BASE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=resource-adapters/resource-adapter=*");
+    private final static AddressTemplate BASE_ADDRESS = AddressTemplate
+            .of("{selected.profile}/subsystem=resource-adapters/resource-adapter=*");
     private final static AddressTemplate CONFIG_PROPS = BASE_ADDRESS.append("config-properties=*");
 
     private ResourceAdapterPresenter presenter;
@@ -69,13 +73,18 @@ public class AdapterDetails {
                 .setConfigOnly()
                 .setSecurityContext(securityContext)
                 .setResourceDescription(description)
-                .include("wm-elytron-enabled", "wm-security", "wm-security-default-groups", "wm-security-default-principal", "wm-security-domain",
-                        "wm-security-mapping-groups", "wm-security-mapping-required", "wm-security-mapping-users")
+                .createValidators(true)
+                .include("wm-security", "wm-elytron-security-domain", "wm-security-default-groups",
+                        "wm-security-default-principal", "wm-security-domain",
+                        "wm-security-mapping-required", "wm-security-mapping-users", "wm-security-mapping-groups")
+                .addFactory("wm-security-domain",
+                        attributeDescription -> new SuggestionResource("wm-security-domain", "Wm Security Domain",
+                                false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
                 .build();
 
 
-        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(CONFIG_PROPS, presenter.getStatementContext(), presenter.getDispatcher())
-        {
+        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(CONFIG_PROPS,
+                presenter.getStatementContext(), presenter.getDispatcher()) {
             @Override
             public void onAdd(Property property, AddPropertyDialog addDialog) {
                 presenter.onCreateProperty(CONFIG_PROPS, property.getValue(), property.getName());
