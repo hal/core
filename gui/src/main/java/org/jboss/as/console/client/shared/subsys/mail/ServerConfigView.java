@@ -17,6 +17,7 @@ import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
@@ -147,6 +148,8 @@ public class ServerConfigView {
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+
         selectionModel.addSelectionChangeHandler(event -> {
             MailServerDefinition mailDefinition = selectionModel.getSelectedObject();
             if (mailDefinition.getCredentialReference() != null) {

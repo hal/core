@@ -28,6 +28,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
@@ -173,6 +174,7 @@ public class ApplicationSecurityDomainResourceView {
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         // this button is only displayed when the setting=single-sign-on resource doesn't exist
         ToolButton btnAddSso = new ToolButton("Enable Single Sign On", clickEvent -> onAddSingleSignOn(ssoDescription));

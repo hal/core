@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ModifyComplexAttribute;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -30,12 +31,13 @@ import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
+
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
 public class ElytronResourceWithCredentialReferenceView extends ElytronGenericResourceView {
 
-    public static final String COMPLEX_ATTRIBUTE = "credential-reference";
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
 
     public ElytronResourceWithCredentialReferenceView(final Dispatcher circuit,
@@ -43,19 +45,19 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
             final SecurityContext securityContext, final String title,
             final AddressTemplate addressTemplate) {
         super(circuit, resourceDescription, securityContext, title, addressTemplate);
-        excludesFormAttributes(COMPLEX_ATTRIBUTE);
+        excludesFormAttributes(CREDENTIAL_REFERENCE);
     }
 
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
-        credentialReferenceFormAsset = new ComplexAttributeForm(COMPLEX_ATTRIBUTE, securityContext, resourceDescription).build();
+        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription).build();
 
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyComplexAttribute(addressTemplate, COMPLEX_ATTRIBUTE,
+                circuit.dispatch(new ModifyComplexAttribute(addressTemplate, CREDENTIAL_REFERENCE,
                         selectionModel.getSelectedObject().getName(), credentialReferenceFormAsset.getForm().getUpdatedEntity()));
             }
 
@@ -64,6 +66,7 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         additionalWidgets.put("Credential Reference", credentialReferenceFormAsset.asWidget());
         return additionalWidgets;
@@ -80,7 +83,7 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
     @Override
     protected void selectTableItem(final Property prop) {
         if (prop != null) {
-            credentialReferenceFormAsset.getForm().edit(prop.getValue().get(COMPLEX_ATTRIBUTE));
+            credentialReferenceFormAsset.getForm().edit(prop.getValue().get(CREDENTIAL_REFERENCE));
         } else {
             credentialReferenceFormAsset.getForm().clearValues();
         }

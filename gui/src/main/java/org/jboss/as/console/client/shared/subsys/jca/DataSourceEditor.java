@@ -30,6 +30,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -176,6 +177,7 @@ public class DataSourceEditor {
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
 
         connectionProps = new ConnectionProperties(presenter);

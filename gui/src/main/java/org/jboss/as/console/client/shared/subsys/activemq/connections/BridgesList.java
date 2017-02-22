@@ -16,6 +16,7 @@ import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.BridgeConnectionsForm;
 import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultBridgeForm;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
@@ -30,6 +31,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
 import static org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter.MESSAGING_SERVER;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 
 /**
  * @author Heiko Braun
@@ -118,7 +120,7 @@ public class BridgesList {
                     }
                 });
 
-        credentialRefFormAsset = new ComplexAttributeForm("credential-reference", securityContext,
+        credentialRefFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext,
                 bridgeResourceDescription).build();
 
         credentialRefFormAsset.getForm().setToolsCallback(new FormCallback() {
@@ -134,6 +136,7 @@ public class BridgesList {
                 credentialRefFormAsset.getForm().cancel();
             }
         });
+        credentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         table.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(event -> {
