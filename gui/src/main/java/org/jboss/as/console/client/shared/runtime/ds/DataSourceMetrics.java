@@ -40,6 +40,37 @@ import static org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPres
  */
 public class DataSourceMetrics implements SelectionAwareContext {
 
+    private static final String[] XA_ONLY = new String[]{
+            "XACommitAverageTime",
+            "XACommitCount",
+            "XACommitMaxTime",
+            "XACommitTotalTime",
+            "XAEndAverageTime",
+            "XAEndCount",
+            "XAEndMaxTime",
+            "XAEndTotalTime",
+            "XAForgetAverageTime",
+            "XAForgetCount",
+            "XAForgetMaxTime",
+            "XAForgetTotalTime",
+            "XAPrepareAverageTime",
+            "XAPrepareCount",
+            "XAPrepareMaxTime",
+            "XAPrepareTotalTime",
+            "XARecoverAverageTime",
+            "XARecoverCount",
+            "XARecoverMaxTime",
+            "XARecoverTotalTime",
+            "XARollbackAverageTime",
+            "XARollbackCount",
+            "XARollbackMaxTime",
+            "XARollbackTotalTime",
+            "XAStartAverageTime",
+            "XAStartCount",
+            "XAStartMaxTime",
+            "XAStartTotalTime"
+    };
+
     private DataSourceMetricPresenter presenter;
     private DefaultCellTable<DataSource> table;
     private ListDataProvider<DataSource> dataProvider;
@@ -161,12 +192,15 @@ public class DataSourceMetrics implements SelectionAwareContext {
         ResourceDescription resDescription = presenter.getDescriptionRegistry()
                 .lookup(AddressTemplate.of(DATASOURCE_POOL_ADDRESS));
 
-        poolStatsForm = new ModelNodeFormBuilder()
+        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setRuntimeOnly()
                 .setResourceDescription(resDescription)
                 .setSecurityContext(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken()))
-                .build();
+                        Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken()));
+        if (!isXA) {
+            builder.exclude(XA_ONLY);
+        }
+        poolStatsForm = builder.build();
 
         NumberColumn avail = new NumberColumn("AvailableCount", "Available Connections");
         Column[] cols = new Column[]{
