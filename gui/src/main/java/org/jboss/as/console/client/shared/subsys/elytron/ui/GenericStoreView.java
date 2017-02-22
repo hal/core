@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ModifyComplexAttribute;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -34,6 +35,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
 import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
 import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
@@ -43,7 +45,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
  */
 public class GenericStoreView extends ElytronGenericResourceView {
 
-    public static final String COMPLEX_ATTRIBUTE = "credential-reference";
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
 
     public GenericStoreView(final Dispatcher circuit,
@@ -54,7 +55,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
 
         // repackage credential-reference inner attributes to show up in the ADD modal dialog
         ModelNode reqPropsDescription = resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
-        ModelNode credRefDescription = reqPropsDescription.get(COMPLEX_ATTRIBUTE).get(VALUE_TYPE);
+        ModelNode credRefDescription = reqPropsDescription.get(CREDENTIAL_REFERENCE).get(VALUE_TYPE);
         reqPropsDescription.get("credential-reference-store").set(credRefDescription.get("store")).get("nillable")
                 .set(true);
         reqPropsDescription.get("credential-reference-alias").set(credRefDescription.get("alias")).get("nillable")
@@ -64,20 +65,20 @@ public class GenericStoreView extends ElytronGenericResourceView {
         reqPropsDescription.get("credential-reference-clear-text").set(credRefDescription.get("clear-text"))
                 .get("nillable").set(true);
 
-        excludesFormAttributes(COMPLEX_ATTRIBUTE);
+        excludesFormAttributes(CREDENTIAL_REFERENCE);
     }
 
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
-        credentialReferenceFormAsset = new ComplexAttributeForm(COMPLEX_ATTRIBUTE, securityContext, resourceDescription)
+        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription)
                 .build();
 
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyComplexAttribute(addressTemplate, COMPLEX_ATTRIBUTE,
+                circuit.dispatch(new ModifyComplexAttribute(addressTemplate, CREDENTIAL_REFERENCE,
                         selectionModel.getSelectedObject().getName(),
                         credentialReferenceFormAsset.getForm().getUpdatedEntity()));
             }
@@ -87,6 +88,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         additionalWidgets.put("Credential Reference", credentialReferenceFormAsset.asWidget());
         return additionalWidgets;
@@ -103,7 +105,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
     @Override
     protected void selectTableItem(final Property prop) {
         if (prop != null) {
-            credentialReferenceFormAsset.getForm().edit(prop.getValue().get(COMPLEX_ATTRIBUTE));
+            credentialReferenceFormAsset.getForm().edit(prop.getValue().get(CREDENTIAL_REFERENCE));
         } else {
             credentialReferenceFormAsset.getForm().clearValues();
         }
@@ -114,7 +116,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
                 .setResourceDescription(resourceDescription)
                 .setCreateMode(true)
                 .unsorted()
-                .exclude(COMPLEX_ATTRIBUTE)
+                .exclude(CREDENTIAL_REFERENCE)
                 .createValidators(true)
                 .requiresAtLeastOne("credential-reference-store", "credential-reference-alias",
                         "credential-reference-type", "credential-reference-clear-text")
@@ -150,7 +152,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
 
     @Override
     protected void onAddCallbackBeforeSubmit(final ModelNode payload) {
-        payload.get(COMPLEX_ATTRIBUTE).setEmptyObject();
+        payload.get(CREDENTIAL_REFERENCE).setEmptyObject();
         safeGet(payload, "credential-reference-store", "store");
         safeGet(payload, "credential-reference-alias", "alias");
         safeGet(payload, "credential-reference-type", "type");
@@ -171,7 +173,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
     private void safeGet(ModelNode payload, String repackagedPropName, String propertyName) {
         ModelNode value = payload.get(repackagedPropName);
         if (payload.hasDefined(repackagedPropName) && value.asString().trim().length() > 0) {
-            payload.get(COMPLEX_ATTRIBUTE).get(propertyName).set(value);
+            payload.get(CREDENTIAL_REFERENCE).get(propertyName).set(value);
         }
         payload.remove(repackagedPropName);
     }

@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
@@ -178,6 +179,7 @@ public class ProviderView implements MessagingAddress {
                 clusterCredentialRefFormAsset.getForm().cancel();
             }
         });
+        clusterCredentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         // journal
         journalForm = new ModelNodeFormBuilder()
