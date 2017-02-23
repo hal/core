@@ -1,5 +1,13 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
@@ -19,14 +27,6 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -39,6 +39,8 @@ public class HostStore extends ChangeSupport {
     private final DispatchAsync dispatcher;
 
     private String selectedHost;
+
+    private String domainController;
 
     private Topology topology;
 
@@ -107,7 +109,7 @@ public class HostStore extends ChangeSupport {
     private void synchronizeHosts(final AsyncCallback<Boolean> callback) {
         ModelNode op = new ModelNode();
         op.get(ADDRESS).setEmptyList();
-        op.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+        op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         op.get(CHILD_TYPE).set("host");
 
         Footer.PROGRESS_ELEMENT.reset();
@@ -126,10 +128,13 @@ public class HostStore extends ChangeSupport {
                     Footer.PROGRESS_ELEMENT.finish();
                     callback.onFailure(new RuntimeException("Failed to synchronize host model: " + response.getFailureDescription()));
                 } else {
-                    List<ModelNode> items = response.get(RESULT).asList();
-                    List<String> hostNames = new ArrayList<String>(items.size());
-                    for (ModelNode item : items) {
-                        hostNames.add(item.asString());
+                    List<Property> properties = response.get(RESULT).asPropertyList();
+                    List<String> hostNames = new ArrayList<String>(properties.size());
+                    for (Property property : properties) {
+                        hostNames.add(property.getName());
+                        if (property.getValue().hasDefined("master") && property.getValue().get("master").asBoolean()) {
+                            domainController = property.getName();
+                        }
                     }
 
                     Footer.PROGRESS_ELEMENT.finish();
@@ -259,6 +264,10 @@ public class HostStore extends ChangeSupport {
 
     public String getSelectedHost() {
         return selectedHost;
+    }
+
+    public String getDomainController() {
+        return domainController;
     }
 
     public class NoHostsAvailable extends RuntimeException {

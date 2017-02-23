@@ -85,7 +85,7 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
         if (ManagementModel.supportsCapabilitiesRegistry(context.getManagementVersion())) {
             ResourceAddress address = control.getContext().isStandalone()
                     ? new ResourceAddress()
-                    : new ResourceAddress().add(HOST, hostStore.getSelectedHost());
+                    : new ResourceAddress().add(HOST, hostStore.getDomainController());
             address.add("core-service", "capability-registry");
 
             ModelNode possibleCapabilitiesKey = new ModelNode();
