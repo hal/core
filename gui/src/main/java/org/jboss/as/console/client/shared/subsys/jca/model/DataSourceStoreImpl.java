@@ -152,18 +152,18 @@ public class DataSourceStoreImpl implements DataSourceStore {
                     ModelNode resultNode = response.get(RESULT);
                     if (isXA) {
                         XADataSource datasource = xaDataSourceAdapter.fromDMR(resultNode.asObject());
-                        if (resultNode.hasDefined("credential-reference")) {
+                        if (resultNode.hasDefined(CREDENTIAL_REFERENCE)) {
                             CredentialReference credentialReference = credentialReferenceAdapter.fromDMR(
-                                    resultNode.get("credential-reference"));
+                                    resultNode.get(CREDENTIAL_REFERENCE));
                             datasource.setCredentialReference(credentialReference);
                         }
                         datasource.setName(name);
                         callback.onSuccess(datasource);
                     } else {
                         DataSource datasource = dataSourceAdapter.fromDMR(resultNode);
-                        if (resultNode.hasDefined("credential-reference")) {
+                        if (resultNode.hasDefined(CREDENTIAL_REFERENCE)) {
                             CredentialReference credentialReference = credentialReferenceAdapter.fromDMR(
-                                    resultNode.get("credential-reference"));
+                                    resultNode.get(CREDENTIAL_REFERENCE));
                             datasource.setCredentialReference(credentialReference);
                         }
                         datasource.setName(name);
@@ -492,7 +492,7 @@ public class DataSourceStoreImpl implements DataSourceStore {
         ModelNode operation;
         if (payload.asList().size()  > 0) {
             ModelNodeAdapter adapter = new ModelNodeAdapter();
-            operation = adapter.fromComplexAttribute(address, "credential-reference", payload);
+            operation = adapter.fromComplexAttribute(address, CREDENTIAL_REFERENCE, payload);
         } else {
             // if the payload is empty, undefine the complex attribute
             // otherwise an empty attribute is a defined attribute and as the user wants to remove all
@@ -500,7 +500,7 @@ public class DataSourceStoreImpl implements DataSourceStore {
             operation = new ModelNode();
             operation.get(ADDRESS).set(address);
             operation.get(OP).set(UNDEFINE_ATTRIBUTE_OPERATION);
-            operation.get(NAME).set("credential-reference");
+            operation.get(NAME).set(CREDENTIAL_REFERENCE);
         }
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {

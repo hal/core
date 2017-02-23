@@ -32,6 +32,7 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
@@ -51,6 +52,7 @@ import org.jboss.dmr.client.Property;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
 import static org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter.XADATASOURCE_TEMPLATE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 
 /**
  * @author Heiko Braun
@@ -174,7 +176,7 @@ public class XADataSourceEditor implements PropertyManagement {
         });
 
         // credential-reference attribute
-        credentialReferenceFormAsset = new ComplexAttributeForm("credential-reference",
+        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE,
                 securityContext, resourceDescription).build();
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -186,7 +188,7 @@ public class XADataSourceEditor implements PropertyManagement {
                         updatedEntity.remove(prop.getName());
                     }
                 }
-                presenter.onSaveComplexAttribute(selectedEntity.getName(), "credential-reference", updatedEntity);
+                presenter.onSaveComplexAttribute(selectedEntity.getName(), CREDENTIAL_REFERENCE, updatedEntity);
             }
 
             @Override
@@ -194,6 +196,7 @@ public class XADataSourceEditor implements PropertyManagement {
                 credentialReferenceFormAsset.getForm().cancel();
             }
         });
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
         recoveryFormAsset = new ModelNodeFormBuilder()
                 .setConfigOnly()

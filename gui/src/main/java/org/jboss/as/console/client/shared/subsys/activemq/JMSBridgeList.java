@@ -30,6 +30,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.MapAttributeAddPropertyDialog;
@@ -157,7 +158,7 @@ class JMSBridgeList {
                 .getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(JMSBRIDGE_TEMPLATE);
 
-        ModelNodeFormBuilder.FormAssets formAsset = new ComplexAttributeForm( complexAttributeName, securityContext,
+        ModelNodeFormBuilder.FormAssets formAsset = new ComplexAttributeForm(complexAttributeName, securityContext,
                 definition).build();
 
         formAsset.getForm().setToolsCallback(new FormCallback() {
@@ -173,6 +174,7 @@ class JMSBridgeList {
                 formAsset.getForm().cancel();
             }
         });
+        formAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
         return formAsset;
     }
 
