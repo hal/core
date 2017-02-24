@@ -31,7 +31,9 @@ import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
 import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -51,7 +53,16 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
-        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription).build();
+        // verify if credential-reference required=true, then either clear-text or store must be set.
+        ModelNodeFormBuilder builder = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription).builder();
+        if (resourceDescription.get(ATTRIBUTES).get(CREDENTIAL_REFERENCE).hasDefined(NILLABLE)) {
+            boolean nillable = resourceDescription.get(ATTRIBUTES).get(CREDENTIAL_REFERENCE).get(NILLABLE).asBoolean();
+            if (!nillable) {
+                builder.createValidators(true);
+                builder.requiresAtLeastOne("clear-text", "store");
+            }
+        }
+        credentialReferenceFormAsset = builder.build();
 
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
