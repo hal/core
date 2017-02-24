@@ -231,10 +231,10 @@ public class ApplicationSecurityDomainResourceView {
                 .setCreateNameAttribute(false)
                 .setSecurityContext(securityContext)
                 .createValidators(true)
-                .requiresAtLeastOne("credential-reference-store", "credential-reference-alias",
-                        "credential-reference-type", "credential-reference-clear-text")
+                .requiresAtLeastOne("credential-reference-store", "credential-reference-clear-text")
                 .build();
         ssoAddFormAssets.getForm().setEnabled(true);
+        ssoAddFormAssets.getForm().addFormValidator(new CredentialReferenceFormValidation(true));
 
         return layoutBuilder.build();
     }

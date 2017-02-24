@@ -23,11 +23,12 @@ import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.TYPE;
 
 /**
  * Custom validator for credential-reference attribute, as credential-reference doesn't set the "requires" and
- *   "alternatives" constraints, HAL should validate user input.
+ *   "alternatives" metadata, HAL should validate user input.
  *
  * the write combinations:
  * requires constraint:
@@ -47,13 +48,35 @@ public class CredentialReferenceFormValidation implements FormValidator {
     private static final String ALIAS = "alias";
     private static final String CLEAR_TEXT = "clear-text";
 
+    // see constructor comment
+    private boolean prefixCredentialNames;
+
+    public CredentialReferenceFormValidation() { }
+
+    /**
+     *
+     * Some credential-reference attribute is required=true, when used in the add modal dialog, the resource description
+     *  attributes are rewritten with the credential-reference prefix, see GenericStoreView class
+     *
+     */
+    public CredentialReferenceFormValidation(boolean prefixCredentialNames) {
+        this.prefixCredentialNames = prefixCredentialNames;
+    }
+
     @Override
     public void validate(final List<FormItem> formItems, final FormValidation formValidation) {
 
-
-        FormItem aliasFormItem = findFormItem(formItems, ALIAS);
-        FormItem storeFormItem = findFormItem(formItems, STORE);
-        FormItem clearTextFormItem = findFormItem(formItems, CLEAR_TEXT);
+        String alias = ALIAS;
+        String store = STORE;
+        String clearText = CLEAR_TEXT;
+        if (prefixCredentialNames) {
+            alias = CREDENTIAL_REFERENCE + "-" + ALIAS;
+            store = CREDENTIAL_REFERENCE + "-" + STORE;
+            clearText = CREDENTIAL_REFERENCE + "-" + CLEAR_TEXT;
+        }
+        FormItem aliasFormItem = findFormItem(formItems, alias);
+        FormItem storeFormItem = findFormItem(formItems, store);
+        FormItem clearTextFormItem = findFormItem(formItems, clearText);
 
         boolean aliasDefined = isFormItemDefined(aliasFormItem);
         boolean storeDefined = isFormItemDefined(storeFormItem);
@@ -61,21 +84,21 @@ public class CredentialReferenceFormValidation implements FormValidator {
 
         // validates the alias and store requires each other
         if (aliasDefined && !storeDefined) {
-            formValidation.addError(STORE);
-            storeFormItem.setErrMessage("This is a required attribute if Alias is used.");
+            formValidation.addError(store);
+            storeFormItem.setErrMessage("This is a required attribute if " + label(alias) + " is used.");
             storeFormItem.setErroneous(true);
         }
         // validates the alias and store requires each other
         if (storeDefined && !aliasDefined) {
-            formValidation.addError(ALIAS);
-            aliasFormItem.setErrMessage("This is a required attribute if Store is used.");
+            formValidation.addError(alias);
+            aliasFormItem.setErrMessage("This is a required attribute if " + label(store) + " is used.");
             aliasFormItem.setErroneous(true);
         }
 
         // validates the alternatives between clear-text and store
         if (storeDefined && clearTextDefined) {
-            formValidation.addError(CLEAR_TEXT);
-            clearTextFormItem.setErrMessage("This field should not be used if the following fields are used: Store");
+            formValidation.addError(clearText);
+            clearTextFormItem.setErrMessage("This field should not be used if the following fields are used: " + label(store));
             clearTextFormItem.setErroneous(true);
         }
 
@@ -93,6 +116,13 @@ public class CredentialReferenceFormValidation implements FormValidator {
                 && item.getValue().toString().trim().length() > 0);
 
         return defined;
+    }
+
+    private String label(String attr) {
+        char[] attrName = attr.toCharArray();
+        attrName[0] = Character.toUpperCase(attrName[0]);
+        return new String(attrName).replace("-", " ");
+
     }
 
 

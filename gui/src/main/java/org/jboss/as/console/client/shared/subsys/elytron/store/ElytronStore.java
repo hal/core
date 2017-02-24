@@ -452,10 +452,29 @@ public class ElytronStore extends ChangeSupport {
     @Process(actionType = ModifyComplexAttribute.class)
     public void modifyComplexAttribute(final ModifyComplexAttribute action, final Dispatcher.Channel channel) {
         ResourceAddress address = action.getAddress().resolve(statementContext, action.getName());
-        Operation operation = new Operation.Builder(WRITE_ATTRIBUTE_OPERATION, address)
+
+        // remove the undefined values
+        ModelNode payload = action.getPayload();
+        for (Property prop : payload.asPropertyList()) {
+            if (!prop.getValue().isDefined()) {
+                payload.remove(prop.getName());
+            }
+        }
+        Operation operation;
+        if (payload.asList().size()  > 0) {
+            operation = new Operation.Builder(WRITE_ATTRIBUTE_OPERATION, address)
                 .param(NAME, action.getComplexAttributeName())
-                .param(VALUE, action.getPayload())
+                .param(VALUE, payload)
                 .build();
+        } else {
+            // if the payload is empty, undefine the complex attribute
+            // otherwise an empty attribute is a defined attribute and as the user wants to remove all
+            // values, it is better to undefine it.
+            operation = new Operation.Builder(UNDEFINE_ATTRIBUTE_OPERATION, address)
+                .param(NAME, CREDENTIAL_REFERENCE)
+                .build();
+        }
+
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {

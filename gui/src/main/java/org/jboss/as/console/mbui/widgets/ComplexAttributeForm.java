@@ -170,6 +170,16 @@ public class ComplexAttributeForm {
                 .build();
     }
 
+    public ModelNodeFormBuilder builder() {
+        ResourceDescription attributeDescription = getAttributeDescription();
+
+        return new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(attributeDescription)
+                .setSecurityContext(getSecurityContext())
+                .exclude(excludes);
+    }
+
     /**
      * Exclude any attribute from the automatic form mapping.
      *

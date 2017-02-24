@@ -34,11 +34,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
-import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -71,8 +67,17 @@ public class GenericStoreView extends ElytronGenericResourceView {
     @Override
     public Map<String, Widget> additionalTabDetails() {
         Map<String, Widget> additionalWidgets = new HashMap<>();
-        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription)
-                .build();
+        ModelNodeFormBuilder builder = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext, resourceDescription)
+                .builder();
+
+        if (resourceDescription.get(ATTRIBUTES).get(CREDENTIAL_REFERENCE).hasDefined(NILLABLE)) {
+            boolean nillable = resourceDescription.get(ATTRIBUTES).get(CREDENTIAL_REFERENCE).get(NILLABLE).asBoolean();
+            if (!nillable) {
+                builder.createValidators(true);
+                builder.requiresAtLeastOne("clear-text", "store");
+            }
+        }
+        credentialReferenceFormAsset = builder.build();
 
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -118,8 +123,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
                 .unsorted()
                 .exclude(CREDENTIAL_REFERENCE)
                 .createValidators(true)
-                .requiresAtLeastOne("credential-reference-store", "credential-reference-alias",
-                        "credential-reference-type", "credential-reference-clear-text")
+                .requiresAtLeastOne("credential-reference-store", "credential-reference-clear-text")
                 .setSecurityContext(securityContext);
 
         formBuilder.addFactory("credential-reference-store", attributeDescription -> {
@@ -147,6 +151,7 @@ public class GenericStoreView extends ElytronGenericResourceView {
         });
 
         ModelNodeFormBuilder.FormAssets formAssets = formBuilder.build();
+        formAssets.getForm().addFormValidator(new CredentialReferenceFormValidation(true));
         return formAssets;
     }
 
@@ -164,8 +169,8 @@ public class GenericStoreView extends ElytronGenericResourceView {
         // and as it is filled, the path is not filled, results in error.
         // so, if the "required" attribute is false AND "path" is undefined, remove the "required" from the payload
         if (addressTemplate.getTemplate().equals(ElytronStore.KEY_STORE_ADDRESS.getTemplate())) {
-            if (!payload.hasDefined("path") && payload.hasDefined("required") && !payload.get("required").asBoolean()) {
-                payload.remove("required");
+            if (!payload.hasDefined(PATH) && payload.hasDefined(REQUIRED) && !payload.get(REQUIRED).asBoolean()) {
+                payload.remove(REQUIRED);
             }
         }
     }

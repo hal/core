@@ -44,6 +44,92 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ModelNodeFormBuilder {
 
+    public interface FormItemFactory {
+
+        FormItem create(Property attributeDescription);
+    }
+
+
+    public final class FormAssets {
+
+        private ModelNodeForm form;
+        private SafeHtml help;
+        private Set<String[]> unsupportedTypes = Collections.EMPTY_SET;
+
+        public FormAssets(ModelNodeForm form, SafeHtml help) {
+            this.form = form;
+            this.help = help;
+        }
+
+        public ModelNodeForm getForm() {
+            return form;
+        }
+
+        public StaticHelpPanel getHelp() {
+            return new StaticHelpPanel(help);
+        }
+
+        public Set<String[]> getUnsupportedTypes() {
+            return unsupportedTypes;
+        }
+
+        public void setUnsupportedTypes(Set<String[]> unsupportedTypes) {
+            this.unsupportedTypes = unsupportedTypes;
+        }
+
+        public Widget asWidget() {
+
+            VerticalPanel formPanel = new VerticalPanel();
+            formPanel.setStyleName("fill-layout-width");
+            formPanel.add(getHelp().asWidget());
+            formPanel.add(getForm().asWidget());
+            return formPanel;
+        }
+    }
+
+    /**
+     * a more lenient way to update values by type
+     */
+    public static void setValue(ModelNode target, ModelType type, Object propValue) {
+
+        if (type.equals(ModelType.STRING)) {
+            target.set((String) propValue);
+        } else if (type.equals(ModelType.INT)) {
+            target.set((Integer) propValue);
+        } else if (type.equals(ModelType.DOUBLE)) {
+            target.set((Double) propValue);
+        } else if (type.equals(ModelType.LONG)) {
+            // in some cases the server returns the wrong model type for numeric values
+            // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
+            try {
+                target.set((Long) propValue);
+            } catch (Throwable e) { // ClassCastException
+                target.set(Integer.valueOf((Integer) propValue));
+            }
+        } else if (type.equals(ModelType.BIG_DECIMAL)) {
+            // in some cases the server returns the wrong model type for numeric values
+            // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
+            try {
+                target.set((BigDecimal) propValue);
+            } catch (Throwable e) { // ClassCastException
+                target.set(Double.valueOf((Double) propValue));
+            }
+        } else if (type.equals(ModelType.BOOLEAN)) {
+            target.set((Boolean) propValue);
+        } else if (type.equals(ModelType.LIST)) {
+            target.setEmptyList();
+            List list = (List) propValue;
+
+            for (Object item : list) {
+                target.add(String.valueOf(item));
+            }
+        } else {
+            Log.warn("Type conversionnot supported for " + type);
+            target.setEmptyObject();
+        }
+
+    }
+
     private ModelNodeForm form;
     private SecurityContext securityContext;
     private Capabilities capabilities;
@@ -52,7 +138,6 @@ public class ModelNodeFormBuilder {
     private Set<String> includes = new LinkedHashSet<>();
     private Set<String> excludes = new HashSet<>();
     private Set<String> requiresAtLeastOne = new HashSet<>();
-
     private boolean runtimeAttributes = true;
     private boolean configAttributes = true;
     private boolean requiredOnly;
@@ -63,20 +148,16 @@ public class ModelNodeFormBuilder {
     private boolean createNameField = true;
     private boolean includeDeprecated;
     private boolean createValidators;
-
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
-
-    public interface FormItemFactory {
-
-        FormItem create(Property attributeDescription);
-    }
 
     public ModelNodeFormBuilder() {
         this.capabilities = Console.MODULES.getCapabilities();
     }
 
     public ModelNodeFormBuilder setSecurityContext(SecurityContext sc) {
-        if (null == sc) { throw new IllegalArgumentException("SecurityContext cannot be null!"); }
+        if (null == sc) {
+            throw new IllegalArgumentException("SecurityContext cannot be null!");
+        }
         this.securityContext = sc;
         return this;
     }
@@ -138,11 +219,10 @@ public class ModelNodeFormBuilder {
 
     /**
      * Include the deprecated attributes in the form.
-     *
      */
     public ModelNodeFormBuilder includeDeprecated(boolean includes) {
         this.includeDeprecated = includes;
-        return  this;
+        return this;
     }
 
     /**
@@ -159,8 +239,8 @@ public class ModelNodeFormBuilder {
     }
 
     /**
-     *  Adds a validator to the form, to require at least one of them to be filled.
-     *  Requires use of createValidators(true)
+     * Adds a validator to the form, to require at least one of them to be filled.
+     * Requires use of createValidators(true)
      */
     public ModelNodeFormBuilder requiresAtLeastOne(String... attributeName) {
         if (attributeName != null && attributeName.length != 0) {
@@ -277,7 +357,9 @@ public class ModelNodeFormBuilder {
                     continue;
                 }
 
-                if (!attr.getName().equals(attribute)) { continue; }
+                if (!attr.getName().equals(attribute)) {
+                    continue;
+                }
 
                 // -------
                 // Attribute meta data
@@ -320,14 +402,20 @@ public class ModelNodeFormBuilder {
                 boolean isRequired = isRequired(attrDesc);
 
                 // createMode flag
-                if ((createMode && readOnly)) { continue; }
+                if ((createMode && readOnly)) {
+                    continue;
+                }
 
                 // requiredOnly flag
-                if (requiredOnly && hasRequired && !isRequired) { continue; }
+                if (requiredOnly && hasRequired && !isRequired) {
+                    continue;
+                }
 
 
                 // count writable attributes
-                if (!readOnly && !isRuntime) { numWritable++; }
+                if (!readOnly && !isRuntime) {
+                    numWritable++;
+                }
 
                 // count the requires attributes, for later validation
                 if (createValidators && attrDesc.hasDefined("requires")) {
@@ -372,7 +460,8 @@ public class ModelNodeFormBuilder {
                     switch (type) {
                         case BOOLEAN:
                             ModelNode expressionsAllowedNode = attrDesc.get(EXPRESSIONS_ALLOWED);
-                            boolean expressionAllowed = expressionsAllowedNode.isDefined() && expressionsAllowedNode.asBoolean();
+                            boolean expressionAllowed = expressionsAllowedNode.isDefined() && expressionsAllowedNode
+                                    .asBoolean();
 
                             CheckBoxItem checkBoxItem = new CheckBoxItem(attr.getName(), label);
                             checkBoxItem.setRequired(isRequired);
@@ -424,7 +513,9 @@ public class ModelNodeFormBuilder {
                             if (attrDesc.get("allowed").isDefined()) {
                                 List<ModelNode> allowed = attrDesc.get("allowed").asList();
                                 Set<String> allowedValues = new HashSet<String>(allowed.size());
-                                for (ModelNode value : allowed) { allowedValues.add(value.asString()); }
+                                for (ModelNode value : allowed) {
+                                    allowedValues.add(value.asString());
+                                }
 
                                 final boolean allowEmptyOption = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE)
                                         .asBoolean();
@@ -469,7 +560,9 @@ public class ModelNodeFormBuilder {
 
                 if (formItem != null) {
                     if (createMode) {
-                        if (isRequired && includeOptionals) { requiredItems.add(formItem); } else {
+                        if (isRequired && includeOptionals) {
+                            requiredItems.add(formItem);
+                        } else {
                             optionalItems.add(formItem);
                         }
                     } else {
@@ -545,27 +638,28 @@ public class ModelNodeFormBuilder {
             form.addFormValidator((formItems, formValidation) -> {
 
                 // validates the "requires" constraint
-                for (String attr: requires.keySet()) {
+                for (String attr : requires.keySet()) {
                     List<ModelNode> requiredAttrs = requires.get(attr).asList();
                     FormItem sourceFormItem = findFormItem(formItems, attr);
                     // iterate over the "requires" attribute list
 
                     boolean sourceItemDefined = isFormItemDefined(sourceFormItem);
-                    for (ModelNode reqAttr: requiredAttrs) {
+                    for (ModelNode reqAttr : requiredAttrs) {
                         String requiredAttrName = reqAttr.asString();
                         FormItem item = findFormItem(formItems, requiredAttrName);
 
                         boolean itemUndefined = !isFormItemDefined(item);
                         if (sourceItemDefined && itemUndefined) {
                             formValidation.addError(requiredAttrName);
-                            item.setErrMessage("This is a required attribute if " + sourceFormItem.getTitle()+ " is used.");
+                            item.setErrMessage(
+                                    "This is a required attribute if " + sourceFormItem.getTitle() + " is used.");
                             item.setErroneous(true);
                             break;
                         }
                     }
                 }
                 // validates the "alternatives" constraint
-                for (String attr: alternatives.keySet()) {
+                for (String attr : alternatives.keySet()) {
                     List<ModelNode> alternativeAttrs = alternatives.get(attr).asList();
 
                     FormItem sourceFormItem = findFormItem(formItems, attr);
@@ -582,8 +676,9 @@ public class ModelNodeFormBuilder {
                             String alternativeAttrName = reqAttr.asString();
                             FormItem item = findFormItem(formItems, alternativeAttrName);
                             buff.append(item.getTitle());
-                            if (i++ + 1 < size)
+                            if (i++ + 1 < size) {
                                 buff.append(", ");
+                            }
                             boolean fieldAltIsInUse = isFormItemDefined(item);
 
                             if (fieldAltIsInUse) {
@@ -593,7 +688,8 @@ public class ModelNodeFormBuilder {
                         }
                         if (alternativeUsed) {
                             formValidation.addError(attr);
-                            sourceFormItem.setErrMessage("This field should not be used if the following fields are used: " + buff);
+                            sourceFormItem.setErrMessage(
+                                    "This field should not be used if the following fields are used: " + buff);
                             sourceFormItem.setErroneous(true);
                         }
                     }
@@ -612,15 +708,18 @@ public class ModelNodeFormBuilder {
                     for (String attr : requiresAtLeastOne) {
                         FormItem item = findFormItem(formItems, attr);
 
-                        if (defaultAttribute == null)
+                        if (defaultAttribute == null) {
                             defaultAttribute = attr;
+                        }
 
-                        if (defaultFormItem == null)
+                        if (defaultFormItem == null) {
                             defaultFormItem = item;
+                        }
 
                         buff.append(item.getTitle());
-                        if (i++ + 1 < size)
+                        if (i++ + 1 < size) {
                             buff.append(", ");
+                        }
 
                         fieldIsInUse = isFormItemDefined(item);
                         if (fieldIsInUse) {
@@ -657,8 +756,8 @@ public class ModelNodeFormBuilder {
         // the string type always comes defined, the string length is evaluated if is set by the user
         boolean sourceBooleanType = ModelType.BOOLEAN.equals(sourceMetadata.get(TYPE).asType());
         boolean defined = (sourceBooleanType && Boolean.parseBoolean(item.getValue().toString()))
-                        || (!sourceBooleanType && !item.isUndefined()
-                            && item.getValue().toString().trim().length() > 0);
+                || (!sourceBooleanType && !item.isUndefined()
+                && item.getValue().toString().trim().length() > 0);
 
         return defined;
     }
@@ -704,84 +803,6 @@ public class ModelNodeFormBuilder {
         this.createMode = createMode;
 
         return this;
-    }
-
-    public final class FormAssets {
-
-        private ModelNodeForm form;
-        private SafeHtml help;
-        private Set<String[]> unsupportedTypes = Collections.EMPTY_SET;
-
-        public FormAssets(ModelNodeForm form, SafeHtml help) {
-            this.form = form;
-            this.help = help;
-        }
-
-        public ModelNodeForm getForm() {
-            return form;
-        }
-
-        public StaticHelpPanel getHelp() {
-            return new StaticHelpPanel(help);
-        }
-
-        public void setUnsupportedTypes(Set<String[]> unsupportedTypes) {
-            this.unsupportedTypes = unsupportedTypes;
-        }
-
-        public Set<String[]> getUnsupportedTypes() {
-            return unsupportedTypes;
-        }
-
-        public Widget asWidget() {
-
-            VerticalPanel formPanel = new VerticalPanel();
-            formPanel.setStyleName("fill-layout-width");
-            formPanel.add(getHelp().asWidget());
-            formPanel.add(getForm().asWidget());
-            return formPanel;
-        }
-    }
-
-    /**
-     * a more lenient way to update values by type
-     */
-    public static void setValue(ModelNode target, ModelType type, Object propValue) {
-
-        if (type.equals(ModelType.STRING)) {
-            target.set((String) propValue);
-        } else if (type.equals(ModelType.INT)) {
-            target.set((Integer) propValue);
-        } else if (type.equals(ModelType.DOUBLE)) {
-            target.set((Double) propValue);
-        } else if (type.equals(ModelType.LONG)) {
-            // in some cases the server returns the wrong model type for numeric values
-            // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
-            try {
-                target.set((Long) propValue);
-            } catch (Throwable e) { // ClassCastException
-                target.set(Integer.valueOf((Integer) propValue));
-            }
-        } else if (type.equals(ModelType.BIG_DECIMAL)) {
-            // in some cases the server returns the wrong model type for numeric values
-            // i.e the description affords a ModelType.LONG, but a ModelType.INTEGER is returned
-            try {
-                target.set((BigDecimal) propValue);
-            } catch (Throwable e) { // ClassCastException
-                target.set(Double.valueOf((Double) propValue));
-            }
-        } else if (type.equals(ModelType.BOOLEAN)) {
-            target.set((Boolean) propValue);
-        } else if (type.equals(ModelType.LIST)) {
-            target.setEmptyList();
-            List list = (List) propValue;
-
-            for (Object item : list) { target.add(String.valueOf(item)); }
-        } else {
-            Log.warn("Type conversionnot supported for " + type);
-            target.setEmptyObject();
-        }
-
     }
 
 }
