@@ -47,26 +47,27 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 public class CoreCapabilitiesRegister implements BootstrapStep {
 
     // address used by components that doesn't set capability-reference
+    public static final String CACHE_CONTAINER = "org.wildfly.clustering.infinispan.cache-container";
+    public static final String DATASOURCE = "org.wildfly.data-source";
+    public static final String EJB_APPLICATION_SECURITY_DOMAIN = "org.wildfly.ejb3.application-security-domain";
+    public static final String EJB_CACHE = "org.wildfly.ejb3.cache";
+    public static final String EJB_PASSIVATION_STORE = "org.wildfly.ejb3.passivation-store";
+    public static final String EJB_THREAD_POOL = "org.wildfly.ejb3.thread-pool";
+    public static final String JGROUPS_CHANNEL = "org.wildfly.clustering.jgroups.channel";
+    public static final String JGROUPS_STACK = "org.wildfly.jgroups.stack";
+    public static final String LOGGING_FORMATTER = "org.wildfly.logging.formatter";
+    public static final String MESSAGING_QUEUES = "org.wildfly.messaging-activemq.queues";
     public static final String NETWORK_OUTBOUND_SOCKET_BINDING = "org.wildfly.network.outbound-socket-binding";
     public static final String NETWORK_SOCKET_BINDING = "org.wildfly.network.socket-binding";
-    public static final String DATASOURCE = "org.wildfly.data-source";
+    public static final String REMOTING_HTTP_CONNECTOR = "org.wildfly.remoting.http-connector";
     public static final String SECURITY_DOMAIN = "org.wildfly.security.legacy-security-domain";
     public static final String SECURITY_SSL_CONTEXT = "org.wildfly.security.ssl-context";
     public static final String STATELESS_SESSION_BEAN_POOL = "org.wildfly.ejb3.slsb-pool";
-    public static final String EJB_CACHE = "org.wildfly.ejb3.cache";
-    public static final String EJB_PASSIVATION_STORE = "org.wildfly.ejb3.passivation-store";
-    public static final String CACHE_CONTAINER = "org.wildfly.clustering.infinispan.cache-container";
-    public static final String EJB_THREAD_POOL = "org.wildfly.ejb3.thread-pool";
-    public static final String EJB_APPLICATION_SECURITY_DOMAIN = "org.wildfly.ejb3.application-security-domain";
-    public static final String REMOTING_HTTP_CONNECTOR = "org.wildfly.remoting.http-connector";
-    public static final String LOGGING_FORMATTER = "org.wildfly.logging.formatter";
-    public static final String JGROUPS_STACK = "org.wildfly.jgroups.stack";
-    public static final String JGROUPS_CHANNEL = "org.wildfly.clustering.jgroups.channel";
-    public static final String UNDERTOW_LISTENER = "org.wildfly.undertow.listener";
-    public static final String UNDERTOW_SERVER = "org.wildfly.undertow.server";
     public static final String UNDERTOW_HOST = "org.wildfly.undertow.host";
-    public static final String UNDERTOW_SERVLET_CONTAINER = "org.wildfly.undertow.servlet-container";
+    public static final String UNDERTOW_LISTENER = "org.wildfly.undertow.listener";
     public static final String UNDERTOW_RESPONSE_FILTER = "org.wildfly.undertow.filter";
+    public static final String UNDERTOW_SERVER = "org.wildfly.undertow.server";
+    public static final String UNDERTOW_SERVLET_CONTAINER = "org.wildfly.undertow.servlet-container";
 
     private DispatchAsync dispatcher;
     private HostStore hostStore;
@@ -176,6 +177,10 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
         capabilities.register(LOGGING_FORMATTER, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=logging/pattern-formatter=*"),
                 AddressTemplate.of("/{selected.profile}/subsystem=logging/custom-formatter=*"));
+
+        capabilities.register(MESSAGING_QUEUES, true,
+                AddressTemplate.of("/{selected.profile}/subsystem=messaging-activemq/server=*/jms-queue=*"),
+                AddressTemplate.of("/{selected.profile}/subsystem=messaging-activemq/server=*/jms-topic=*"));
 
         capabilities.register(JGROUPS_STACK, true,
                 AddressTemplate.of("/{selected.profile}/subsystem=jgroups/stack=*"));

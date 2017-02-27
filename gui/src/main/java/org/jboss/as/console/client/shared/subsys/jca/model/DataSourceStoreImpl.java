@@ -516,7 +516,6 @@ public class DataSourceStoreImpl implements DataSourceStore {
         });
     }
 
-
     @Override
     public void updateXADataSource(String name, Map<String, Object> changedValues,
             final AsyncCallback<ResponseWrapper<Boolean>> callback) {

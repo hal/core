@@ -160,14 +160,7 @@ public class ComplexAttributeForm {
     }
 
     public ModelNodeFormBuilder.FormAssets build() {
-        ResourceDescription attributeDescription = getAttributeDescription();
-
-        return new ModelNodeFormBuilder()
-                .setConfigOnly()
-                .setResourceDescription(attributeDescription)
-                .setSecurityContext(getSecurityContext())
-                .exclude(excludes)
-                .build();
+        return builder().build();
     }
 
     public ModelNodeFormBuilder builder() {

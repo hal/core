@@ -298,6 +298,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                 } else {
                     Console.info(Console.MESSAGES
                             .successfullyModifiedMessagingProvider(resourceName));
+                    loadProvider();
                 }
             }
         });
