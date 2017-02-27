@@ -157,22 +157,14 @@ public class Console implements EntryPoint, ReloadNotification.Handler, WarningN
 
     public void onWarning(String warning, Level severity){
         Message.Severity messsageSeverity = null;
-        switch(severity.intValue()){
-            case 1000: //SEVERE
-                messsageSeverity = messsageSeverity.Error;
-                break;
-
-            case 900: //WARNING
-                messsageSeverity = messsageSeverity.Warning;
-                break;
-
-            case 800: //INFO
-                messsageSeverity = messsageSeverity.Info;
-                break;
-
-            default://CONFIG/FINE....
-                messsageSeverity = messsageSeverity.Info;
+        if(severity == Level.SEVERE){
+            messsageSeverity = Message.Severity.Error;
+        } else if(severity == Level.WARNING){
+            messsageSeverity = Message.Severity.Warning;
+        } else {
+            messsageSeverity = Message.Severity.Info;
         }
+
         getMessageCenter().notify(new Message(warning.toString(), messsageSeverity));
     }
 

@@ -15,6 +15,7 @@ public class ResponseProcessorDelegate {
     static ResponseProcessor[] processors = {
             new DomainResponseProcessor(),
             new StandaloneResponseProcessor(),
+            new CompositeOperationWarningProcessor(),
             new WarningProcessor()
     };
 
