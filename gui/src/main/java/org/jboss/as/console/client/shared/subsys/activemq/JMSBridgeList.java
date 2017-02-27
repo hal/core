@@ -30,6 +30,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -127,6 +128,13 @@ class JMSBridgeList {
 
         sourceCredentialRefForm = createComplexForm("source-credential-reference");
         targetCredentialRefForm = createComplexForm("target-credential-reference");
+
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        formAssets.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("source-password", sourceCredentialRefForm.getForm(), "Source Credential Reference", true));
+        sourceCredentialRefForm.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("source-password", formAssets.getForm(), "Attributes", false));
+
+        formAssets.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("target-password", targetCredentialRefForm.getForm(), "Target Credential Reference", true));
+        sourceCredentialRefForm.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("target-password", formAssets.getForm(), "Attributes", false));
 
 
         // there are two attributes source-context,target-context, they are of type=OBJECT and value-type=STRING

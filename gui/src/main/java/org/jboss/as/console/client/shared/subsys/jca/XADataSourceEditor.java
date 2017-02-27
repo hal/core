@@ -32,6 +32,7 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
@@ -65,7 +66,6 @@ public class XADataSourceEditor implements PropertyManagement {
     private PropertyEditor propertyEditor;
     private PoolConfigurationView poolConfig;
     private XADataSourceConnection connectionEditor;
-    //private DataSourceSecurityEditor securityEditor;
     private DataSourceValidationEditor validationEditor;
     private DataSourceTimeoutEditor<XADataSource> timeoutEditor;
     private DataSourceStatementEditor<XADataSource> statementEditor;
@@ -197,6 +197,11 @@ public class XADataSourceEditor implements PropertyManagement {
             }
         });
         credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        securityFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", credentialReferenceFormAsset.getForm(), "Credential Reference", true));
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", securityFormAsset.getForm(), "Security", false));
+
 
         recoveryFormAsset = new ModelNodeFormBuilder()
                 .setConfigOnly()

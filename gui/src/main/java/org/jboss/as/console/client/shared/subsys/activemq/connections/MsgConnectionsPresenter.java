@@ -1353,8 +1353,9 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         });
     }
 
-
-
+    public EntityAdapter<ActivemqBridge> getBridgeAdapter() {
+        return bridgeAdapter;
+    }
 
     public EntityAdapter<CredentialReference> getCredentialReferenceAdapter() {
         return credentialReferenceAdapter;

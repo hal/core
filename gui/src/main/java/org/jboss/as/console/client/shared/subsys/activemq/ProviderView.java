@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
@@ -181,6 +182,11 @@ public class ProviderView implements MessagingAddress {
         });
         clusterCredentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        secForm.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("cluster-password", clusterCredentialRefFormAsset.getForm(), "Cluster Credential Reference", true));
+        clusterCredentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("cluster-password", secForm.getForm(), "Security", false));
+
+
         // journal
         journalForm = new ModelNodeFormBuilder()
                 .setConfigOnly()
@@ -247,7 +253,7 @@ public class ProviderView implements MessagingAddress {
         secForm.getForm().edit(provider.getValue());
         journalForm.getForm().edit(provider.getValue());
         ModelNode path = provider.getValue().get("path");
-        clusterCredentialRefFormAsset.getForm().edit(provider.getValue());
+        clusterCredentialRefFormAsset.getForm().edit(provider.getValue().get("cluster-credential-reference"));
         if (path.isDefined()) {
             bindingsDirForm.getForm().edit(path.get("bindings-directory"));
             journalDirForm.getForm().edit(path.get("journal-directory"));

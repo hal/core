@@ -305,4 +305,8 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     public EntityAdapter<CredentialReference> getCredentialReferenceAdapter() {
         return credentialReferenceAdapter;
     }
+
+    public EntityAdapter<MailServerDefinition> getServerAdapter() {
+        return serverAdapter;
+    }
 }

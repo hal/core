@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -15,20 +14,15 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -47,13 +41,13 @@ public class ServerConfigView {
 
     private HTML headline;
     private String description;
-    private Form<MailServerDefinition> form;
     private MailPresenter presenter;
     private ListDataProvider<MailServerDefinition> dataProvider;
     private DefaultCellTable<MailServerDefinition> table;
     private MailSession session;
     private SingleSelectionModel<MailServerDefinition> selectionModel;
     private ModelNodeFormBuilder.FormAssets credentialReferenceFormAsset;
+    private ModelNodeFormBuilder.FormAssets mailFormAsset;
 
     public ServerConfigView(String description, MailPresenter presenter) {
         this.description = description;
@@ -98,42 +92,41 @@ public class ServerConfigView {
         tableTools.addToolButtonRight(addBtn);
         tableTools.addToolButtonRight(removeBtn);
 
-        // ----
-
-        form = new Form<>(MailServerDefinition.class);
-
-        SuggestionResource suggestionResource = new SuggestionResource("socketBinding", "Socket Binding", true,
-                Console.MODULES.getCapabilities().lookup(NETWORK_OUTBOUND_SOCKET_BINDING));
-
-        FormItem socket = suggestionResource.buildFormItem();
-        TextBoxItem user = new TextBoxItem("username", "Username");
-        PasswordBoxItem pass = new PasswordBoxItem("password", "Password");
-        CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");
-
-        form.setFields(socket, ssl, user, pass);
-        form.setEnabled(false);
-        form.setNumColumns(2);
-
-        FormToolStrip formTools = new FormToolStrip<>(form,
-                new FormToolStrip.FormCallback<MailServerDefinition>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveServer(session.getName(), selectionModel.getSelectedObject().getType(),
-                                changeset);
-                    }
-
-                    @Override
-                    public void onDelete(MailServerDefinition entity) {
-
-                    }
-                });
-
-        // credential-reference attribute
         SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription resourceDescription = presenter.getResourceDescriptionRegistry().lookup(
                 MAIL_SMTP_SERVER_TEMPLATE);
+
+        mailFormAsset = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext)
+                .createValidators(true)
+                .exclude(CREDENTIAL_REFERENCE)
+                .addFactory("outbound-socket-binding-ref",
+                        attributeDescription -> new SuggestionResource("outbound-socket-binding-ref",
+                                "Outbound Socket Binding Ref", true,
+                                Console.MODULES.getCapabilities().lookup(NETWORK_OUTBOUND_SOCKET_BINDING))
+                                .buildFormItem())
+                .addFactory("password", attributeDescription -> new PasswordBoxItem("password", "Password", false))
+                .build();
+
+        mailFormAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                presenter.onSaveServer(session.getName(), selectionModel.getSelectedObject().getType(), changeset);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                mailFormAsset.getForm().cancel();
+            }
+        });
+
+
+        // credential-reference attribute
         credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE,
-                securityFramework.getSecurityContext(presenter.getProxy().getNameToken()), resourceDescription).build();
+                securityContext, resourceDescription).build();
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
@@ -152,6 +145,7 @@ public class ServerConfigView {
 
         selectionModel.addSelectionChangeHandler(event -> {
             MailServerDefinition mailDefinition = selectionModel.getSelectedObject();
+            mailFormAsset.getForm().edit(presenter.getServerAdapter().fromEntity(mailDefinition));
             if (mailDefinition.getCredentialReference() != null) {
                 ModelNode bean = presenter.getCredentialReferenceAdapter()
                         .fromEntity(mailDefinition.getCredentialReference());
@@ -162,25 +156,17 @@ public class ServerConfigView {
             }
         });
 
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        mailFormAsset.getForm().addFormValidator(
+                new CredentialReferenceAlternativesFormValidation("password", credentialReferenceFormAsset.getForm(),
+                        "Credential Reference", true));
+        credentialReferenceFormAsset.getForm().addFormValidator(
+                new CredentialReferenceAlternativesFormValidation("password", mailFormAsset.getForm(), "Attributes",
+                        false));
+
+
         headline = new HTML();
         headline.setStyleName("content-header-label");
-
-        final FormHelpPanel helpPanel = new FormHelpPanel(
-                () -> {
-                    ModelNode address = Baseadress.get();
-                    address.add("subsystem", "mail");
-                    address.add("mail-session", "*");
-                    address.add("server", "smtp");
-                    return address;
-                }, form
-        );
-
-
-        VerticalPanel formlayout = new VerticalPanel();
-        formlayout.setStyleName("fill-layout-width");
-
-        formlayout.add(helpPanel.asWidget());
-        formlayout.add(form.asWidget());
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setTitle("Mail Session")
@@ -188,14 +174,11 @@ public class ServerConfigView {
                 .setDescription(description)
                 .setMaster(Console.MESSAGES.available("Mail Server"), table)
                 .setMasterTools(tableTools)
-                .addDetail(Console.CONSTANTS.common_label_attributes(), formlayout)
+                .addDetail(Console.CONSTANTS.common_label_attributes(), mailFormAsset.asWidget())
                 .addDetail("Credential Reference", credentialReferenceFormAsset.asWidget());
 
 
-        form.bind(table);
-
         return layout.build();
-
     }
 
     public void updateFrom(MailSession session) {
@@ -217,7 +200,7 @@ public class ServerConfigView {
         }
 
         dataProvider.setList(server);
-        form.clearValues();
+        mailFormAsset.getForm().clearValues();
         credentialReferenceFormAsset.getForm().clearValues();
         table.selectDefaultEntity();
         SelectionChangeEvent.fire(selectionModel);

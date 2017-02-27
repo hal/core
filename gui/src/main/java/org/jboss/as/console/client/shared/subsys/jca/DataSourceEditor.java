@@ -30,6 +30,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
@@ -157,8 +158,8 @@ public class DataSourceEditor {
         });
 
         // credential-reference attribute
-        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE,
-                securityContext, resourceDescription).build();
+        credentialReferenceFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext,
+                resourceDescription).build();
         credentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
@@ -179,6 +180,9 @@ public class DataSourceEditor {
         });
         credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        securityFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", credentialReferenceFormAsset.getForm(), "Credential Reference", true));
+        credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", securityFormAsset.getForm(), "Security", false));
 
         connectionProps = new ConnectionProperties(presenter);
 

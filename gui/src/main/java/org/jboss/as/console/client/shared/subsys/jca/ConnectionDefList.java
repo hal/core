@@ -10,8 +10,6 @@ import java.util.Set;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -19,6 +17,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.CapacityPolicy;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
@@ -27,6 +27,7 @@ import org.jboss.as.console.client.v3.widgets.PropertyEditor;
 import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
 import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
 import org.jboss.as.console.client.v3.widgets.SuggestionResource;
+import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -36,6 +37,7 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
@@ -46,10 +48,10 @@ import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY
 public class ConnectionDefList {
 
 
-    private final ResourceAdapterPresenter presenter;
-    private final static AddressTemplate ADDRESS_TEMPLATE = AddressTemplate.of("{selected.profile}/subsystem=resource-adapters/resource-adapter=*/connection-definitions=*");
+    private final static AddressTemplate ADDRESS_TEMPLATE = AddressTemplate
+            .of("{selected.profile}/subsystem=resource-adapters/resource-adapter=*/connection-definitions=*");
     private final static AddressTemplate PROPS_ADDRESS = ADDRESS_TEMPLATE.append("config-properties=*");
-
+    private final ResourceAdapterPresenter presenter;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
     private SingleSelectionModel<Property> selectionModel;
@@ -60,12 +62,13 @@ public class ConnectionDefList {
     private ModelNodeFormBuilder.FormAssets secAssets;
     private ModelNodeFormBuilder.FormAssets validationAssets;
     private ModelNodeFormBuilder.FormAssets recoveryAssets;
+    private ModelNodeFormBuilder.FormAssets recoveryCredentialReferenceFormAsset;
 
     public ConnectionDefList(ResourceAdapterPresenter presenter) {
         this.presenter = presenter;
 
         this.table = new DefaultCellTable(5);
-        this.dataProvider = new ListDataProvider<Property>();
+        this.dataProvider = new ListDataProvider<>();
         this.dataProvider.addDataDisplay(table);
     }
 
@@ -80,17 +83,12 @@ public class ConnectionDefList {
         table.addColumn(nameColumn, "Name");
 
         ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.onLaunchAddWizard(ADDRESS_TEMPLATE);
-            }
-        }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Connection Definition"),
-                        Console.MESSAGES.deleteConfirm("Connection Definition '" + getCurrentSelection().getName() + "'"),
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(),
+                event -> presenter.onLaunchAddWizard(ADDRESS_TEMPLATE)));
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(),
+                event -> Feedback.confirm(Console.MESSAGES.deleteTitle("Connection Definition"),
+                        Console.MESSAGES
+                                .deleteConfirm("Connection Definition '" + getCurrentSelection().getName() + "'"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
@@ -98,14 +96,13 @@ public class ConnectionDefList {
                                     presenter.onRemoveChildResource(ADDRESS_TEMPLATE, getCurrentSelection());
                                 }
                             }
-                        });
-            }
-        }));
+                        })));
 
-        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = presenter.getSecurityFramework()
+                .getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(ADDRESS_TEMPLATE);
 
-        String[] poolAttributes = new String[] {
+        String[] poolAttributes = new String[]{
                 "min-pool-size",
                 "max-pool-size",
                 "initial-pool-size",
@@ -119,7 +116,7 @@ public class ConnectionDefList {
                 "capacity-incrementer-properties"
         };
 
-        String[] secAttributes = new String[] {
+        String[] secAttributes = new String[]{
                 "authentication-context",
                 "authentication-context-and-application",
                 "elytron-enabled",
@@ -129,13 +126,13 @@ public class ConnectionDefList {
         };
 
 
-        String[] validationAttributes = new String[] {
+        String[] validationAttributes = new String[]{
                 "background-validation",
                 "background-validation-millis",
                 "validate-on-match"
         };
 
-        String[] recoveryAttributes = new String[] {
+        String[] recoveryAttributes = new String[]{
                 "no-recovery",
                 "recovery-authentication-context",
                 "recovery-elytron-enabled",
@@ -180,7 +177,7 @@ public class ConnectionDefList {
                 .setSecurityContext(securityContext)
                 .include(poolAttributes);
 
-         // decrementer
+        // decrementer
         Set<CapacityPolicy> decs = Sets.filter(EnumSet.allOf(CapacityPolicy.class),
                 (capacityPolicy) -> !capacityPolicy.isIncrement());
         Collection<String> decNames = Collections2.transform(decs, CapacityPolicy::className);
@@ -209,8 +206,9 @@ public class ConnectionDefList {
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
                 .createValidators(true)
-                .addFactory("security-domain", attributeDescription -> new SuggestionResource("security-domain", "Security Domain",
-                        false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
+                .addFactory("security-domain",
+                        attributeDescription -> new SuggestionResource("security-domain", "Security Domain",
+                                false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem())
                 .include(secAttributes);
 
         secAssets = secBuilder.build();
@@ -235,20 +233,51 @@ public class ConnectionDefList {
                 .setSecurityContext(securityContext)
                 .include(recoveryAttributes)
                 .createValidators(true)
-                .addFactory("recovery-password", attributeDescription -> new PasswordBoxItem("recovery-password", "Recovery Password", false))
-                .addFactory("recovery-security-domain", attributeDescription -> new SuggestionResource("recovery-security-domain", "Recovery Security Domain",
-                        false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem());
+                .addFactory("recovery-password",
+                        attributeDescription -> new PasswordBoxItem("recovery-password", "Recovery Password", false))
+                .addFactory("recovery-security-domain",
+                        attributeDescription -> new SuggestionResource("recovery-security-domain",
+                                "Recovery Security Domain",
+                                false, Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN)).buildFormItem());
 
         recoveryAssets = recoveryBuilder.build();
         recoveryAssets.getForm().setToolsCallback(callback);
 
+        // credential-reference attribute
+        recoveryCredentialReferenceFormAsset = new ComplexAttributeForm("recovery-credential-reference",
+                securityContext, definition).build();
+        recoveryCredentialReferenceFormAsset.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                ModelNode updatedEntity = recoveryCredentialReferenceFormAsset.getForm().getUpdatedEntity();
+                presenter.onSaveComplexAttribute(ADDRESS_TEMPLATE, selectionModel.getSelectedObject().getName(),
+                        "recovery-credential-reference", updatedEntity);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                recoveryCredentialReferenceFormAsset.getForm().cancel();
+            }
+        });
+        recoveryCredentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+
+        // cross validate the forms, as there are "alternatives" metadata for the password.
+        recoveryAssets.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("recovery-password",
+                recoveryCredentialReferenceFormAsset.getForm(), "Recovery Credential Reference", true));
+        recoveryCredentialReferenceFormAsset.getForm().addFormValidator(
+                new CredentialReferenceAlternativesFormValidation("recovery-password", recoveryAssets.getForm(),
+                        "Recovery", false));
+
+
         // ----
 
-        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(PROPS_ADDRESS, presenter.getStatementContext(), presenter.getDispatcher())
-        {
+        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(PROPS_ADDRESS,
+                presenter.getStatementContext(), presenter.getDispatcher()) {
             @Override
             public void onAdd(Property property, AddPropertyDialog addDialog) {
-                presenter.onCreateProperty(PROPS_ADDRESS, property.getValue(), getCurrentSelection().getName(), property.getName());
+                presenter.onCreateProperty(PROPS_ADDRESS, property.getValue(), getCurrentSelection().getName(),
+                        property.getName());
                 ConnectionDefList.this.addDialog.hide();
             }
 
@@ -272,7 +301,6 @@ public class ConnectionDefList {
                 .build();
 
 
-
         // ----
         final MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
@@ -286,29 +314,32 @@ public class ConnectionDefList {
                 .addDetail("Security", secAssets.asWidget())
                 .addDetail("Validation", validationAssets.asWidget())
                 .addDetail("Recovery", recoveryAssets.asWidget())
-                ;
+                .addDetail("Recovery Credential Reference", recoveryCredentialReferenceFormAsset.asWidget());
 
         selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 Property adminObject = selectionModel.getSelectedObject();
-                if(adminObject!=null)
-                {
+                if (adminObject != null) {
                     formAssets.getForm().edit(adminObject.getValue());
                     poolAssets.getForm().edit(adminObject.getValue());
                     secAssets.getForm().edit(adminObject.getValue());
                     validationAssets.getForm().edit(adminObject.getValue());
                     recoveryAssets.getForm().edit(adminObject.getValue());
+                    recoveryCredentialReferenceFormAsset.getForm().edit(adminObject.getValue().get("recovery-credential-reference"));
 
                     List<Property> props = adminObject.getValue().hasDefined("config-properties") ?
                             adminObject.getValue().get("config-properties").asPropertyList() : Collections.EMPTY_LIST;
 
                     configProperties.update(props);
-                }
-                else
-                {
+                } else {
                     formAssets.getForm().clearValues();
+                    poolAssets.getForm().clearValues();
+                    secAssets.getForm().clearValues();
+                    validationAssets.getForm().clearValues();
+                    recoveryAssets.getForm().clearValues();
+                    recoveryCredentialReferenceFormAsset.getForm().clearValues();
                 }
             }
         });
@@ -317,7 +348,7 @@ public class ConnectionDefList {
     }
 
     private Property getCurrentSelection() {
-        return ((SingleSelectionModel<Property>)table.getSelectionModel()).getSelectedObject();
+        return ((SingleSelectionModel<Property>) table.getSelectionModel()).getSelectedObject();
     }
 
     public void setData(List<Property> data) {

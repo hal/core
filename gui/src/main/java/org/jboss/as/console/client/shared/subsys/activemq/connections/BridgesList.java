@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -13,23 +12,24 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.subsys.activemq.forms.BridgeConnectionsForm;
-import org.jboss.as.console.client.shared.subsys.activemq.forms.DefaultBridgeForm;
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
+import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceAlternativesFormValidation;
 import org.jboss.as.console.client.shared.subsys.elytron.CredentialReferenceFormValidation;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.MESSAGING_QUEUES;
 import static org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter.MESSAGING_SERVER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
 
@@ -44,8 +44,8 @@ public class BridgesList {
     private DefaultCellTable<ActivemqBridge> table;
     private ListDataProvider<ActivemqBridge> dataProvider;
     private MsgConnectionsPresenter presenter;
-    private DefaultBridgeForm defaultAttributes;
-    private BridgeConnectionsForm connectionAttributes;
+    private ModelNodeFormBuilder.FormAssets defaultAttributes;
+    private ModelNodeFormBuilder.FormAssets connectionAttributes;
     private ModelNodeFormBuilder.FormAssets credentialRefFormAsset;
 
     public BridgesList(MsgConnectionsPresenter presenter) {
@@ -96,29 +96,51 @@ public class BridgesList {
         table.addColumn(toColumn, "Forward");
 
         // defaultAttributes
-        defaultAttributes = new DefaultBridgeForm(presenter,
-                new FormToolStrip.FormCallback<ActivemqBridge>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveBridge(selectionModel.getSelectedObject().getName(), changeset);
-                    }
+        defaultAttributes = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setSecurityContext(securityContext)
+                .setResourceDescription(bridgeResourceDescription)
+                .include("queue-name", "forwarding-address", "discovery-group", "static-connectors", "filter", "transformer-class-name")
+                .createValidators(true)
+                .addFactory("queue-name", attributeDescription ->  {
+                    SuggestionResource suggestionResource = new SuggestionResource("queue-name", "Queue Name", true,
+                            Console.MODULES.getCapabilities().lookup(MESSAGING_QUEUES));
+                    return suggestionResource.buildFormItem();
+                })
+                .build();
 
-                    @Override
-                    public void onDelete(ActivemqBridge entity) {
-                    }
-                });
+        defaultAttributes.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                presenter.onSaveBridge(selectionModel.getSelectedObject().getName(), changeset);
+            }
 
-        connectionAttributes = new BridgeConnectionsForm(presenter,
-                new FormToolStrip.FormCallback<ActivemqBridge>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveBridge(selectionModel.getSelectedObject().getName(), changeset);
-                    }
+            @Override
+            public void onCancel(final Object entity) {
 
-                    @Override
-                    public void onDelete(ActivemqBridge entity) {
-                    }
-                });
+            }
+        });
+
+        connectionAttributes = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setSecurityContext(securityContext)
+                .setResourceDescription(bridgeResourceDescription)
+                .include("user", "password", "retry-interval", "reconnect-attempts")
+                .createValidators(true)
+                .addFactory("password", attributeDescription ->  new PasswordBoxItem("password", "Password", false))
+                .build();
+
+        connectionAttributes.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                presenter.onSaveBridge(selectionModel.getSelectedObject().getName(), changeset);
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+
+            }
+        });
 
         credentialRefFormAsset = new ComplexAttributeForm(CREDENTIAL_REFERENCE, securityContext,
                 bridgeResourceDescription).build();
@@ -138,19 +160,31 @@ public class BridgesList {
         });
         credentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        connectionAttributes.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", credentialRefFormAsset.getForm(), "Credential Reference", true));
+        credentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", connectionAttributes.getForm(), "Connection Management", false));
+
+
         table.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(event -> {
             ActivemqBridge activemqBridge = selectionModel.getSelectedObject();
-            if (activemqBridge != null && activemqBridge.getCredentialReference() != null) {
-                ModelNode credentialBean = presenter.getCredentialReferenceAdapter()
-                        .fromEntity(activemqBridge.getCredentialReference());
-                defaultAttributes.getForm().edit(activemqBridge);
-                connectionAttributes.getForm().edit(activemqBridge);
-                credentialRefFormAsset.getForm().edit(credentialBean);
+            if (activemqBridge != null) {
+
+                ModelNode bridgeModel = presenter.getBridgeAdapter().fromEntity(activemqBridge);
+                defaultAttributes.getForm().edit(bridgeModel);
+                connectionAttributes.getForm().edit(bridgeModel);
+
+                if (activemqBridge.getCredentialReference() != null) {
+                    ModelNode credentialBean = presenter.getCredentialReferenceAdapter()
+                            .fromEntity(activemqBridge.getCredentialReference());
+                    credentialRefFormAsset.getForm().edit(credentialBean);
+                } else {
+                    credentialRefFormAsset.getForm().edit(new ModelNode());
+                }
+
             } else {
                 defaultAttributes.getForm().clearValues();
                 connectionAttributes.getForm().clearValues();
-                credentialRefFormAsset.getForm().edit(new ModelNode());
+                credentialRefFormAsset.getForm().clearValues();
             }
         });
 
@@ -179,33 +213,13 @@ public class BridgesList {
                 .addDetail("Connection Management", connectionAttributes.asWidget())
                 .addDetail("Credential Reference", credentialRefFormAsset.asWidget());
 
-        defaultAttributes.getForm().bind(table);
-        defaultAttributes.getForm().setEnabled(false);
-
-        connectionAttributes.getForm().bind(table);
-        connectionAttributes.getForm().setEnabled(false);
-
         return layout.build();
     }
 
     public void setBridges(List<ActivemqBridge> bridges) {
         dataProvider.setList(bridges);
         serverName.setText("Bridges: Provider " + presenter.getCurrentServer());
-
         table.selectDefaultEntity();
-
-        // populate oracle
-        presenter.loadExistingQueueNames(new AsyncCallback<List<String>>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-
-            }
-
-            @Override
-            public void onSuccess(List<String> names) {
-                defaultAttributes.setQueueNames(names);
-            }
-        });
         credentialRefFormAsset.getForm().clearValues();
         defaultAttributes.getForm().clearValues();
         connectionAttributes.getForm().clearValues();

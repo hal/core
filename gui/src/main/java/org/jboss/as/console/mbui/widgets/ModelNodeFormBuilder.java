@@ -675,6 +675,8 @@ public class ModelNodeFormBuilder {
                         for (ModelNode reqAttr : alternativeAttrs) {
                             String alternativeAttrName = reqAttr.asString();
                             FormItem item = findFormItem(formItems, alternativeAttrName);
+                            if (item == null)
+                                continue;
                             buff.append(item.getTitle());
                             if (i++ + 1 < size) {
                                 buff.append(", ");
