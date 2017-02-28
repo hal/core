@@ -1,12 +1,9 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -122,12 +119,10 @@ public class ServerStore extends ChangeSupport {
         channel.ack();
     }
 
-    @Process(actionType = SelectServer.class)
+    @Process(actionType = SelectServer.class, dependencies = {HostStore.class})
     public void onSelectServer(SelectServer selection, final Dispatcher.Channel channel) {
-
         this.selectedServer = new ServerRef(selection.getHost(), selection.getServer());
         channel.ack();
-
     }
 
     @Process(actionType = RefreshServer.class)
