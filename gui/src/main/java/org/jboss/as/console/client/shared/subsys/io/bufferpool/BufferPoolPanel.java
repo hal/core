@@ -54,7 +54,7 @@ public class BufferPoolPanel extends IOPanel {
 
         ToolStrip tools = buildTools();
         DefaultCellTable<Property> table = setupTable();
-        Widget formPanel = buildFormPanel(definition, securityContext, true);
+        Widget formPanel = buildFormPanel(definition, securityContext);
 
         // putting everything together
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()

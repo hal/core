@@ -107,24 +107,23 @@ public abstract class IOPanel extends SuspendableViewImpl {
         return table;
     }
 
-    protected Widget buildFormPanel(final ResourceDescription definition, SecurityContext securityContext, boolean enableFormEdit) {
+    protected Widget buildFormPanel(final ResourceDescription definition, SecurityContext securityContext) {
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
-        if (enableFormEdit) {
-            formAssets.getForm().setToolsCallback(new FormCallback() {
-                @Override
-                public void onSave(Map changeSet) {
-                    IOPanel.this.onModify(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
-                }
+        formAssets.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(Map changeSet) {
+                IOPanel.this.onModify(selectionModel.getSelectedObject().getName(),
+                        formAssets.getForm().getChangedValues());
+            }
 
-                @Override
-                public void onCancel(Object entity) {
-                    formAssets.getForm().cancel();
-                }
-            });
-        }
+            @Override
+            public void onCancel(Object entity) {
+                formAssets.getForm().cancel();
+            }
+        });
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
