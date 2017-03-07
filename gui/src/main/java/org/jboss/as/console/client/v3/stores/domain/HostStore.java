@@ -13,6 +13,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -240,11 +241,14 @@ public class HostStore extends ChangeSupport {
 
     @Process(actionType = HostSelection.class)
     public void onSelectHost(HostSelection action, final Dispatcher.Channel channel) {
-
         selectedHost = action.getHostName();
-
         channel.ack();
+    }
 
+    @Process(actionType = SelectServer.class)
+    public void onSelectServer(SelectServer action, final Dispatcher.Channel channel) {
+        selectedHost = action.getHost();
+        channel.ack();
     }
 
     // -----------------------------------------
