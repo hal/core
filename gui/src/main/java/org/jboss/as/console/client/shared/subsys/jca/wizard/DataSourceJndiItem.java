@@ -31,11 +31,12 @@ class DataSourceJndiItem<T extends DataSource> extends JndiNameItem {
 
     private final List<T> existingDataSources;
     private final String defaultErrMessage;
+    private String errMessage;
 
     public DataSourceJndiItem(final List<T> existingDataSources) {
         super("jndiName", "JNDI Name");
         this.existingDataSources = existingDataSources;
-        this.defaultErrMessage = getErrMessage();
+        this.defaultErrMessage = super.getErrMessage();
     }
 
     @Override
@@ -46,13 +47,18 @@ class DataSourceJndiItem<T extends DataSource> extends JndiNameItem {
             for (T dataSource : existingDataSources) {
                 if (dataSource.getJndiName().equals(value)) {
                     duplicateJndiName = true;
-                    setErrMessage(Console.CONSTANTS.duplicate_data_source_jndi());
+                    this.errMessage = Console.CONSTANTS.duplicate_data_source_jndi();
                     break;
                 }
             }
         } else {
-            setErrMessage(defaultErrMessage);
+            this.errMessage = defaultErrMessage;
         }
         return parentValid && !duplicateJndiName;
+    }
+
+    @Override
+    public String getErrMessage() {
+        return this.errMessage;
     }
 }
