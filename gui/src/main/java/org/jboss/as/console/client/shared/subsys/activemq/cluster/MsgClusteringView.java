@@ -1,17 +1,20 @@
 package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcastGroup;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
-import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
+import org.jboss.as.console.client.shared.subsys.activemq.GenericResourceView;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
+import static org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.BROADCASTGROUP_ADDRESS;
+import static org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.CLUSTERCONNECTION_ADDRESS;
+import static org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.DISCOVERYGROUP_ADDRESS;
 
 /**
  * @author Heiko Braun
@@ -38,13 +41,17 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
 
         PagedView panel = new PagedView(true);
 
-        broadcastGroupList = new BroadcastGroupList(presenter);
-        discoveryGroupList = new DiscoveryGroupList(presenter);
-        clusterConnectionList = new ClusterConnectionList(presenter);
+        ResourceDescription broadcastDefinition = presenter.getDescriptionRegistry().lookup(BROADCASTGROUP_ADDRESS);
+        ResourceDescription discoveryDefinition = presenter.getDescriptionRegistry().lookup(DISCOVERYGROUP_ADDRESS);
+        ResourceDescription clusterDefinition = presenter.getDescriptionRegistry().lookup(CLUSTERCONNECTION_ADDRESS);
 
-        panel.addPage("Broadcast", broadcastGroupList.asWidget()) ;
-        panel.addPage("Discovery", discoveryGroupList.asWidget()) ;
-        panel.addPage("Cluster Connections", clusterConnectionList.asWidget()) ;
+        broadcastGroupList = new BroadcastGroupList(broadcastDefinition, presenter, "Broadcast Groups", BROADCASTGROUP_ADDRESS);
+        discoveryGroupList = new DiscoveryGroupList(discoveryDefinition, presenter, "Discovery Groups", DISCOVERYGROUP_ADDRESS);
+        clusterConnectionList = new ClusterConnectionList(clusterDefinition, presenter, "Cluster Connections", CLUSTERCONNECTION_ADDRESS);
+
+        panel.addPage("Broadcast Group", broadcastGroupList.asWidget());
+        panel.addPage("Discovery Group", discoveryGroupList.asWidget());
+        panel.addPage("Cluster Connection", clusterConnectionList.asWidget());
 
         // default page
         panel.showPage(0);
@@ -68,16 +75,16 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
 
     @Override
     public void setBroadcastGroups(List<Property> groups) {
-        broadcastGroupList.setBroadcastGroups(groups);
+        broadcastGroupList.update(groups);
     }
 
     @Override
-    public void setDiscoveryGroups(List<ActivemqDiscoveryGroup> groups) {
-        discoveryGroupList.setDiscoveryGroups(groups);
+    public void setDiscoveryGroups(List<Property> groups) {
+        discoveryGroupList.update(groups);
     }
 
     @Override
-    public void setClusterConnection(List<ActivemqClusterConnection> groups) {
-        clusterConnectionList.setClusterConnections(groups);
+    public void setClusterConnection(List<Property> groups) {
+        clusterConnectionList.update(groups);
     }
 }
