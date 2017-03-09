@@ -83,7 +83,8 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
     @Override
     public void execute(final Control<BootstrapContext> control) {
         final BootstrapContext context = control.getContext();
-        if (ManagementModel.supportsCapabilitiesRegistry(context.getManagementVersion())) {
+        if (canUseCapabilitiesRegistry(context)) {
+
             ResourceAddress address = control.getContext().isStandalone()
                     ? new ResourceAddress()
                     : new ResourceAddress().add(HOST, hostStore.getDomainController());
@@ -146,6 +147,17 @@ public class CoreCapabilitiesRegister implements BootstrapStep {
         } else {
             registerManualCapabilities();
             control.proceed();
+        }
+    }
+
+    private boolean canUseCapabilitiesRegistry(BootstrapContext context) {
+        if (context.isStandalone()) {
+            return ManagementModel.supportsCapabilitiesRegistry(context.getManagementVersion());
+        } else {
+            // HAL-1309: There might be no domain controller, if the user belongs to a host scoped role
+            // which is scoped to a slave
+            return hostStore.getDomainController() != null &&
+                    ManagementModel.supportsCapabilitiesRegistry(context.getManagementVersion());
         }
     }
 
