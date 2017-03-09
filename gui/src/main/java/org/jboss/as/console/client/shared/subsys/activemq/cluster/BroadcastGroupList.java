@@ -2,114 +2,85 @@ package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 
 import java.util.List;
 
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.subsys.activemq.forms.BroadcastGroupForm;
+import org.jboss.as.console.client.shared.subsys.activemq.GenericResourceView;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
-import org.jboss.dmr.client.Property;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.SuggestionResource;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.dmr.client.ModelNode;
+
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.JGROUPS_CHANNEL;
+import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.NETWORK_SOCKET_BINDING;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUIRED;
+import static org.jboss.dmr.client.ModelDescriptionConstants.SOCKET_BINDING;
 
 /**
- * @author Heiko Braun
- * @date 4/2/12
+ * @author Claudio Miranda <claudio@redhat.com>
  */
-public class BroadcastGroupList {
+public class BroadcastGroupList extends GenericResourceView {
 
-    public static final AddressTemplate BASE_ADDRESS =
-            AddressTemplate.of("{selected.profile}/subsystem=messaging-activemq/server={activemq.server}/broadcast-group=*");
+    public BroadcastGroupList(final ResourceDescription resourceDescription,
+            final MsgClusteringPresenter presenter, final String title,
+            final AddressTemplate addressTemplate) {
+        super(resourceDescription, presenter, title, addressTemplate);
 
-    private ContentHeaderLabel serverName;
-    private MsgClusteringPresenter presenter;
-    private BroadcastGroupForm defaultAttributes;
-
-    private final DefaultCellTable<Property> table;
-    private final ListDataProvider<Property> dataProvider;
-    private final SingleSelectionModel<Property> selectionModel;
-
-    public BroadcastGroupList(MsgClusteringPresenter presenter) {
-        this.presenter = presenter;
-        this.table = new DefaultCellTable<Property>(8);
-        this.dataProvider = new ListDataProvider<Property>();
-        this.dataProvider.addDataDisplay(table);
-        selectionModel = new SingleSelectionModel<>();
-        this.table.setSelectionModel(selectionModel);
+        // connectors attribute should be required=true in the subsystem
+        // https://issues.jboss.org/browse/JBEAP-4530
+        ModelNode connectorsDesc = resourceDescription.get(ATTRIBUTES).get("connectors");
+        connectorsDesc.get(REQUIRED).set(true);
+        connectorsDesc.get(NILLABLE).set(false);
     }
 
-    @SuppressWarnings("unchecked")
-    Widget asWidget() {
-        serverName = new ContentHeaderLabel();
-
-        TextColumn<Property> nameColumn = new TextColumn<Property>() {
-            @Override
-            public String getValue(Property node) {
-                return node.getName();
-            }
-        };
-
-
-        table.addColumn(nameColumn, "Name");
-
-        // defaultAttributes
-        defaultAttributes = new BroadcastGroupForm(presenter);
-
-        ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(
-                new ToolButton(Console.CONSTANTS.common_label_add(),
-                        clickEvent -> presenter.onLaunchAddResourceDialog(BASE_ADDRESS)));
-
-        tools.addToolButtonRight(
-                new ToolButton(Console.CONSTANTS.common_label_remove(), clickEvent -> Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("Broadcast Group"),
-                        Console.MESSAGES.deleteConfirm("Broadcast Group " + getSelectedEntity().getName()),
-                        isConfirmed -> {
-                            if (isConfirmed) {
-                                presenter.onDeleteBroadcastGroup(getSelectedEntity().getName());
-                            }
-                        })));
-
-        MultipleToOneLayout layout = new MultipleToOneLayout()
-                .setPlain(true)
-                .setHeadlineWidget(serverName)
-                .setDescription(
-                        Console.CONSTANTS.broadcastDescription())
-                .setMaster("BroadcastGroups", table)
-                .setMasterTools(tools)
-                .setDetail(Console.CONSTANTS.common_label_details(), defaultAttributes.asWidget());
-
-        table.getSelectionModel().addSelectionChangeHandler(selectionChangeEvent -> {
-            Property selection = selectionModel.getSelectedObject();
-            if(selection!=null)
-            {
-                defaultAttributes.setData(selection);
-            }
-            else
-            {
-                defaultAttributes.getForm().clearValues();
-            }
-        });
-        defaultAttributes.getForm().setEnabled(false);
-
-        return layout.build();
+    @Override
+    protected void customEditFormBuilder(final ModelNodeFormBuilder formBuilder) {
+        formBuilder.requiresAtLeastOne("jgroups-channel", SOCKET_BINDING)
+                .addFactory(SOCKET_BINDING, attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource(SOCKET_BINDING, "Socket binding",
+                            false,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("jgroups-channel", attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource("jgroups-channel", "Jgroups channel",
+                            false,
+                            Console.MODULES.getCapabilities().lookup(JGROUPS_CHANNEL));
+                    return suggestionResource.buildFormItem();
+                });
     }
 
-    public void setBroadcastGroups(List<Property> BroadcastGroups) {
-        dataProvider.setList(BroadcastGroups);
-        serverName.setText("Broadcast Groups: Provider " + presenter.getCurrentServer());
-
-        table.selectDefaultEntity();
+    @Override
+    protected void customAddFormBuilder(final ModelNodeFormBuilder formBuilder) {
+        formBuilder
+                .requiresAtLeastOne("jgroups-channel", SOCKET_BINDING)
+                .addFactory(SOCKET_BINDING, attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource(SOCKET_BINDING, "Socket binding",
+                            false,
+                            Console.MODULES.getCapabilities().lookup(NETWORK_SOCKET_BINDING));
+                    return suggestionResource.buildFormItem();
+                })
+                .addFactory("jgroups-channel", attributeDescription -> {
+                    SuggestionResource suggestionResource = new SuggestionResource("jgroups-channel", "Jgroups channel",
+                            false,
+                            Console.MODULES.getCapabilities().lookup(JGROUPS_CHANNEL));
+                    return suggestionResource.buildFormItem();
+                })
+        ;
     }
 
-    @SuppressWarnings("unchecked")
-    public Property getSelectedEntity() {
-        SingleSelectionModel<Property> selectionModel = (SingleSelectionModel<Property>) table.getSelectionModel();
-        return selectionModel.getSelectedObject();
+    @Override
+    protected void addFormValidatorOnAddDialog(final List<FormItem> formItemList, final FormValidation formValidation) {
+        FormItem connectorsFormItem = findFormItem(formItemList, "connectors");
+        List connectors = (List) connectorsFormItem.getValue();
+        if (connectors.size() == 0) {
+            formValidation.addError("connectors");
+            connectorsFormItem.setErrMessage("Value must not be empty.");
+            connectorsFormItem.setErroneous(true);
+        }
     }
+
 }
