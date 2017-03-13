@@ -173,8 +173,7 @@ class JMSBridgeList {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                presenter.saveAttribute(complexAttributeName, getSelectedEntity().getName(),
-                        formAsset.getForm().getUpdatedEntity());
+                presenter.saveAttribute(complexAttributeName, getSelectedEntity().getName(), changeset);
             }
 
             @Override

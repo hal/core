@@ -262,12 +262,12 @@ public class JMSBridgePresenter
         dialog.center();
     }
 
-    public void saveAttribute(final String complexAttributeName, final String resourceName, final ModelNode payload) {
+    public void saveAttribute(final String complexAttributeName, final String resourceName, final Map changeset) {
         ResourceAddress address = JMSBRIDGE_TEMPLATE.resolve(statementContext, resourceName);
-        Operation operation = new Operation.Builder(WRITE_ATTRIBUTE_OPERATION, address)
-                .param(NAME, complexAttributeName)
-                .param(VALUE, payload)
-                .build();
+        org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter adapter = new org.jboss.as.console.client.v3.behaviour.ModelNodeAdapter();
+
+        @SuppressWarnings("unchecked")
+        ModelNode operation = adapter.fromComplexAttributeChangeSet(address, complexAttributeName, changeset);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
