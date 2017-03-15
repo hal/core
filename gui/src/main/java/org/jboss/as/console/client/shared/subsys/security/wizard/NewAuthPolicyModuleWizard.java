@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.security.wizard;
 
+import java.util.List;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.subsys.security.AbstractDomainDetailEditor.Wizard;
@@ -26,8 +28,7 @@ import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresent
 import org.jboss.as.console.client.shared.subsys.security.model.AbstractAuthData;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.ListBoxItem;
-
-import java.util.List;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
  * @author David Bosschaert
@@ -46,11 +47,13 @@ public class NewAuthPolicyModuleWizard <T extends AbstractAuthData> extends Gene
     FormItem<?>[] getCustomFields() {
         ListBoxItem flag = new ListBoxItem("flag", Console.CONSTANTS.subsys_security_flagField());
         flag.setChoices(flagChoices, flagChoices.get(0));
-        return new FormItem [] {flag};
+        TextBoxItem module = new TextBoxItem("module", "Module", false);
+        return new FormItem[]{flag, module};
     }
 
     @Override
     void copyCustomFields(T original, T edited) {
         original.setFlag(edited.getFlag());
+        original.setModule(edited.getModule());
     }
 }

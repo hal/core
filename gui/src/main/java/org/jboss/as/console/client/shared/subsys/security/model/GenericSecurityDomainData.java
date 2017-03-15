@@ -18,9 +18,9 @@
  */
 package org.jboss.as.console.client.shared.subsys.security.model;
 
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-
 import java.util.List;
+
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
 
 /**
  * @author David Bosschaert
@@ -28,6 +28,10 @@ import java.util.List;
 public interface GenericSecurityDomainData  {
     String getCode();
     void setCode(String code);
+
+    String getModule();
+
+    void setModule(String module);
 
     List<PropertyRecord> getProperties();
     void setProperties(List<PropertyRecord> properties);

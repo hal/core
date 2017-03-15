@@ -18,6 +18,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.base.Strings;
 import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -27,8 +31,8 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -53,9 +57,6 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -203,6 +204,9 @@ public class SecurityDomainsPresenter
                             @Override
                             public void readFromModel(ModelNode n, AuthorizationPolicyProvider object) {
                                 object.setFlag(n.get("flag").asString());
+                                if (n.get("module").isDefined()) {
+                                    object.setModule(n.get("module").asString());
+                                }
                             }
 
                             @Override
@@ -216,6 +220,9 @@ public class SecurityDomainsPresenter
                             @Override
                             public void readFromModel(ModelNode n, AuthenticationLoginModule object) {
                                 object.setFlag(n.get("flag").asString());
+                                if (n.get("module").isDefined()) {
+                                    object.setModule(n.get("module").asString());
+                                }
                             }
 
                             @Override
@@ -229,6 +236,9 @@ public class SecurityDomainsPresenter
                             @Override
                             public void readFromModel(ModelNode n, MappingModule object) {
                                 object.setType(n.get("type").asString());
+                                if (n.get("module").isDefined()) {
+                                    object.setModule(n.get("module").asString());
+                                }
                             }
 
                             @Override
@@ -284,6 +294,9 @@ public class SecurityDomainsPresenter
         @Override
         public void setInModel(ModelNode n, P object) {
             n.get("flag").set(object.getFlag());
+            if (!Strings.isNullOrEmpty(object.getModule())) {
+                n.get("module").set(object.getModule());
+            }
         }
     }
 
@@ -304,6 +317,9 @@ public class SecurityDomainsPresenter
                     @Override
                     public void setInModel(ModelNode n, MappingModule object) {
                         n.get("type").set(object.getType());
+                        if (!Strings.isNullOrEmpty(object.getModule())) {
+                            n.get("module").set(object.getModule());
+                        }
                     }
                 });
     }
@@ -330,6 +346,7 @@ public class SecurityDomainsPresenter
                     @Override
                     public void setInModel(ModelNode n, MappingModule object) {
                         n.get("type").set(object.getType());
+                        n.get("type").set(object.getModule());
                     }
                 });
     }

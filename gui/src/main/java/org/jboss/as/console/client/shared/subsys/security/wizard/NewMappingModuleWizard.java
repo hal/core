@@ -26,6 +26,7 @@ import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresent
 import org.jboss.as.console.client.shared.subsys.security.model.MappingModule;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
  * @author David Bosschaert
@@ -41,11 +42,13 @@ public class NewMappingModuleWizard extends GenericSecurityDomainWizard<MappingM
     FormItem<?>[] getCustomFields() {
         ComboBoxItem type = new ComboBoxItem("type", Console.CONSTANTS.subsys_security_typeField());
         type.setValueMap(new String[]{"principal", "role", "attribute","credential"});
-        return new FormItem [] {type};
+        TextBoxItem module = new TextBoxItem("module", "Module", false);
+        return new FormItem[]{type, module};
     }
 
     @Override
     void copyCustomFields(MappingModule original, MappingModule edited) {
         original.setType(edited.getType());
+        original.setModule(edited.getModule());
     }
 }
