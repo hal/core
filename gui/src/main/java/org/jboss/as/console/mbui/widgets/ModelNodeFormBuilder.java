@@ -44,6 +44,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ModelNodeFormBuilder {
 
+    public final static String OPTIONAL_FIELDS_GROUP = "Optional Fields";
+
     public interface FormItemFactory {
 
         FormItem create(Property attributeDescription);
@@ -623,7 +625,7 @@ public class ModelNodeFormBuilder {
             form.setFields(requiredItems.toArray(new FormItem[]{}));
 
             if (optionalItems.size() > 0) {
-                form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(),
+                form.setFieldsInGroup(OPTIONAL_FIELDS_GROUP, new DisclosureGroupRenderer(),
                         optionalItems.toArray(new FormItem[]{}));
             }
         }

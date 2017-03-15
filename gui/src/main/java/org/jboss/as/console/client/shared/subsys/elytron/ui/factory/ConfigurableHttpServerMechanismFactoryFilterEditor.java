@@ -131,6 +131,8 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
                     .setSecurityContext(securityContext)
                     .build();
             addFormAssets.getForm().setFields(patternFilter, enabling);
+            // clear optional fields, `enabling` field was put in the default group above
+            addFormAssets.getForm().clearGroup(ModelNodeFormBuilder.OPTIONAL_FIELDS_GROUP);
             addFormAssets.getForm().setEnabled(true);
 
             DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Pattern filter"));
