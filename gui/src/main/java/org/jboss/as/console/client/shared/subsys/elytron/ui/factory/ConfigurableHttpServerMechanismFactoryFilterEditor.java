@@ -43,9 +43,6 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -119,18 +116,12 @@ public class ConfigurableHttpServerMechanismFactoryFilterEditor implements IsWid
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
-            FormItem patternFilter = new TextBoxItem("pattern-filter", "Pattern Filter", true);
-            ((TextBoxItem)patternFilter).setAllowWhiteSpace(true);
-
-            FormItem enabling = new CheckBoxItem("enabling", "Enabling");
-            enabling.setRequired(true);
-
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
                     .setCreateMode(true)
                     .setSecurityContext(securityContext)
+                    .setCreateNameAttribute(false)
                     .build();
-            addFormAssets.getForm().setFields(patternFilter, enabling);
             addFormAssets.getForm().setEnabled(true);
 
             DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("Pattern filter"));
