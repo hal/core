@@ -494,6 +494,7 @@ public interface UIConstants extends Constants {
     String subsys_configadmin_valuesLabel();
     String subsys_configadmin();
     String subsys_ee_desc();
+    String subsys_elytron_ldap_keystore_newattribute_desc();
     String subsys_iiop_openjdk_desc();
     String subsys_jca_boostrap_config_desc();
     String subsys_jca_common_config_desc();
