@@ -102,6 +102,7 @@ public class BridgesList {
                 .setResourceDescription(bridgeResourceDescription)
                 .include("queue-name", "forwarding-address", "discovery-group", "static-connectors", "filter", "transformer-class-name")
                 .createValidators(true)
+                .requiresAtLeastOne("discovery-group", "static-connectors")
                 .addFactory("queue-name", attributeDescription ->  {
                     SuggestionResource suggestionResource = new SuggestionResource("queue-name", "Queue Name", true,
                             Console.MODULES.getCapabilities().lookup(MESSAGING_QUEUES));
@@ -170,6 +171,9 @@ public class BridgesList {
             if (activemqBridge != null) {
 
                 ModelNode bridgeModel = presenter.getBridgeAdapter().fromEntity(activemqBridge);
+                for (String connector: activemqBridge.getStaticConnectors()) {
+                    bridgeModel.get("static-connectors").add(connector);
+                }
                 defaultAttributes.getForm().edit(bridgeModel);
                 connectionAttributes.getForm().edit(bridgeModel);
 
