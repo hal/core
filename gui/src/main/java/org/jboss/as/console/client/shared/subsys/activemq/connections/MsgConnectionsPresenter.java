@@ -51,7 +51,6 @@ import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -744,30 +743,8 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         ModelNode addressNode = new ModelNode();
         addressNode.get(ADDRESS).set(address);
 
-        ModelNode extra = null;
-        List<String> items = null;
-        Object staticConnectors = changeset.get("staticConnectors");
-        if (staticConnectors instanceof List) {
-            items = (List<String>) staticConnectors;
-        }
-        if (items != null && items.size() > 0) { // non-empty list
-            extra = new ModelNode();
-            extra.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-            extra.get(NAME).set("static-connectors");
-            extra.get(ADDRESS).set(address);
-            extra.get(VALUE).setEmptyList();
-            for (String item : items) { extra.get(VALUE).add(item); }
-        } else if ((items != null && items.size() == 0)
-                || FormItem.VALUE_SEMANTICS.UNDEFINED.equals(staticConnectors)) { // empty list or "undefined"
-            extra = new ModelNode();
-            extra.get(OP).set(UNDEFINE_ATTRIBUTE_OPERATION);
-            extra.get(NAME).set("static-connectors");
-            extra.get(ADDRESS).set(address);
-        }
-
-        ModelNode operation = extra != null ?
-                bridgeAdapter.fromChangeset(changeset, addressNode, extra) :
-                bridgeAdapter.fromChangeset(changeset, addressNode);
+        ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode operation = adapter.fromChangeset(changeset, addressNode);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -813,6 +790,13 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         address.add("bridge", entity.getName());
 
         ModelNode operation = bridgeAdapter.fromEntity(entity);
+        if (entity.getForwardingAddress().isEmpty()) {
+            operation.remove("forwarding-address");
+        }
+        if (entity.getDiscoveryGroup().isEmpty()) {
+            operation.remove("discovery-group");
+        }
+
         operation.get(ADDRESS).set(address);
         operation.get(OP).set(ADD);
 
