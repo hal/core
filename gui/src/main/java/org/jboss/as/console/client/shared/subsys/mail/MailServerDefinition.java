@@ -29,6 +29,10 @@ public interface MailServerDefinition {
     boolean isSsl();
     void setSsl(boolean b);
 
+    @Binding(detypedName = "tls")
+    boolean isTls();
+    void setTls(boolean b);
+
     @Binding(skip=true)
     CredentialReference getCredentialReference();
     void setCredentialReference(CredentialReference credential);
