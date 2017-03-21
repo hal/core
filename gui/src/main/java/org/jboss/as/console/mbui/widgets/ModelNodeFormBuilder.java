@@ -147,7 +147,7 @@ public class ModelNodeFormBuilder {
     private boolean singleton = false;
     private boolean createNameField = true;
     private boolean includeDeprecated;
-    private boolean createValidators;
+    private boolean createValidators = true;
     private Map<String, FormItemFactory> itemFactories = new HashMap<>();
 
     public ModelNodeFormBuilder() {
