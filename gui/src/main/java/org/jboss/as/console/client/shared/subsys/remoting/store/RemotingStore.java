@@ -21,6 +21,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.store;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -44,10 +48,6 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Outcome;
 import org.jboss.gwt.flow.client.Progress;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -244,7 +244,7 @@ public class RemotingStore extends ChangeSupport {
             @Override
             public void onSuccess(FunctionContext context) {
                 lastModifiedInstance = action.getInstanceName();
-                read(action.getAddressTemplate().getResourceType(), remoteConnectors, channel);
+                read(action.getAddressTemplate().getResourceType(), getModelsFor(action.getAddressTemplate()), channel);
             }
         };
 
@@ -311,7 +311,7 @@ public class RemotingStore extends ChangeSupport {
                         }
                     }
                 },
-                new ModifySaslSingleton(dispatcher, statementContext, action.getConnectorName(), securityAddress, 
+                new ModifySaslSingleton(dispatcher, statementContext, action.getConnectorName(), securityAddress,
                         action.getChangedValues()));
     }
 
@@ -360,7 +360,7 @@ public class RemotingStore extends ChangeSupport {
                         }
                     }
                 },
-                new ModifySaslSingleton(dispatcher, statementContext, action.getConnectorName(), policyAddress, 
+                new ModifySaslSingleton(dispatcher, statementContext, action.getConnectorName(), policyAddress,
                         action.getChangedValues()));
     }
 
