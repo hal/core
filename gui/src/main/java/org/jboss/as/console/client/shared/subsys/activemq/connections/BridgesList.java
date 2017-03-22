@@ -118,7 +118,7 @@ public class BridgesList {
 
             @Override
             public void onCancel(final Object entity) {
-
+                defaultAttributes.getForm().cancel();
             }
         });
 
@@ -139,7 +139,7 @@ public class BridgesList {
 
             @Override
             public void onCancel(final Object entity) {
-
+                connectionAttributes.getForm().cancel();
             }
         });
 
@@ -168,7 +168,7 @@ public class BridgesList {
         table.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(event -> {
             ActivemqBridge activemqBridge = selectionModel.getSelectedObject();
-            if (activemqBridge != null) {
+            if (activemqBridge != null && activemqBridge.getName() != null) {
 
                 ModelNode bridgeModel = presenter.getBridgeAdapter().fromEntity(activemqBridge);
                 for (String connector: activemqBridge.getStaticConnectors()) {
@@ -227,6 +227,8 @@ public class BridgesList {
         credentialRefFormAsset.getForm().clearValues();
         defaultAttributes.getForm().clearValues();
         connectionAttributes.getForm().clearValues();
+        if (bridges.size() == 0)
+            selectionModel.clear();
         SelectionChangeEvent.fire(selectionModel);
     }
 
