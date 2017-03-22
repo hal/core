@@ -41,7 +41,7 @@ public class SSLView {
     private GenericStoreView keyManagerView;
     private ElytronGenericResourceView serverSSLContextView;
     private ElytronGenericResourceView clientSSLContextView;
-    private ElytronGenericResourceView trustManagerView;
+    private TrustManagerView trustManagerView;
     private SecurityDomainView securityDomainView;
     private ElytronGenericResourceView securityPropertyView;
     private ProviderLoaderView providerLoaderView;
@@ -90,7 +90,7 @@ public class SSLView {
         clientSSLContextView = new ElytronGenericResourceView(circuit, clientSSLContextDescription, securityContext,
                 "Client SSL Context", ElytronStore.CLIENT_SSL_CONTEXT_ADDRESS);
 
-        trustManagerView = new ElytronGenericResourceView(circuit, trustManagersDescription, securityContext,
+        trustManagerView = new TrustManagerView(circuit, trustManagersDescription, securityContext,
                 "Trust Manager", ElytronStore.TRUST_MANAGER_ADDRESS);
 
         securityDomainView = new SecurityDomainView(circuit, securityDomainDescription, securityContext,
