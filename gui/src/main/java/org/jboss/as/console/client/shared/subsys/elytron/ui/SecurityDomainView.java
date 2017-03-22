@@ -99,6 +99,14 @@ public class SecurityDomainView extends ElytronGenericResourceView {
 
     @Override
     protected void onAddCallbackBeforeSubmit(final ModelNode payload) {
+
+        // outflow-anonymous attribute is a boolean with default=false, even if the user doesn't set the field, the
+        // payload sets it as false, then it requires the outflow-security-domains that is undefined
+        // to prevent this error, if the outflow-anonymous is false, we remove from the payload
+        boolean outflowAnonymousUndefined = payload.hasDefined("outflow-anonymous") && !payload.get("outflow-anonymous").asBoolean();
+        if (outflowAnonymousUndefined)
+            payload.remove("outflow-anonymous");
+
         // repackage the payload to create the "realms" attribute of type LIST
         // and create each "realm" from the repackaged description.
         ModelNode realm = new ModelNode();

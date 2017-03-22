@@ -497,7 +497,12 @@ public class ModelNodeFormBuilder {
                                         attrDesc.get("max").asLong()
                                 );
                             } else {
-                                formItem = new NumberBoxItem(attr.getName(), label);
+                                boolean allowNegative = false;
+                                if (attrDesc.hasDefined(DEFAULT)) {
+                                    int defNum = attrDesc.get(DEFAULT).asInt();
+                                    allowNegative = defNum < 0;
+                                }
+                                formItem = new NumberBoxItem(attr.getName(), label, allowNegative);
                             }
 
                             formItem.setRequired(isRequired);
