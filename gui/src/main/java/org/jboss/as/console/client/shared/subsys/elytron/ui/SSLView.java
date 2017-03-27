@@ -44,7 +44,7 @@ public class SSLView {
     private TrustManagerView trustManagerView;
     private SecurityDomainView securityDomainView;
     private ElytronGenericResourceView securityPropertyView;
-    private ProviderLoaderView providerLoaderView;
+    private ElytronGenericResourceView providerLoaderView;
     private ElytronGenericResourceView aggregateProvidersView;
 
     public SSLView(final Dispatcher circuit, final ResourceDescription rootDescription,
@@ -99,7 +99,7 @@ public class SSLView {
         securityPropertyView = new ElytronGenericResourceView(circuit, securityPropertyDescription, securityContext,
                 "Security Property", ElytronStore.SECURITY_PROPERTY_ADDRESS);
 
-        providerLoaderView = new ProviderLoaderView(circuit, providerLoaderDescription, securityContext,
+        providerLoaderView = new ElytronGenericResourceView(circuit, providerLoaderDescription, securityContext,
                 "Provider Loader", ElytronStore.PROVIDER_LOADER_ADDRESS);
 
         aggregateProvidersView = new ElytronGenericResourceView(circuit, aggregateProvidersDescription, securityContext,
