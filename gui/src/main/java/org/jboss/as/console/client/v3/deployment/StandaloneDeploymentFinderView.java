@@ -164,9 +164,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     
                     @Override
                     public void executeOn(final Deployment item) {
-                        if (item.isArchive()) {
-                            Console.warning(Console.CONSTANTS.deploymentCannotReadUnexploded());
-                        } else if (!item.isManaged()) {
+                        if (!item.isManaged()) {
                             Console.warning(Console.CONSTANTS.deploymentCannotReadUnmanaged());
                         } else {
                             presenter.browseContent();

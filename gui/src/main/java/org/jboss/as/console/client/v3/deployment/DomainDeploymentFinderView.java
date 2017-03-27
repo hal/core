@@ -364,9 +364,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                     // when archive=undefined, then it is an archive
                     boolean archive = item.get("content").get(0).hasDefined("archive") ? item.get("content").get(0).get("archive").asBoolean() : true;
                     boolean managed = item.get("managed").asBoolean();
-                    if (archive) {
-                        Console.warning(Console.CONSTANTS.deploymentCannotReadUnexploded());
-                    } else if (!managed) {
+                    if (!managed) {
                         Console.warning(Console.CONSTANTS.deploymentCannotReadUnmanaged());
                     } else {
                         presenter.browseContent(item.getName());
