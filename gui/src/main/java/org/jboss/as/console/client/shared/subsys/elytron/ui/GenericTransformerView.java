@@ -40,10 +40,10 @@ public class GenericTransformerView extends ElytronGenericResourceView {
     @Override
     protected void addFormValidatorOnAddDialog(final List<FormItem> formItemList,
             final FormValidation formValidation) {
-        FormItem nameRewritersItem = findFormItem(formItemList, "name-rewriters");
+        FormItem nameRewritersItem = findFormItem(formItemList, "principal-transformers");
         ListItem nameRewritersList = (ListItem) nameRewritersItem;
         if (nameRewritersList.getValue().size() < 2) {
-            formValidation.addError("name-rewriters");
+            formValidation.addError("principal-transformers");
             nameRewritersItem.setErrMessage("At least two itens should be specified.");
             nameRewritersItem.setErroneous(true);
         }
