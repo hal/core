@@ -22,27 +22,31 @@ public class DownloadUtil {
 
     /**
      * This method invokes native javascript code to download content using XMLHttpRequest, it performs a HTTP GET
-     * stores the response in a Blob object and asks the browser to save its content. This method should only be used 
+     * stores the response in a Blob object and asks the browser to save its content. This method should only be used
      * when in the SSO context with Keycloak authentication.
-     * 
+     *
      * @param path  The full URL to perform the HTTP GET command.
      * @param filename  This is the suggested filename the browser are going to save the response.
-     * @param bearerToken   The bearer token created by the keycloak adapter, it is the value of 
-     *                      the Authorization HTTP header. 
+     * @param bearerToken   The bearer token created by the keycloak adapter, it is the value of
+     *                      the Authorization HTTP header.
      */
     public static native void downloadHttpGet(String path, String filename, String bearerToken)/*-{
-        if (path == null || filename == null || bearerToken == null) {
-            console.log("All parameters must be supplied with valid values.");
+        if (path == null || filename == null) {
+            console.log("Download operation: path="+path+" or filename="+filename+" is null. All parameters must be supplied with valid values.");
             return;
         }
         if (window.XMLHttpRequest) {
             var req = new window.XMLHttpRequest();
             // IE 10 or 11
             var ieArr = navigator.userAgent.match(/Trident\/7.0/g) || navigator.userAgent.match(/Trident\/6.0/g);
-            
+
             req.open('GET', path, true);
             req.responseType = "blob";
-            req.setRequestHeader('Authorization', 'Bearer ' + bearerToken);
+            if (bearerToken)
+                req.setRequestHeader('Authorization', 'Bearer ' + bearerToken);
+            else
+                req.withCredentials = true;
+
             req.onreadystatechange = function () {
                 if (req.readyState == 4 && req.status == 200) {
                     if (ieArr) {
@@ -52,11 +56,12 @@ public class DownloadUtil {
                         var anchor = document.createElement('a');
                         var windowUrl = window.URL || window.webkitURL;
                         if (typeof windowUrl.createObjectURL === 'function') {
-                            var blob = req.response;
-                            var url = windowUrl.createObjectURL(blob);
-                            anchor.setAttribute('href', url);
-                            anchor.setAttribute('download', filename);
                             document.body.appendChild(anchor);
+                            anchor.style = "display: none";
+                            blob = new Blob([req.response], {type: "octet/stream"});
+                            url = window.URL.createObjectURL(blob);
+                            anchor.href = url;
+                            anchor.download = filename;
                             anchor.click();
                             windowUrl.revokeObjectURL(url);
                             document.body.removeChild(anchor);

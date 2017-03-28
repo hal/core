@@ -23,7 +23,6 @@ package org.jboss.as.console.client.v3.deployment;
 
 import java.util.List;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -79,7 +78,7 @@ public class DeploymentBrowseContentPresenter
             final RevealStrategy revealStrategy, final DeploymentStore deploymentStore,
             final DispatchAsync dispatcher, BootstrapContext bootstrap) {
         super(eventBus, view, proxy);
-        
+
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.deploymentStore = deploymentStore;
@@ -132,11 +131,8 @@ public class DeploymentBrowseContentPresenter
 
     public void downloadFile(String filepath) {
         String filename = filepath.substring(filepath.lastIndexOf("/") + 1);
-        if (bootstrap.isSsoEnabled()) {
-            DownloadUtil.downloadHttpGet(streamUrl(deploymentName, filepath), filename, DMRHandler.getBearerToken());
-              
-        } else
-            Window.open(streamUrl(deploymentName, filepath), "", "");
+        String url = streamUrl(deploymentName, filepath);
+        DownloadUtil.downloadHttpGet(url, filename, DMRHandler.getBearerToken());
     }
 
     private String streamUrl(final String deploymentName, String filepath) {
