@@ -39,7 +39,7 @@ public class FactoryView {
     private ElytronGenericResourceView aggregateSaslServerFactoryView;
     private ElytronGenericResourceView configurableHttpServerMechanismFactoryView;
     private ConfigurableSaslServerFactoryView configurableSaslServerFactoryView;
-    private CustomCredentialSecurityFactoryView customCredentialSecurityFactoryView;
+    private ElytronGenericResourceView customCredentialSecurityFactoryView;
     private GenericAuthenticationFactoryView httpAuthenticationFactoryView;
     private ElytronGenericResourceView kerberosSecurityFactoryView;
     private MechanismProviderFilteringSaslSserverFactoryView mechanismProviderFilteringSaslServerFactoryView;
@@ -100,7 +100,7 @@ public class FactoryView {
                 configurablesaslserverfactoryDescription, securityContext, "Configurable SASL Server",
                 ElytronStore.CONFIGURABLE_SASL_SERVER_FACTORY_ADDRESS);
 
-        customCredentialSecurityFactoryView = new CustomCredentialSecurityFactoryView(circuit,
+        customCredentialSecurityFactoryView = new ElytronGenericResourceView(circuit,
                 customcredentialsecurityfactoryDescription, securityContext, "Custom Credential Security",
                 ElytronStore.CUSTOM_CREDENTIAL_SECURITY_FACTORY_ADDRESS);
 
