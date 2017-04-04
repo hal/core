@@ -56,25 +56,25 @@ public class TransformerView {
         ResourceDescription customPrincipalTransformerDescription = rootDescription.getChildDescription("custom-principal-transformer");
         ResourceDescription regexValidatingPrincipalTransformerDescription = rootDescription.getChildDescription("regex-validating-principal-transformer");
         ResourceDescription regexPrincipalTransformerDescription = rootDescription.getChildDescription("regex-principal-transformer");
-        
+
         aggregatePrincipalTransformerView = new GenericTransformerView(circuit, aggregatePrincipalTransformerDescription, securityContext, "Aggregate Principal Transformer",
                 ElytronStore.AGGREGATE_TRANSFORMER_ADDRESS);
-        
+
         constantPrincipalTransformerView = new ElytronGenericResourceView(circuit, constantPrincipalTransformerDescription, securityContext, "Constant Principal Transformer",
                 ElytronStore.CONSTANT_TRANSFORMER_ADDRESS);
-        
+
         chainedPrincipalTransformerView = new GenericTransformerView(circuit, chainedPrincipalTransformerDescription, securityContext, "Chained Principal Transformer",
                 ElytronStore.CHAINED_TRANSFORMER_ADDRESS);
-        
+
         customPrincipalTransformerView = new ElytronGenericResourceView(circuit, customPrincipalTransformerDescription, securityContext, "Custom Principal Transformer",
                 ElytronStore.CUSTOM_TRANSFORMER_ADDRESS);
-        
-        regexValidatingPrincipalTransformerView = new ElytronGenericResourceView(circuit, regexPrincipalTransformerDescription, securityContext, "Regex Validating Principal Transformer",
+
+        regexValidatingPrincipalTransformerView = new ElytronGenericResourceView(circuit, regexValidatingPrincipalTransformerDescription, securityContext, "Regex Validating Principal Transformer",
                 ElytronStore.REGEX_VALIDATING_TRANSFORMER_ADDRESS);
-        
-        regexPrincipalTransformerView = new ElytronGenericResourceView(circuit, regexValidatingPrincipalTransformerDescription, securityContext, "Regex Principal Transformer",
+
+        regexPrincipalTransformerView = new ElytronGenericResourceView(circuit, regexPrincipalTransformerDescription, securityContext, "Regex Principal Transformer",
                 ElytronStore.REGEX_TRANSFORMER_ADDRESS);
-        
+
         PagedView panel = new PagedView(true);
         panel.addPage("Aggregate", aggregatePrincipalTransformerView.asWidget());
         panel.addPage("Constant", constantPrincipalTransformerView.asWidget());
@@ -84,32 +84,32 @@ public class TransformerView {
         panel.addPage("Regex", regexPrincipalTransformerView.asWidget());
         // default page
         panel.showPage(0);
-        
+
         return panel.asWidget();
     }
-    
+
     public void updateAggregatePrincipalTransformer(final List<Property> models) {
         aggregatePrincipalTransformerView.update(models);
     }
-    
+
     public void updateConstantPrincipalTransformer(final List<Property> models) {
         constantPrincipalTransformerView.update(models);
     }
-    
+
     public void updateChainedPrincipalTransformer(final List<Property> models) {
         chainedPrincipalTransformerView.update(models);
     }
-    
+
     public void updateCustomPrincipalTransformer(final List<Property> models) {
         customPrincipalTransformerView.update(models);
     }
-    
+
     public void updateRegexValidatingPrincipalTransformer(final List<Property> models) {
         regexValidatingPrincipalTransformerView.update(models);
     }
-    
+
     public void updateRegexPrincipalTransformer(final List<Property> models) {
         regexPrincipalTransformerView.update(models);
     }
-    
+
 }
