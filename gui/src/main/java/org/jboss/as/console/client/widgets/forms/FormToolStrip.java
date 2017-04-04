@@ -73,6 +73,7 @@ public class FormToolStrip<T> {
     public Widget asWidget() {
 
         toolStrip = new ToolStrip();
+        toolStrip.setStyleName("default-toolstrip-secondary");
 
         for(Widget btn : additionalButtons)
             if (btn instanceof ToolButton) {
