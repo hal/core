@@ -48,19 +48,26 @@
     </organization>
     <developers>
         <developer>
-            <name>Heiko Braun</name>
-            <id>hbraun</id>
-            <email>hbraun@redhat.com</email>
-            <organization>Red Hat</organization>
-            <roles>
-                <role>Lead</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-        <developer>
             <name>Harald Pehl</name>
             <id>hpehl</id>
             <email>hpehl@redhat.com</email>
+            <organization>Red Hat</organization>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Lead</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Claudio Miranda</name>
+            <id>claudio4j</id>
+            <email>claudio@redhat.com</email>
+            <organization>Red Hat</organization>
+            <timezone>-3</timezone>
+        </developer>
+        <developer>
+            <name>Heiko Braun</name>
+            <id>hbraun</id>
+            <email>hbraun@redhat.com</email>
             <organization>Red Hat</organization>
             <timezone>+1</timezone>
         </developer>
