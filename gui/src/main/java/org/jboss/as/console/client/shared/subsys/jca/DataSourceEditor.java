@@ -263,7 +263,7 @@ public class DataSourceEditor {
             credentialReferenceFormAsset.getForm().edit(bean);
         } else {
             // if there is no credential-reference in the model, an empty one allows for edit operation.
-            credentialReferenceFormAsset.getForm().edit(new ModelNode());
+            credentialReferenceFormAsset.getForm().editTransient(new ModelNode());
         }
 
         validationEditor.getForm().edit(ds);

@@ -60,6 +60,12 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
+
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
@@ -110,10 +116,10 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
         // tweak to use ModelNodeFormBuilder automatic form generation
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
         // adds the match-rules to the request-properties of add operation
-        ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
+        ModelNode reqPropsDescription = this.resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
         // adds the mechanism-configuration to the attribute list
-        ModelNode attrPropsDescription = this.resourceDescription.get("attributes");
-        ModelNode matchRulesDescription = reqPropsDescription.get(MATCH_RULES).get("value-type");
+        ModelNode attrPropsDescription = this.resourceDescription.get(ATTRIBUTES);
+        ModelNode matchRulesDescription = reqPropsDescription.get(MATCH_RULES).get(VALUE_TYPE);
         reqPropsDescription.set(matchRulesDescription);
         attrPropsDescription.set(matchRulesDescription);
     }

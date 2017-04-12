@@ -471,7 +471,7 @@ public class ElytronStore extends ChangeSupport {
             // otherwise an empty attribute is a defined attribute and as the user wants to remove all
             // values, it is better to undefine it.
             operation = new Operation.Builder(UNDEFINE_ATTRIBUTE_OPERATION, address)
-                .param(NAME, CREDENTIAL_REFERENCE)
+                .param(NAME, action.getComplexAttributeName())
                 .build();
         }
 
