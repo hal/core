@@ -29,14 +29,17 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.elytron.store.AddResourceGeneric;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
+import org.jboss.as.console.client.shared.subsys.elytron.store.ModifyComplexAttribute;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ModifyResourceGeneric;
 import org.jboss.as.console.client.shared.subsys.elytron.store.RemoveResourceGeneric;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -47,23 +50,48 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ATTRIBUTES;
-import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
-import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
 public class LdapRealmView {
 
+    private class ComplexAttributeToolsCallback {
+
+        private String complexAttributeName;
+        private ModelNodeForm form;
+        FormCallback complexAttributeToolsCallback = new FormCallback() {
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                circuit.dispatch(new ModifyComplexAttribute(ElytronStore.LDAP_REALM_ADDRESS, complexAttributeName,
+                        selectionModel.getSelectedObject().getName(), form.getUpdatedEntity()));
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+                form.cancel();
+            }
+        };
+
+        ComplexAttributeToolsCallback(final String complexAttributeName,
+                final ModelNodeForm form) {
+            this.complexAttributeName = complexAttributeName;
+            this.form = form;
+        }
+
+    }
+
+
     private final Dispatcher circuit;
     private final ResourceDescription resourceDescription;
     private final SecurityContext securityContext;
-
+    protected ModelNodeFormBuilder.FormAssets modelForm;
     private DefaultCellTable<Property> table;
     private ListDataProvider<Property> dataProvider;
     private SingleSelectionModel<Property> selectionModel;
-    protected ModelNodeFormBuilder.FormAssets modelForm;
     private ModelNodeFormBuilder.FormAssets identityMappingFormAsset;
     private ModelNodeFormBuilder.FormAssets userPasswordMapperFormAsset;
     private ModelNodeFormBuilder.FormAssets otpCredentialMapperFormAsset;
@@ -90,7 +118,8 @@ public class LdapRealmView {
                                 Console.MESSAGES.deleteConfirm("LDAP Realm" + " '" + name + "'"),
                                 isConfirmed -> {
                                     if (isConfirmed) {
-                                        circuit.dispatch(new RemoveResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS, name));
+                                        circuit.dispatch(
+                                                new RemoveResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS, name));
                                     }
                                 });
                     }
@@ -117,7 +146,7 @@ public class LdapRealmView {
                 .exclude("attribute-mapping", "new-identity-attributes", "otp-credential-mapper",
                         "user-password-mapper", "x509-credential-mapper")
                 .build();
-        ModelNode nodeIdenMapping = resourceDescription.get("attributes").get("identity-mapping").get("value-type");
+        ModelNode nodeIdenMapping = resourceDescription.get(ATTRIBUTES).get("identity-mapping").get(VALUE_TYPE);
 
         ResourceDescription userPasswordMapperResource = new ResourceDescription(new ModelNode());
         userPasswordMapperResource.get(ATTRIBUTES).set(nodeIdenMapping);
@@ -142,7 +171,8 @@ public class LdapRealmView {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(final Map changeset) {
-                circuit.dispatch(new ModifyResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS, selectionModel.getSelectedObject().getName(), changeset));
+                circuit.dispatch(new ModifyResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS,
+                        selectionModel.getSelectedObject().getName(), changeset));
             }
 
             @Override
@@ -152,7 +182,18 @@ public class LdapRealmView {
         });
 
         identityAttributeMappingView = new IdentityAttributeMappingView();
-        newIdentityAttributesView = new NewIdentityAttributesView();
+        newIdentityAttributesView = new NewIdentityAttributesView(circuit, resourceDescription, securityContext);
+
+        identityMappingFormAsset.getForm().setToolsCallback(new ComplexAttributeToolsCallback("identity-mapping",
+                identityMappingFormAsset.getForm()).complexAttributeToolsCallback);
+
+        userPasswordMapperFormAsset.getForm()
+                .setToolsCallback(new ComplexAttributeToolsCallback("identity-mapping.user-password-mapper",
+                        userPasswordMapperFormAsset.getForm()).complexAttributeToolsCallback);
+
+        otpCredentialMapperFormAsset.getForm().setToolsCallback(
+                new ComplexAttributeToolsCallback("identity-mapping.otp-credential-mapper",
+                        otpCredentialMapperFormAsset.getForm()).complexAttributeToolsCallback);
 
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
@@ -168,31 +209,33 @@ public class LdapRealmView {
                 .addDetail("OTP Credential Mapper", otpCredentialMapperFormAsset.asWidget());
 
         selectionModel.addSelectionChangeHandler(event -> {
-            Property node = selectionModel.getSelectedObject();
-            if (node != null) {
-                modelForm.getForm().edit(node.getValue());
-                if (node.getValue().hasDefined("identity-mapping"))
-                    identityMappingFormAsset.getForm().edit(node.getValue().get("identity-mapping"));
+            Property ldapRealmProperty = selectionModel.getSelectedObject();
+            if (ldapRealmProperty != null) {
+                modelForm.getForm().edit(ldapRealmProperty.getValue());
+                ModelNode identityMappingNode = ldapRealmProperty.getValue().get("identity-mapping");
+                if (ldapRealmProperty.getValue().hasDefined("identity-mapping")) {
+                    identityMappingFormAsset.getForm().edit(identityMappingNode);
+                }
 
-                if (node.getValue().get("identity-mapping").hasDefined("attribute-mapping"))
-                    identityAttributeMappingView.update(node.getValue().get("identity-mapping").get("attribute-mapping").asList());
-                else
+                if (identityMappingNode.hasDefined("attribute-mapping")) {
+                    identityAttributeMappingView.update(identityMappingNode.get("attribute-mapping").asList());
+                } else {
                     identityAttributeMappingView.clearValues();
+                }
 
-                if (node.getValue().get("identity-mapping").hasDefined("new-identity-attributes"))
-                    identityAttributeMappingView.update(node.getValue().get("identity-mapping").get("new-identity-attributes").asList());
-                else
-                    identityAttributeMappingView.clearValues();
+                newIdentityAttributesView.update(ldapRealmProperty);
 
-                if (node.getValue().get("identity-mapping").hasDefined("user-password-mapper"))
-                    userPasswordMapperFormAsset.getForm().edit(node.getValue().get("identity-mapping").get("user-password-mapper"));
-                else
-                    userPasswordMapperFormAsset.getForm().clearValues();
+                if (identityMappingNode.hasDefined("user-password-mapper")) {
+                    userPasswordMapperFormAsset.getForm().edit(identityMappingNode.get("user-password-mapper"));
+                } else {
+                    userPasswordMapperFormAsset.getForm().editTransient(new ModelNode());
+                }
 
-                if (node.getValue().get("identity-mapping").hasDefined("otp-credential-mapper"))
-                    otpCredentialMapperFormAsset.getForm().edit(node.getValue().get("identity-mapping").get("otp-credential-mapper"));
-                else
-                    otpCredentialMapperFormAsset.getForm().clearValues();
+                if (identityMappingNode.hasDefined("otp-credential-mapper")) {
+                    otpCredentialMapperFormAsset.getForm().edit(identityMappingNode.get("otp-credential-mapper"));
+                } else {
+                    otpCredentialMapperFormAsset.getForm().editTransient(new ModelNode());
+                }
             } else {
                 modelForm.getForm().clearValues();
                 identityMappingFormAsset.getForm().clearValues();
@@ -209,38 +252,26 @@ public class LdapRealmView {
 
     private void onAdd() {
 
-        // manipulate the descriptions to allow the add UI operation be able to create the jdbc-realm
-        // with sql and datasource at least
-        // because the principal-query is a LIST of OBJECTS
-        //ModelNode principalQueryAttr = resourceDescription.get("operations").get("add").get("request-properties");
-        //
-        //principalQueryAttr.get("principal-query-sql").set(principalQueryAttr.get("principal-query").get("value-type").get("sql"));
-        //principalQueryAttr.get("principal-query-datasource").set(principalQueryAttr.get("principal-query").get("value-type").get("data-source"));
+        // manipulate the descriptions to allow the add UI operation be able to create the identity-mapping attribute
+        ModelNode addDescription = resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
 
-        ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
-                .setResourceDescription(resourceDescription)
-                .setCreateMode(true)
-                .exclude("principal-query")
-                .include("principal-query-sql", "principal-query-datasource")
-                .setSecurityContext(securityContext)
-                .build();
-        addFormAssets.getForm().setEnabled(true);
+        addDescription.get("identity-mapping-rdn-identifier")
+                .set(addDescription.get("identity-mapping").get(VALUE_TYPE).get("rdn-identifier"));
 
         DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("LDAP Realm"));
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
                     public void onAdd(ModelNode payload) {
-                        // The instance name must be part of the model node!
+                        // The name must be part of Property, not in the payload
                         String name = payload.remove(NAME).asString();
-                        //String sql = payload.remove("principal-query-sql").asString();
-                        //String datasource = payload.remove("principal-query-datasource").asString();
-                        //
-                        //// construct the payload as the principal-query attribute is a LIST of OBJECTS
-                        //ModelNode modelNode = payload.get("principal-query").addEmptyObject();
-                        //modelNode.get("sql").set(sql);
-                        //modelNode.get("data-source").set(datasource);
-                        circuit.dispatch(new AddResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS, new Property(name, payload)));
+
+                        // re-construct the payload and add the rdn-identifier as child of identity-mapping
+                        String rdnIdentifier = payload.remove("identity-mapping-rdn-identifier").asString();
+                        ModelNode modelNode = payload.get("identity-mapping").setEmptyObject();
+                        modelNode.get("rdn-identifier").set(rdnIdentifier);
+                        circuit.dispatch(
+                                new AddResourceGeneric(ElytronStore.LDAP_REALM_ADDRESS, new Property(name, payload)));
                         dialog.hide();
                     }
 
@@ -269,6 +300,17 @@ public class LdapRealmView {
             otpCredentialMapperFormAsset.getForm().clearValues();
         }
         SelectionChangeEvent.fire(selectionModel);
+    }
+
+    private <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
+        FormItem selectedFormItem = null;
+        for (FormItem formItem : formItems) {
+            if (name.equals(formItem.getName())) {
+                selectedFormItem = formItem;
+                break;
+            }
+        }
+        return selectedFormItem;
     }
 
 }

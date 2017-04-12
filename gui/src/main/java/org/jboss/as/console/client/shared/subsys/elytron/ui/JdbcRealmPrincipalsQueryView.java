@@ -52,6 +52,11 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
+
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
@@ -75,9 +80,9 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
         selectionModel = new SingleSelectionModel<>(nameProvider);
 
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
-        ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
-        ModelNode filtersDescription = reqPropsDescription.get("principal-query").get("value-type");
-        reqPropsDescription.set(filtersDescription);
+        ModelNode reqPropsDescription = this.resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        ModelNode principalQueryDescription = reqPropsDescription.get("principal-query").get(VALUE_TYPE);
+        reqPropsDescription.set(principalQueryDescription);
     }
 
     @SuppressWarnings("unchecked")
@@ -92,13 +97,13 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
         table.setSelectionModel(selectionModel);
 
         // columns
-        Column<ModelNode, String> nameColumn = new TextColumn<ModelNode>() {
+        Column<ModelNode, String> sqlColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
                 return node.get("sql").asString();
             }
         };
-        nameColumn.setSortable(true);
+        sqlColumn.setSortable(true);
         Column<ModelNode, String> datasourceColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
@@ -106,9 +111,9 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
             }
         };
 
-        table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
+        table.addColumn(sqlColumn, "SQL");
         table.addColumn(datasourceColumn, "Datasource");
-        table.setColumnWidth(nameColumn, 85, Style.Unit.PCT);
+        table.setColumnWidth(sqlColumn, 85, Style.Unit.PCT);
         table.setColumnWidth(datasourceColumn, 15, Style.Unit.PCT);
         datasourceColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 

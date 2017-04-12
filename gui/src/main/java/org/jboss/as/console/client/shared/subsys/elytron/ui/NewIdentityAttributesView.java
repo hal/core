@@ -36,9 +36,25 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.subsys.elytron.store.AddListAttribute;
+import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
+import org.jboss.as.console.client.shared.subsys.elytron.store.RemoveListAttribute;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.Dispatcher;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -51,10 +67,29 @@ public class NewIdentityAttributesView implements IsWidget {
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
+    private Dispatcher circuit;
+    private ResourceDescription resourceDescription;
+    private SecurityContext securityContext;
+    private String ldapRealmName;
 
-    NewIdentityAttributesView() {
-        this.nameProvider = modelNode -> modelNode.get("name");
+    NewIdentityAttributesView(final Dispatcher circuit, ResourceDescription resourceDescription,
+            SecurityContext securityContext) {
+
+        this.circuit = circuit;
+        this.securityContext = securityContext;
+        this.nameProvider = modelNode -> modelNode.get(NAME);
         selectionModel = new SingleSelectionModel<>(nameProvider);
+
+        // tweak to use ModelNodeFormBuilder automatic form generation
+        this.resourceDescription = new ResourceDescription(resourceDescription.clone());
+        // adds the identity-mappings.new-identity-attributes to the request-properties of add operation
+        ModelNode reqPropsDescription = this.resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        // adds the identity-mappings.new-identity-attributes to the attribute list
+        ModelNode attrPropsDescription = this.resourceDescription.get(ATTRIBUTES);
+        ModelNode newIdentityAttributesDescription = reqPropsDescription.get("identity-mapping").get(VALUE_TYPE).get("new-identity-attributes").get(VALUE_TYPE);
+        reqPropsDescription.set(newIdentityAttributesDescription);
+        attrPropsDescription.set(newIdentityAttributesDescription);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -63,7 +98,7 @@ public class NewIdentityAttributesView implements IsWidget {
         panel.addStyleName("fill-layout-width");
 
         // table
-        table = new DefaultCellTable<>(5, nameProvider);
+        table = new DefaultCellTable<>(20, nameProvider);
         dataProvider = new ListDataProvider<>(nameProvider);
         dataProvider.addDataDisplay(table);
         table.setSelectionModel(selectionModel);
@@ -72,44 +107,108 @@ public class NewIdentityAttributesView implements IsWidget {
         Column<ModelNode, String> nameColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get("name").asString();
+                return node.get(NAME).asString();
             }
         };
         nameColumn.setSortable(true);
         Column<ModelNode, String> valueColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get("value").asString();
+                return node.get(VALUE).asString();
             }
         };
         valueColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         ColumnSortEvent.ListHandler<ModelNode> sortHandler = new ColumnSortEvent.ListHandler<>(dataProvider.getList());
-        sortHandler.setComparator(nameColumn, (o1, o2) -> o1.get("name").asString().toLowerCase().compareTo(o2.get("name").asString().toLowerCase()));
-        table.addColumn(nameColumn, "From");
-        table.addColumn(valueColumn, "To");
+        sortHandler.setComparator(nameColumn, (o1, o2) -> o1.get(NAME).asString().toLowerCase().compareTo(o2.get(NAME).asString().toLowerCase()));
+        table.addColumn(nameColumn, "Name");
+        table.addColumn(valueColumn, "Value");
         table.setColumnWidth(nameColumn, 30, Style.Unit.PCT);
         table.setColumnWidth(valueColumn, 70, Style.Unit.PCT);
         table.addColumnSortHandler(sortHandler);
         table.getColumnSortList().push(nameColumn);
 
+        //panel.add(mainTableTools());
         panel.add(table);
+
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
         panel.add(pager);
         return panel;
     }
 
-    public void update(List<ModelNode> models) {
-        table.setRowCount(models.size(), true);
+    private ToolStrip mainTableTools() {
+        ToolStrip tools = new ToolStrip();
+        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
-        Collections.sort(models, (o1, o2) -> o1.get("name").asString().toLowerCase().compareTo(o2.get("name").asString().toLowerCase()));
+            ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
+                    .setResourceDescription(resourceDescription)
+                    .setCreateMode(true)
+                    .unsorted()
+                    .setSecurityContext(securityContext)
+                    .build();
+            addFormAssets.getForm().setEnabled(true);
 
-        List<ModelNode> dataList = dataProvider.getList();
-        dataList.clear(); // cannot call setList() as that breaks the sort handler
-        dataList.addAll(models);
+            DefaultWindow dialog = new DefaultWindow(Console.MESSAGES.newTitle("New Identity Attribute"));
+            AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
+                @Override
+                public void onAdd(ModelNode payload) {
+                    circuit.dispatch(new AddListAttribute(ElytronStore.LDAP_REALM_ADDRESS,
+                            "identity-mapping.new-identity-attributes",
+                            ldapRealmName,
+                            payload));
+                    dialog.hide();
+                }
 
-        // Make sure the new values are properly sorted
-        ColumnSortEvent.fire(table, table.getColumnSortList());
+                @Override
+                public void onCancel() {
+                    dialog.hide();
+                }
+            };
+            AddResourceDialog addDialog = new AddResourceDialog(addFormAssets, resourceDescription, callback);
+            dialog.setWidth(480);
+            dialog.setHeight(350);
+            dialog.setWidget(addDialog);
+            dialog.setGlassEnabled(true);
+            dialog.center();
+        });
+        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+            final ModelNode selection = selectionModel.getSelectedObject();
+            if (selection != null) {
+                Feedback.confirm("New Identity Attribute", Console.MESSAGES.deleteConfirm("New Identity Attribute "  + selection.asString()),
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                circuit.dispatch(new RemoveListAttribute(
+                                        ElytronStore.LDAP_REALM_ADDRESS,
+                                        ldapRealmName,
+                                        "identity-mapping.new-identity-attributes",
+                                        selection));
+                            }
+                        });
+            }
+        });
+        tools.addToolButtonRight(addButton);
+        tools.addToolButtonRight(removeButton);
+        return tools;
+    }
+
+    public void update(Property ldapRealmProperty) {
+        ldapRealmName = ldapRealmProperty.getName();
+        if (ldapRealmProperty.getValue().get("identity-mapping").hasDefined("new-identity-attributes")) {
+            List<ModelNode> models = ldapRealmProperty.getValue().get("identity-mapping").get("new-identity-attributes").asList();
+            table.setRowCount(models.size(), true);
+
+            Collections.sort(models,
+                    (o1, o2) -> o1.get(NAME).asString().toLowerCase().compareTo(o2.get(NAME).asString().toLowerCase()));
+
+            List<ModelNode> dataList = dataProvider.getList();
+            dataList.clear(); // cannot call setList() as that breaks the sort handler
+            dataList.addAll(models);
+
+            // Make sure the new values are properly sorted
+            ColumnSortEvent.fire(table, table.getColumnSortList());
+        } else {
+            dataProvider.setList(new ArrayList<>());
+        }
     }
 
     public void clearValues() {

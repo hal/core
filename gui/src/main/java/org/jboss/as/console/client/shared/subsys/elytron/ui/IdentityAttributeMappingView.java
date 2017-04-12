@@ -22,19 +22,15 @@
 package org.jboss.as.console.client.shared.subsys.elytron.ui;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -45,16 +41,12 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class IdentityAttributeMappingView implements IsWidget {
 
-
-    private final ProvidesKey<ModelNode> nameProvider;
-
     private DefaultCellTable<ModelNode> table;
     private ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
 
     IdentityAttributeMappingView() {
-        this.nameProvider = modelNode -> modelNode.get("from");
-        selectionModel = new SingleSelectionModel<>(nameProvider);
+        selectionModel = new SingleSelectionModel<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -63,44 +55,30 @@ public class IdentityAttributeMappingView implements IsWidget {
         panel.addStyleName("fill-layout-width");
 
         // table
-        table = new DefaultCellTable<>(5, nameProvider);
-        dataProvider = new ListDataProvider<>(nameProvider);
+        table = new DefaultCellTable<>(20);
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
         table.setSelectionModel(selectionModel);
 
         // columns
-        Column<ModelNode, String> fromColumn = new TextColumn<ModelNode>() {
-            @Override
-            public String getValue(ModelNode node) {
-                return node.get("from").asString();
-            }
-        };
-        fromColumn.setSortable(true);
-        Column<ModelNode, String> toColumn = new TextColumn<ModelNode>() {
-            @Override
-            public String getValue(ModelNode node) {
-                return node.get("to").asString();
-            }
-        };
-        Column<ModelNode, String> filterColumn = new TextColumn<ModelNode>() {
-            @Override
-            public String getValue(ModelNode node) {
-                return node.get("filter").asString();
-            }
-        };
-        filterColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        toColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        ColumnSortEvent.ListHandler<ModelNode> sortHandler = new ColumnSortEvent.ListHandler<>(dataProvider.getList());
-        sortHandler.setComparator(fromColumn,
-                (o1, o2) -> o1.get("from").asString().toLowerCase().compareTo(o2.get("from").asString().toLowerCase()));
+        Column<ModelNode, String> fromColumn = createColumn("from");
+        Column<ModelNode, String> toColumn = createColumn("to");
+        Column<ModelNode, String> referenceColumn = createColumn("reference");
+        Column<ModelNode, String> filterColumn = createColumn("filter");
+        Column<ModelNode, String> filterBaseColumn = createColumn("filter-base-dn");
+        Column<ModelNode, String> searchRecursiveColumn = createColumn("search-recursive");
+        Column<ModelNode, String> roleRecursionColumn = createColumn("role-recursion");
+        Column<ModelNode, String> roleRecursioNameColumn = createColumn("role-recursion-name");
+        Column<ModelNode, String> extractDnColumn = createColumn("extract-rdn");
         table.addColumn(fromColumn, "From");
         table.addColumn(toColumn, "To");
+        table.addColumn(referenceColumn, "Reference");
         table.addColumn(filterColumn, "Filter");
-        table.setColumnWidth(fromColumn, 30, Style.Unit.PCT);
-        table.setColumnWidth(toColumn, 40, Style.Unit.PCT);
-        table.setColumnWidth(filterColumn, 20, Style.Unit.PCT);
-        table.addColumnSortHandler(sortHandler);
-        table.getColumnSortList().push(fromColumn);
+        table.addColumn(filterBaseColumn, "Filter Base DN");
+        table.addColumn(searchRecursiveColumn, "Search Recursive");
+        table.addColumn(roleRecursionColumn, "Role Recursion");
+        table.addColumn(roleRecursioNameColumn, "Role Recursion Name");
+        table.addColumn(extractDnColumn, "Extract RDN");
 
         panel.add(table);
         DefaultPager pager = new DefaultPager();
@@ -109,18 +87,22 @@ public class IdentityAttributeMappingView implements IsWidget {
         return panel;
     }
 
+    private Column<ModelNode, String> createColumn(String attributeName) {
+        Column<ModelNode, String> column = new TextColumn<ModelNode>() {
+            @Override
+            public String getValue(ModelNode node) {
+            return node.hasDefined(attributeName) ? node.get(attributeName).asString() : "";
+            }
+        };
+        column.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        return column;
+    }
+
     public void update(List<ModelNode> models) {
         table.setRowCount(models.size(), true);
-
-        Collections.sort(models,
-                (o1, o2) -> o1.get("from").asString().toLowerCase().compareTo(o2.get("from").asString().toLowerCase()));
-
         List<ModelNode> dataList = dataProvider.getList();
-        dataList.clear(); // cannot call setList() as that breaks the sort handler
+        dataList.clear();
         dataList.addAll(models);
-
-        // Make sure the new values are properly sorted
-        ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 
     public void clearValues() {

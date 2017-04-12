@@ -182,7 +182,7 @@ public class BridgesList {
                             .fromEntity(activemqBridge.getCredentialReference());
                     credentialRefFormAsset.getForm().edit(credentialBean);
                 } else {
-                    credentialRefFormAsset.getForm().edit(new ModelNode());
+                    credentialRefFormAsset.getForm().editTransient(new ModelNode());
                 }
 
             } else {
