@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -38,8 +37,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.UIConstants;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -178,7 +175,6 @@ public class AssignContentDialog implements IsWidget {
         intro.setText(Console.MESSAGES.chooseServerGroupsForAssigning(content.getName()));
         dataProvider.setList(serverGroups);
         selectionModel.clear();
-        table.selectDefaultEntity();
         window.center();
     }
 
