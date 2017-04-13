@@ -194,12 +194,10 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
 
     public void onSaveServer(String sessionName, ServerType type, Map<String, Object> changeset) {
-        ModelNode address = new ModelNode();
-        address.get(ADDRESS).set(Baseadress.get());
-        address.get(ADDRESS).add("subsystem", "mail");
-        address.get(ADDRESS).add("mail-session", sessionName);
-        address.get(ADDRESS).add("server", type.name());
-        ModelNode operation = serverAdapter.fromChangeset(changeset, address);
+
+        final ResourceAddress resAddress = MAIL_SERVER_TEMPLATE.resolve(statementContext, sessionName, type.name());
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode operation = adapter.fromChangeSet(resAddress, changeset);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override

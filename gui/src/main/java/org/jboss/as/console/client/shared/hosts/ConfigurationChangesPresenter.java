@@ -67,7 +67,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ConfigurationChangesPresenter
         extends CircuitPresenter<ConfigurationChangesPresenter.MyView, ConfigurationChangesPresenter.MyProxy> {
 
-    public static final String CONFIGURATION_CHANGES_ADDRESS = "/{selected.host}/core-service=management/service=configuration-changes";
+    public static final String CONFIGURATION_CHANGES_ADDRESS = "/{selected.host}/subsystem=core-management/service=configuration-changes";
     public static final AddressTemplate CONFIGURATION_CHANGES_TEMPLATE = AddressTemplate.of(CONFIGURATION_CHANGES_ADDRESS);
 
     @ProxyCodeSplit
@@ -87,7 +87,7 @@ public class ConfigurationChangesPresenter
     private final CoreGUIContext statementContext;
     private final CrudOperationDelegate operationDelegate;
     private ResourceDescriptionRegistry descriptionRegistry;
-    
+
     private DefaultWindow window;
 
     @Inject
@@ -173,11 +173,11 @@ public class ConfigurationChangesPresenter
         });
     }
 
-    // at first check to see if the configuration-changes resource exists, 
+    // at first check to see if the configuration-changes resource exists,
     // if positive, then call :list-changes
     private void initialLoad() {
         AddressTemplate coreServiceManagement = CONFIGURATION_CHANGES_TEMPLATE.subTemplate(0, 2);
-        
+
         Operation operation1 = new Operation.Builder(READ_CHILDREN_NAMES_OPERATION,
                 coreServiceManagement.resolve(statementContext))
                 .param(CHILD_TYPE, SERVICE)
@@ -193,7 +193,7 @@ public class ConfigurationChangesPresenter
                     Console.error(Console.MESSAGES.failed("Configuration Management"), response.getFailureDescription());
                 } else {
                     List<ModelNode> payload = response.get(RESULT).asList();
-                    
+
                     boolean enabled = false;
                     for (ModelNode service: payload) {
                         if (CONFIGURATION_CHANGES.equals(service.asString())) {
@@ -209,7 +209,7 @@ public class ConfigurationChangesPresenter
             }
         });
     }
-    
+
     public void enable() {
 
         window = new DefaultWindow("Configuration Changes");
@@ -221,7 +221,7 @@ public class ConfigurationChangesPresenter
         FormItem maxHistorySizeItem = new NumberBoxItem("max-history", "Max history");
         maxHistorySizeItem.setRequired(false);
 
-        // a modelnodeformbuilder.formassets is used to pass as parameter to AddResourceDialog 
+        // a modelnodeformbuilder.formassets is used to pass as parameter to AddResourceDialog
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setResourceDescription(resoourceDescription)
                 .setSecurityContext(Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.ConfigurationChangesPresenter));
@@ -236,8 +236,8 @@ public class ConfigurationChangesPresenter
                     @Override
                     public void onAdd(ModelNode payload) {
                         window.hide();
-                        operationDelegate.onCreateResource(CONFIGURATION_CHANGES_TEMPLATE, payload.get(NAME).asString(), 
-                                payload, 
+                        operationDelegate.onCreateResource(CONFIGURATION_CHANGES_TEMPLATE, payload.get(NAME).asString(),
+                                payload,
                                 new CrudOperationDelegate.Callback() {
                             @Override
                             public void onSuccess(AddressTemplate address, String name) {
@@ -249,7 +249,7 @@ public class ConfigurationChangesPresenter
 
                             @Override
                             public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-                                Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()), 
+                                Console.error(Console.MESSAGES.failedToModifyResource(addressTemplate.toString()),
                                         t.getMessage());
                             }
                         });
@@ -267,7 +267,7 @@ public class ConfigurationChangesPresenter
     }
 
     public void disable() {
-        
+
         Operation operation1 = new Operation.Builder(REMOVE,
                 CONFIGURATION_CHANGES_TEMPLATE.resolve(statementContext))
                 .build();
