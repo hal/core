@@ -134,6 +134,7 @@ public class PropertyEditor {
                     });
 
             propTools.addToolButtonRight(removeButton);
+            propTools.setStyleName("default-toolstrip-secondary");
             panel.add(propTools);
         }
 
