@@ -284,4 +284,27 @@ public class JMSBridgePresenter
         });
 
     }
+
+    public void undefineAttribute(final String complexAttributeName, final String resourceName) {
+        ResourceAddress address = JMSBRIDGE_TEMPLATE.resolve(statementContext, resourceName);
+
+        Operation operation = new Operation.Builder(UNDEFINE_ATTRIBUTE_OPERATION, address)
+                .param(NAME, complexAttributeName)
+                .build();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to undefine JMS Bridge attribute " + complexAttributeName + " for resource " + resourceName, response.getFailureDescription());
+                } else {
+                    Console.info("Successfully reset JMS Bridge attribute " + complexAttributeName + " of resource: " + resourceName);
+                    loadBridges(); // refresh
+                }
+            }
+        });
+
+    }
 }

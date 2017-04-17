@@ -84,6 +84,10 @@ public class LdapKeystoreView extends ElytronGenericResourceView {
             }
         });
 
+        newItemTemplateFormAsset.getForm().setResetCallback(() -> circuit
+                .dispatch(new ModifyComplexAttribute(ElytronStore.LDAP_KEY_STORE_ADDRESS, COMPLEX_ATTRIBUTE,
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
+
 
         newItemTemplateFormAsset.getForm().setToolsCallback(new FormCallback() {
             @Override

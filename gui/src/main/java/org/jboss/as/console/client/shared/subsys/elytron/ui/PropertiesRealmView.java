@@ -147,6 +147,10 @@ public class PropertiesRealmView {
             }
         });
 
+        groupsPropertiesFormAssets.getForm().setResetCallback(() -> circuit
+                .dispatch(new ModifyComplexAttribute(ElytronStore.PROPERTIES_REALM_ADDRESS, "groups-properties",
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
+
         usersPropertiesFormAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")

@@ -28,6 +28,7 @@ import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -79,6 +80,13 @@ public class TokenRealmView extends ElytronGenericResourceView {
                 oauth2Form.getForm().cancel();
             }
         });
+
+        jwtForm.getForm().setResetCallback(
+                () -> circuit.dispatch(new ModifyComplexAttribute(ElytronStore.TOKEN_REALM_ADDRESS, "jwt",
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
+        oauth2Form.getForm().setResetCallback(() -> circuit
+                .dispatch(new ModifyComplexAttribute(ElytronStore.TOKEN_REALM_ADDRESS, "oauth2-introspection",
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
 
         additionalWidgets.put("JWT", jwtForm.asWidget());
         additionalWidgets.put("OAuth 2 Introspection", oauth2Form.asWidget());

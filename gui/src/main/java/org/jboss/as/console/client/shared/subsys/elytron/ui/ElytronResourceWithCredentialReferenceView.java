@@ -28,6 +28,7 @@ import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -78,6 +79,10 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
             }
         });
         credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+
+        credentialReferenceFormAsset.getForm().setResetCallback(
+                () -> circuit.dispatch(new ModifyComplexAttribute(addressTemplate, CREDENTIAL_REFERENCE,
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
 
         additionalWidgets.put("Credential Reference", credentialReferenceFormAsset.asWidget());
         return additionalWidgets;
