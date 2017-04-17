@@ -182,6 +182,7 @@ class JMSBridgeList {
             }
         });
         formAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+        formAsset.getForm().setResetCallback(() -> presenter.undefineAttribute(complexAttributeName, getSelectedEntity().getName()));
         return formAsset;
     }
 

@@ -182,6 +182,9 @@ public class ProviderView implements MessagingAddress {
         });
         clusterCredentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        clusterCredentialRefFormAsset.getForm().setResetCallback(
+                () -> presenter.undefineAttribute("cluster-credential-reference", provider.getName()));
+
         // cross validate the forms, as there are "alternatives" metadata for the password.
         secForm.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("cluster-password", clusterCredentialRefFormAsset.getForm(), "Cluster Credential Reference", true));
         clusterCredentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("cluster-password", secForm.getForm(), "Security", false));

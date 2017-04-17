@@ -262,6 +262,10 @@ public class ConnectionDefList {
         });
         recoveryCredentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        recoveryCredentialReferenceFormAsset.getForm().setResetCallback(
+                () -> presenter.onSaveComplexAttribute(ADDRESS_TEMPLATE, selectionModel.getSelectedObject().getName(),
+                        "recovery-credential-reference", new ModelNode().setEmptyList()));
+
         // cross validate the forms, as there are "alternatives" metadata for the password.
         recoveryAssets.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("recovery-password",
                 recoveryCredentialReferenceFormAsset.getForm(), "Recovery Credential Reference", true));

@@ -198,6 +198,10 @@ public class XADataSourceEditor implements PropertyManagement {
         });
         credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
 
+        credentialReferenceFormAsset.getForm().setResetCallback(() -> presenter
+                .onSaveComplexAttribute(selectedEntity.getName(), CREDENTIAL_REFERENCE,
+                        new ModelNode().setEmptyList()));
+
         // cross validate the forms, as there are "alternatives" metadata for the password.
         securityFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", credentialReferenceFormAsset.getForm(), "Credential Reference", true));
         credentialReferenceFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", securityFormAsset.getForm(), "Security", false));

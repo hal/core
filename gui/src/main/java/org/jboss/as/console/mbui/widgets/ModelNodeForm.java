@@ -1,13 +1,5 @@
 package org.jboss.as.console.mbui.widgets;
 
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.AbstractForm;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.PlainFormView;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
-import org.jboss.dmr.client.Property;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.AbstractForm;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.PlainFormView;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.Property;
 
 /**
  * @author Heiko Braun
@@ -53,6 +53,10 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         setOperational(true);
 
         this.editedEntity = bean;
+
+        // for the cases where the form represents a complex object created by ComplexAttributeForm
+        // the reset button is only enabled if the node is defined and there is a reset callback (super class)
+        setEnableResetButton(bean.isDefined());
 
         // prevent modification of the source
         // the DMR getter otherwise mutate the bean

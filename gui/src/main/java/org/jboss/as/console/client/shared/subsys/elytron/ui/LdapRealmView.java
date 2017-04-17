@@ -191,9 +191,18 @@ public class LdapRealmView {
                 .setToolsCallback(new ComplexAttributeToolsCallback("identity-mapping.user-password-mapper",
                         userPasswordMapperFormAsset.getForm()).complexAttributeToolsCallback);
 
+        userPasswordMapperFormAsset.getForm().setResetCallback(() -> circuit
+                .dispatch(new ModifyComplexAttribute(ElytronStore.LDAP_REALM_ADDRESS,
+                        "identity-mapping.user-password-mapper",
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
+
         otpCredentialMapperFormAsset.getForm().setToolsCallback(
                 new ComplexAttributeToolsCallback("identity-mapping.otp-credential-mapper",
                         otpCredentialMapperFormAsset.getForm()).complexAttributeToolsCallback);
+
+        otpCredentialMapperFormAsset.getForm().setResetCallback(() -> circuit.dispatch(
+                new ModifyComplexAttribute(ElytronStore.LDAP_REALM_ADDRESS, "identity-mapping.otp-credential-mapper",
+                        selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList())));
 
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)

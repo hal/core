@@ -28,6 +28,7 @@ import org.jboss.as.console.mbui.widgets.ComplexAttributeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -66,6 +67,11 @@ public class TrustManagerView extends ElytronGenericResourceView {
                 certificateRevocationListForm.getForm().cancel();
             }
         });
+
+        certificateRevocationListForm.getForm()
+                .setResetCallback(() -> circuit.dispatch(new ModifyComplexAttribute(ElytronStore.TRUST_MANAGER_ADDRESS,
+                        CERTIFICATE_REVOCATION_LIST, selectionModel.getSelectedObject().getName(),
+                        new ModelNode().setEmptyList())));
 
         additionalWidgets.put("Certificate Revocation List", certificateRevocationListForm.asWidget());
         return additionalWidgets;

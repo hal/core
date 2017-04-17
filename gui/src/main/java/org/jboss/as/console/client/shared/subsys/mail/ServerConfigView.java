@@ -163,7 +163,9 @@ public class ServerConfigView {
         credentialReferenceFormAsset.getForm().addFormValidator(
                 new CredentialReferenceAlternativesFormValidation("password", mailFormAsset.getForm(), "Attributes",
                         false));
-
+        credentialReferenceFormAsset.getForm().setResetCallback(
+                () -> presenter.onSaveComplexAttribute(session.getName(), selectionModel.getSelectedObject().getType(),
+                        new ModelNode().setEmptyList()));
 
         headline = new HTML();
         headline.setStyleName("content-header-label");

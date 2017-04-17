@@ -160,6 +160,8 @@ public class BridgesList {
             }
         });
         credentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceFormValidation());
+        credentialRefFormAsset.getForm().setResetCallback(() -> presenter
+                .saveAttribute(selectionModel.getSelectedObject().getName(), new ModelNode().setEmptyList()));
 
         connectionAttributes.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", credentialRefFormAsset.getForm(), "Credential Reference", true));
         credentialRefFormAsset.getForm().addFormValidator(new CredentialReferenceAlternativesFormValidation("password", connectionAttributes.getForm(), "Connection Management", false));
