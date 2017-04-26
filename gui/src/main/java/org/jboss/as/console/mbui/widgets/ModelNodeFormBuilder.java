@@ -649,17 +649,23 @@ public class ModelNodeFormBuilder {
                     // iterate over the "requires" attribute list
 
                     boolean sourceItemDefined = isFormItemDefined(sourceFormItem);
-                    for (ModelNode reqAttr : requiredAttrs) {
-                        String requiredAttrName = reqAttr.asString();
-                        FormItem item = findFormItem(formItems, requiredAttrName);
+                    if (sourceItemDefined) {
+                        for (ModelNode reqAttr : requiredAttrs) {
+                            String requiredAttrName = reqAttr.asString();
+                            FormItem item = findFormItem(formItems, requiredAttrName);
 
-                        boolean itemUndefined = !isFormItemDefined(item);
-                        if (sourceItemDefined && itemUndefined) {
-                            formValidation.addError(requiredAttrName);
-                            item.setErrMessage(
-                                    "This is a required attribute if " + sourceFormItem.getTitle() + " is used.");
-                            item.setErroneous(true);
-                            break;
+                            if (item == null) {
+                                continue;
+                            }
+
+                            boolean itemUndefined = !isFormItemDefined(item);
+                            if (itemUndefined) {
+                                formValidation.addError(requiredAttrName);
+                                item.setErrMessage(
+                                        "This is a required attribute if " + sourceFormItem.getTitle() + " is used.");
+                                item.setErroneous(true);
+                                break;
+                            }
                         }
                     }
                 }
@@ -668,6 +674,11 @@ public class ModelNodeFormBuilder {
                     List<ModelNode> alternativeAttrs = alternatives.get(attr).asList();
 
                     FormItem sourceFormItem = findFormItem(formItems, attr);
+
+                    if (sourceFormItem == null) {
+                        continue;
+                    }
+
                     // only checks if the attribute is used
 
                     boolean fieldIsInUse = isFormItemDefined(sourceFormItem);
