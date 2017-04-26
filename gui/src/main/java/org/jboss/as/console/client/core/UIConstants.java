@@ -213,6 +213,7 @@ public interface UIConstants extends Constants {
     String failedToRemoveServer();
     String failedToResolveExpression();
     String failedToRetrieveAttributeDescriptions();
+    String goToRuntime();
     String groupAlreadyExists();
     String help_close_help();
     String help_need_help();
@@ -467,6 +468,7 @@ public interface UIConstants extends Constants {
     String server_instance_pleaseSelect();
     String server_instance_reloadRequired();
     String server_instance_servers_needReload();
+    String server_instance_servers_needReload_from_runtime();
     String server_instance_servers_needRestart();
     String server_reload_desc();
     String server_reload_title();
