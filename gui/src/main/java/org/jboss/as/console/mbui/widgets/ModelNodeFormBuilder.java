@@ -757,15 +757,17 @@ public class ModelNodeFormBuilder {
     }
 
     private boolean isFormItemDefined(FormItem item) {
-        ModelNode sourceMetadata = (ModelNode) item.getMetadata();
+        boolean defined = false;
+        if (item != null) {
+            ModelNode sourceMetadata = (ModelNode) item.getMetadata();
 
-        // the boolean type always comes as defined, so we must distinguish the boolean types
-        // the string type always comes defined, the string length is evaluated if is set by the user
-        boolean sourceBooleanType = ModelType.BOOLEAN.equals(sourceMetadata.get(TYPE).asType());
-        boolean defined = (sourceBooleanType && Boolean.parseBoolean(item.getValue().toString()))
-                || (!sourceBooleanType && !item.isUndefined()
-                && item.getValue().toString().trim().length() > 0);
-
+            // the boolean type always comes as defined, so we must distinguish the boolean types
+            // the string type always comes defined, the string length is evaluated if is set by the user
+            boolean sourceBooleanType = ModelType.BOOLEAN.equals(sourceMetadata.get(TYPE).asType());
+            defined = (sourceBooleanType && Boolean.parseBoolean(item.getValue().toString()))
+                    || (!sourceBooleanType && !item.isUndefined()
+                    && item.getValue().toString().trim().length() > 0);
+        }
         return defined;
     }
 
