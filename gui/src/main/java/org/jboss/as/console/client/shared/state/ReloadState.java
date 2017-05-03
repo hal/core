@@ -10,6 +10,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.shared.runtime.StandaloneRestartReload;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -47,7 +48,9 @@ public class ReloadState {
             StringBuffer sb = new StringBuffer();
             ServerState serverState = serverStates.values().iterator().next();
             String message = serverState.isReloadRequired() ?
-                    Console.CONSTANTS.server_instance_servers_needReload() :
+                    Console.MODULES.getBootstrapContext().isStandalone() ?
+                            Console.CONSTANTS.server_instance_servers_needReload() :
+                            Console.CONSTANTS.server_instance_servers_needReload_from_runtime() :
                     Console.CONSTANTS.server_instance_servers_needRestart();
 
             sb.append(message).append("\n\n");
@@ -118,10 +121,8 @@ public class ReloadState {
             public void onClick(ClickEvent clickEvent) {
                 if (Console.MODULES.getBootstrapContext().isStandalone()) {
                     window.hide();
-                    Scheduler.get().scheduleDeferred(() -> {
-                        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.StandaloneRuntimePresenter));
-                    });
-
+                    StandaloneRestartReload standaloneServerreload = new StandaloneRestartReload();
+                    standaloneServerreload.onReloadServer();
                 } else {
                     window.hide();
                     Scheduler.get().scheduleDeferred(() -> {
@@ -173,7 +174,7 @@ public class ReloadState {
         else if(!restartRequired) // reload required
         {
             options = new DialogueOptions(
-                    Console.CONSTANTS.reloadServerNow(),
+                    Console.MODULES.getBootstrapContext().isStandalone() ? Console.CONSTANTS.reloadServerNow() : Console.CONSTANTS.goToRuntime(),
                     reloadHandler,
                     Console.CONSTANTS.dismiss(),
                     dismissHandler
