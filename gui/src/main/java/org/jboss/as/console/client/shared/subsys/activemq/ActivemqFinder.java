@@ -88,6 +88,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final SecurityFramework securityFramework;
     private final StatementContext statementContext;
+    private final BootstrapContext bootstrapContext;
 
     private DefaultWindow providerDialog;
     private ProviderView providerView;
@@ -111,6 +112,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         this.securityFramework = securityFramework;
         this.statementContext = statementContext;
         this.providerView = new ProviderView(this);
+        this.bootstrapContext = bootstrapContext;
     }
 
     @Override
@@ -250,7 +252,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                     Console.info(Console.MESSAGES
                             .successfullyModifiedMessagingProvider(provider.getName()));
                 }
-                loadProvider(provider.getName());
+                reloadProviderDialog(provider.getName());
             }
         });
     }
@@ -298,7 +300,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                 } else {
                     Console.info(Console.MESSAGES
                             .successfullyModifiedMessagingProvider(resourceName));
-                    loadProvider(resourceName);
+                    reloadProviderDialog(resourceName);
                 }
             }
         });
@@ -321,7 +323,7 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
                     Console.error(Console.MESSAGES.failedToModifyMessagingProvider(resourceName), response.getFailureDescription());
                 } else {
                     Console.info(Console.MESSAGES.successfullyModifiedMessagingProvider(resourceName));
-                    loadProvider(resourceName); // refresh
+                    reloadProviderDialog(resourceName);
                 }
             }
         });
@@ -337,5 +339,12 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
         providerDialog.center();
 
         providerView.updateFrom(provider);
+    }
+
+    private void reloadProviderDialog(String name) {
+        loadProvider(name);
+        if (!bootstrapContext.isStandalone()) {
+            providerDialog.hide();
+        }
     }
 }
