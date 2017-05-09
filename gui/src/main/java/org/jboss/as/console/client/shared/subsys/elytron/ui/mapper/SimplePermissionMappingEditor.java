@@ -51,6 +51,11 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
+
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
@@ -69,10 +74,10 @@ public class SimplePermissionMappingEditor implements IsWidget {
         this.circuit = circuit;
         this.securityContext = securityContext;
         selectionModel = new SingleSelectionModel<>();
-        
+
         this.resourceDescription = new ResourceDescription(resourceDescription.clone());
-        ModelNode reqPropsDescription = this.resourceDescription.get("operations").get("add").get("request-properties");
-        ModelNode filtersDescription = reqPropsDescription.get("permission-mappings").get("value-type");
+        ModelNode reqPropsDescription = this.resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        ModelNode filtersDescription = reqPropsDescription.get("permission-mappings").get(VALUE_TYPE);
         reqPropsDescription.set(filtersDescription);
     }
 
@@ -93,7 +98,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
         panel.add(pager);
         return panel;
     }
-    
+
     private void setupTable() {
         table = new DefaultCellTable<>(5);
         table.setSelectionModel(selectionModel);
@@ -108,16 +113,20 @@ public class SimplePermissionMappingEditor implements IsWidget {
         table.setColumnWidth(principals, 30, Style.Unit.PCT);
         table.setColumnWidth(roles, 30, Style.Unit.PCT);
     }
-    
+
     private Column<ModelNode, String> createColumn(String attributeName) {
         return new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.hasDefined(attributeName) ? node.get(attributeName).asString() : "";
+                String val = "";
+                if (node.hasDefined(attributeName)) {
+                    val = node.get(attributeName).asString().replaceAll("\\[|\"|\\]", "");
+                }
+                return val;
             }
         };
     }
-    
+
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
         ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
@@ -126,9 +135,10 @@ public class SimplePermissionMappingEditor implements IsWidget {
                     .setResourceDescription(resourceDescription)
                     .setCreateMode(true)
                     .unsorted()
-                    .exclude("permission-mappings")
+                    .exclude("permissions")
                     .setCreateNameAttribute(false)
                     .setSecurityContext(securityContext)
+                    .requiresAtLeastOne("principals", "roles")
                     .build();
             addFormAssets.getForm().setEnabled(true);
 
@@ -158,7 +168,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
         ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
-                Feedback.confirm("Filter", Console.MESSAGES.deleteConfirm("Permission Mapping "  + selection.asString()),
+                Feedback.confirm("Permission Mapping", Console.MESSAGES.deleteConfirm("Permission Mapping "  + selection.asString()),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveListAttribute(
@@ -180,7 +190,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
         if (prop.getValue().hasDefined("permission-mappings")) {
             List<ModelNode> models = prop.getValue().get("permission-mappings").asList();
             table.setRowCount(models.size(), true);
-    
+
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);

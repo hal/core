@@ -233,6 +233,13 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
                         }
 
                     }
+                    boolean matchNoUserUnset = !payload.get("match-no-user").asBoolean();
+                    if (matchNoUserUnset) {
+                        // the "match-no-user" is a checkbox, even if the user doesn't set the field
+                        // the checkbox is sent as false, which trigger the alternative of "match-user"
+                        // this way if the "match-no-user" is false, it is removed from the payload
+                        payload.remove("match-no-user");
+                    }
                     circuit.dispatch(new AddListAttribute(ElytronStore.AUTHENTICATION_CONTEXT_ADDRESS,
                             MATCH_RULES,
                             authContextName,
