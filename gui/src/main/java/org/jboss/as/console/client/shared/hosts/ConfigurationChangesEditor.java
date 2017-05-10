@@ -77,19 +77,19 @@ public class ConfigurationChangesEditor {
             @Override
             public String getValue(ModelNode item) {
                 // the operation-date is 2016-07-08T22:39:50.783Z
-                // there is some format to facilitate user experience 
+                // there is some format to facilitate user experience
                 // by replacing the T with a blank space
                 String opTimestamp = item.get("operation-date").asString();
-                opTimestamp = opTimestamp.replaceFirst("T", " "); 
+                opTimestamp = opTimestamp.replaceFirst("T", " ");
                 return opTimestamp;
             }
         }, "Date and time");
-        
+
         // access-mechanism column
         TextColumn<ModelNode> accessMechanismColumn = createColumn("access-mechanism");
         accessMechanismColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(accessMechanismColumn, "Access Mechanism");
-        
+
         // remote address column
         TextColumn<ModelNode> remoteAddressColumn = new TextColumn<ModelNode>() {
             @Override
@@ -97,14 +97,20 @@ public class ConfigurationChangesEditor {
                 // the remote address is 10.10.10.10/10.10.10.10
                 // to facilitate user experience we cut at at first slash
                 String clientAddress = item.get("remote-address").asString();
-                clientAddress = clientAddress.substring(0, clientAddress.indexOf("/"));
+                if (clientAddress.contains("/")) {
+                    String[] clientAddressArr = clientAddress.split("/");
+                    clientAddress = clientAddressArr[0];
+                    // there are situations where there is no value before the slash
+                    if (clientAddress.length() == 0)
+                        clientAddress = clientAddressArr[1];
+                }
                 return clientAddress;
             }
         };
         remoteAddressColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(remoteAddressColumn, "Remote address");
-        
-        // the resource address 
+
+        // the resource address
         TextColumn<ModelNode> resourceColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode item) {
@@ -113,7 +119,7 @@ public class ConfigurationChangesEditor {
         };
         table.addColumn(resourceColumn, "Resource address");
         table.setColumnWidth(resourceColumn, 50, Style.Unit.PCT);
-        
+
         // operation column
         table.addColumn(new TextColumn<ModelNode>() {
             @Override
@@ -121,7 +127,7 @@ public class ConfigurationChangesEditor {
                 return item.get(OPERATIONS).get(0).get(OP).asString();
             }
         }, "Operation");
-        
+
         // result column
         table.addColumn(createColumn(OUTCOME), "Result");
         table.setTableLayoutFixed(false);
@@ -138,11 +144,11 @@ public class ConfigurationChangesEditor {
 
         detailsConfigurationChange = new TextAreaItem("details", "Details 1", 20);
         detailsConfigurationChange.setEnabled(false);
-        
+
         HorizontalPanel header = new HorizontalPanel();
         header.addStyleName("fill-layout-width");
         header.add(new HTML("<h3 class='metric-label-embedded'>Configuration change details</h3>"));
-        
+
         VerticalPanel detailsPanel = new VerticalPanel();
         detailsPanel.addStyleName("metric-container");
         detailsPanel.add(header);
@@ -156,7 +162,7 @@ public class ConfigurationChangesEditor {
         tableAndPager.setStyleName("fill-layout-width");
         tableAndPager.add(table);
         tableAndPager.add(pager);
-        
+
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("Configuration Changes")
@@ -164,10 +170,10 @@ public class ConfigurationChangesEditor {
                 .addContent("", toolstripButtons())
                 .addContent("", tableAndPager)
                 .addContent("", detailsPanel);
-        
+
         return layout.build();
     }
-    
+
     /**
      * Iterate over a "operations" resource and extract the resource address
      * <pre>
@@ -197,13 +203,13 @@ public class ConfigurationChangesEditor {
      }
      }]
      },
-     
+
      * </pre>
      * and concatenate to the following form
      * <pre>profile = default / subsystem = mail / mail-session = default / server = smtp</pre>
-     * 
+     *
      * @param changeItem The ModelNode
-     * @return The formatted resource address as in <pre>profile = default / subsystem = mail / mail-session = default / server = smtp</pre> 
+     * @return The formatted resource address as in <pre>profile = default / subsystem = mail / mail-session = default / server = smtp</pre>
      */
     private String extractResourceAddress(ModelNode changeItem) {
         StringBuilder address = new StringBuilder();
@@ -247,7 +253,7 @@ public class ConfigurationChangesEditor {
         }
         return address.toString();
     }
-    
+
     private ToolStrip toolstripButtons() {
 
         final TextBox filter = new TextBox();
@@ -273,11 +279,11 @@ public class ConfigurationChangesEditor {
         enableBtn = new ToolButton(Console.CONSTANTS.common_label_enable(), event -> presenter.enable());
         disableBtn = new ToolButton(Console.CONSTANTS.common_label_disable(), event -> presenter.disable());
         refreshBtn = new ToolButton(Console.CONSTANTS.common_label_refresh(), event -> presenter.loadChanges());
-        
+
         topLevelTools.addToolButtonRight(enableBtn);
         topLevelTools.addToolButtonRight(disableBtn);
         topLevelTools.addToolButtonRight(refreshBtn);
-        
+
         return topLevelTools;
     }
 
@@ -290,7 +296,7 @@ public class ConfigurationChangesEditor {
             String outcome = node.get("outcome").asString().toLowerCase();
             String address = extractResourceAddress(node).toLowerCase();
             String opname = node.get(OPERATIONS).get(0).get(OP).asString().toLowerCase();
-            
+
             if (access.contains(word)
                     || clientAddress.contains(word)
                     || outcome.contains(word)
