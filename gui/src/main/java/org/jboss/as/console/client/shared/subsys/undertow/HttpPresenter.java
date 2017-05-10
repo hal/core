@@ -468,6 +468,21 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     }
 
+    public void onRemoveSingleSignOn(String resourceName) {
+        operationDelegate.onRemoveResource(APPLICATION_SECURITY_DOMAIN_SSO, resourceName, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(AddressTemplate address, String name) {
+                Console.info(Console.MESSAGES.successfullyRemoved(address.resolve(statementContext, name).toString()));
+                loadApplicationSecurityDomain();
+            }
+
+            @Override
+            public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+                Console.error("Failed to remove undertow application security domain single sign-on", t.getMessage());
+            }
+        });
+    }
+
 
     public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);

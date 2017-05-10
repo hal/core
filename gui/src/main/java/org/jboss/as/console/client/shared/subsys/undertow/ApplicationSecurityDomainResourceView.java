@@ -18,6 +18,7 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -178,6 +179,8 @@ public class ApplicationSecurityDomainResourceView {
 
         // this button is only displayed when the setting=single-sign-on resource doesn't exist
         ToolButton btnAddSso = new ToolButton("Enable Single Sign On", clickEvent -> onAddSingleSignOn(ssoDescription));
+        ToolButton btnRemoveSso = new ToolButton("Disable Single Sign On", clickEvent -> onRemoveSingleSignOn());
+        btnRemoveSso.getElement().getStyle().setMarginBottom(20, Style.Unit.PX);
 
         VerticalPanel formPanel = new VerticalPanel();
         formPanel.setStyleName("fill-layout-width");
@@ -195,10 +198,12 @@ public class ApplicationSecurityDomainResourceView {
                     ModelNode ssoNode = appNode.get("setting").get("single-sign-on");
                     formSsoAssets.getForm().edit(ssoNode);
                     credentialReferenceFormAsset.getForm().edit(ssoNode.get(CREDENTIAL_REFERENCE));
+                    formPanel.add(btnRemoveSso);
                     formPanel.add(formSsoWidget);
                     formPanel.remove(btnAddSso);
                 } else {
                     formPanel.remove(formSsoWidget);
+                    formPanel.remove(btnRemoveSso);
                     formPanel.add(btnAddSso);
                     credentialReferenceFormAsset.getForm().clearValues();
                     formSsoAssets.getForm().clearValues();
@@ -298,6 +303,17 @@ public class ApplicationSecurityDomainResourceView {
         dialog.setWidget(addDialogWidget);
         dialog.setGlassEnabled(true);
         dialog.center();
+    }
+
+    private void onRemoveSingleSignOn() {
+        String name = selectionModel.getSelectedObject().getName();
+        Feedback.confirm(Console.MESSAGES.deleteTitle("setting"),
+                Console.MESSAGES.disableSSOOnSecurityDomainConfirm(name),
+                isConfirmed -> {
+                    if (isConfirmed) {
+                        presenter.onRemoveSingleSignOn(name);
+                    }
+                });
     }
 
     public void update(final List<Property> models) {
