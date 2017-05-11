@@ -84,6 +84,7 @@ public interface UIMessages extends Messages {
     String deploymentSuccessfullyDeployed(String name);
     String deploymentSuccessfullyReplaced(String name);
     String disableConfirm(String entity);
+    String disableSSOOnSecurityDomainConfirm(String domainName);
     String editRole();
     String enableConfirm(String entity);
     String environment_description();
