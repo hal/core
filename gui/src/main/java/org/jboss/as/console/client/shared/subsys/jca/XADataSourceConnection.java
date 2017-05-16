@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
@@ -83,18 +84,15 @@ public class XADataSourceConnection {
         form.setNumColumns(2);
         form.setEnabled(false);
 
-        FormLayout layout = new FormLayout()
-                      .setHelp(new FormHelpPanel(new FormHelpPanel.AddressCallback() {
-                          @Override
-                          public ModelNode getAddress() {
-                              return helpAddress;
-                          }
-                      }, form)
-                      )
-                      .setForm(form)
-                      .setTools(formTools);
+        FormHelpPanel helpPanel = new FormHelpPanel(() -> helpAddress, form);
 
-        return layout.build();
+        VerticalPanel panel = new VerticalPanel();
+        panel.setStyleName("fill-layout");
+
+        panel.add(formTools.asWidget());
+        panel.add(helpPanel.asWidget());
+        panel.add(form.asWidget());
+        return panel;
     }
 
     public Form<XADataSource> getForm() {
