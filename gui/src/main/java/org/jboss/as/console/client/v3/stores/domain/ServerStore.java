@@ -166,6 +166,7 @@ public class ServerStore extends ChangeSupport {
                 deriveGroups(hosts);
 
                 for (HostInfo h : hosts) {
+                    updateServerGroupOffset(h.getServerInstances(), h.getServerConfigs());
                     host2server.put(h.getName(), h.getServerConfigs());
                     instanceModel.put(h.getName(), h.getServerInstances());
                 }
@@ -178,6 +179,22 @@ public class ServerStore extends ChangeSupport {
                 new TopologyFunctions.ReadHostsAndGroups(dispatcher),
                 new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
                 new TopologyFunctions.FindRunningServerInstances(dispatcher));
+    }
+
+    // HAL-993: Necessary to respect server-group offset
+    private void updateServerGroupOffset(List<ServerInstance> serverInstances, List<Server> serverConfigs) {
+        for (int i = 0; i < serverInstances.size(); i++) {
+            if (serverConfigs.size() == i)
+                break;
+
+            ServerInstance serverInstance = serverInstances.get(i);
+            Server server = serverConfigs.get(i);
+            List<String> bindings = new ArrayList<>(serverInstance.getSocketBindings().values());
+            if (!bindings.isEmpty()) {
+                int portOffset = Integer.parseInt(bindings.get(0));
+                server.setPortOffset(portOffset);
+            }
+        }
     }
 
     /**
