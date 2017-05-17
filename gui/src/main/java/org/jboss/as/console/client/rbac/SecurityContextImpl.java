@@ -76,7 +76,7 @@ public class SecurityContextImpl implements SecurityContext {
             final Constraints model = getConstraints(ref.address, includeOptional);
             if(model!=null)
             {
-                if(!p.isGranted(model))
+                if(!p.isGranted(model) && !exceptionRuleExists(ref.address))
                 {
                     decision.getErrorMessages().add(ref.address);
                 }
@@ -94,6 +94,27 @@ public class SecurityContextImpl implements SecurityContext {
         }
 
         return decision;
+    }
+
+    /**
+     *     Check to see if an exception exists in childContexts for this address,
+     *     or an equivalent address i.e. an actual group name if '*' is specified
+     */
+    private boolean exceptionRuleExists(String address) {
+        if (address.contains("{addressable.group}")) {
+            String[] addressSplit = address.split("/");
+            String addressDeployment = addressSplit[addressSplit.length - 1];
+
+            for (Map.Entry<String, SecurityContext> entry : childContexts.entrySet()) {
+                String[] entrySplit = entry.getKey().split("/");
+                String entryDeployment = entrySplit[entrySplit.length - 1];
+                if (addressDeployment.equals(entryDeployment) || addressDeployment.contains("*")) {
+                    if (entry.getValue().getWritePriviledge().isGranted())
+                        return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

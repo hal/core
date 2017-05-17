@@ -1,15 +1,13 @@
 package org.jboss.as.console.mbui.model.mapping;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-
+import com.allen_sauer.gwt.log.client.Log;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import com.allen_sauer.gwt.log.client.Log;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
@@ -214,9 +212,23 @@ public class AddressMapping {
                 {
                     value_ref = value_ref.substring(1, value_ref.length()-1);
 
-                    if(!valueMemory.contains(value_ref))
-                        valueMemory.memorize(value_ref, context.collect(value_ref));
+                    int entries = 0;
+                    if(!valueMemory.contains(value_ref)) {
+                        LinkedList<String> values = context.collect(value_ref);
+                        entries = values.size();
+                        valueMemory.memorize(value_ref, values);
+                    }
 
+                    if (entries > 1 && value_ref.equalsIgnoreCase("addressable.group")) {
+
+                        ModelNode addresses = new ModelNode();
+                        addresses.setEmptyList();
+                        while ((resolved_value = valueMemory.next(value_ref)) != null) {
+                            addresses.add(resolved_value);
+                        }
+                        model.get(ADDRESS).add(resolved_key, addresses);
+                        continue;
+                    }
                     resolved_value= valueMemory.next(value_ref);
                 }
                 else

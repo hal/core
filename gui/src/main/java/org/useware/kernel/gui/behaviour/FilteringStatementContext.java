@@ -1,5 +1,6 @@
 package org.useware.kernel.gui.behaviour;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -50,21 +51,9 @@ public class FilteringStatementContext implements StatementContext {
     @Override
     public LinkedList<String> collect(String key) {
         LinkedList<String> actualCollection = delegate.collect(key);
-        String filtered = filter.filter(key);
-        if(filtered!=null)
-        {
-            LinkedList<String> filteredCollection = new LinkedList<String>();
-            for(String val : actualCollection)
-            {
-                filteredCollection.add(filtered);
-            }
-
-            //TODO: this currently enforces a filter to be applied (hack?)
-            if(actualCollection.isEmpty())
-                filteredCollection.add(filtered);
-
-            return filteredCollection;
-        }
+        String[] filtered = filter.filterTuple(key);
+        if(null != filtered)
+            return new LinkedList<>(Arrays.asList(filtered));
 
         return actualCollection;
     }

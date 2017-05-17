@@ -100,7 +100,23 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
                     @Override
                     public String[] filterTuple(String key) {
-                        return null;
+                        switch (key) {
+                            case "selected.entity":
+                                return new String[] {"*"};
+
+                            case "addressable.group":
+                                return bootstrap.getAddressableGroups().isEmpty()
+                                        ? new String[] {"*"}
+                                        : (String[]) bootstrap.getAddressableGroups().toArray();
+
+                            case "addressable.host":
+                                return bootstrap.getAddressableGroups().isEmpty()
+                                        ? new String[] {"*"}
+                                        : (String[]) bootstrap.getAddressableHosts().toArray();
+
+                            default:
+                                return null;
+                        }
                     }
                 }
         );
@@ -375,10 +391,20 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         for(int i=responseAddress.size()-1; i>=0; i--)
         {
             ModelNode token = responseAddress.get(i);
-            if(inquiryAdress.get(i+offset).toString().equals(token.toString()))
+            if(inquiryAdress.get(i+offset).toString().equals(token.toString())) {
                 numMatchingTokens++;
-        }
+            } else {
+                String rspTokString = responseAddress.get(i).asProperty().getValue().asString();
+                Property reqTok = inquiryAdress.get(i + offset).asProperty();
 
+                // If the response specificies * for a value, but the request specified multiple values
+                // Then, the response is valid even though it is not an exact match.
+                if (rspTokString.equals("*") &&
+                        (reqTok.getValue().asString().equals("*") || reqTok.getValue().asList().size() > 1)) {
+                    numMatchingTokens++;
+                }
+            }
+        }
         return numMatchingTokens==responseAddress.size();
     }
 
