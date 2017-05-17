@@ -64,6 +64,9 @@ public class ContentRepositoryPanel implements IsWidget
     private ListDataProvider<DeploymentRecord> deploymentData;
     private SingleSelectionModel<DeploymentRecord> deploymentSelection;
     private ContentRepository contentRepository;
+    private ListItem groups;
+    private Form<DeploymentRecord> form;
+    private Form<DeploymentRecord> form2;
 
     public ContentRepositoryPanel(DomainDeploymentPresenter presenter)
     {
@@ -102,31 +105,22 @@ public class ContentRepositoryPanel implements IsWidget
         SafeHtmlBuilder tableFooter = new SafeHtmlBuilder();
         tableFooter.appendHtmlConstant("<span style='font-size:10px;color:#A7ABB4;'>[1] "+Console.MESSAGES.deployment_filesystem()+"</span>");
 
-        Form<DeploymentRecord> form = new Form<DeploymentRecord>(DeploymentRecord.class);
+        form = new Form<DeploymentRecord>(DeploymentRecord.class);
         form.setEnabled(false);
         TextAreaItem name = new TextAreaItem("name", "Name");
         TextAreaItem runtimeName = new TextAreaItem("runtimeName", "Runtime Name");
-        final ListItem groups = new ListItem("assignments", "Assigned Groups");
+        groups = new ListItem("assignments", "Assigned Groups");
         form.setFields(name, runtimeName, groups);
 
         runtimeName.setEnabled(false);
         name.setEnabled(false);
         groups.setEnabled(false);
 
-        form.bind(deploymentsTable);
-
         deploymentSelection.addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler()
-                {
+                new SelectionChangeEvent.Handler() {
                     @Override
-                    public void onSelectionChange(SelectionChangeEvent event)
-                    {
-                        DeploymentRecord selection = deploymentSelection.getSelectedObject();
-                        if (selection != null)
-                        {
-                            List<String> serverGroups = contentRepository.getServerGroups(selection);
-                            groups.setValue(serverGroups);
-                        }
+                    public void onSelectionChange(SelectionChangeEvent event) {
+                        updateAssignments();
                     }
                 });
 
@@ -176,22 +170,19 @@ public class ContentRepositoryPanel implements IsWidget
                 }));
 
         toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_replace(),
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent clickEvent)
-                    {
+                    public void onClick(ClickEvent clickEvent) {
 
                         final DeploymentRecord selection = deploymentSelection.getSelectedObject();
-                        if (selection != null)
-                        {
+                        if (selection != null) {
                             new DeploymentCommandDelegate(ContentRepositoryPanel.this.presenter,
                                     DeploymentCommand.UPDATE_CONTENT).execute(selection);
                         }
                     }
                 }));
 
-        Form<DeploymentRecord> form2 = new Form<DeploymentRecord>(DeploymentRecord.class);
+        form2 = new Form<DeploymentRecord>(DeploymentRecord.class);
         form2.setEnabled(false);
         TextAreaItem path = new TextAreaItem("path", "Path");
         TextBoxItem relative = new TextBoxItem("relativeTo", "Relative To");
@@ -199,8 +190,6 @@ public class ContentRepositoryPanel implements IsWidget
 
         path.setEnabled(false);
         relative.setEnabled(false);
-
-        form2.bind(deploymentsTable);
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
@@ -212,7 +201,20 @@ public class ContentRepositoryPanel implements IsWidget
                         Console.MESSAGES.deployment_repo_description())
                 .addDetail("Attributes", form.asWidget())
                 .addDetail("Path", form2.asWidget());
+
+        form.bind(deploymentsTable);
+        form2.bind(deploymentsTable);
+
         return layout.build();
+    }
+
+    private void updateAssignments() {
+        DeploymentRecord selection = deploymentSelection.getSelectedObject();
+        if (selection != null)
+        {
+            List<String> serverGroups = contentRepository.getServerGroups(selection);
+            groups.setValue(serverGroups);
+        }
     }
 
     private List<Column> makeNameAndRuntimeColumns()
@@ -246,9 +248,17 @@ public class ContentRepositoryPanel implements IsWidget
             }
         });
         this.deploymentSelection.clear();
-        this.deploymentData.setList(_deployments);
-        this.deploymentsTable.selectDefaultEntity();
-        this.filter.reset();
+        deploymentData.setList(_deployments);
+        deploymentsTable.selectDefaultEntity();
+        if (!deploymentData.getList().isEmpty() && deploymentSelection.getSelectedObject() != null) {
+            form.edit(deploymentSelection.getSelectedObject());
+            form2.edit(deploymentSelection.getSelectedObject());
+        } else {
+            form.clearValues();
+            form2.clearValues();
+        }
+        updateAssignments();
+        filter.reset();
     }
 
     class DeploymentNameColumn extends ShortcutColumn<DeploymentRecord> {
