@@ -181,7 +181,7 @@ public class LdapRealmView {
             }
         });
 
-        identityAttributeMappingView = new IdentityAttributeMappingView();
+        identityAttributeMappingView = new IdentityAttributeMappingView(circuit, resourceDescription, securityContext);
         newIdentityAttributesView = new NewIdentityAttributesView(circuit, resourceDescription, securityContext);
 
         identityMappingFormAsset.getForm().setToolsCallback(new ComplexAttributeToolsCallback("identity-mapping",
@@ -226,12 +226,7 @@ public class LdapRealmView {
                     identityMappingFormAsset.getForm().edit(identityMappingNode);
                 }
 
-                if (identityMappingNode.hasDefined("attribute-mapping")) {
-                    identityAttributeMappingView.update(identityMappingNode.get("attribute-mapping").asList());
-                } else {
-                    identityAttributeMappingView.clearValues();
-                }
-
+                identityAttributeMappingView.update(ldapRealmProperty);
                 newIdentityAttributesView.update(ldapRealmProperty);
 
                 if (identityMappingNode.hasDefined("user-password-mapper")) {
