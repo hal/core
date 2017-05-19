@@ -114,7 +114,7 @@ public class NewIdentityAttributesView implements IsWidget {
         Column<ModelNode, String> valueColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get(VALUE).asString();
+                return node.get(VALUE).asString().replaceAll("\\[|\"|\\]", "");
             }
         };
         valueColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -127,7 +127,7 @@ public class NewIdentityAttributesView implements IsWidget {
         table.addColumnSortHandler(sortHandler);
         table.getColumnSortList().push(nameColumn);
 
-        //panel.add(mainTableTools());
+        panel.add(mainTableTools());
         panel.add(table);
 
         DefaultPager pager = new DefaultPager();
@@ -194,11 +194,12 @@ public class NewIdentityAttributesView implements IsWidget {
     public void update(Property ldapRealmProperty) {
         ldapRealmName = ldapRealmProperty.getName();
         if (ldapRealmProperty.getValue().get("identity-mapping").hasDefined("new-identity-attributes")) {
-            List<ModelNode> models = ldapRealmProperty.getValue().get("identity-mapping").get("new-identity-attributes").asList();
+            // wrap in a new list as later the list will change as a result of sort operation
+            List<ModelNode> models = new ArrayList<>(ldapRealmProperty.getValue().get("identity-mapping").get("new-identity-attributes").asList());
             table.setRowCount(models.size(), true);
 
             Collections.sort(models,
-                    (o1, o2) -> o1.get(NAME).asString().toLowerCase().compareTo(o2.get(NAME).asString().toLowerCase()));
+                (o1, o2) -> o1.get(NAME).asString().toLowerCase().compareTo(o2.get(NAME).asString().toLowerCase()));
 
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear(); // cannot call setList() as that breaks the sort handler
