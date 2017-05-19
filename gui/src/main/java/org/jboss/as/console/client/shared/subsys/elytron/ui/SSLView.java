@@ -60,10 +60,10 @@ public class SSLView {
         ResourceDescription credentialStoreDescription = rootDescription.getChildDescription("credential-store");
         ResourceDescription filteringKeyStoreDescription = rootDescription.getChildDescription("filtering-key-store");
         ResourceDescription ldapKeyStoreDescription = rootDescription.getChildDescription("ldap-key-store");
-        ResourceDescription keyManagerDescription = rootDescription.getChildDescription("key-managers");
+        ResourceDescription keyManagerDescription = rootDescription.getChildDescription("key-manager");
         ResourceDescription serverSSLContextDescription = rootDescription.getChildDescription("server-ssl-context");
         ResourceDescription clientSSLContextDescription = rootDescription.getChildDescription("client-ssl-context");
-        ResourceDescription trustManagersDescription = rootDescription.getChildDescription("trust-managers");
+        ResourceDescription trustManagersDescription = rootDescription.getChildDescription("trust-manager");
         ResourceDescription securityDomainDescription = rootDescription.getChildDescription("security-domain");
         ResourceDescription securityPropertyDescription = rootDescription.getChildDescription("security-property");
         ResourceDescription providerLoaderDescription = rootDescription.getChildDescription("provider-loader");

@@ -71,10 +71,10 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate ROOT_ADDRESS = AddressTemplate.of(ROOT);
 
     public static final AddressTemplate KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("key-store=*");
-    public static final AddressTemplate KEY_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("key-managers=*");
+    public static final AddressTemplate KEY_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("key-manager=*");
     public static final AddressTemplate SERVER_SSL_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("server-ssl-context=*");
     public static final AddressTemplate CLIENT_SSL_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("client-ssl-context=*");
-    public static final AddressTemplate TRUST_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("trust-managers=*");
+    public static final AddressTemplate TRUST_MANAGER_ADDRESS = AddressTemplate.of(ROOT).append("trust-manager=*");
     public static final AddressTemplate CREDENTIAL_STORE_ADDRESS = AddressTemplate.of(ROOT).append("credential-store=*");
     public static final AddressTemplate FILTERING_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("filtering-key-store=*");
     public static final AddressTemplate LDAP_KEY_STORE_ADDRESS = AddressTemplate.of(ROOT).append("ldap-key-store=*");
