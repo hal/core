@@ -337,10 +337,10 @@ public class ElytronStore extends ChangeSupport {
 
                     rootNode = payload;
                     populate(payload, "key-store", keyStore);
-                    populate(payload, "key-managers", keyManager);
+                    populate(payload, "key-manager", keyManager);
                     populate(payload, "server-ssl-context", serverSSLContext);
                     populate(payload, "client-ssl-context", clientSSLContext);
-                    populate(payload, "trust-managers", trustManager);
+                    populate(payload, "trust-manager", trustManager);
                     populate(payload, "credential-store", credentialStore);
                     populate(payload, "filtering-key-store", filteringKeyStore);
                     populate(payload, "ldap-key-store", ldapKeyStore);
