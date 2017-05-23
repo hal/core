@@ -84,6 +84,8 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
     private ModelNodeForm matchRulesForm;
     private VerticalPanel popupLayout = new VerticalPanel();
     private DefaultWindow matchRulesWindow;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     // button to hide the match-rules detail window
     // the cancel button is not displayed
@@ -194,7 +196,8 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
 
     private ToolStrip mainTableTools() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -259,7 +262,8 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("Match Rule", Console.MESSAGES.deleteConfirm("Match Rule "  + selection.asString()),
@@ -294,6 +298,15 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
 
     public void update(Property prop) {
         authContextName = prop.getName();
+
+        if (prop != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (prop.getValue().hasDefined(MATCH_RULES)) {
             List<ModelNode> models = prop.getValue().get(MATCH_RULES).asList();
             table.setRowCount(models.size(), true);
@@ -302,13 +315,15 @@ public class AuthenticationContextMatchRulesEditor implements IsWidget {
             dataList.clear();
             dataList.addAll(models);
         } else {
-            clearValues();
+            dataProvider.setList(new ArrayList<>());
         }
         selectionModel.clear();
     }
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 
     protected <T> FormItem<T> formItem(List<FormItem> formItems, String name) {

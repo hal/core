@@ -69,6 +69,8 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
     private ResourceDescription resourceDescription;
     private SecurityContext securityContext;
     private String factoryName;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     MechanismProviderFilteringSaslServerFilterEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
@@ -146,7 +148,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
 
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -180,7 +182,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("Filter", Console.MESSAGES.deleteConfirm("Filter "  + selection.get("provider-name").asString()),
@@ -195,6 +197,9 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
                         });
             }
         });
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+
         tools.addToolButtonRight(addButton);
         tools.addToolButtonRight(removeButton);
         return tools;
@@ -202,6 +207,15 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
 
     public void update(Property prop) {
         factoryName = prop.getName();
+
+        if (prop != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (prop.getValue().hasDefined("filters")) {
             List<ModelNode> models = prop.getValue().get("filters").asList();
             table.setRowCount(models.size(), true);
@@ -210,7 +224,7 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
             dataList.clear(); // cannot call setList() as that breaks the sort handler
             dataList.addAll(models);
         } else {
-            clearValues();
+            dataProvider.setList(new ArrayList<>());
         }
 
         // Make sure the new values are properly sorted
@@ -220,6 +234,8 @@ public class MechanismProviderFilteringSaslServerFilterEditor implements IsWidge
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 
 }

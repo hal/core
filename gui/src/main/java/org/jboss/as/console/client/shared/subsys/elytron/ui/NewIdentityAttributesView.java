@@ -71,6 +71,8 @@ public class NewIdentityAttributesView implements IsWidget {
     private ResourceDescription resourceDescription;
     private SecurityContext securityContext;
     private String ldapRealmName;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     NewIdentityAttributesView(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
@@ -138,7 +140,8 @@ public class NewIdentityAttributesView implements IsWidget {
 
     private ToolStrip mainTableTools() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -171,7 +174,8 @@ public class NewIdentityAttributesView implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("New Identity Attribute", Console.MESSAGES.deleteConfirm("New Identity Attribute "  + selection.asString()),
@@ -193,6 +197,15 @@ public class NewIdentityAttributesView implements IsWidget {
 
     public void update(Property ldapRealmProperty) {
         ldapRealmName = ldapRealmProperty.getName();
+
+        if (ldapRealmProperty != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (ldapRealmProperty.getValue().get("identity-mapping").hasDefined("new-identity-attributes")) {
             // wrap in a new list as later the list will change as a result of sort operation
             List<ModelNode> models = new ArrayList<>(ldapRealmProperty.getValue().get("identity-mapping").get("new-identity-attributes").asList());
@@ -214,6 +227,8 @@ public class NewIdentityAttributesView implements IsWidget {
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 
 }
