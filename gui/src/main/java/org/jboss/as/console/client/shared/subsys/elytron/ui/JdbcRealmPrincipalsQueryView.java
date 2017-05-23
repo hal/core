@@ -71,6 +71,8 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
     private ResourceDescription resourceDescription;
     private SecurityContext securityContext;
     private String jdbcRealmName;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     JdbcRealmPrincipalsQueryView(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
@@ -127,7 +129,8 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
 
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -163,7 +166,8 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("Principal Query", Console.MESSAGES.deleteConfirm("Principal Query "  + selection.get("sql").asString()),
@@ -186,6 +190,15 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
 
     public void update(Property prop) {
         jdbcRealmName = prop.getName();
+
+        if (prop != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         List<ModelNode> aliases = prop.getValue().get("principal-query").asList();
         table.setRowCount(aliases.size(), true);
         List<ModelNode> dataList = dataProvider.getList();
@@ -195,6 +208,8 @@ public class JdbcRealmPrincipalsQueryView implements IsWidget {
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 
 }

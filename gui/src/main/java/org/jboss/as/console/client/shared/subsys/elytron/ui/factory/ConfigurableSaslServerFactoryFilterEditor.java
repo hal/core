@@ -65,6 +65,8 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
     private ResourceDescription resourceDescription;
     private SecurityContext securityContext;
     private String factoryName;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     ConfigurableSaslServerFactoryFilterEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
@@ -118,7 +120,7 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
 
         // tools
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -170,7 +172,7 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("Filter", Console.MESSAGES.deleteConfirm("filter "
@@ -186,6 +188,10 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
                         });
             }
         });
+
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+
         tools.addToolButtonRight(addButton);
         tools.addToolButtonRight(removeButton);
         panel.add(tools);
@@ -210,6 +216,15 @@ public class ConfigurableSaslServerFactoryFilterEditor implements IsWidget {
 
     public void update(Property prop) {
         factoryName = prop.getName();
+
+        if (prop != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (prop.getValue().hasDefined(FILTERS)) {
             List<ModelNode> models = prop.getValue().get(FILTERS).asList();
             table.setRowCount(models.size(), true);

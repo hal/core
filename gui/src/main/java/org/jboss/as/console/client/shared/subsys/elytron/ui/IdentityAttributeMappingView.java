@@ -64,6 +64,8 @@ public class IdentityAttributeMappingView implements IsWidget {
     private SecurityContext securityContext;
     private Dispatcher circuit;
     private String ldapRealmName;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     IdentityAttributeMappingView(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
@@ -136,7 +138,8 @@ public class IdentityAttributeMappingView implements IsWidget {
 
     private ToolStrip mainTableTools() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -153,6 +156,13 @@ public class IdentityAttributeMappingView implements IsWidget {
             AddResourceDialog.Callback callback = new AddResourceDialog.Callback() {
                 @Override
                 public void onAdd(ModelNode payload) {
+                    // search-recursive is a boolean and requires filter attribute
+                    // even if the user doesn't set search-recursive, it is set in the payload as false
+                    // and if the user doesn't set filter also, the server will throw an error not allowing
+                    // to write search-recursive as it requires filter
+                    if (payload.hasDefined("search-recursive") && !payload.get("search-recursive").asBoolean()) {
+                        payload.remove("search-recursive");
+                    }
                     circuit.dispatch(new AddListAttribute(ElytronStore.LDAP_REALM_ADDRESS,
                             "identity-mapping.attribute-mapping",
                             ldapRealmName,
@@ -172,7 +182,8 @@ public class IdentityAttributeMappingView implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("New Attribute Mapping", Console.MESSAGES.deleteConfirm("New Attribute Mapping"
@@ -190,12 +201,23 @@ public class IdentityAttributeMappingView implements IsWidget {
         });
         tools.addToolButtonRight(addButton);
         tools.addToolButtonRight(removeButton);
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
         return tools;
     }
 
 
     public void update(Property ldapRealmProperty) {
         ldapRealmName = ldapRealmProperty.getName();
+
+        if (ldapRealmProperty != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (ldapRealmProperty.getValue().get("identity-mapping").hasDefined("attribute-mapping")) {
             List<ModelNode> models = ldapRealmProperty.getValue().get("identity-mapping").get("attribute-mapping")
                     .asList();
@@ -203,6 +225,7 @@ public class IdentityAttributeMappingView implements IsWidget {
             List<ModelNode> dataList = dataProvider.getList();
             dataList.clear();
             dataList.addAll(models);
+
         } else {
             dataProvider.setList(new ArrayList<>());
         }
@@ -211,5 +234,7 @@ public class IdentityAttributeMappingView implements IsWidget {
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 }

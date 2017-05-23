@@ -79,6 +79,8 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
     private VerticalPanel popupLayout = new VerticalPanel();
     private DefaultWindow mechanismConfigurationWindow;
     private AddressTemplate addressTemplate;
+    private ToolButton addButton;
+    private ToolButton removeButton;
 
     // button to hide the mechanism-configuration detail window
     // the cancel button is not displayed
@@ -196,7 +198,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
     private ToolStrip mainTableTools() {
         ToolStrip tools = new ToolStrip();
-        ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
+        addButton = new ToolButton(Console.CONSTANTS.common_label_add(), event -> {
 
             ModelNodeFormBuilder.FormAssets addFormAssets = new ModelNodeFormBuilder()
                     .setResourceDescription(resourceDescription)
@@ -255,7 +257,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
             dialog.setGlassEnabled(true);
             dialog.center();
         });
-        ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
+        removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), event -> {
             final ModelNode selection = selectionModel.getSelectedObject();
             if (selection != null) {
                 Feedback.confirm("Mechanism Configuration", Console.MESSAGES.deleteConfirm("Mechanism Configuration "  + selection.get("mechanism-name").asString()),
@@ -270,6 +272,10 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
                         });
             }
         });
+
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+
         tools.addToolButtonRight(addButton);
         tools.addToolButtonRight(removeButton);
         return tools;
@@ -290,6 +296,15 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
 
     public void update(Property prop) {
         factoryName = prop.getName();
+
+        if (prop != null) {
+            addButton.setEnabled(true);
+            removeButton.setEnabled(true);
+        } else {
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+        }
+
         if (prop.getValue().hasDefined(MECHANISM_CONFIGURATIONS)) {
             List<ModelNode> models = prop.getValue().get(MECHANISM_CONFIGURATIONS).asList();
             table.setRowCount(models.size(), true);
@@ -298,13 +313,15 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
             dataList.clear();
             dataList.addAll(models);
         } else {
-            clearValues();
+            dataProvider.setList(new ArrayList<>());
         }
         selectionModel.clear();
     }
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<>());
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
     }
 
     protected <T> FormItem<T> formItem(List<FormItem> formItems, String name) {

@@ -39,7 +39,6 @@ import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -304,17 +303,6 @@ public class LdapRealmView {
             otpCredentialMapperFormAsset.getForm().clearValues();
         }
         SelectionChangeEvent.fire(selectionModel);
-    }
-
-    private <T> FormItem<T> findFormItem(List<FormItem> formItems, String name) {
-        FormItem selectedFormItem = null;
-        for (FormItem formItem : formItems) {
-            if (name.equals(formItem.getName())) {
-                selectedFormItem = formItem;
-                break;
-            }
-        }
-        return selectedFormItem;
     }
 
 }
