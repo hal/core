@@ -183,9 +183,6 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <requireOS>
-                                    <arch>amd64</arch>
-                                </requireOS>
                                 <!--
                                     The "gui" module doesn't compiles with JDK 8 (at least, yet).
                                     To disable this enforcer, build with -Denforcer.skip=true
@@ -222,6 +219,35 @@
             <modules>
                 <module>processors-test</module>
             </modules>
+        </profile>
+        <profile>
+            <id>amd</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-versions</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireOS>
+                                            <arch>amd64</arch>
+                                        </requireOS>
+                                        <requireJavaVersion>
+                                            <version>[1.8,]</version>
+                                        </requireJavaVersion>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
