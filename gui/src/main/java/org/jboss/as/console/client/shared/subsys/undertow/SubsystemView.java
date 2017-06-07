@@ -16,9 +16,6 @@ import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
 import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.SECURITY_DOMAIN;
-import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_HOST;
-import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_SERVER;
-import static org.jboss.as.console.client.meta.CoreCapabilitiesRegister.UNDERTOW_SERVLET_CONTAINER;
 
 /**
  * @author Heiko Braun
@@ -48,22 +45,6 @@ public class SubsystemView {
                             Console.MODULES.getCapabilities().lookup(SECURITY_DOMAIN));
                     return suggestionResource.buildFormItem();
                 })
-                .addFactory("default-server", attributeDescription ->  {
-                    SuggestionResource suggestionResource = new SuggestionResource("default-server", "Default server", true,
-                            Console.MODULES.getCapabilities().lookup(UNDERTOW_SERVER));
-                    return suggestionResource.buildFormItem();
-                })
-                .addFactory("default-servlet-container", attributeDescription ->  {
-                    SuggestionResource suggestionResource = new SuggestionResource("default-servlet-container", "Default servlet container", true,
-                            Console.MODULES.getCapabilities().lookup(UNDERTOW_SERVLET_CONTAINER));
-                    return suggestionResource.buildFormItem();
-                })
-                .addFactory("default-virtual-host", attributeDescription ->  {
-                    SuggestionResource suggestionResource = new SuggestionResource("default-virtual-host", "Default virtual host", true,
-                            Console.MODULES.getCapabilities().lookup(UNDERTOW_HOST));
-                    return suggestionResource.buildFormItem();
-                })
-
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext).build();
 
