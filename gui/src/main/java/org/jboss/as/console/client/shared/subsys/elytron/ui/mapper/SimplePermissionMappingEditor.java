@@ -24,7 +24,10 @@ package org.jboss.as.console.client.shared.subsys.elytron.ui.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -32,6 +35,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.elytron.store.AddListAttribute;
@@ -39,6 +43,7 @@ import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
 import org.jboss.as.console.client.shared.subsys.elytron.store.RemoveListAttribute;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -46,7 +51,9 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -69,6 +76,33 @@ public class SimplePermissionMappingEditor implements IsWidget {
     private SecurityContext securityContext;
     private String permissionMapping;
 
+    private DefaultCellTable<ModelNode> tablePermissions;
+    private ListDataProvider<ModelNode> dataProviderPermissions;
+    private VerticalPanel permissionPopupLayout = new VerticalPanel();
+    private DefaultWindow permissionsWindow;
+
+    // button to hide the match-rules detail window
+    // the cancel button is not displayed
+    DialogueOptions popupDialogOptions = new DialogueOptions(Console.CONSTANTS.common_label_done(),
+
+            // done
+            new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    permissionsWindow.hide();
+                }
+            },
+
+            Console.CONSTANTS.common_label_cancel(),
+            // cancel
+            new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    permissionsWindow.hide();
+                }
+            }
+    );
+
     SimplePermissionMappingEditor(final Dispatcher circuit, ResourceDescription resourceDescription,
             SecurityContext securityContext) {
         this.circuit = circuit;
@@ -90,13 +124,34 @@ public class SimplePermissionMappingEditor implements IsWidget {
         dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
+        setupPermissionsTable();
         panel.add(setupTableButtons());
+
 
         panel.add(table);
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
         panel.add(pager);
         return panel;
+    }
+
+    private void setupPermissionsTable() {
+        tablePermissions = new DefaultCellTable<>(5);
+
+        Column<ModelNode, String> className = createColumn ("class-name");
+        Column<ModelNode, String> module = createColumn ("module");
+        Column<ModelNode, String> targetName = createColumn ("target-name");
+        Column<ModelNode, String> action = createColumn ("action");
+        tablePermissions.addColumn(className, "Class name");
+        tablePermissions.addColumn(module, "Module");
+        tablePermissions.addColumn(targetName, "Target name");
+        tablePermissions.addColumn(action, "Action");
+        dataProviderPermissions = new ListDataProvider<>();
+        dataProviderPermissions.addDataDisplay(tablePermissions);
+
+        popupDialogOptions.showCancel(false);
+        permissionPopupLayout.setStyleName("window-content");
+        permissionPopupLayout.add(tablePermissions);
     }
 
     private void setupTable() {
@@ -106,26 +161,57 @@ public class SimplePermissionMappingEditor implements IsWidget {
         // columns
         Column<ModelNode, String> principals = createColumn("principals");
         Column<ModelNode, String> roles = createColumn("roles");
+        Column<ModelNode, ModelNode> linkOpenDetailsColumn = new Column<ModelNode, ModelNode>(
+                new ViewLinkCell<>(Console.CONSTANTS.common_label_view(),
+                        (ActionCell.Delegate<ModelNode>) selection -> showDetailModal(selection))) {
+            @Override
+            public ModelNode getValue(ModelNode node) {
+                return node;
+            }
+        };
+
         principals.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         roles.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        linkOpenDetailsColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         table.addColumn(principals, "Principals");
         table.addColumn(roles, "Roles");
-        table.setColumnWidth(principals, 30, Style.Unit.PCT);
-        table.setColumnWidth(roles, 30, Style.Unit.PCT);
+        table.setColumnWidth(principals, 40, Style.Unit.PCT);
+        table.setColumnWidth(roles, 40, Style.Unit.PCT);
+        table.addColumn(linkOpenDetailsColumn, "Permissions");
+        table.setColumnWidth(linkOpenDetailsColumn, 20, Style.Unit.PCT);
     }
 
     private Column<ModelNode, String> createColumn(String attributeName) {
         return new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                String val = "";
-                if (node.hasDefined(attributeName)) {
-                    val = node.get(attributeName).asString().replaceAll("\\[|\"|\\]", "");
-                }
-                return val;
+                return node.hasDefined(attributeName) ? node.get(attributeName).asString(): "";
             }
         };
     }
+
+    private void showDetailModal(final ModelNode selection) {
+
+        if (selection.hasDefined("permissions")) {
+            List<ModelNode> models = selection.get("permissions").asList();
+            tablePermissions.setRowCount(models.size(), true);
+
+            List<ModelNode> dataList = dataProviderPermissions.getList();
+            dataList.clear();
+            dataList.addAll(models);
+        } else {
+            dataProviderPermissions.setList(new ArrayList<>());
+        }
+        Widget windowContent = new WindowContentBuilder(permissionPopupLayout, popupDialogOptions).build();
+
+        permissionsWindow = new DefaultWindow("Permissions");
+        permissionsWindow.setWidth(800);
+        permissionsWindow.setHeight(430);
+        permissionsWindow.trapWidget(windowContent);
+        permissionsWindow.setGlassEnabled(true);
+        permissionsWindow.center();
+    }
+
 
     private ToolStrip setupTableButtons() {
         ToolStrip tools = new ToolStrip();
@@ -198,6 +284,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
             clearValues();
         }
         selectionModel.clear();
+        SelectionChangeEvent.fire(selectionModel);
     }
 
     public void clearValues() {
