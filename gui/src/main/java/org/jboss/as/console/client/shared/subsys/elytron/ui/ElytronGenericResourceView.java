@@ -27,7 +27,6 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
@@ -231,7 +230,6 @@ public class ElytronGenericResourceView {
             modelForm.getForm().clearValues();
             selectionModel.clear();
         }
-        SelectionChangeEvent.fire(selectionModel);
     }
 
     /**

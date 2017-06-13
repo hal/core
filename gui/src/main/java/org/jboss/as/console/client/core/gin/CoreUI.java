@@ -89,6 +89,7 @@ import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
+import org.jboss.as.console.client.shared.runtime.elytron.ElytronRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
@@ -296,6 +297,7 @@ public interface CoreUI {
     AsyncProvider<JMSBridgePresenter> getJMSBridgePresenter();
 
     AsyncProvider<ElytronPresenter> getElytronPresenter();
+    AsyncProvider<ElytronRuntimePresenter> getElytronRuntimePresenter();
     AsyncProvider<ElytronFactoryPresenter> getElytronFactoryPresenter();
     AsyncProvider<ElytronMapperPresenter> getElytronMapperPresenter();
     AsyncProvider<ElytronSecurityRealmPresenter> getElytronSecurityRealmPresenter();

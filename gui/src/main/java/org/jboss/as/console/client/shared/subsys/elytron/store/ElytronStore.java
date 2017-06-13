@@ -336,6 +336,8 @@ public class ElytronStore extends ChangeSupport {
                     ModelNode payload = result.get(RESULT);
 
                     rootNode = payload;
+
+                    // other resources
                     populate(payload, "key-store", keyStore);
                     populate(payload, "key-manager", keyManager);
                     populate(payload, "server-ssl-context", serverSSLContext);
@@ -346,7 +348,19 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "ldap-key-store", ldapKeyStore);
                     populate(payload, "provider-loader", providerLoader);
                     populate(payload, "aggregate-providers", aggregateProviders);
+                    populate(payload, "security-domain", securityDomain);
+                    populate(payload, "security-property", securityProperty);
 
+                    populate(payload, "aggregate-principal-transformer", aggregatePrincipalTransformer);
+                    populate(payload, "chained-principal-transformer", chainedPrincipalTransformer);
+                    populate(payload, "constant-principal-transformer", constantPrincipalTransformer);
+                    populate(payload, "custom-principal-transformer", customPrincipalTransformer);
+                    populate(payload, "regex-validating-principal-transformer", regexValidatingPrincipalTransformer);
+                    populate(payload, "regex-principal-transformer", regexPrincipalTransformer);
+
+                    populate(payload, "dir-context", dirContext);
+
+                    // security realms
                     populate(payload, "properties-realm", propertiesRealm);
                     populate(payload, "filesystem-realm", filesystemRealm);
                     populate(payload, "caching-realm", cachingRealm);
@@ -364,13 +378,10 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "custom-realm-mapper", customRealmMapper);
                     populate(payload, "constant-realm-mapper", constantRealmMapper);
 
-                    populate(payload, "aggregate-principal-transformer", aggregatePrincipalTransformer);
-                    populate(payload, "chained-principal-transformer", chainedPrincipalTransformer);
-                    populate(payload, "constant-principal-transformer", constantPrincipalTransformer);
-                    populate(payload, "custom-principal-transformer", customPrincipalTransformer);
-                    populate(payload, "regex-validating-principal-transformer", regexValidatingPrincipalTransformer);
-                    populate(payload, "regex-principal-transformer", regexPrincipalTransformer);
+                    populate(payload, "authentication-context", authenticationContext);
+                    populate(payload, "authentication-configuration", authenticationconfiguration);
 
+                    // factories
                     populate(payload, "aggregate-http-server-mechanism-factory", aggregateHttpServerMechanismFactory);
                     populate(payload, "aggregate-sasl-server-factory", aggregateSaslServerFactory);
                     populate(payload, "configurable-http-server-mechanism-factory",
@@ -388,6 +399,7 @@ public class ElytronStore extends ChangeSupport {
                             serviceLoaderHttpServerMechanismFactory);
                     populate(payload, "service-loader-sasl-server-factory", serviceLoaderSaslServerFactory);
 
+                    // mappers and decoders
                     populate(payload, "add-prefix-role-mapper", addPrefixRoleMapper);
                     populate(payload, "add-suffix-role-mapper", addSuffixRoleMapper);
                     populate(payload, "aggregate-role-mapper", aggregateRoleMapper);
@@ -407,13 +419,6 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "x500-attribute-principal-decoder", x500PrincipalDecoder);
                     populate(payload, "custom-role-decoder", customRoleDecoder);
                     populate(payload, "simple-role-decoder", simpleRoleDecoder);
-
-                    populate(payload, "security-domain", securityDomain);
-                    populate(payload, "security-property", securityProperty);
-
-                    populate(payload, "dir-context", dirContext);
-                    populate(payload, "authentication-context", authenticationContext);
-                    populate(payload, "authentication-configuration", authenticationconfiguration);
 
                     channel.ack();
                 }

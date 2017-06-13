@@ -156,6 +156,8 @@ import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricPresent
 import org.jboss.as.console.client.shared.runtime.activemq.ActivemqMetricView;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricView;
+import org.jboss.as.console.client.shared.runtime.elytron.ElytronRuntimePresenter;
+import org.jboss.as.console.client.shared.runtime.elytron.ElytronRuntimeView;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentView;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
@@ -491,6 +493,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ElytronSecurityRealmPresenter.MyView.class,
                 ElytronSecurityRealmView.class,
                 ElytronSecurityRealmPresenter.MyProxy.class);
+
+        bindPresenter(ElytronRuntimePresenter.class,
+                ElytronRuntimePresenter.MyView.class,
+                ElytronRuntimeView.class,
+                ElytronRuntimePresenter.MyProxy.class);
 
         bindPresenter(org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.class,
                 org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.MyView.class,
