@@ -30,6 +30,7 @@ public class ModelDescriptionConstants {
 
     public static final String ACCESS_TYPE = "access-type";
     public static final String ADD = "add";
+    public static final String ADD_ALIAS_OPERATION = "add-alias";
     public static final String ADD_OPERATION = "add-operation";
     public static final String ADDRESS = "address";
     public static final String ALLOW_RESOURCE_SERVICE_RESTART = "allow-resource-service-restart";
@@ -138,6 +139,7 @@ public class ModelDescriptionConstants {
     public static final String PROFILE_NAME = "profile-name";
     public static final String PROXIES = "proxies";
     public static final String QUERY_OPERATION = "query";
+    public static final String READ_ALIASES_OPERATION = "read-aliases";
     public static final String READ_ATTRIBUTE_OPERATION = "read-attribute";
     public static final String READ_CHILDREN_NAMES_OPERATION = "read-children-names";
     public static final String READ_CHILDREN_TYPES_OPERATION = "read-children-types";
@@ -151,6 +153,7 @@ public class ModelDescriptionConstants {
     public static final String READ_RESOURCE_OPERATION = "read-resource";
     public static final String RELATIVE_TO = "relative-to";
     public static final String REMOVE = "remove";
+    public static final String REMOVE_ALIAS_OPERATION = "remove-alias";
     public static final String REMOTE = "remote";
     public static final String REMOVE_OPERATION = "remove-operation";
     public static final String REPLY_PROPERTIES = "reply-properties";
@@ -179,6 +182,7 @@ public class ModelDescriptionConstants {
     public static final String SERVER_GROUPS = "server-groups";
     public static final String SERVER_OPERATIONS = "server-operations";
     public static final String SERVICE = "service";
+    public static final String SET_SECRET_OPERATION = "set-secret";
     public static final String SHUTDOWN = "shutdown";
     public static final String SOCKET_BINDING = "socket-binding";
     public static final String SOCKET_BINDING_GROUP = "socket-binding-group";

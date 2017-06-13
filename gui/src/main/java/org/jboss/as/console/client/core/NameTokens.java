@@ -39,6 +39,7 @@ public class NameTokens {
     public static final String EJB3Presenter = "ejb3";
     public static final String ElytronPresenter = "elytron";
     public static final String ElytronFinder = "elytron-finder";
+    public static final String ElytronMetrics = "elytron-metrics";
     public static final String ElytronFactoryPresenter = "elytron-factory-presenter";
     public static final String ElytronMapperPresenter = "elytron-mapper-presenter";
     public static final String ElytronSecurityRealmPresenter = "elytron-security-realm-presenter";

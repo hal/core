@@ -155,6 +155,7 @@ public interface UIConstants extends Constants {
     String common_label_serverConfigs();
     String common_label_serverGroupConfigurations();
     String common_label_serverGroups();
+    String common_label_setSecret();
     String common_label_settings();
     String common_label_socketBinding();
     String common_label_start();

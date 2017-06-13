@@ -121,6 +121,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
+        PlaceLink elytron = new PlaceLink("Security - Elytron", NameTokens.ElytronMetrics);
         PlaceLink jmsQueues = new PlaceLink("Messaging", NameTokens.JmsMetricPresenter);
         PlaceLink activemq = new PlaceLink("Messaging - ActiveMQ", NameTokens.ActivemqMetricPresenter);
         PlaceLink web = new PlaceLink("Web/HTTP - Undertow", NameTokens.HttpMetrics);
@@ -135,6 +136,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         metricPredicates.add(new Predicate("undertow", web));
         metricPredicates.add(new Predicate("jpa", jpa));
         metricPredicates.add(new Predicate("batch-jberet", batch));
+        metricPredicates.add(new Predicate("elytron", elytron));
         metricPredicates.add(new Predicate("webservices", ws));
         metricPredicates.add(new Predicate("naming", naming));
 
@@ -375,7 +377,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(Server server) {
 
-                        LifecycleOperation op = (server.getRuntimeState() == RuntimeState.STOPPED 
+                        LifecycleOperation op = (server.getRuntimeState() == RuntimeState.STOPPED
                             || server.getRuntimeState() == RuntimeState.DISABLED) ?
                                 LifecycleOperation.START : LifecycleOperation.STOP;
 
