@@ -146,6 +146,13 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate AUTHENTICATION_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("authentication-context=*");
     public static final AddressTemplate AUTHENTICATION_CONF_ADDRESS = AddressTemplate.of(ROOT).append("authentication-configuration=*");
 
+    public static final AddressTemplate AGGREGATE_SECURITY_EVENT_LISTENER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-security-event-listener=*");
+    public static final AddressTemplate FILE_AUDIT_LOG_ADDRESS = AddressTemplate.of(ROOT).append("file-audit-log=*");
+    public static final AddressTemplate POLICY_ADDRESS = AddressTemplate.of(ROOT).append("policy=*");
+    public static final AddressTemplate ROTATING_FILE_AUDIT_ADDRESS = AddressTemplate.of(ROOT).append("rotating-file-audit-log=*");
+    public static final AddressTemplate SYSLOG_AUDIT_LOG_ADDRESS = AddressTemplate.of(ROOT).append("syslog-audit-log=*");
+
+
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final CrudOperationDelegate operationDelegate;
@@ -225,6 +232,13 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> dirContext;
     private final List<Property> authenticationContext;
     private final List<Property> authenticationconfiguration;
+
+    private final List<Property> aggregateSecurityEventListener;
+    private final List<Property> fileAuditLog;
+    private final List<Property> policy;
+    private final List<Property> rotatingFileAuditLog;
+    private final List<Property> syslogAuditLog;
+
 
     @Inject
     public ElytronStore(final DispatchAsync dispatcher, StatementContext statementContext) {
@@ -307,6 +321,12 @@ public class ElytronStore extends ChangeSupport {
         dirContext = new ArrayList<>();
         authenticationContext = new ArrayList<>();
         authenticationconfiguration = new ArrayList<>();
+
+        aggregateSecurityEventListener = new ArrayList<>();
+        fileAuditLog = new ArrayList<>();
+        policy = new ArrayList<>();
+        rotatingFileAuditLog = new ArrayList<>();
+        syslogAuditLog = new ArrayList<>();
     }
 
 
@@ -357,6 +377,12 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "custom-principal-transformer", customPrincipalTransformer);
                     populate(payload, "regex-validating-principal-transformer", regexValidatingPrincipalTransformer);
                     populate(payload, "regex-principal-transformer", regexPrincipalTransformer);
+
+                    populate(payload, "aggregate-security-event-listener", aggregateSecurityEventListener);
+                    populate(payload, "file-audit-log", fileAuditLog);
+                    populate(payload, "policy", policy);
+                    populate(payload, "rotating-file-audit-log", rotatingFileAuditLog);
+                    populate(payload, "syslog-audit-log", syslogAuditLog);
 
                     populate(payload, "dir-context", dirContext);
 
@@ -802,5 +828,25 @@ public class ElytronStore extends ChangeSupport {
 
     public List<Property> getCachingRealm() {
         return cachingRealm;
+    }
+
+    public List<Property> getAggregateSecurityEventListener() {
+        return aggregateSecurityEventListener;
+    }
+
+    public List<Property> getFileAuditLog() {
+        return fileAuditLog;
+    }
+
+    public List<Property> getPolicy() {
+        return policy;
+    }
+
+    public List<Property> getRotatingFileAuditLog() {
+        return rotatingFileAuditLog;
+    }
+
+    public List<Property> getSyslogAuditLog() {
+        return syslogAuditLog;
     }
 }

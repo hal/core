@@ -57,7 +57,7 @@ public class ElytronFactoryPresenter extends
     public interface MyProxy extends Proxy<ElytronFactoryPresenter>, Place {}
 
     public interface MyView extends View, HasPresenter<ElytronFactoryPresenter> {
-        
+
         void initFactory(
                 List<Property> aggregateHttpServerMechanismFactory,
                 List<Property> aggregateSaslServerFactory,
@@ -73,6 +73,17 @@ public class ElytronFactoryPresenter extends
                 List<Property> serviceLoaderHttpServerMechanismFactory,
                 List<Property> serviceLoaderSaslServerFactory
         );
+
+        void initTransformers(
+                List<Property> aggregateNameRewriter,
+                List<Property> chainedNameRewriter,
+                List<Property> constantNameRewriter,
+                List<Property> customNameRewriter,
+                List<Property> regexNameValidatingRewriter,
+                List<Property> regexNameRewriter
+        );
+
+
     }
     // @formatter:on
 
@@ -106,7 +117,7 @@ public class ElytronFactoryPresenter extends
     @Override
     protected void onAction(Action action) {
         if (action instanceof ElytronConfigAction) {
-            
+
             getView().initFactory(
                 store.getAggregateHttpServerMechanismFactory(),
                 store.getAggregateSaslServerFactory() ,
@@ -122,6 +133,17 @@ public class ElytronFactoryPresenter extends
                 store.getServiceLoaderHttpServerMechanismFactory() ,
                 store.getServiceLoaderSaslServerFactory()
             );
+
+            getView().initTransformers(
+                store.getAggregatePrincipalTransformer(),
+                store.getChainedPrincipalTransformer(),
+                store.getConstantPrincipalTransformer(),
+                store.getCustomPrincipalTransformer(),
+                store.getRegexValidatingPrincipalTransformer(),
+                store.getRegexPrincipalTransformer()
+            );
+
+
         }
     }
 

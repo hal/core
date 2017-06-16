@@ -41,7 +41,9 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
     private final SecurityFramework securityFramework;
     private ElytronPresenter presenter;
     private SSLView sslView;
-    private TransformerView rewriterView;
+
+    private LogsView logsView;
+    private OthersView othersView;
     private DirContextView dirContextView;
 
     @Inject
@@ -62,11 +64,13 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
         tabLayoutpanel.addStyleName("default-tabpanel");
 
         sslView = new SSLView(circuit, rootDescription, securityContext);
-        rewriterView = new TransformerView(circuit, rootDescription, securityContext);
+        logsView = new LogsView(circuit, rootDescription, securityContext);
+        othersView = new OthersView(circuit, rootDescription, securityContext);
         dirContextView = new DirContextView(circuit, rootDescription, securityContext);
 
         tabLayoutpanel.add(sslView.asWidget(), "SSL", true);
-        tabLayoutpanel.add(rewriterView.asWidget(), "Transformer", true);
+        tabLayoutpanel.add(logsView.asWidget(), "Logs", true);
+        tabLayoutpanel.add(othersView.asWidget(), "Other", true);
         tabLayoutpanel.add(dirContextView.asWidget(), "Dir Context", true);
         tabLayoutpanel.selectTab(0);
 
@@ -94,21 +98,21 @@ public class ElytronView extends SuspendableViewImpl implements ElytronPresenter
     }
 
     @Override
-    public void initTransformers(final List<Property> aggregatePrincTransf, final List<Property> chainedPrincTransf,
-            final List<Property> constantPrincTransf, final List<Property> customPrincTransf,
-            final List<Property> regexValidatingPrincTransf, final List<Property> regexPrincTransf) {
-
-        rewriterView.updateAggregatePrincipalTransformer(aggregatePrincTransf);
-        rewriterView.updateConstantPrincipalTransformer(constantPrincTransf);
-        rewriterView.updateChainedPrincipalTransformer(chainedPrincTransf);
-        rewriterView.updateCustomPrincipalTransformer(customPrincTransf);
-        rewriterView.updateRegexValidatingPrincipalTransformer(regexValidatingPrincTransf);
-        rewriterView.updateRegexPrincipalTransformer(regexPrincTransf);
+    public void initDirContext(final List<Property> dirContextModels) {
+        dirContextView.updateKeyStore(dirContextModels);
     }
 
     @Override
-    public void initDirContext(final List<Property> dirContextModels) {
-        dirContextView.updateKeyStore(dirContextModels);
+    public void initLogs(final List<Property> file, final List<Property> rotating, final List<Property> syslog) {
+        logsView.updateFileAuditLogView(file);
+        logsView.updateRotatingAuditLogView(rotating);
+        logsView.updateSyslogAuditLogView(syslog);
+    }
+
+    @Override
+    public void initOthers(final List<Property> aggregateSecurityEventListener, final List<Property> policy) {
+        othersView.updateAggregateSecurity(aggregateSecurityEventListener);
+        othersView.updatePolicy(policy);
     }
 
     @Override
