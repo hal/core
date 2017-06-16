@@ -48,7 +48,7 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
  */
 public class ElytronFinderView extends SuspendableViewImpl implements ElytronFinder.MyView {
 
-    public static final String FACTORY = "Factory";
+    public static final String FACTORY = "Factory / Transformer";
     public static final String MAPPER_DECODER = "Mapper / Decoder";
     public static final String SECURITY_REALM = "Security Realm / Authentication";
     public static final String OTHER = "Other";

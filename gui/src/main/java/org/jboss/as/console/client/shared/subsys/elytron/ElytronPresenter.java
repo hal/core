@@ -71,18 +71,19 @@ public class ElytronPresenter extends
                 List<Property> providerLoader,
                 List<Property> aggregateProvidersModel);
 
-        void initTransformers(
-                List<Property> aggregateNameRewriter,
-                List<Property> chainedNameRewriter,
-                List<Property> constantNameRewriter,
-                List<Property> customNameRewriter,
-                List<Property> regexNameValidatingRewriter,
-                List<Property> regexNameRewriter
-        );
-
         void initDirContext(
                 List<Property> dirContextModels);
 
+        void initLogs(
+                List<Property> file,
+                List<Property> rotating,
+                List<Property> syslog
+        );
+
+        void initOthers(
+                List<Property> aggregateSecurityEventListener,
+                List<Property> policy
+        );
 
     }
     // @formatter:on
@@ -130,17 +131,19 @@ public class ElytronPresenter extends
                     store.getProviderLoader(),
                     store.getAggregateProviders());
 
-            getView().initTransformers(
-                    store.getAggregatePrincipalTransformer(),
-                    store.getChainedPrincipalTransformer(),
-                    store.getConstantPrincipalTransformer(),
-                    store.getCustomPrincipalTransformer(),
-                    store.getRegexValidatingPrincipalTransformer(),
-                    store.getRegexPrincipalTransformer()
-            );
-
             getView().initDirContext(
                     store.getDirContext()
+            );
+
+            getView().initLogs(
+                    store.getFileAuditLog(),
+                    store.getRotatingFileAuditLog(),
+                    store.getSyslogAuditLog()
+            );
+
+            getView().initOthers(
+                    store.getAggregateSecurityEventListener(),
+                    store.getPolicy()
             );
 
         }

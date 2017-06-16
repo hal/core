@@ -24,6 +24,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronFactoryPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.store.ElytronStore;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.TransformerView;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
@@ -41,6 +42,7 @@ public class ElytronFactoryView extends SuspendableViewImpl implements ElytronFa
     private final SecurityFramework securityFramework;
     private ElytronFactoryPresenter presenter;
     private FactoryView factoryView;
+    private TransformerView transformerView;
 
     @Inject
     public ElytronFactoryView(final Dispatcher circuit, final ResourceDescriptionRegistry resourceDescriptionRegistry,
@@ -55,13 +57,15 @@ public class ElytronFactoryView extends SuspendableViewImpl implements ElytronFa
 
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription rootDescription = resourceDescriptionRegistry.lookup(ElytronStore.ROOT_ADDRESS);
-        
+
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-        
+
         factoryView = new FactoryView(circuit, rootDescription, securityContext);
+        transformerView = new TransformerView(circuit, rootDescription, securityContext);
 
         tabLayoutpanel.add(factoryView.asWidget(), "Factory", true);
+        tabLayoutpanel.add(transformerView.asWidget(), "Transformer", true);
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;
@@ -83,7 +87,7 @@ public class ElytronFactoryView extends SuspendableViewImpl implements ElytronFa
             final List<Property> saslAuthenticationFactory,
             final List<Property> serviceLoaderHttpServerMechanismFactory,
             final List<Property> serviceLoaderSaslServerFactory) {
-        
+
         factoryView.updateAggregateHttpServerMechanismFactoryView(aggregateHttpServerMechanismFactory);
         factoryView.updateAggregateSaslServerFactoryView(aggregateSaslServerFactory);
         factoryView.updateConfigurableHttpServerMechanismFactoryView(configurableHttpServerMechanismFactory);
@@ -97,6 +101,21 @@ public class ElytronFactoryView extends SuspendableViewImpl implements ElytronFa
         factoryView.updateSaslAuthenticationFactoryView(saslAuthenticationFactory);
         factoryView.updateServiceLoaderHttpServerMechanismFactoryView(serviceLoaderHttpServerMechanismFactory);
         factoryView.updateServiceLoaderSaslServerFactoryView(serviceLoaderSaslServerFactory);
-        
+
     }
+
+    @Override
+    public void initTransformers(final List<Property> aggregatePrincTransf, final List<Property> chainedPrincTransf,
+            final List<Property> constantPrincTransf, final List<Property> customPrincTransf,
+            final List<Property> regexValidatingPrincTransf, final List<Property> regexPrincTransf) {
+
+        transformerView.updateAggregatePrincipalTransformer(aggregatePrincTransf);
+        transformerView.updateConstantPrincipalTransformer(constantPrincTransf);
+        transformerView.updateChainedPrincipalTransformer(chainedPrincTransf);
+        transformerView.updateCustomPrincipalTransformer(customPrincTransf);
+        transformerView.updateRegexValidatingPrincipalTransformer(regexValidatingPrincTransf);
+        transformerView.updateRegexPrincipalTransformer(regexPrincTransf);
+    }
+
+
 }
