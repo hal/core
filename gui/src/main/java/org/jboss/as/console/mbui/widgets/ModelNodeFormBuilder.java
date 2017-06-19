@@ -331,7 +331,7 @@ public class ModelNodeFormBuilder {
         if (requiredOnly) {
             for (Property attr : attributeDescriptions) {
                 ModelNode value = attr.getValue();
-                boolean required = isRequired(value);
+                boolean required = getBooleanAttrValue(value, REQUIRED);
                 boolean readOnly = value.get("access-type").asString().equals("read-only");
                 if (required & !readOnly) {
                     hasRequired = true;
@@ -398,8 +398,11 @@ public class ModelNodeFormBuilder {
                 final boolean readOnly = attrDesc.hasDefined("access-type") ?
                         attrDesc.get("access-type").asString().equals("read-only") : false;
 
-                // nillable
-                boolean isRequired = isRequired(attrDesc);
+                // attribute is not nillable
+                boolean isValueRequired = !getBooleanAttrValue(attrDesc, NILLABLE);
+
+                // required flag
+                boolean isRequired = getBooleanAttrValue(attrDesc, REQUIRED);
 
                 // createMode flag
                 if ((createMode && readOnly)) {
@@ -464,14 +467,14 @@ public class ModelNodeFormBuilder {
                                     .asBoolean();
 
                             CheckBoxItem checkBoxItem = new CheckBoxItem(attr.getName(), label);
-                            checkBoxItem.setRequired(isRequired);
+                            checkBoxItem.setRequired(isValueRequired);
                             checkBoxItem.setEnabled(!readOnly && !isRuntime);
                             checkBoxItem.setExpressionAllowed(expressionAllowed);
                             formItem = checkBoxItem;
                             break;
                         case DOUBLE:
                             formItem = new DoubleFormItem(attr.getName(), label);
-                            formItem.setRequired(isRequired);
+                            formItem.setRequired(isValueRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case LONG:
@@ -481,12 +484,12 @@ public class ModelNodeFormBuilder {
                             }
 
                             formItem = new NumberBoxItem(attr.getName(), label, allowNegativeValues);
-                            formItem.setRequired(isRequired);
+                            formItem.setRequired(isValueRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case BIG_DECIMAL:
                             formItem = new NumberBoxItem(attr.getName(), label);
-                            formItem.setRequired(isRequired);
+                            formItem.setRequired(isValueRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case INT:
@@ -505,13 +508,13 @@ public class ModelNodeFormBuilder {
                                 formItem = new NumberBoxItem(attr.getName(), label, allowNegative);
                             }
 
-                            formItem.setRequired(isRequired);
+                            formItem.setRequired(isValueRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
 
                             break;
                         case LIST:
                             formItem = new ListItem(attr.getName(), label);
-                            formItem.setRequired(isRequired);
+                            formItem.setRequired(isValueRequired);
                             formItem.setEnabled(!readOnly && !isRuntime);
                             break;
                         case STRING:
@@ -522,12 +525,11 @@ public class ModelNodeFormBuilder {
                                     allowedValues.add(value.asString());
                                 }
 
-                                final boolean allowEmptyOption = attrDesc.hasDefined(NILLABLE) && attrDesc.get(NILLABLE)
-                                        .asBoolean();
+                                final boolean allowEmptyOption = getBooleanAttrValue(attrDesc, NILLABLE);
                                 ComboBoxItem combo = new ComboBoxItem(attr.getName(), label, allowEmptyOption);
                                 combo.setValueMap(allowedValues);
                                 combo.setEnabled(!readOnly && !isRuntime);
-                                combo.setRequired(isRequired);
+                                combo.setRequired(isValueRequired);
                                 combo.setDefaultToFirstOption(true);
 
                                 formItem = combo;
@@ -537,7 +539,7 @@ public class ModelNodeFormBuilder {
                                     // there is no capability-reference
                                     TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
                                     textBoxItem.setAllowWhiteSpace(true);
-                                    textBoxItem.setRequired(isRequired);
+                                    textBoxItem.setRequired(isValueRequired);
                                     textBoxItem.setEnabled(!readOnly && !isRuntime);
 
                                     formItem = textBoxItem;
@@ -550,7 +552,7 @@ public class ModelNodeFormBuilder {
                         case OBJECT:
                             if (attrDesc.has(VALUE_TYPE) && attrDesc.get(VALUE_TYPE).asString().equals("STRING")) {
                                 PropertyListItem propList = new PropertyListItem(attr.getName(), label);
-                                propList.setRequired(isRequired);
+                                propList.setRequired(isValueRequired);
                                 propList.setEnabled(!readOnly && !isRuntime);
 
                                 formItem = propList;
@@ -672,7 +674,6 @@ public class ModelNodeFormBuilder {
 
                     boolean fieldIsInUse = isFormItemDefined(sourceFormItem);
 
-                    if (fieldIsInUse) {
                         StringBuilder buff = new StringBuilder();
                         int i = 0;
                         int size = alternativeAttrs.size();
@@ -693,13 +694,18 @@ public class ModelNodeFormBuilder {
                                 break;
                             }
                         }
-                        if (alternativeUsed) {
+                        if (fieldIsInUse && alternativeUsed) {
                             formValidation.addError(attr);
                             sourceFormItem.setErrMessage(
                                     "This field should not be used if the following fields are used: " + buff);
                             sourceFormItem.setErroneous(true);
                         }
-                    }
+                        if (!fieldIsInUse && !alternativeUsed) {
+                            formValidation.addError(attr);
+                            sourceFormItem.setErrMessage(
+                                    "If this attribute is not set, you should use one of the following: " + buff);
+                            sourceFormItem.setErroneous(true);
+                        }
                 }
 
                 // validates if at least one attribute of the given list is set.
@@ -746,14 +752,8 @@ public class ModelNodeFormBuilder {
         return formAssets;
     }
 
-    private boolean isRequired(ModelNode attributeDescription) {
-        boolean required = attributeDescription.hasDefined("nillable") && !attributeDescription.get("nillable")
-                .asBoolean();
-        if (attributeDescription.hasDefined("alternatives") &&
-                !attributeDescription.get("alternatives").asList().isEmpty()) {
-            required = false;
-        }
-        return required;
+    private boolean getBooleanAttrValue(ModelNode attrDesc, String attrName) {
+        return attrDesc.hasDefined(attrName) && attrDesc.get(attrName).asBoolean();
     }
 
     private boolean isFormItemDefined(FormItem item) {
