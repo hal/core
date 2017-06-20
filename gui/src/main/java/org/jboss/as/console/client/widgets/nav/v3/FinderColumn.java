@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
-import com.allen_sauer.gwt.log.client.Log;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -46,9 +48,6 @@ import org.jboss.ballroom.client.rbac.SecurityContextAware;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -138,7 +137,7 @@ public class FinderColumn<T> implements SecurityContextAware {
         cellTable.setStyleName("navigation-cell-table");
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
-        cellTable.setEmptyTableWidget(new HTML("<div class='empty-finder-column'>No Items!</div>"));
+        cellTable.setEmptyTableWidget(new HTML("<div class='empty-finder-column'>No Items</div>"));
 
         this.dataProvider = new ListDataProvider<>(keyProvider);
         dataProvider.addDataDisplay(cellTable);
