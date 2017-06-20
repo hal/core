@@ -104,8 +104,8 @@ public class LoggerView extends SuspendableViewImpl implements LoggerPresenter.M
 
         tabLayoutpanel.add(rootLoggerView.asWidget(), "Root Logger", true);
         tabLayoutpanel.add(categoryView.asWidget(), "Log Categories", true);
-        tabLayoutpanel.add(handlerView.asWidget(), "Handler", true);
-        tabLayoutpanel.add(formatterView.asWidget(), "Formatter", true);
+        tabLayoutpanel.add(handlerView.asWidget(), "Log Handlers", true);
+        tabLayoutpanel.add(formatterView.asWidget(), "Log Formatters", true);
 
         tabLayoutpanel.selectTab(0);
 
