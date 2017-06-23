@@ -67,7 +67,6 @@ public class ElytronPresenter extends
                 List<Property> clientSSLContext,
                 List<Property> trustManager,
                 List<Property> securityDomain,
-                List<Property> securityProperty,
                 List<Property> providerLoader,
                 List<Property> aggregateProvidersModel);
 
@@ -76,7 +75,8 @@ public class ElytronPresenter extends
 
         void initLogs(
                 List<Property> file,
-                List<Property> rotating,
+                List<Property> sizeRotatingFile,
+                List<Property> periodicRotatingFile,
                 List<Property> syslog
         );
 
@@ -127,7 +127,6 @@ public class ElytronPresenter extends
                     store.getClientSSLContext(),
                     store.getTrustManager(),
                     store.getSecurityDomain(),
-                    store.getSecurityProperty(),
                     store.getProviderLoader(),
                     store.getAggregateProviders());
 
@@ -137,7 +136,8 @@ public class ElytronPresenter extends
 
             getView().initLogs(
                     store.getFileAuditLog(),
-                    store.getRotatingFileAuditLog(),
+                    store.getSizeRotatingFileAuditLog(),
+                    store.getPeriodicRotatingFileAuditLog(),
                     store.getSyslogAuditLog()
             );
 

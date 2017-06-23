@@ -140,7 +140,6 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate SIMPLE_ROLE_DECODER_ADDRESS = AddressTemplate.of(ROOT).append("simple-role-decoder=*");
 
     public static final AddressTemplate SECURITY_DOMAIN_ADDRESS = AddressTemplate.of(ROOT).append("security-domain=*");
-    public static final AddressTemplate SECURITY_PROPERTY_ADDRESS = AddressTemplate.of(ROOT).append("security-property=*");
 
     public static final AddressTemplate DIR_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("dir-context=*");
     public static final AddressTemplate AUTHENTICATION_CONTEXT_ADDRESS = AddressTemplate.of(ROOT).append("authentication-context=*");
@@ -149,8 +148,9 @@ public class ElytronStore extends ChangeSupport {
     public static final AddressTemplate AGGREGATE_SECURITY_EVENT_LISTENER_ADDRESS = AddressTemplate.of(ROOT).append("aggregate-security-event-listener=*");
     public static final AddressTemplate FILE_AUDIT_LOG_ADDRESS = AddressTemplate.of(ROOT).append("file-audit-log=*");
     public static final AddressTemplate POLICY_ADDRESS = AddressTemplate.of(ROOT).append("policy=*");
-    public static final AddressTemplate ROTATING_FILE_AUDIT_ADDRESS = AddressTemplate.of(ROOT).append("rotating-file-audit-log=*");
     public static final AddressTemplate SYSLOG_AUDIT_LOG_ADDRESS = AddressTemplate.of(ROOT).append("syslog-audit-log=*");
+    public static final AddressTemplate SIZE_ROTATING_FILE_AUDIT_ADDRESS = AddressTemplate.of(ROOT).append("size-rotating-file-audit-log=*");
+    public static final AddressTemplate PERIODIC_ROTATING_FILE_AUDIT_ADDRESS = AddressTemplate.of(ROOT).append("periodic-rotating-file-audit-log=*");
 
 
     private final DispatchAsync dispatcher;
@@ -228,7 +228,6 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> simpleRoleDecoder;
 
     private final List<Property> securityDomain;
-    private final List<Property> securityProperty;
     private final List<Property> dirContext;
     private final List<Property> authenticationContext;
     private final List<Property> authenticationconfiguration;
@@ -236,8 +235,9 @@ public class ElytronStore extends ChangeSupport {
     private final List<Property> aggregateSecurityEventListener;
     private final List<Property> fileAuditLog;
     private final List<Property> policy;
-    private final List<Property> rotatingFileAuditLog;
     private final List<Property> syslogAuditLog;
+    private final List<Property> sizeRotatingFileAuditLog;
+    private final List<Property> periodicRotatingFileAuditLog;
 
 
     @Inject
@@ -316,7 +316,6 @@ public class ElytronStore extends ChangeSupport {
         simpleRoleDecoder = new ArrayList<>();
 
         securityDomain = new ArrayList<>();
-        securityProperty = new ArrayList<>();
 
         dirContext = new ArrayList<>();
         authenticationContext = new ArrayList<>();
@@ -325,8 +324,9 @@ public class ElytronStore extends ChangeSupport {
         aggregateSecurityEventListener = new ArrayList<>();
         fileAuditLog = new ArrayList<>();
         policy = new ArrayList<>();
-        rotatingFileAuditLog = new ArrayList<>();
         syslogAuditLog = new ArrayList<>();
+        sizeRotatingFileAuditLog = new ArrayList<>();
+        periodicRotatingFileAuditLog = new ArrayList<>();
     }
 
 
@@ -369,7 +369,6 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "provider-loader", providerLoader);
                     populate(payload, "aggregate-providers", aggregateProviders);
                     populate(payload, "security-domain", securityDomain);
-                    populate(payload, "security-property", securityProperty);
 
                     populate(payload, "aggregate-principal-transformer", aggregatePrincipalTransformer);
                     populate(payload, "chained-principal-transformer", chainedPrincipalTransformer);
@@ -381,8 +380,9 @@ public class ElytronStore extends ChangeSupport {
                     populate(payload, "aggregate-security-event-listener", aggregateSecurityEventListener);
                     populate(payload, "file-audit-log", fileAuditLog);
                     populate(payload, "policy", policy);
-                    populate(payload, "rotating-file-audit-log", rotatingFileAuditLog);
                     populate(payload, "syslog-audit-log", syslogAuditLog);
+                    populate(payload, "size-rotating-file-audit-log", sizeRotatingFileAuditLog);
+                    populate(payload, "periodic-rotating-file-audit-log", periodicRotatingFileAuditLog);
 
                     populate(payload, "dir-context", dirContext);
 
@@ -802,10 +802,6 @@ public class ElytronStore extends ChangeSupport {
         return securityDomain;
     }
 
-    public List<Property> getSecurityProperty() {
-        return securityProperty;
-    }
-
     public List<Property> getDirContext() {
         return dirContext;
     }
@@ -842,8 +838,12 @@ public class ElytronStore extends ChangeSupport {
         return policy;
     }
 
-    public List<Property> getRotatingFileAuditLog() {
-        return rotatingFileAuditLog;
+    public List<Property> getSizeRotatingFileAuditLog() {
+        return sizeRotatingFileAuditLog;
+    }
+
+    public List<Property> getPeriodicRotatingFileAuditLog() {
+        return periodicRotatingFileAuditLog;
     }
 
     public List<Property> getSyslogAuditLog() {
