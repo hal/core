@@ -35,7 +35,8 @@ public class LogsView {
     private SecurityContext securityContext;
 
     private ElytronGenericResourceView fileAuditLogView;
-    private ElytronGenericResourceView rotatingAuditLogView;
+    private ElytronGenericResourceView sizeRotatingAuditLogView;
+    private ElytronGenericResourceView periodicRotatingAuditLogView;
     private ElytronGenericResourceView syslogAuditLogView;
 
     public LogsView(final Dispatcher circuit, final ResourceDescription rootDescription,
@@ -48,14 +49,18 @@ public class LogsView {
     public Widget asWidget() {
 
         ResourceDescription fileDescription = rootDescription.getChildDescription("file-audit-log");
-        ResourceDescription rotatingDescription = rootDescription.getChildDescription("rotating-file-audit-log");
+        ResourceDescription sizeRotatingDescription = rootDescription.getChildDescription("size-rotating-file-audit-log");
+        ResourceDescription periodicRotatingDescription = rootDescription.getChildDescription("periodic-rotating-file-audit-log");
         ResourceDescription syslogDescription = rootDescription.getChildDescription("syslog-audit-log");
 
         fileAuditLogView = new ElytronGenericResourceView(circuit, fileDescription, securityContext, "File Audit Log",
                 ElytronStore.FILE_AUDIT_LOG_ADDRESS);
 
-        rotatingAuditLogView = new ElytronGenericResourceView(circuit, rotatingDescription, securityContext, "Rotating File Audit Log",
-                ElytronStore.ROTATING_FILE_AUDIT_ADDRESS);
+        sizeRotatingAuditLogView = new ElytronGenericResourceView(circuit, sizeRotatingDescription, securityContext,
+                "File Size Rotating Audit Log", ElytronStore.SIZE_ROTATING_FILE_AUDIT_ADDRESS);
+
+        periodicRotatingAuditLogView = new ElytronGenericResourceView(circuit, periodicRotatingDescription, securityContext,
+                "File Periodic Rotating Audit Log", ElytronStore.PERIODIC_ROTATING_FILE_AUDIT_ADDRESS);
 
         syslogAuditLogView = new ElytronGenericResourceView(circuit, syslogDescription, securityContext, "Syslog Audit Log",
                 ElytronStore.SYSLOG_AUDIT_LOG_ADDRESS);
@@ -63,7 +68,8 @@ public class LogsView {
 
         PagedView panel = new PagedView(true);
         panel.addPage("File Audit Log", fileAuditLogView.asWidget());
-        panel.addPage("Rotating File Audit Log", rotatingAuditLogView.asWidget());
+        panel.addPage("File Size Rotating Audit Log", sizeRotatingAuditLogView.asWidget());
+        panel.addPage("File Periodic Rotating Audit Log", periodicRotatingAuditLogView.asWidget());
         panel.addPage("Syslog Audit Log", syslogAuditLogView.asWidget());
         // default page
         panel.showPage(0);
@@ -75,8 +81,12 @@ public class LogsView {
         this.fileAuditLogView.update(model);
     }
 
-    public void updateRotatingAuditLogView(final List<Property> model) {
-        this.rotatingAuditLogView.update(model);
+    public void updatePeriodicRotatingAuditLogView(final List<Property> model) {
+        this.periodicRotatingAuditLogView.update(model);
+    }
+
+    public void updateSizeRotatingAuditLogView(final List<Property> model) {
+        this.sizeRotatingAuditLogView.update(model);
     }
 
     public void updateSyslogAuditLogView(final List<Property> model) {

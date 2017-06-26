@@ -674,6 +674,7 @@ public class ModelNodeFormBuilder {
 
                     boolean fieldIsInUse = isFormItemDefined(sourceFormItem);
 
+                    if (fieldIsInUse) {
                         StringBuilder buff = new StringBuilder();
                         int i = 0;
                         int size = alternativeAttrs.size();
@@ -694,18 +695,13 @@ public class ModelNodeFormBuilder {
                                 break;
                             }
                         }
-                        if (fieldIsInUse && alternativeUsed) {
+                        if (alternativeUsed) {
                             formValidation.addError(attr);
                             sourceFormItem.setErrMessage(
                                     "This field should not be used if the following fields are used: " + buff);
                             sourceFormItem.setErroneous(true);
                         }
-                        if (!fieldIsInUse && !alternativeUsed) {
-                            formValidation.addError(attr);
-                            sourceFormItem.setErrMessage(
-                                    "If this attribute is not set, you should use one of the following: " + buff);
-                            sourceFormItem.setErroneous(true);
-                        }
+                    }
                 }
 
                 // validates if at least one attribute of the given list is set.

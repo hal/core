@@ -3,6 +3,7 @@ package org.jboss.as.console.client.shared.subsys.activemq.cluster;
 import org.jboss.as.console.client.shared.subsys.activemq.GenericResourceView;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.dmr.client.ModelNode;
 
 /**
@@ -26,5 +27,10 @@ public class ClusterConnectionList extends GenericResourceView {
         if (payload.hasDefined("allow-direct-connections-only") && !payload.get("allow-direct-connections-only").asBoolean()) {
             payload.remove("allow-direct-connections-only");
         }
+    }
+
+    @Override
+    protected void customAddFormBuilder(ModelNodeFormBuilder formBuilder) {
+        formBuilder.requiresAtLeastOne("discovery-group", "static-connectors");
     }
 }
