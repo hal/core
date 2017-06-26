@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config xmlns="http://zanata.org/namespace/config/">
-    <url>https://translate.jboss.org/</url>
+    <url>https://vendors.zanata.redhat.com/</url>
     <project>hal-html-previews</project>
     <project-version>master</project-version>
     <project-type>file</project-type>
