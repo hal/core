@@ -126,17 +126,19 @@ public class PooledConnectionFactoryView {
             }
         });
 
-        selectionModel.addSelectionChangeHandler(event -> {
-            Property selected = selectionModel.getSelectedObject();
-            if (selected != null) {
-                modelForm.getForm().edit(selected.getValue());
-            } else {
-                modelForm.getForm().clearValues();
-            }
-        });
+        selectionModel.addSelectionChangeHandler(event -> editSelected());
         table.setSelectionModel(selectionModel);
     }
-    
+
+    private void editSelected() {
+        Property selected = selectionModel.getSelectedObject();
+        if (selected != null) {
+            modelForm.getForm().edit(selected.getValue());
+        } else {
+            modelForm.getForm().clearValues();
+        }
+    }
+
     private ToolStrip setupMasterTools() {
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(
@@ -221,9 +223,11 @@ public class PooledConnectionFactoryView {
     }
 
     public void setModel(List<Property> models) {
+        modelForm.getForm().clearValues();
         provider.setList(models);
         serverName.setText("Pooled Connection Factory: Provider " + presenter.getCurrentServer());
         table.selectDefaultEntity();
+        editSelected();
     }
 
     protected <T> FormItem<T> formItem(List<FormItem> formItems, String name) {
