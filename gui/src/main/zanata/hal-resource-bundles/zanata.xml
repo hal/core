@@ -2,6 +2,6 @@
 <config xmlns="http://zanata.org/namespace/config/">
     <url>https://vendors.zanata.redhat.com/</url>
     <project>eap-hal-resource-bundles</project>
-    <project-version>master</project-version>
+    <project-version>7.1</project-version>
     <project-type>properties</project-type>
 </config>
