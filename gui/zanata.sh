@@ -83,6 +83,7 @@ function pushPreviews {
     cp src/main/java/org/jboss/as/console/client/preview/content/*.html target/zanata/push/previews/content
     cp src/main/java/org/jboss/as/console/client/preview/roles/*.html target/zanata/push/previews/roles
     cd target/zanata/push/previews
+    rm -rf *_ja.html *_zh-Hans.html
     zanata-cli push --batch-mode --file-types "HTML[html]"
     cd "${ROOT}"
 }
