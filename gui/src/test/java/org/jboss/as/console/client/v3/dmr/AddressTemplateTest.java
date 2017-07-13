@@ -43,6 +43,13 @@ public class AddressTemplateTest {
     }
 
     @Test
+    public void escaping() {
+        AddressTemplate at = AddressTemplate.of("a=b/c=java\\:\\/d");
+        assertEquals(2, at.getNumTokens());
+        assertEquals("a=b/c=java\\:\\/d", at.getTemplate());
+    }
+
+    @Test
     public void optional() {
         AddressTemplate at = AddressTemplate.of("a=b");
         assertFalse(at.isOptional());
