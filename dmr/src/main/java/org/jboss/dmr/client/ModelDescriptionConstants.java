@@ -35,6 +35,7 @@ public class ModelDescriptionConstants {
     public static final String ADDRESS = "address";
     public static final String ALLOW_RESOURCE_SERVICE_RESTART = "allow-resource-service-restart";
     public static final String ALLOWED = "allowed";
+    public static final String ALTERNATIVES = "alternatives";
     public static final String ANY = "any";
     public static final String ANY_ADDRESS = "any-address";
     public static final String ANY_IPV4_ADDRESS = "any-ipv4-address";
@@ -160,6 +161,7 @@ public class ModelDescriptionConstants {
     public static final String REQUEST_PROPERTIES = "request-properties";
     public static final String RECURSIVE = "recursive";
     public static final String REQUIRED = "required";
+    public static final String REQUIRES = "requires";
     public static final String RESPONSE = "response";
     public static final String RESTART_JOB = "restart-job";
     public static final String RESULT = "result";

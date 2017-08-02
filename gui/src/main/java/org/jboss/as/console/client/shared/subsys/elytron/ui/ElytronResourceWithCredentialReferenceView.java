@@ -33,7 +33,10 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.CREDENTIAL_REFERENCE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NILLABLE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.PATH;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REQUIRED;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -55,12 +58,7 @@ public class ElytronResourceWithCredentialReferenceView extends ElytronGenericRe
 
         if (!credentialReferenceIsNillable) {
             // repackage credential-reference inner attributes to show up in the ADD modal dialog
-            ModelNode reqPropsDescription = resourceDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
-            ModelNode credRefDescription = reqPropsDescription.get(CREDENTIAL_REFERENCE).get(VALUE_TYPE);
-            reqPropsDescription.get("credential-reference-store").set(credRefDescription.get("store"));
-            reqPropsDescription.get("credential-reference-alias").set(credRefDescription.get("alias"));
-            reqPropsDescription.get("credential-reference-type").set(credRefDescription.get("type"));
-            reqPropsDescription.get("credential-reference-clear-text").set(credRefDescription.get("clear-text"));
+            resourceDescription.repackageComplexAttribute(CREDENTIAL_REFERENCE);
         }
 
         excludesFormAttributes(CREDENTIAL_REFERENCE);

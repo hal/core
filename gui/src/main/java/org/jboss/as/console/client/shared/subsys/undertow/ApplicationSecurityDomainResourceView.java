@@ -75,16 +75,7 @@ public class ApplicationSecurityDomainResourceView {
 
         // repackage credential-reference inner attributes to show up in the ADD modal dialog
         // as the credential-reference is a required=true
-        ModelNode reqPropsDescription = ssoDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
-        ModelNode credRefDescription = reqPropsDescription.get(CREDENTIAL_REFERENCE).get(VALUE_TYPE);
-        reqPropsDescription.get("credential-reference-store").set(credRefDescription.get("store")).get("nillable")
-                .set(true);
-        reqPropsDescription.get("credential-reference-alias").set(credRefDescription.get("alias")).get("nillable")
-                .set(true);
-        reqPropsDescription.get("credential-reference-type").set(credRefDescription.get("type")).get("nillable")
-                .set(true);
-        reqPropsDescription.get("credential-reference-clear-text").set(credRefDescription.get("clear-text"))
-                .get("nillable").set(true);
+        ssoDescription.repackageComplexAttribute(CREDENTIAL_REFERENCE);
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), event -> onAdd(resourceDescription)));
@@ -205,6 +196,7 @@ public class ApplicationSecurityDomainResourceView {
                     formPanel.remove(formSsoWidget);
                     formPanel.remove(btnRemoveSso);
                     formPanel.add(btnAddSso);
+                    btnAddSso.setEnabled(true);
                     credentialReferenceFormAsset.getForm().clearValues();
                     formSsoAssets.getForm().clearValues();
                 }
@@ -212,6 +204,12 @@ public class ApplicationSecurityDomainResourceView {
                 formAttributesAssets.getForm().clearValues();
                 formSsoAssets.getForm().clearValues();
                 credentialReferenceFormAsset.getForm().clearValues();
+                // if there are no resources (application-security-domain), there is no point displaying sso form,
+                // sso enable button
+                formPanel.remove(formSsoWidget);
+                formPanel.remove(btnRemoveSso);
+                formPanel.add(btnAddSso);
+                btnAddSso.setEnabled(false);
             }
         });
         table.setSelectionModel(selectionModel);

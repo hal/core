@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.common.base.Joiner;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -287,12 +288,13 @@ public class ModelNodeFormBuilder {
         assert modelDescription.hasDefined(ATTRIBUTES) : "Invalid model description. Expected child 'attributes'";
 
 
-        List<Property> attributeDescriptions = new ArrayList<Property>();
+        // attributeDescriptions is used in an inner class, so it must be final.
+        final List<Property> attributeDescriptions = new ArrayList<>();
         if (createMode && modelDescription.get(OPERATIONS).get(ADD).hasDefined(REQUEST_PROPERTIES)) {
-            attributeDescriptions = modelDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES)
-                    .asPropertyList();
+            attributeDescriptions.addAll(modelDescription.get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES)
+                    .asPropertyList());
         } else if (!createMode) {
-            attributeDescriptions = modelDescription.get(ATTRIBUTES).asPropertyList();
+            attributeDescriptions.addAll(modelDescription.get(ATTRIBUTES).asPropertyList());
         }
 
         // sort fields
@@ -534,7 +536,7 @@ public class ModelNodeFormBuilder {
 
                                 formItem = combo;
                             } else {
-                                formItem = createSuggestBoxForCapabilityReference(attr, label, isRequired);
+                                formItem = createSuggestBoxForCapabilityReference(attr, label, isValueRequired);
                                 if (formItem == null) {
                                     // there is no capability-reference
                                     TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
@@ -644,17 +646,16 @@ public class ModelNodeFormBuilder {
         if (createValidators) {
             form.addFormValidator((formItems, formValidation) -> {
 
-                // validates the "requires" constraint
+                //
+                // validates the "requires" constraint of each attribute
+                //
                 for (String attr : requires.keySet()) {
                     List<ModelNode> requiredAttrs = requires.get(attr).asList();
                     FormItem sourceFormItem = findFormItem(formItems, attr);
-                    // iterate over the "requires" attribute list
-
                     boolean sourceItemDefined = isFormItemDefined(sourceFormItem);
                     for (ModelNode reqAttr : requiredAttrs) {
                         String requiredAttrName = reqAttr.asString();
                         FormItem item = findFormItem(formItems, requiredAttrName);
-
                         boolean itemUndefined = !isFormItemDefined(item);
                         if (sourceItemDefined && itemUndefined) {
                             formValidation.addError(requiredAttrName);
@@ -665,80 +666,111 @@ public class ModelNodeFormBuilder {
                         }
                     }
                 }
-                // validates the "alternatives" constraint
+
+                //
+                // validates the "alternatives" constraint of each attribute
+                //
                 for (String attr : alternatives.keySet()) {
+
+                    // retrieve the "alternatives" attribute list
                     List<ModelNode> alternativeAttrs = alternatives.get(attr).asList();
 
                     FormItem sourceFormItem = findFormItem(formItems, attr);
-                    // only checks if the attribute is used
+                    boolean sourceAttributeIsUsed = isFormItemDefined(sourceFormItem);
 
-                    boolean fieldIsInUse = isFormItemDefined(sourceFormItem);
-
-                    if (fieldIsInUse) {
-                        StringBuilder buff = new StringBuilder();
-                        int i = 0;
-                        int size = alternativeAttrs.size();
+                    // This block validates when one or more alternatives fields are set
+                    if (sourceAttributeIsUsed) {
+                        List<String> fieldsInConflict = new ArrayList<>();
                         boolean alternativeUsed = false;
+                        // iterate over the alternatives form items to check if they are set
                         for (ModelNode reqAttr : alternativeAttrs) {
                             String alternativeAttrName = reqAttr.asString();
                             FormItem item = findFormItem(formItems, alternativeAttrName);
-                            if (item == null)
-                                continue;
-                            buff.append(item.getTitle());
-                            if (i++ + 1 < size) {
-                                buff.append(", ");
-                            }
-                            boolean fieldAltIsInUse = isFormItemDefined(item);
-
-                            if (fieldAltIsInUse) {
+                            boolean alternativeAttributeSet = isFormItemDefined(item);
+                            if (alternativeAttributeSet) {
+                                fieldsInConflict.add(item.getTitle());
                                 alternativeUsed = true;
                                 break;
                             }
                         }
                         if (alternativeUsed) {
+                            String _fields = Joiner.on(", ").join(fieldsInConflict);
                             formValidation.addError(attr);
                             sourceFormItem.setErrMessage(
-                                    "This field should not be used if the following fields are used: " + buff);
+                                    "This field must not be used if the following fields are used: " + _fields);
                             sourceFormItem.setErroneous(true);
                         }
+                    } else {
+
+                        // this block validates when the attribute is required = nillable = true
+                        // and the attribute is not set and none of the alternatives are set
+
+                        // check if the attribute is required=true from the description object
+                        boolean isRequired = false;
+                        for (Property prop: attributeDescriptions) {
+                            if (attr.equals(prop.getName())) {
+                                isRequired = getBooleanAttrValue(prop.getValue(), REQUIRED);
+                                break;
+                            }
+                        }
+                        if (isRequired) {
+                            // as the attribute is required=true and nillable=true
+                            // this attribute or one of the alternatives must be set
+                            boolean alternativesNotSet = true;
+                            List<String> fields = new ArrayList<>();
+                            fields.add(sourceFormItem.getTitle());
+
+                            // iterate over the alternatives list
+                            for (ModelNode alternativeAttribute : alternativeAttrs) {
+                                String alternativeAttrName = alternativeAttribute.asString();
+                                FormItem item = findFormItem(formItems, alternativeAttrName);
+                                fields.add(item.getTitle());
+                                boolean alternativeUsed = isFormItemDefined(item);
+                                // if some alternative attribute is set, the form is valid and continue
+                                if (alternativeUsed) {
+                                    alternativesNotSet = false;
+                                    break;
+                                }
+                            }
+                            if (alternativesNotSet) {
+                                String buff = Joiner.on(",").join(fields);
+                                formValidation.addError(attr);
+                                sourceFormItem.setErrMessage("At least one of these attributes must be set: " + buff);
+                                sourceFormItem.setErroneous(true);
+                            }
+                        }
                     }
+
+
                 }
 
+                //
                 // validates if at least one attribute of the given list is set.
+                //
                 if (requiresAtLeastOne.size() > 0) {
-                    StringBuilder buff = new StringBuilder();
+                    List<String> setAtLeastOne = new ArrayList<>();
                     boolean fieldIsInUse = false;
 
-                    // these two default items are the default attribute where to bind the error message
+                    // these two default items are to bind the error message
                     FormItem defaultFormItem = null;
                     String defaultAttribute = null;
-                    int i = 0;
-                    int size = requiresAtLeastOne.size();
                     for (String attr : requiresAtLeastOne) {
-                        FormItem item = findFormItem(formItems, attr);
 
+                        FormItem item = findFormItem(formItems, attr);
                         if (defaultAttribute == null) {
                             defaultAttribute = attr;
-                        }
-
-                        if (defaultFormItem == null) {
                             defaultFormItem = item;
                         }
-
-                        buff.append(item.getTitle());
-                        if (i++ + 1 < size) {
-                            buff.append(", ");
-                        }
-
+                        setAtLeastOne.add(item.getTitle());
                         fieldIsInUse = isFormItemDefined(item);
                         if (fieldIsInUse) {
                             break;
                         }
                     }
-
                     if (!fieldIsInUse) {
+                        String buff = Joiner.on(",").join(setAtLeastOne);
                         formValidation.addError(defaultAttribute);
-                        defaultFormItem.setErrMessage("At least one of these attributes should be set: " + buff);
+                        defaultFormItem.setErrMessage("At least one of these attributes must be set: " + buff);
                         defaultFormItem.setErroneous(true);
                     }
                 }

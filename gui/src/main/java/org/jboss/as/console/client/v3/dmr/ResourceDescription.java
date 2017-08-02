@@ -21,10 +21,10 @@
  */
 package org.jboss.as.console.client.v3.dmr;
 
+import java.util.List;
+
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -97,5 +97,42 @@ public class ResourceDescription extends ModelNode {
             }
         }
         return EMPTY;
+    }
+
+    /**
+     * There are complex attributes of type OBJECT that contains other nested attributes. For the ADD dialogs to add
+     * a resource, given this complex attribute is required=true, there is a need to copy the nested attributes
+     * of complex attribute to the operations/add/request-properties path. Also, it renames the values of alternatives
+     * and requires metadata.
+     *
+     * @param name The complex attribute
+     */
+    public void repackageComplexAttribute(String name) {
+        ModelNode requestProps = get(OPERATIONS).get(ADD).get(REQUEST_PROPERTIES);
+        List<Property> nestedProps = requestProps.get(name).get(VALUE_TYPE).asPropertyList();
+        for(Property p: nestedProps) {
+            ModelNode repackagedAttribute = requestProps.get(name + "-" + p.getName());
+            repackagedAttribute.set(p.getValue());
+
+            // rename the attributes list of alternatives metadata
+            if (p.getValue().hasDefined(ALTERNATIVES)) {
+                List<ModelNode> alts = p.getValue().get(ALTERNATIVES).asList();
+                repackagedAttribute.remove(ALTERNATIVES);
+                for (ModelNode n: alts) {
+                    String altName = name + "-" + n.asString();
+                    repackagedAttribute.get(ALTERNATIVES).add(altName);
+                }
+            }
+
+            // rename the attributes list of requires metadata
+            if (p.getValue().hasDefined(REQUIRES)) {
+                List<ModelNode> alts = p.getValue().get(REQUIRES).asList();
+                repackagedAttribute.remove(REQUIRES);
+                for (ModelNode n: alts) {
+                    String altName = name + "-" + n.asString();
+                    repackagedAttribute.get(REQUIRES).add(altName);
+                }
+            }
+        }
     }
 }
