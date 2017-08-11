@@ -33,7 +33,7 @@
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <protovis.version>0.4.1-jboss</protovis.version>
-        <guided.tour.version>0.0.12</guided.tour.version>
+        <guided.tour.version>0.0.13</guided.tour.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
     </properties>
