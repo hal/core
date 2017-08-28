@@ -127,6 +127,7 @@ public class PatchManager {
 
             @Override
             public void onSuccess(final DMRResponse response) {
+                response.setIgnoreRestartHeader(true);
                 ModelNode result = response.get();
                 if (!result.hasDefined(OUTCOME) || result.isFailure()) {
                     callback.onFailure(new RuntimeException(result.getFailureDescription()));
@@ -173,6 +174,7 @@ public class PatchManager {
 
             @Override
             public void onSuccess(final DMRResponse response) {
+                response.setIgnoreRestartHeader(true);
                 ModelNode result = response.get();
                 if (!result.hasDefined(OUTCOME) || result.isFailure()) {
                     callback.onFailure(new RuntimeException(result.getFailureDescription()));
@@ -248,6 +250,7 @@ public class PatchManager {
             }
 
             public void onSuccess(DMRResponse result) {
+                result.setIgnoreRestartHeader(true);
                 final ModelNode readResult = result.get().get(RESULT);
                 final Patches patches = new Patches(host);
                 //extract latest patch
@@ -296,6 +299,7 @@ public class PatchManager {
                     }
 
                     public void onSuccess(DMRResponse result) {
+                        result.setIgnoreRestartHeader(true);
                         final ModelNode compResult = result.get().get(RESULT);
                         for (int index = 0; index < patchStreamIDs.length; index++) {
                             String streamId = patchStreamIDs[index];

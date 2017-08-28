@@ -84,6 +84,7 @@ public class PatchManagementPresenter
     private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
         @Override
         public void onSuccess(DMRResponse result) {
+            result.setIgnoreRestartHeader(true);
             ModelNode response = result.get();
             List<String> runningServers = new LinkedList<String>();
             if (!response.isFailure()) {
