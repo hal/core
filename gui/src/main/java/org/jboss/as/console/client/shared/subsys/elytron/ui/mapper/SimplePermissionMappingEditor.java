@@ -24,7 +24,6 @@ package org.jboss.as.console.client.shared.subsys.elytron.ui.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -58,10 +57,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OPERATIONS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REQUEST_PROPERTIES;
-import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE_TYPE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Claudio Miranda <claudio@redhat.com>
@@ -83,7 +79,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
 
     // button to hide the match-rules detail window
     // the cancel button is not displayed
-    DialogueOptions popupDialogOptions = new DialogueOptions(Console.CONSTANTS.common_label_done(),
+    private DialogueOptions popupDialogOptions = new DialogueOptions(Console.CONSTANTS.common_label_done(),
 
             // done
             new ClickHandler() {
@@ -159,33 +155,36 @@ public class SimplePermissionMappingEditor implements IsWidget {
         table.setSelectionModel(selectionModel);
 
         // columns
+        Column<ModelNode, String> matchAll = createColumn("match-all");
         Column<ModelNode, String> principals = createColumn("principals");
-        Column<ModelNode, String> roles = createColumn("roles");
+        Column<ModelNode, String> roles = createColumn(ROLES);
         Column<ModelNode, ModelNode> linkOpenDetailsColumn = new Column<ModelNode, ModelNode>(
-                new ViewLinkCell<>(Console.CONSTANTS.common_label_view(),
-                        (ActionCell.Delegate<ModelNode>) selection -> showDetailModal(selection))) {
+                new ViewLinkCell<>(Console.CONSTANTS.common_label_view(), this::showDetailModal)) {
             @Override
             public ModelNode getValue(ModelNode node) {
                 return node;
             }
         };
 
+        matchAll.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         principals.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         roles.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         linkOpenDetailsColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        table.addColumn(matchAll, "Match All");
         table.addColumn(principals, "Principals");
         table.addColumn(roles, "Roles");
-        table.setColumnWidth(principals, 40, Style.Unit.PCT);
-        table.setColumnWidth(roles, 40, Style.Unit.PCT);
         table.addColumn(linkOpenDetailsColumn, "Permissions");
+        table.setColumnWidth(matchAll, 20, Style.Unit.PCT);
+        table.setColumnWidth(principals, 30, Style.Unit.PCT);
+        table.setColumnWidth(roles, 30, Style.Unit.PCT);
         table.setColumnWidth(linkOpenDetailsColumn, 20, Style.Unit.PCT);
     }
 
-    private Column<ModelNode, String> createColumn(String attributeName) {
+    private Column<ModelNode, String> createColumn(String attribute) {
         return new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.hasDefined(attributeName) ? node.get(attributeName).asString(): "";
+                return node.hasDefined(attribute) ? node.get(attribute).asString().replaceAll("\\[|\"|\\]", ""): "";
             }
         };
     }
@@ -224,7 +223,7 @@ public class SimplePermissionMappingEditor implements IsWidget {
                     .exclude("permissions")
                     .setCreateNameAttribute(false)
                     .setSecurityContext(securityContext)
-                    .requiresAtLeastOne("principals", "roles")
+                    .requiresAtLeastOne("principals", "roles", "match-all")
                     .build();
             addFormAssets.getForm().setEnabled(true);
 
