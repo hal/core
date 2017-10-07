@@ -21,7 +21,9 @@
  */
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
-import com.google.gwt.core.client.GWT;
+import static org.jboss.as.console.client.shared.runtime.logging.store.LogStore.FILE_NAME;
+import static org.jboss.as.console.client.shared.runtime.logging.store.LogStore.FILE_SIZE;
+
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -33,10 +35,11 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.shared.runtime.logging.store.ReadLogFiles;
+import org.jboss.as.console.client.shared.runtime.logging.store.ReadLogFilesForRefresh;
+import org.jboss.as.console.client.shared.runtime.logging.store.RefreshLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.SelectLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.StreamLogFile;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -94,7 +97,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         this.circuit = circuit;
         this.logStore = logStore;
         this.hostStore = hostStore;
-        this.streamingProgress = new StreamingProgress(circuit, logStore, SHOW_STREAM_IN_PROGRESS_TIMEOUT);
+        this.streamingProgress = new StreamingProgress(logStore, SHOW_STREAM_IN_PROGRESS_TIMEOUT);
     }
 
     @Override
@@ -113,6 +116,15 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         } else if (action instanceof StreamLogFile) {
             streamingProgress.done();
             getView().open(logStore.getActiveLogFile());
+
+        } else if (action instanceof ReadLogFilesForRefresh) {
+            getView().list(logStore.getLogFiles());
+            String name = ((ReadLogFilesForRefresh) action).getName();
+            refreshLogFile(name);
+
+        } else if (action instanceof RefreshLogFile) {
+            streamingProgress.done();
+            getView().refresh(logStore.getActiveLogFile());
 
         } else if (action instanceof SelectLogFile) {
             getView().open(logStore.getActiveLogFile());
@@ -152,11 +164,44 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
                         Console.CONSTANTS.downloadingLogFileConfirmation(),
                         isConfirmed -> {
                             if (isConfirmed) {
+                                this.circuit.dispatch(new StreamLogFile(logFile));
                                 streamingProgress.monitor(logFile);
                             }
                         });
             } else {
+                this.circuit.dispatch(new StreamLogFile(logFile));
                 streamingProgress.monitor(logFile);
+            }
+        }
+    }
+
+    public void onRefreshLogFile(final String logFile) {
+        circuit.dispatch(new ReadLogFilesForRefresh(logFile));
+    }
+
+    private void refreshLogFile(String name) {
+        ModelNode fileNode = null;
+        for (ModelNode node: logStore.getLogFiles()) {
+            if (node.get(FILE_NAME).asString().equals(name)) {
+                fileNode = node;
+                break;
+            }
+        }
+        if (fileNode != null) {
+            int fileSize = fileNode.get(FILE_SIZE).asInt();
+            if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
+                Feedback.confirm(
+                        Console.CONSTANTS.downloadLogFile(),
+                        Console.CONSTANTS.downloadingLogFileConfirmation(),
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                this.circuit.dispatch(new RefreshLogFile(name));
+                                streamingProgress.monitor(name);
+                            }
+                        });
+            } else {
+                this.circuit.dispatch(new RefreshLogFile(name));
+                streamingProgress.monitor(name);
             }
         }
     }
