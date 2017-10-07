@@ -88,7 +88,7 @@ public class AddressTemplate {
         }
 
         String normalized = template.startsWith(OPT) ? template.substring(5) : template;
-        StringTokenizer tok = new StringTokenizer(normalized, "/");
+        StringTokenizer tok = new StringTokenizer(normalized, "/", '\\');
         while (tok.hasMoreTokens()) {
             String nextToken = tok.nextToken();
             if (nextToken.contains("=")) {
@@ -397,15 +397,17 @@ public class AddressTemplate {
 
     private static class StringTokenizer {
         private final String delim;
+        private final char escapeChar;
         private final String s;
         private final int len;
 
         private int pos;
         private String next;
 
-        StringTokenizer(String s, String delim) {
+        StringTokenizer(String s, String delim, char escapeChar) {
             this.s = s;
             this.delim = delim;
+            this.escapeChar = escapeChar;
             len = s.length();
         }
 
@@ -433,6 +435,9 @@ public class AddressTemplate {
 
             int p0 = pos++;
             while (pos < len && delim.indexOf(s.charAt(pos)) == -1) {
+                if (s.charAt(pos) == escapeChar) {
+                    pos++;
+                }
                 pos++;
             }
 
