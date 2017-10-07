@@ -112,6 +112,10 @@ public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPr
         loadJndiTree();
     }
 
+    public void refresh() {
+        loadJndiTree();
+    }
+
     private void loadJndiTree() {
 
         getView().clearValues();
