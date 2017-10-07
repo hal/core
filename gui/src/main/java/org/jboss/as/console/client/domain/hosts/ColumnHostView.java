@@ -17,6 +17,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -43,6 +44,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -85,7 +87,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore,
-                          final PreviewContentFactory contentFactory) {
+                          final PreviewContentFactory contentFactory, final BootstrapContext bootstrapContext) {
         super();
         this.contentFactory = contentFactory;
 
@@ -172,15 +174,16 @@ public class ColumnHostView extends SuspendableViewImpl
             return item.getName().contains(token);
         });
 
-        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
-                        new ContextualCommand<ServerGroupRecord>() {
-                            @Override
-                            public void executeOn(ServerGroupRecord group) {
-                                // TODO "/server-group=*", "add" permission
-                                presenter.launchNewGroupDialog();
-                            }
-                        }, MenuDelegate.Role.Operation)
-        );
+        if (bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
+            groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
+                    new ContextualCommand<ServerGroupRecord>() {
+                        @Override
+                        public void executeOn(ServerGroupRecord group) {
+                            // TODO "/server-group=*", "add" permission
+                            presenter.launchNewGroupDialog();
+                        }
+                    }, MenuDelegate.Role.Operation));
+        }
 
         groups.setPreviewFactory((data, callback) -> contentFactory
                 .createContent(PreviewContent.INSTANCE.runtime_server_group(), callback));
@@ -372,46 +375,56 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
-        groups.setMenuItems(
+        List<MenuDelegate<ServerGroupRecord>> menuList = new LinkedList<>();
+
+        menuList.add(
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions
-                        Console.CONSTANTS.common_label_view(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
+                    Console.CONSTANTS.common_label_view(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
 
-                        //groups.selectByKey(group.getName());
-                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+                    //groups.selectByKey(group.getName());
+                    Console.getCircuit().dispatch(new GroupSelection(group.getName()));
 
-                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                Console.getPlaceManager().revealRelativePlace(
-                                        new PlaceRequest(NameTokens.ServerGroupPresenter).with("action", "edit")
-                                );
-                            }
-                        });
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            Console.getPlaceManager().revealRelativePlace(
+                                    new PlaceRequest(NameTokens.ServerGroupPresenter).with("action", "edit")
+                            );
+                        }
+                    });
 
-                    }
-                }),
-                new MenuDelegate<ServerGroupRecord>(          // TODO permissions  "/server-group=*", "remove"
-                        Console.CONSTANTS.common_label_delete(),
-                        new ContextualCommand<ServerGroupRecord>() {
-                            @Override
-                            public void executeOn(final ServerGroupRecord group) {
+                }
+            })
+        );
 
-                                Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+        if(bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
+            menuList.add(
+                    new MenuDelegate<ServerGroupRecord>(          // TODO permissions  "/server-group=*", "remove"
+                            Console.CONSTANTS.common_label_delete(),
+                            new ContextualCommand<ServerGroupRecord>() {
+                                @Override
+                                public void executeOn(final ServerGroupRecord group) {
 
-                                Feedback.confirm(
-                                        Console.MESSAGES.deleteServerGroup(),
-                                        Console.MESSAGES.deleteServerGroupConfirm(group.getName()),
-                                        new Feedback.ConfirmationHandler() {
-                                            @Override
-                                            public void onConfirmation(boolean isConfirmed) {
-                                                if (isConfirmed)
-                                                    presenter.onDeleteGroup(group);
-                                            }
-                                        });
-                            }
-                        }, MenuDelegate.Role.Operation),
+                                    Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+
+                                    Feedback.confirm(
+                                            Console.MESSAGES.deleteServerGroup(),
+                                            Console.MESSAGES.deleteServerGroupConfirm(group.getName()),
+                                            new Feedback.ConfirmationHandler() {
+                                                @Override
+                                                public void onConfirmation(boolean isConfirmed) {
+                                                    if (isConfirmed)
+                                                        presenter.onDeleteGroup(group);
+                                                }
+                                            });
+                                }
+                            }, MenuDelegate.Role.Operation)
+            );
+        }
+
+        menuList.add(
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions   "/server-group=*", "add"
                         Console.CONSTANTS.common_label_copy(), new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -419,7 +432,10 @@ public class ColumnHostView extends SuspendableViewImpl
                         Console.getCircuit().dispatch(new GroupSelection(group.getName()));
                         presenter.launchCopyWizard(group);
                     }
-                }, MenuDelegate.Role.Operation),
+                }, MenuDelegate.Role.Operation)
+        );
+
+        menuList.add(
                 new MenuDelegate<ServerGroupRecord>(
                         Console.CONSTANTS.common_label_start(), new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -439,104 +455,116 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
                     }
                 }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*", "start-servers"),
+                        .setOperationAddress("/server-group=*", "start-servers")
+            );
 
+        menuList.add(
                 new MenuDelegate<ServerGroupRecord>(
-                        Console.CONSTANTS.common_label_stop(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
+                    Console.CONSTANTS.common_label_stop(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
 
-                        Feedback.confirm(
-                                Console.CONSTANTS.stopServerGroup(),
-                                Console.MESSAGES.wantToStopServerGroup(group.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
-                                    }
+                    Feedback.confirm(
+                            Console.CONSTANTS.stopServerGroup(),
+                            Console.MESSAGES.wantToStopServerGroup(group.getName()),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed)
+                                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
                                 }
-                        );
+                            }
+                    );
 
-                    }
-                }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*", "stop-servers"),
-
-                new MenuDelegate<ServerGroupRecord>(
-                        Console.CONSTANTS.suspend(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
-
-                        presenter.onLaunchSuspendDialogue(group);
-
-                    }
-                }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*", "suspend-servers"),
-
-                new MenuDelegate<ServerGroupRecord>(
-                        Console.CONSTANTS.resume(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
-
-                        Feedback.confirm(
-                                Console.CONSTANTS.resumeServerGroup(),
-                                Console.MESSAGES.wantToResumeServerGroup(group.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESUME);
-                                    }
-                                }
-                        );
-
-                    }
-                }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*","resume-servers"),
-
-                new MenuDelegate<ServerGroupRecord>(
-                        Console.CONSTANTS.common_label_restart(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
-
-                        Feedback.confirm(
-                                Console.CONSTANTS.restartServerGroup(),
-                                Console.MESSAGES.wantToRestartServerGroup(group.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESTART);
-                                    }
-                                }
-                        );
-
-                    }
-                }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*","restart-servers"),
-
-                new MenuDelegate<ServerGroupRecord>(
-                        Console.CONSTANTS.common_label_reload(), new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
-
-                        Feedback.confirm(
-                                Console.CONSTANTS.reloadServerGroup(),
-                                Console.MESSAGES.wantToReloadServerGroup(group.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RELOAD);
-                                    }
-                                }
-                        );
-
-                    }
-                }, MenuDelegate.Role.Operation)
-                        .setOperationAddress("/server-group=*","reload-servers")
+                }
+            }, MenuDelegate.Role.Operation)
+                    .setOperationAddress("/server-group=*", "stop-servers")
         );
 
+        menuList.add(
+            new MenuDelegate<ServerGroupRecord>(
+                    Console.CONSTANTS.suspend(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
+
+                    presenter.onLaunchSuspendDialogue(group);
+
+                }
+            }, MenuDelegate.Role.Operation)
+                    .setOperationAddress("/server-group=*", "suspend-servers")
+        );
+
+
+        menuList.add(
+            new MenuDelegate<ServerGroupRecord>(
+                    Console.CONSTANTS.resume(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
+
+                    Feedback.confirm(
+                            Console.CONSTANTS.resumeServerGroup(),
+                            Console.MESSAGES.wantToResumeServerGroup(group.getName()),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed)
+                                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESUME);
+                                }
+                            }
+                    );
+
+                }
+            }, MenuDelegate.Role.Operation)
+                    .setOperationAddress("/server-group=*","resume-servers")
+        );
+
+        menuList.add(
+            new MenuDelegate<ServerGroupRecord>(
+                    Console.CONSTANTS.common_label_restart(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
+
+                    Feedback.confirm(
+                            Console.CONSTANTS.restartServerGroup(),
+                            Console.MESSAGES.wantToRestartServerGroup(group.getName()),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed)
+                                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESTART);
+                                }
+                            }
+                    );
+
+                }
+            }, MenuDelegate.Role.Operation)
+                    .setOperationAddress("/server-group=*","restart-servers")
+        );
+
+        menuList.add(
+            new MenuDelegate<ServerGroupRecord>(
+                    Console.CONSTANTS.common_label_reload(), new ContextualCommand<ServerGroupRecord>() {
+                @Override
+                public void executeOn(final ServerGroupRecord group) {
+
+                    Feedback.confirm(
+                            Console.CONSTANTS.reloadServerGroup(),
+                            Console.MESSAGES.wantToReloadServerGroup(group.getName()),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed)
+                                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RELOAD);
+                                }
+                            }
+                    );
+
+                }
+            }, MenuDelegate.Role.Operation)
+                    .setOperationAddress("/server-group=*","reload-servers")
+        );
+
+        groups.setMenuItems(menuList.toArray(new MenuDelegate[menuList.size()]));
     }
 
     public void updateBrowseItems() {
