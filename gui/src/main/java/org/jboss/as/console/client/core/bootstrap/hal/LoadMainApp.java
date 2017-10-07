@@ -69,8 +69,12 @@ public class LoadMainApp implements ScheduledCommand {
             placeManager.revealDefaultPlace();
         }*/
 
-        String title = productConfig.getProfile() == PRODUCT ? "JBoss EAP" : "WildFly";
-        Browser.getDocument().setTitle(title + " Management");
+        StringBuilder title = new StringBuilder();
+        title.append(productConfig.getProfile() == PRODUCT ? "JBoss EAP" : "WildFly").append(" Management");
+        title.append(" | ").append(bootstrapContext.getServerName());
+
+        Browser.getDocument().setTitle(title.toString());
+
         // TODO (hbraun): disabled until we now how this should work on a finder access (relative url's)
         placeManager.revealDefaultPlace();
     }
