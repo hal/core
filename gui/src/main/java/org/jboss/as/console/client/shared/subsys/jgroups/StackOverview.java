@@ -31,7 +31,8 @@ public class StackOverview {
     private JGroupsPresenter presenter;
     private Form<JGroupsStack> form;
     private ListDataProvider<JGroupsStack> dataProvider;
-    private DefaultCellTable<JGroupsStack> table ;
+    private DefaultCellTable<JGroupsStack> table;
+    private SingleSelectionModel<JGroupsStack> selectionModel;
 
     public StackOverview(JGroupsPresenter presenter) {
         this.presenter = presenter;
@@ -74,7 +75,8 @@ public class StackOverview {
         table.addColumn(jndiName, "Name");
         table.addColumn(option, "Option");
 
-        table.setSelectionModel(new SingleSelectionModel<JGroupsStack>());
+        selectionModel = new SingleSelectionModel<>();
+        table.setSelectionModel(selectionModel);
 
         ToolStrip toolstrip = new ToolStrip();
 
@@ -91,13 +93,12 @@ public class StackOverview {
             public void onClick(ClickEvent event) {
                 Feedback.confirm(
                         Console.MESSAGES.deleteTitle("Protocol Stack"),
-                        Console.MESSAGES.deleteConfirm("Protocol Stack"),
+                        Console.MESSAGES.deleteConfirm("Protocol Stack '" + selectionModel.getSelectedObject().getName() + "'"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed)
                                 {
-                                    SingleSelectionModel<JGroupsStack> selectionModel = (SingleSelectionModel<JGroupsStack>) table.getSelectionModel();
                                     presenter.onDeleteStack(selectionModel.getSelectedObject());
                                 }
                             }
