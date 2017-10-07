@@ -33,9 +33,11 @@ public interface UIMessages extends Messages {
     String addDeploymentToServerGroup(String serverGroup);
     String added(String name);
     String addGroup();
+    String addGroupToRole();
     String addingFailed(String name);
     String addMember();
     String addUser();
+    String addUserToRole();
     String administration_members(String name);
     String administration_scoped_role_in_use(int usage);
     String allPrincipalsAreAlreadyMembersOf(String name);
