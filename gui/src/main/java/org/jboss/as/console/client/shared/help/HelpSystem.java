@@ -111,37 +111,7 @@ public class HelpSystem {
             }
         }
 
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if(response.isFailure())
-                {
-                    Log.debug(response.toString());
-                    onFailure(new Exception(response.getFailureDescription()));
-                }
-                else
-                {
-                    LinkedList<FieldDesc> fields = new LinkedList<FieldDesc>();
-                    ModelNode payload = response.get(RESULT);
-
-                    ModelNode descriptionModel = null;
-                    if(ModelType.LIST.equals(payload.getType()))
-                        descriptionModel = payload.asList().get(0);
-                    else
-                        descriptionModel = payload;
-
-                    matchSubElements(descriptionModel, fieldNames, fields);
-                    callback.onSuccess(fields);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
-        });
+        dispatcher.execute(new DMRAction(operation), new DescriptionsCallback(fieldNames, callback));
     }
 
     public interface AddressCallback
@@ -169,45 +139,54 @@ public class HelpSystem {
         operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
         operation.get(LOCALE).set(getLocale());
 
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-
-
-                if(response.isFailure())
-                {
-                    Log.debug(response.toString());
-                    onFailure(new Exception(response.getFailureDescription()));
-                }
-                else
-                {
-                    LinkedList<FieldDesc> fields = new LinkedList<FieldDesc>();
-
-                    ModelNode payload = response.get(RESULT);
-
-                    ModelNode descriptionModel = null;
-                    if(ModelType.LIST.equals(payload.getType()))
-                        descriptionModel = payload.asList().get(0);
-                    else
-                        descriptionModel = payload;
-
-
-                    matchSubElements(descriptionModel, attributeNames, fields);
-
-                    callback.onSuccess(fields);
-                }
-
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
-        });
+        dispatcher.execute(new DMRAction(operation), new DescriptionsCallback(attributeNames, callback));
     }
 
+    private class DescriptionsCallback implements AsyncCallback<DMRResponse> {
+
+        private List<Lookup> fieldNames;
+        private AsyncCallback<List<FieldDesc>> callback;
+
+        public DescriptionsCallback(List<Lookup> fieldNames, AsyncCallback<List<FieldDesc>> callback) {
+            this.fieldNames = fieldNames;
+            this.callback = callback;
+        }
+
+        @Override
+        public void onSuccess(DMRResponse result) {
+            ModelNode response = result.get();
+
+
+            if(response.isFailure())
+            {
+                Log.debug(response.toString());
+                onFailure(new Exception(response.getFailureDescription()));
+            }
+            else
+            {
+                LinkedList<FieldDesc> fields = new LinkedList<FieldDesc>();
+
+                ModelNode payload = response.get(RESULT);
+
+                ModelNode descriptionModel = null;
+                if(ModelType.LIST.equals(payload.getType()))
+                    descriptionModel = payload.asList().get(0);
+                else
+                    descriptionModel = payload;
+
+
+                matchSubElements(descriptionModel, fieldNames, fields);
+
+                callback.onSuccess(getOrderedFields(fieldNames, fields));
+            }
+
+        }
+
+        @Override
+        public void onFailure(Throwable caught) {
+            callback.onFailure(caught);
+        }
+    }
 
     private static void matchSubElements(ModelNode descriptionModel, List<Lookup> fieldNames, LinkedList<FieldDesc> fields) {
 
@@ -278,5 +257,20 @@ public class HelpSystem {
         } catch (IllegalArgumentException e) {
             Log.error("Failed to read help descriptionModel", e);
         }
+    }
+
+    /**
+     * returns the fields in the requested order
+     */
+    private List<FieldDesc> getOrderedFields(List<Lookup> fieldNames, List<FieldDesc> fields) {
+        List<FieldDesc> orderedFields = new LinkedList<>();
+        for (Lookup fieldName : fieldNames) {
+            for (FieldDesc field : fields) {
+                if (fieldName.getJavaName().equals(field.getRef()))
+                    orderedFields.add(field);
+            }
+        }
+
+        return orderedFields;
     }
 }
