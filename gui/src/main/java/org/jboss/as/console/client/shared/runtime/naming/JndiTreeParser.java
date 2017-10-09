@@ -26,6 +26,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.tree.DefaultCellTree;
 import org.jboss.dmr.client.Property;
 
@@ -80,8 +81,12 @@ public class JndiTreeParser {
     }
 
     private void dec(boolean skipped) {
-        if (!skipped)
-            stack.pop();
+        if (!skipped) {
+            JndiEntry entry = stack.pop();
+            if (entry.getChildren().isEmpty()) {
+                entry.getChildren().add(new AttributeEntry(entry));
+            }
+        }
 
         if (stack.empty()) {
             assert finishCmd!=null;
@@ -139,18 +144,67 @@ public class JndiTreeParser {
     class JndiEntryCell extends AbstractCell<JndiEntry> {
         @Override
         public void render(Context context, JndiEntry value, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<table width='100%' border=0>");
-            sb.appendHtmlConstant("<tr>");
-                sb.appendHtmlConstant("<td width='60%'>");
-                sb.appendEscaped(value.getName());
-                sb.appendHtmlConstant("</td>");
 
-                sb.appendHtmlConstant("<td width='40%' align='right'>");
-                sb.appendEscaped(value.getValue());
-                sb.appendHtmlConstant("</td>");
+            if (value instanceof AttributeEntry) {
+                //print information about the binding
+                AttributeEntry attributeEntry = (AttributeEntry) value;
 
-            sb.appendHtmlConstant("</tr>");
-            sb.appendHtmlConstant("</table>");
+                sb.appendHtmlConstant("<table width='100%' border=0>");
+
+                    //uri
+                    sb.appendHtmlConstant("<tr>");
+                        sb.appendHtmlConstant("<td width='60%'>");
+                            sb.appendHtmlConstant("<b>");
+                                sb.appendEscaped(Console.CONSTANTS.subsys_naming_URI());
+                            sb.appendHtmlConstant("</b>");
+                        sb.appendHtmlConstant("</td>");
+
+                        sb.appendHtmlConstant("<td width='40%'>");
+                            sb.appendEscaped(attributeEntry.getParentUri());
+                        sb.appendHtmlConstant("</td>");
+
+                    sb.appendHtmlConstant("</tr>");
+
+                    //type
+                    sb.appendHtmlConstant("<tr>");
+                        sb.appendHtmlConstant("<td width='60%'>");
+                            sb.appendHtmlConstant("<b>");
+                                sb.appendEscaped(Console.CONSTANTS.subsys_naming_type());
+                            sb.appendHtmlConstant("</b>");
+                        sb.appendHtmlConstant("</td>");
+
+                        sb.appendHtmlConstant("<td width='40%'>");
+                            sb.appendEscaped(attributeEntry.getParentDataType());
+                        sb.appendHtmlConstant("</td>");
+
+                    sb.appendHtmlConstant("</tr>");
+
+                    //value
+                    sb.appendHtmlConstant("<tr>");
+                        sb.appendHtmlConstant("<td width='60%'>");
+                            sb.appendHtmlConstant("<b>");
+                                sb.appendEscaped(Console.CONSTANTS.subsys_naming_value());
+                            sb.appendHtmlConstant("</b>");
+                        sb.appendHtmlConstant("</td>");
+
+                        sb.appendHtmlConstant("<td width='40%'>");
+                            sb.appendEscaped(attributeEntry.getParentValue());
+                        sb.appendHtmlConstant("</td>");
+
+                    sb.appendHtmlConstant("</tr>");
+                sb.appendHtmlConstant("</table>");
+            } else {
+
+                sb.appendHtmlConstant("<table width='100%' border=0>");
+                sb.appendHtmlConstant("<tr>");
+
+                    sb.appendHtmlConstant("<td width='100%'>");
+                    sb.appendEscaped(value.getName());
+                    sb.appendHtmlConstant("</td>");
+
+                sb.appendHtmlConstant("</tr>");
+                sb.appendHtmlConstant("</table>");
+            }
         }
     }
 
