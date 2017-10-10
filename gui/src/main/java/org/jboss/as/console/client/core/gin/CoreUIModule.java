@@ -198,7 +198,9 @@ import org.jboss.as.console.client.shared.subsys.elytron.ElytronFinderView;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronMapperPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronSecurityRealmPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronSettingsPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.ui.ElytronSecurityRealmView;
+import org.jboss.as.console.client.shared.subsys.elytron.ui.ElytronSettingsView;
 import org.jboss.as.console.client.shared.subsys.elytron.ui.ElytronView;
 import org.jboss.as.console.client.shared.subsys.elytron.ui.factory.ElytronFactoryView;
 import org.jboss.as.console.client.shared.subsys.elytron.ui.mapper.ElytronMapperView;
@@ -493,6 +495,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ElytronSecurityRealmPresenter.MyView.class,
                 ElytronSecurityRealmView.class,
                 ElytronSecurityRealmPresenter.MyProxy.class);
+
+        bindPresenter(ElytronSettingsPresenter.class,
+                ElytronSettingsPresenter.MyView.class,
+                ElytronSettingsView.class,
+                ElytronSettingsPresenter.MyProxy.class);
 
         bindPresenter(ElytronRuntimePresenter.class,
                 ElytronRuntimePresenter.MyView.class,

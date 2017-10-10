@@ -52,6 +52,7 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
     public static final String MAPPER_DECODER = "Mapper / Decoder";
     public static final String SECURITY_REALM = "Security Realm / Authentication";
     public static final String OTHER = "Other";
+    public static final String SETTINGS = "Settings";
 
     private ElytronFinder presenter;
     private LayoutPanel previewCanvas;
@@ -134,10 +135,13 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_mapper(), callback);
 
                 } else if (OTHER.equals(data.getTitle())) {
-                    previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_settings(), callback);
+                    previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_other_settings(), callback);
 
                 } else if (SECURITY_REALM.equals(data.getTitle())) {
                     previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_security_realm(), callback);
+
+                } else if (SETTINGS.equals(data.getTitle())) {
+                    previewContentFactory.createContent(PreviewContent.INSTANCE.elytron_settings(), callback);
                 }
             }
         });
@@ -172,6 +176,10 @@ public class ElytronFinderView extends SuspendableViewImpl implements ElytronFin
 
         settings.add(new FinderItem(SECURITY_REALM, ()
                 -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronSecurityRealmPresenter)), false));
+
+        settings.add(new FinderItem(SETTINGS, ()
+                -> placeManager.revealRelativePlace(new PlaceRequest(NameTokens.ElytronSettingsPresenter)), false));
+
 
         links.updateFrom(settings);
         return layout;
