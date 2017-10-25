@@ -101,7 +101,7 @@ public class ClusterConnectionForm {
 
 
         TextBoxItem connectionAddress= new TextBoxItem("clusterConnectionAddress", "Connection Address");
-        NumberBoxItem connectionTtl= new NumberBoxItem("connectionTTL", "Connection TTL");
+        NumberBoxItem connectionTtl= new NumberBoxItem("connectionTTL", "Connection TTL", -1, Integer.MAX_VALUE);
 
         TextBoxItem connectorRef= new TextBoxItem("connectorRef", "Connector Ref");
         TextBoxItem groupName= new TextBoxItem("discoveryGroupName", "Discovery Group");
