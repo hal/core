@@ -159,7 +159,7 @@ public class PolicyView {
             @SuppressWarnings("unchecked")
             public void onSave(Map changeset) {
                 circuit.dispatch(new ModifyComplexAttribute(addressTemplate, CUSTOM_POLICY,
-                        selectionModel.getSelectedObject().getName(), payload(changeset)));
+                        selectionModel.getSelectedObject().getName(), customPolicyForm.getForm().getUpdatedEntity()));
             }
 
             @Override
@@ -180,7 +180,7 @@ public class PolicyView {
             @SuppressWarnings("unchecked")
             public void onSave(Map changeset) {
                 circuit.dispatch(new ModifyComplexAttribute(addressTemplate, JACC_POLICY,
-                        selectionModel.getSelectedObject().getName(), payload(changeset)));
+                        selectionModel.getSelectedObject().getName(), jaccPolicyForm.getForm().getUpdatedEntity()));
             }
 
             @Override
@@ -261,13 +261,5 @@ public class PolicyView {
             payload.get("attributes").get(property.getName()).set(property.getValue());
         }
         return new ResourceDescription(payload);
-    }
-
-    private ModelNode payload(Map<String, String> changeset) {
-        ModelNode modelNode = new ModelNode();
-        for (Map.Entry<String, String> entry : changeset.entrySet()) {
-            modelNode.get(entry.getKey()).set(entry.getValue());
-        }
-        return modelNode;
     }
 }
