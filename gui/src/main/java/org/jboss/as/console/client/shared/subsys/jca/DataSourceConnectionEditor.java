@@ -51,7 +51,7 @@ public class DataSourceConnectionEditor {
 
         TextAreaItem urlItem = new TextAreaItem("connectionUrl", "Connection URL");
         CheckBoxItem jtaItem = new CheckBoxItem("jta", "Use JTA?");
-        CheckBoxItem ccmItem = new CheckBoxItem("use-ccm", "Use CCM?");
+        CheckBoxItem ccmItem = new CheckBoxItem("ccm", "Use CCM?");
 
         ComboBoxItem tx = new ComboBoxItem("transactionIsolation", "Transaction Isolation");
         tx.setValueMap(new String[]{
