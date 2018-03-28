@@ -1,6 +1,8 @@
-<div class="alert alert-success">
+<div class="alert alert-warning">
 This repository is the maintenance codebase of the HAL managament console for WildFly 12 and below. For the most recent version, please use https://github.com/hal/console
 </div>
+
+---
 
 # The WildFly Web Management Interface
 
