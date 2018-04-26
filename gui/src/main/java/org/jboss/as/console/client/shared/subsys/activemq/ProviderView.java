@@ -77,6 +77,7 @@ public class ProviderView implements MessagingAddress {
             "journal-database",
             "journal-datasource",
             "journal-file-size",
+            "journal-jms-bindings-table",
             "journal-large-messages-table",
             "journal-max-io",
             "journal-messages-table",
