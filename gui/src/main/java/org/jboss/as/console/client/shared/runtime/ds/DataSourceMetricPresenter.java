@@ -48,15 +48,16 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         DataSourceMetricPresenter.MyProxy> {
 
     static final String DATASOURCE_ADDRESS = "/{implicit.host}/{selected.server}/subsystem=datasources/data-source=*"; 
-    static final String XADATASOURCE_ADDRESS = "/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*"; 
-    static final String DATASOURCE_POOL_ADDRESS = DATASOURCE_ADDRESS + "/statistics=pool"; 
-    
+    static final String XADATASOURCE_ADDRESS = "/{implicit.host}/{selected.server}/subsystem=datasources/xa-data-source=*";
+    // address below will be read on demand in DataSourceMetrics
+    static final String DATASOURCE_POOL_ADDRESS = DATASOURCE_ADDRESS + "/statistics=pool";
+    static final String XADATASOURCE_POOL_ADDRESS = XADATASOURCE_ADDRESS + "/statistics=pool";
+
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourceMetricPresenter)
     @RequiredResources(resources = {
             DATASOURCE_ADDRESS,
-            XADATASOURCE_ADDRESS,
-            DATASOURCE_POOL_ADDRESS
+            XADATASOURCE_ADDRESS
             })
     @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})
     public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {}
@@ -338,5 +339,9 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
     public StatementContext getStatementContext() {
         return statementContext;
+    }
+
+    public DispatchAsync getDispatcher() {
+        return dispatcher;
     }
 }
