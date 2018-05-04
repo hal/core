@@ -118,7 +118,7 @@ public class TopicMetrics {
                 new NumberColumn("durable-message-count","Durable Message Count"),
                 new NumberColumn("durable-subscription-count","Durable Subscription Count"),
                 new NumberColumn("message-count","Message Count"),
-                new NumberColumn("messages-added ","Messages Added"),
+                new NumberColumn("messages-added","Messages Added"),
                 new NumberColumn("subscription-count","Subscription Count")
 
         };
