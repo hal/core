@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.runtime.ds;
 
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -10,6 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -22,6 +24,8 @@ import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.v3.behaviour.SelectionAwareContext;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.Operation;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -31,9 +35,15 @@ import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import static org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter.DATASOURCE_POOL_ADDRESS;
+import static org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter.XADATASOURCE_POOL_ADDRESS;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_DESCRIPTION_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 /**
  * @author Heiko Braun
  * @date 12/10/11
@@ -77,6 +87,7 @@ public class DataSourceMetrics implements SelectionAwareContext {
     private Sampler poolSampler;
     private Sampler cacheSampler;
     private boolean isXA;
+    private VerticalPanel formPanel;
     private ModelNodeFormBuilder.FormAssets poolStatsForm;
 
     public DataSourceMetrics(DataSourceMetricPresenter presenter, boolean isXA) {
@@ -137,6 +148,7 @@ public class DataSourceMetrics implements SelectionAwareContext {
         table.getSelectionModel().addSelectionChangeHandler(
                 event -> {
                     DataSource ds = getCurrentSelection();
+                    setUpResDescription();
                     presenter.setSelectedDS(ds, isXA);
                 });
 
@@ -189,18 +201,7 @@ public class DataSourceMetrics implements SelectionAwareContext {
 
         // ----
 
-        ResourceDescription resDescription = presenter.getDescriptionRegistry()
-                .lookup(AddressTemplate.of(DATASOURCE_POOL_ADDRESS));
-
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setRuntimeOnly()
-                .setResourceDescription(resDescription)
-                .setSecurityContext(
-                        Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken()));
-        if (!isXA) {
-            builder.exclude(XA_ONLY);
-        }
-        poolStatsForm = builder.build();
+        setUpResDescription();
 
         NumberColumn avail = new NumberColumn("AvailableCount", "Available Connections");
         Column[] cols = new Column[]{
@@ -218,6 +219,9 @@ public class DataSourceMetrics implements SelectionAwareContext {
                     .setWidth(100, Style.Unit.PCT);
 
         }
+
+        formPanel = new VerticalPanel();
+        formPanel.setStyleName("fill-layout-width");
 
         // ----
 
@@ -272,9 +276,51 @@ public class DataSourceMetrics implements SelectionAwareContext {
                 .setMaster("Datasource", tablePanel)
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
                 .addDetail(Console.CONSTANTS.common_label_stats(), p)
-                .addDetail(Console.CONSTANTS.subsys_jca_pool_statistics_tab(), poolStatsForm.asWidget());
+                .addDetail(Console.CONSTANTS.subsys_jca_pool_statistics_tab(), formPanel.asWidget());
 
         return layout.build();
+    }
+
+    private void setUpResDescription() {
+        // read the resource description under demand, as the statistics=pool resource only exists when at least one data source
+        // is configured, otherwise the @RequiredResource would not work
+        String poolAddress = !isXA ? DATASOURCE_POOL_ADDRESS : XADATASOURCE_POOL_ADDRESS;
+        ResourceAddress resAddress = AddressTemplate.of(poolAddress)
+                .resolve(presenter.getStatementContext());
+        Operation op = new Operation.Builder(READ_RESOURCE_DESCRIPTION_OPERATION, resAddress)
+                .param(INCLUDE_RUNTIME, true)
+                .build();
+
+        presenter.getDispatcher().execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.warning(Console.MESSAGES.failed("load address " + poolAddress), response.getFailureDescription());
+                } else {
+                    ModelNode resultNode = response.get(RESULT).asList().get(0).get(RESULT);
+                    ResourceDescription resDescription = new ResourceDescription(resultNode);
+                    ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
+                            .setRuntimeOnly()
+                            .setResourceDescription(resDescription)
+                            .setSecurityContext(
+                                    Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken()));
+                    if (!isXA) {
+                        builder.exclude(XA_ONLY);
+                    }
+                    poolStatsForm = builder.build();
+                    formPanel.clear();
+                    formPanel.add(poolStatsForm.getHelp().asWidget());
+                    formPanel.add(poolStatsForm.getForm().asWidget());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                // ignored r-r-d error on empty data-source or xa-data-source
+                Log.error("Failed to retrieve resource description", caught.getMessage());
+            }
+        });
     }
 
     private DataSource getCurrentSelection() {
