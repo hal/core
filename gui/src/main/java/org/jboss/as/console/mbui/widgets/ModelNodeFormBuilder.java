@@ -637,6 +637,26 @@ public class ModelNodeFormBuilder {
             }
         }
 
+        // if only one required alternative is presented then display it as required
+        if (requiredOnly) {
+            for (FormItem item : requiredItems) {
+                ModelNode itemAlternatives = alternatives.get(item.getName());
+                if (itemAlternatives != null) {
+                    boolean isOnlyAlternative = true;
+
+                    for (ModelNode alternative : itemAlternatives.asList()) {
+                        if (form.getFormItemNames().contains(alternative.asString())) {
+                            isOnlyAlternative = false;
+                        }
+                    }
+
+                    if (isOnlyAlternative) {
+                        item.setRequired(true);
+                    }
+                }
+            }
+        }
+
         // form meta data
         form.setDefaults(defaultValues);
         form.setHasWritableAttributes(numWritable > 0);
