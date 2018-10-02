@@ -225,7 +225,7 @@ class HandlerEditor implements IsWidget {
     }
 
     protected void onRemove(final String name) {
-        Feedback.confirm(Console.MESSAGES.deleteTitle(name),
+        Feedback.confirm(Console.MESSAGES.deleteTitle(SafeHtmlUtils.fromString(name).asString()),
                 Console.MESSAGES.deleteConfirm("pre handler " + " '" + name + "'"),
                 isConfirmed -> {
                     if (isConfirmed) {

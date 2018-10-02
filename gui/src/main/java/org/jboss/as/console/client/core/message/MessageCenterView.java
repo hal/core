@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.client.Event;
@@ -186,7 +187,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         html.appendHtmlConstant("&nbsp;");
         html.appendHtmlConstant(msg.getFired().toString());
         html.appendHtmlConstant("<h3 id='consise-message' class='"+style+"' style='padding:10px;box-shadow:none!important;border-width:5px'>");
-        html.appendHtmlConstant(msg.getConciseMessage());
+        html.appendEscaped(msg.getConciseMessage());
         html.appendHtmlConstant("</h3>");
         html.appendHtmlConstant("<p/>");
 
@@ -405,7 +406,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         container.addStyleName(message.severity.getStyle());
         container.addStyleName("fill-layout");
 
-        final HTML msg = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
+        final HTML msg = new HTML(message.getSeverity().getTag()+"&nbsp;"+ SafeHtmlUtils.fromString(actualMessage).asString());
 
         ClickHandler msgClickHandler = new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {

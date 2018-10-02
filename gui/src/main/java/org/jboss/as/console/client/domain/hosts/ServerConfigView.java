@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
@@ -122,7 +123,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
 
     @Override
     public void updateFrom(Server server) {
-        headline.setHTML("Server '"+server.getName()+"' on Host '"+server.getHostName()+"'");
+        headline.setHTML("Server '"+ SafeHtmlUtils.fromString(server.getName()).asString() +"' on Host '"+server.getHostName()+"'");
 
         details.clearValues();
         jvmEditor.clearValues();

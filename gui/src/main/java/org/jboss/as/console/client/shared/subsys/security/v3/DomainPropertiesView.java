@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.security.v3;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.UIMessages;
@@ -60,7 +61,7 @@ public class DomainPropertiesView {
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setHeadline(Console.MESSAGES.securityDomainDescription(domain.getName()))
+                .setHeadline(Console.MESSAGES.securityDomainDescription(SafeHtmlUtils.fromString(domain.getName()).asString()))
                 .setDescription(localCacheDescription.get("description").asString())
                 .addContent(Console.CONSTANTS.help(), formAssets.getHelp().asWidget())
                 .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());

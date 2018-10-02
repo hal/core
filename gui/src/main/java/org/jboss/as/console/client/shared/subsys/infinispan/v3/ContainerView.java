@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.infinispan.v3;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.UIConstants;
@@ -71,7 +72,7 @@ public class ContainerView {
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setHeadline("Settings for container: " + cacheContainer.getName())
+                .setHeadline("Settings for container: " + SafeHtmlUtils.fromString(cacheContainer.getName()).asString())
                 .setDescription(localCacheDescription.get("description").asString())
                 .addContent(Console.CONSTANTS.help(), formAssets.getHelp().asWidget())
                 .addContent(Console.CONSTANTS.common_label_attributes(), form.asWidget());

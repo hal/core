@@ -3,6 +3,7 @@ package org.jboss.as.console.client.domain.groups;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -38,7 +39,7 @@ public class CopyGroupWizard {
 
 
         layout.add(new ContentDescription(
-                Console.MESSAGES.copyGroupDescription(orig.getName())));
+                Console.MESSAGES.copyGroupDescription(SafeHtmlUtils.fromString(orig.getName()).asString())));
 
         final Form<ServerGroupRecord> form = new Form<ServerGroupRecord>(ServerGroupRecord.class);
         form.setNumColumns(1);
