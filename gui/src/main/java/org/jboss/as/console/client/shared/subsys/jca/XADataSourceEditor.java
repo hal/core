@@ -26,6 +26,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -95,7 +96,7 @@ public class XADataSourceEditor implements PropertyManagement {
                 {
                     Feedback.confirm(
                             Console.MESSAGES.deleteTitle("XA Datasource"),
-                            Console.MESSAGES.deleteConfirm("XA Datasource "+currentSelection.getName()),
+                            Console.MESSAGES.deleteConfirm("XA Datasource "+SafeHtmlUtils.htmlEscape(currentSelection.getName())),
                             new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
@@ -189,9 +190,12 @@ public class XADataSourceEditor implements PropertyManagement {
             public void onClick(ClickEvent event) {
 
                 final XADataSource selection = getCurrentSelection();
+                final String dsName = SafeHtmlUtils.htmlEscape(selection.getName());
                 final boolean doEnable = !selection.isEnabled();
-                String title = doEnable ? Console.MESSAGES.enableConfirm("XA datasource") : Console.MESSAGES.disableConfirm("XA datasource");
-                String text = doEnable ? Console.MESSAGES.enableConfirm("XA datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("XA datasource "+selection.getName()) ;
+                String title = doEnable ? Console.MESSAGES.enableConfirm("XA datasource")
+                        : Console.MESSAGES.disableConfirm("XA datasource");
+                String text = doEnable ? Console.MESSAGES.enableConfirm("XA datasource "+dsName)
+                        : Console.MESSAGES.disableConfirm("XA datasource "+dsName) ;
                 Feedback.confirm(title, text,
                         new Feedback.ConfirmationHandler() {
                             @Override

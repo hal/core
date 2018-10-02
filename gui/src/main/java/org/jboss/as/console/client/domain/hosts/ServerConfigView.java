@@ -28,6 +28,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
@@ -262,7 +263,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     @Override
     public void setConfigurations(String selectedHost, List<Server> serverModel) {
 
-        headline.setText("Server Configurations: Host '"+selectedHost+"'");
+        headline.setText("Server Configurations: Host '"+SafeHtmlUtils.htmlEscape(selectedHost)+"'");
         serverConfigProvider.getList().clear();
         serverConfigProvider.getList().addAll(serverModel);
         serverConfigProvider.refresh();

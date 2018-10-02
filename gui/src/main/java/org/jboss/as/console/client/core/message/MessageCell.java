@@ -56,7 +56,7 @@ public class MessageCell extends AbstractCell<Message> {
         String actualMessage = message.getConciseMessage().length()>30 ? message.getConciseMessage().substring(0, 30)+" ..." : message.getConciseMessage();
 
         //safeHtmlBuilder.appendHtmlConstant(TEMPLATE.message(styles, actualMessage));
-        safeHtmlBuilder.appendHtmlConstant(actualMessage);
+        safeHtmlBuilder.appendEscaped(actualMessage);
         safeHtmlBuilder.appendHtmlConstant("</div>");
 
 

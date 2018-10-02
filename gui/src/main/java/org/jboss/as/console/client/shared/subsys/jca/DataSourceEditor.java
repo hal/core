@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -83,7 +84,8 @@ public class DataSourceEditor {
                 {
                     Feedback.confirm(
                             Console.MESSAGES.deleteTitle("Datasource"),
-                            Console.MESSAGES.deleteConfirm("Datasource "+currentSelection.getName()),
+                            Console.MESSAGES.deleteConfirm("Datasource "
+                                    + SafeHtmlUtils.htmlEscape(currentSelection.getName())),
                             new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
@@ -190,8 +192,10 @@ public class DataSourceEditor {
 
                 final DataSource selection = getCurrentSelection();
                 final boolean nextState = !selection.isEnabled();
+                final String dsName = SafeHtmlUtils.htmlEscape(selection.getName());
                 String title = nextState ? Console.MESSAGES.enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
-                String text = nextState ? Console.MESSAGES.enableConfirm("datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("datasource "+selection.getName()) ;
+                String text = nextState ? Console.MESSAGES.enableConfirm("datasource " + dsName)
+                        : Console.MESSAGES.disableConfirm("datasource " + dsName) ;
                 Feedback.confirm(title, text,
                         new Feedback.ConfirmationHandler() {
                             @Override

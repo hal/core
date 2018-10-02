@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -73,7 +74,7 @@ public class PageHeader {
 
                 nav.add(type);
                 nav.add(new HTML("="));
-                nav.add(new HTML(p.getValue().asString()));
+                nav.add(new HTML(SafeHtmlUtils.htmlEscape(p.getValue().asString())));
 
                 // has to be last step. valid for the next iteration
                 parentAddress.add(p.getName(), p.getValue().asString());

@@ -2,6 +2,7 @@ package org.jboss.as.console.client.domain.groups;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -34,8 +35,9 @@ public class CopyGroupWizard {
         layout.setStyleName("window-content");
 
 
-        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy of server-goup <b>'"+orig.getName()+
-                "'</b>. The newly created group will inherit all properties of the original."));
+        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy of server-goup <b>'"
+                + SafeHtmlUtils.htmlEscape(orig.getName())
+                + "'</b>. The newly created group will inherit all properties of the original."));
 
         final Form<ServerGroupRecord> form = new Form<ServerGroupRecord>(ServerGroupRecord.class);
         form.setNumColumns(1);
