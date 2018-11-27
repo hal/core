@@ -23,6 +23,7 @@ package org.jboss.as.console.client.shared.subsys.activemq;
 
 import java.util.Map;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -251,7 +252,7 @@ public class ProviderView implements MessagingAddress {
     public void updateFrom(Property provider) {
         this.provider = provider;
 
-        title.setHTML("JMS Messaging Provider: " + provider.getName());
+        title.setHTML("JMS Messaging Provider: " + SafeHtmlUtils.fromString(provider.getName()).asString());
         commonForm.getForm().edit(provider.getValue());
         secForm.getForm().edit(provider.getValue());
         journalForm.getForm().edit(provider.getValue());

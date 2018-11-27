@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -74,7 +75,7 @@ public class PageHeader {
 
                 nav.add(type);
                 nav.add(new InlineHTML("="));
-                nav.add(new InlineHTML(URL.decodePathSegment(p.getValue().asString())));
+                nav.add(new InlineHTML(SafeHtmlUtils.fromString(URL.decodePathSegment(p.getValue().asString())).asString()));
 
                 // has to be last step. valid for the next iteration
                 parentAddress.add(p.getName(), p.getValue().asString());

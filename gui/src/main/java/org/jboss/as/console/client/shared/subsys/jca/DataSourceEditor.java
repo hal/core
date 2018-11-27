@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -249,7 +250,7 @@ public class DataSourceEditor {
         details.updateFrom(ds);
 
         String suffix = ds.isEnabled() ? " (enabled)" : " (disabled)";
-        title.setHTML("JDBC datasource '" + ds.getName() + "'" + suffix);
+        title.setHTML(SafeHtmlUtils.fromString("JDBC datasource '" + ds.getName() + "'" + suffix).asString());
 
         String nextState = ds.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS
                 .common_label_enable();

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -70,7 +71,7 @@ public class GroupSuspendDialogue {
         // ----------------------------------------
 
         Widget formWidget = form.asWidget();
-        layout.add(new HTML("<h3> Suspend group " + group.getName()+"?</h3>"));
+        layout.add(new HTML("<h3> Suspend group " + SafeHtmlUtils.fromString(group.getName()).asString() + "?</h3>"));
         layout.add(
                 new ContentDescription(
                         Console.CONSTANTS.suspendTimeoutDescription()

@@ -12,6 +12,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -26,6 +27,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -447,7 +449,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
             key = rootTitle;
         }
 
-        SafeHtmlBuilder html = new SafeHtmlBuilder().appendHtmlConstant(rootTitle);
+        SafeHtmlBuilder html = new SafeHtmlBuilder().appendEscaped(rootTitle);
         rootItem = new ModelTreeItem(html.toSafeHtml(), key, address, false);
         tree.addItem(rootItem);
 
@@ -523,7 +525,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<i class='icon-folder-close-alt'></i>&nbsp;");
-            html.appendHtmlConstant(child);
+            html.appendEscaped(child);
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child, address, childInformation.isSingleton(child));
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
@@ -593,7 +595,7 @@ public class ModelBrowserView implements BrowserNavigation, IsWidget {
 
             String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
             html.appendHtmlConstant("<i class='" + icon + "'></i>&nbsp;");
-            html.appendHtmlConstant(URL.decodePathSegment(childName));
+            html.appendEscaped(URL.decodePathSegment(childName));
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);

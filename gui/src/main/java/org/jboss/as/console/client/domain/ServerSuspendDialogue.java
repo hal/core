@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -71,7 +72,7 @@ public class ServerSuspendDialogue {
 
         Widget formWidget = form.asWidget();
 
-        layout.add(new HTML("<h3> Suspend server " + server.getName()+"?</h3>"));
+        layout.add(new HTML("<h3> Suspend server " + SafeHtmlUtils.fromString(server.getName()).asString() + "?</h3>"));
         layout.add(new ContentDescription(Console.CONSTANTS.suspendTimeoutDescription()));
         layout.add(formWidget);
         return new WindowContentBuilder(layout, options).build();

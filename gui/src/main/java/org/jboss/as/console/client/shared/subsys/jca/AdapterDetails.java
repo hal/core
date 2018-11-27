@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -145,7 +146,7 @@ public class AdapterDetails {
     public void setAdapter(Property ra) {
 
         this.selectedEntity = ra;
-        title.setHTML("Resource Adapter " + ra.getName());
+        title.setHTML("Resource Adapter " + SafeHtmlUtils.fromString(ra.getName()).asString());
 
         attributesForm.edit(ra.getValue());
         workmanagerForm.edit(ra.getValue());

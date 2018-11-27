@@ -22,7 +22,6 @@ package org.jboss.as.console.client.shared.general;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;

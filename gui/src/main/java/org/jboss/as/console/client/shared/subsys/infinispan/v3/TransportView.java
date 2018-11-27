@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.infinispan.v3;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -69,7 +70,7 @@ public class TransportView {
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setHeadline("Transport settings for container: " + cacheContainer.getName())
+                .setHeadline("Transport settings for container: " + SafeHtmlUtils.fromString(cacheContainer.getName()).asString())
                 .setDescription(localCacheDescription.get("description").asString())
                 .addContent("Help", formAssets.getHelp().asWidget())
                 .addContent("Attributes", form.asWidget());

@@ -52,7 +52,7 @@ public class ConnectionWindow {
         image.getElement().getParentElement().setAttribute("style","padding-right:10px;vertical-align:middle");
         text.getElement().getParentElement().setAttribute("style","vertical-align:middle");
         panel.add(header);
-        panel.add(new HTML(result.getMessage()));
+        panel.add(new HTML(SafeHtmlUtils.fromString(result.getMessage())));
         if (result.hasDetails()) {
             AriaLink detailsLink = new AriaLink(Console.CONSTANTS.common_label_details());
             detailsLink.addStyleName("details-panel-header");
