@@ -174,7 +174,7 @@ public class LogFileTable extends Composite implements LogViewerId {
                 return node1.get(LAST_MODIFIED_TIMESTAMP).asString().compareTo(node2.get(LAST_MODIFIED_TIMESTAMP).asString());
             }
         });
-        table.addColumn(lastModifiedColumn, "Date - Time (UTC)");
+        table.addColumn(lastModifiedColumn, "Last Modified Date - Time (UTC)");
 
         // column: size
         TextColumn<ModelNode> sizeColumn = new TextColumn<ModelNode>() {
