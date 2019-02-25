@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.common.collect.Iterables;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
@@ -70,7 +71,9 @@ public class SuggestionResource {
                 readResources(templates);
             }
         };
-        verifyTemplates(templates);
+        if (Iterables.isEmpty(templates)) {
+            Log.info("There are no resource templates to populate as suggestions for attribute: " + suggestBoxItem.getName());
+        }
         readResources(templates);
 
         oracle = new MultipleWordSuggest();
@@ -82,6 +85,11 @@ public class SuggestionResource {
     }
 
     private void readResources(final Iterable<AddressTemplate> templates) {
+
+        // if there is no templates, there are no resources to read from, then just return.
+        if (!templates.iterator().hasNext()) {
+            return;
+        }
 
         Iterator<AddressTemplate> iter = templates.iterator();
         List<Operation> ops = new ArrayList<>();
@@ -166,12 +174,4 @@ public class SuggestionResource {
             }
         });
     }
-
-    private void verifyTemplates(final Iterable<AddressTemplate> templates) {
-        if (Iterables.isEmpty(templates)) {
-            throw new IllegalArgumentException(
-                    "Templates must not be empty in SuggestionResource,");
-        }
-    }
-
 }
