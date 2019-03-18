@@ -183,6 +183,10 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         this("");
     }
 
+    public void setCellListPageSize(int pageSize) {
+        this.cellList.setPageSize(pageSize);
+    }
+
     public void setClipping(int clipAt) {
         numCharsClip = clipAt;
     }

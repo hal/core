@@ -68,6 +68,7 @@ public class ProfileSelector {
 
     public void setProfiles(List<String> profileNames)
     {
+        profiles.setCellListPageSize(profileNames.size());
         profiles.setValues(profileNames);
 
         int index = -1;
