@@ -472,7 +472,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             key = rootTitle;
         }
 
-        SafeHtmlBuilder html = new SafeHtmlBuilder().appendHtmlConstant(rootTitle);
+        SafeHtmlBuilder html = new SafeHtmlBuilder().appendEscaped(rootTitle);
         rootItem = new ModelTreeItem(html.toSafeHtml(), key, address, false);
         tree.addItem(rootItem);
 
@@ -548,7 +548,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<i class='icon-folder-close-alt'></i>&nbsp;");
-            html.appendHtmlConstant(child);
+            html.appendEscaped(child);
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child, address, childInformation.isSingleton(child));
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
@@ -620,8 +620,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             SafeHtmlBuilder html = new SafeHtmlBuilder();
 
             String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
-            html.appendHtmlConstant("<i class='"+icon+"'></i>&nbsp;");
-            html.appendHtmlConstant(childName);
+            html.appendHtmlConstant("<i class='" + icon + "'></i>&nbsp;");
+            html.appendEscaped(childName);
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
