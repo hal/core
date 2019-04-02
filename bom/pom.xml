@@ -21,7 +21,7 @@
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
-        <ballroom.version>2.1.13</ballroom.version>
+        <ballroom.version>2.1.14</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
