@@ -144,7 +144,7 @@ public class GenericAuthenticationMechanismFactoryEditor implements IsWidget {
                 for (Property prop: node.asPropertyList()) {
                     content.append(prop.getName()).append(": ").append(prop.getValue().asString()).append(", ");
                 }
-                return StringUtils.shortenStringIfNecessary(content.toString(), 120);
+                return StringUtils.shortenStringIfNecessary(content.toString().replaceAll(", $", ""), 120);
             }
         };
 
