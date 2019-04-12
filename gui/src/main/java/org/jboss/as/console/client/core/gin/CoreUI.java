@@ -113,6 +113,7 @@ import org.jboss.as.console.client.shared.subsys.elytron.ElytronFinder;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronMapperPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronPresenter;
 import org.jboss.as.console.client.shared.subsys.elytron.ElytronSecurityRealmPresenter;
+import org.jboss.as.console.client.shared.subsys.elytron.ElytronSettingsPresenter;
 import org.jboss.as.console.client.shared.subsys.generic.GenericSubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
@@ -301,6 +302,7 @@ public interface CoreUI {
     AsyncProvider<ElytronFactoryPresenter> getElytronFactoryPresenter();
     AsyncProvider<ElytronMapperPresenter> getElytronMapperPresenter();
     AsyncProvider<ElytronSecurityRealmPresenter> getElytronSecurityRealmPresenter();
+    AsyncProvider<ElytronSettingsPresenter> getElytronSettingsPresenter();
     AsyncProvider<ElytronFinder> getElytronFinder();
 
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();

@@ -35,7 +35,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
 /**
  * @author Claudio Miranda <claudio@redhat.com>
  */
-public class DefaultAuthenticationView {
+public class SettingsView {
 
     protected final Dispatcher circuit;
     protected final ResourceDescription resourceDescription;
@@ -45,8 +45,8 @@ public class DefaultAuthenticationView {
 
     protected ModelNodeFormBuilder.FormAssets formAssets;
 
-    public DefaultAuthenticationView(final Dispatcher circuit, final ResourceDescription resourceDescription,
-            final SecurityContext securityContext, String title, AddressTemplate addressTemplate) {
+    public SettingsView(final Dispatcher circuit, final ResourceDescription resourceDescription,
+                        final SecurityContext securityContext, String title, AddressTemplate addressTemplate) {
         this.circuit = circuit;
         this.securityContext = securityContext;
         this.resourceDescription = resourceDescription;

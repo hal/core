@@ -75,7 +75,7 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
     }
 
     @Override
-    public void initSecurityRealm(ModelNode rootNode, List<Property> propertiesRealm, List<Property> filesystemRealm,
+    public void initSecurityRealm(List<Property> propertiesRealm, List<Property> filesystemRealm,
             List<Property> jdbcRealm, List<Property> cachingRealm, List<Property> ldapRealm, List<Property> keystoreRealm,
             List<Property> aggregateRealm, List<Property> customModifiableRealm, List<Property> customRealm,
             List<Property> identityRealm, List<Property> tokenRealm,
@@ -100,7 +100,6 @@ public class ElytronSecurityRealmView extends SuspendableViewImpl implements Ely
         securityRealmMapperView.updateCustomRealmMapper(customRealmMapper);
         securityRealmMapperView.updateConstantRealmMapper(constantRealmMapper);
 
-        authenticationView.updateDefaultAuthenticationContext(rootNode);
         authenticationView.updateAuthenticationConfiguration(authConfiguration);
         authenticationView.updateAuthenticationContext(authContext);
     }

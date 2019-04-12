@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2010, Red Hat, Inc., and individual contributors
+ * Copyright 2017, Red Hat, Inc., and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,9 +19,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.elytron;
 
-import java.util.List;
+package org.jboss.as.console.client.shared.subsys.elytron;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -41,46 +40,25 @@ import org.jboss.as.console.client.shared.subsys.elytron.store.InitElytron;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 /**
- * @author Claudio Miranda <claudio@redhat.com>
+ * Created by Marek Marusic <mmarusic@redhat.com> on 10/4/17.
  */
-public class ElytronSecurityRealmPresenter extends
-        CircuitPresenter<ElytronSecurityRealmPresenter.MyView, ElytronSecurityRealmPresenter.MyProxy> {
+public class ElytronSettingsPresenter extends
+        CircuitPresenter<ElytronSettingsPresenter.MyView, ElytronSettingsPresenter.MyProxy> {
 
     // @formatter:off
     @ProxyCodeSplit
-    @NameToken(NameTokens.ElytronSecurityRealmPresenter)
+    @NameToken(NameTokens.ElytronSettingsPresenter)
     @RequiredResources(resources = ElytronStore.ROOT)
-    public interface MyProxy extends Proxy<ElytronSecurityRealmPresenter>, Place {}
+    public interface MyProxy extends Proxy<ElytronSettingsPresenter>, Place {}
 
-    public interface MyView extends View, HasPresenter<ElytronSecurityRealmPresenter> {
-
-        void initSecurityRealm(
-                List<Property> propertiesRealm,
-                List<Property> filesystemRealm,
-                List<Property> jdbcRealm,
-                List<Property> cachingRealm,
-                List<Property> ldapRealm,
-                List<Property> keystoreRealm,
-                List<Property> aggregateRealm,
-                List<Property> customModifiableRealm,
-                List<Property> customRealm,
-                List<Property> identityRealm,
-                List<Property> tokenRealm,
-                List<Property> mappedRegexRealmMapper,
-                List<Property> simpleRegexRealmMapper,
-                List<Property> customRealmMapper,
-                List<Property> constantRealmMapper,
-                List<Property> authContext,
-                List<Property> authConfiguration);
-
+    public interface MyView extends View, HasPresenter<ElytronSettingsPresenter> {
+        void initSettings(ModelNode rootNode);
     }
     // @formatter:on
-
 
     private final Dispatcher circuit;
     private final RevealStrategy revealStrategy;
@@ -88,11 +66,10 @@ public class ElytronSecurityRealmPresenter extends
     private SecurityFramework securityFramework;
     private ResourceDescriptionRegistry descriptionRegistry;
 
-
     @Inject
-    public ElytronSecurityRealmPresenter(EventBus eventBus, ElytronSecurityRealmPresenter.MyView view, ElytronSecurityRealmPresenter.MyProxy proxy,
-            Dispatcher circuit, RevealStrategy revealStrategy, ElytronStore store,
-            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
+    public ElytronSettingsPresenter(EventBus eventBus, ElytronSettingsPresenter.MyView view, ElytronSettingsPresenter.MyProxy proxy,
+                            Dispatcher circuit, RevealStrategy revealStrategy, ElytronStore store,
+                            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy, circuit);
         this.circuit = circuit;
         this.revealStrategy = revealStrategy;
@@ -111,25 +88,7 @@ public class ElytronSecurityRealmPresenter extends
     @Override
     protected void onAction(Action action) {
         if (action instanceof ElytronConfigAction) {
-
-            getView().initSecurityRealm(
-                    store.getPropertiesRealm(),
-                    store.getFilesystemRealm(),
-                    store.getJdbcRealm(),
-                    store.getCachingRealm(),
-                    store.getLdapRealm(),
-                    store.getKeystoreRealm(),
-                    store.getAggregateRealm(),
-                    store.getCustomModifiableRealm(),
-                    store.getCustomRealm(),
-                    store.getIdentityRealm(),
-                    store.getTokenRealm(),
-                    store.getMappedRegexRealmMapper(),
-                    store.getSimpleRegexRealmMapper(),
-                    store.getCustomRealmMapper(),
-                    store.getConstantRealmMapper(),
-                    store.getAuthenticationContext(),
-                    store.getAuthenticationconfiguration());
+            getView().initSettings(store.getRootNode());
         }
     }
 
@@ -151,5 +110,4 @@ public class ElytronSecurityRealmPresenter extends
     public ResourceDescriptionRegistry getDescriptionRegistry() {
         return descriptionRegistry;
     }
-
 }

@@ -132,6 +132,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/elytron_mapper.html")
     ExternalTextResource elytron_mapper();
 
+    @Source("content/elytron_other_settings.html")
+    ExternalTextResource elytron_other_settings();
+
     @Source("content/elytron_settings.html")
     ExternalTextResource elytron_settings();
 
