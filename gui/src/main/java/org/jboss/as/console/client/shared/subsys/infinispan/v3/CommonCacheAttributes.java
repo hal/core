@@ -9,6 +9,7 @@ import java.util.Set;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -59,6 +60,7 @@ public class CommonCacheAttributes {
     private SingleSelectionModel<Property> selectionModel;
 
     private Map<AddressTemplate, FormContainer> formMapping = new HashMap<>();
+    private StoreFormWrapper storeForm;
 
     public CommonCacheAttributes(CachesPresenter presenter, String title, AddressTemplate cacheType) {
         this.presenter = presenter;
@@ -147,7 +149,7 @@ public class CommonCacheAttributes {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
                                     if (isConfirmed) {
-                                        presenter.onRemoveCache(cacheType, selectedObject.getName());
+                                        presenter.onRemoveResource(cacheType, selectedObject.getName());
                                     }
                                 }
                             });
@@ -179,6 +181,8 @@ public class CommonCacheAttributes {
             formMapping.put(address,new FormContainer(formAssets));
         }
 
+        storeForm = new StoreFormWrapper();
+
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline(title)
@@ -190,9 +194,7 @@ public class CommonCacheAttributes {
                 .addDetail("Eviction", formMapping.get(EVICTION).asWidget())
                 .addDetail("Expiration", formMapping.get(EXPIRATION).asWidget())
                 .addDetail("Transaction", formMapping.get(TRANSACTION).asWidget())
-                .addDetail("Store", formMapping.get(STORE).asWidget())
-                .addDetail("File Store", formMapping.get(FILE_STORE).asWidget())
-                .addDetail("Remote Store", formMapping.get(REMOTE_STORE).asWidget());
+                .addDetail("Store", storeForm.asWidget());
 
         return layout.build();
 
@@ -228,18 +230,12 @@ public class CommonCacheAttributes {
                 formMapping.get(EXPIRATION).getForm().edit(payload.get("component").get("expiration"));
             if (hasDefined(payload, "component", "transaction"))
                 formMapping.get(TRANSACTION).getForm().edit(payload.get("component").get("transaction"));
-            if (hasDefined(payload, "store", "custom"))
-                formMapping.get(STORE).getForm().edit(payload.get("store").get("custom"));
-            if (hasDefined(payload, "store", "file"))
-                formMapping.get(FILE_STORE).getForm().edit(payload.get("store").get("file"));
-            if (hasDefined(payload, "store", "string-jdbc"))
-                formMapping.get(STRING_STORE).getForm().edit(payload.get("store").get("string-jdbc"));
-            if (hasDefined(payload, "store", "mixed-jdbc"))
-                formMapping.get(MIXED_STORE).getForm().edit(payload.get("store").get("mixed-jdbc"));
-            if (hasDefined(payload, "store", "binary-jdbc"))
-                formMapping.get(BINARY_STORE).getForm().edit(payload.get("store").get("binary-jdbc"));
-            if (hasDefined(payload, "store", "remote"))
-                formMapping.get(REMOTE_STORE).getForm().edit(payload.get("store").get("remote"));
+
+            if (payload.hasDefined("store")) {
+                storeForm.edit(payload.get("store"));
+            } else {
+                storeForm.edit(null);
+            }
         }
     }
 
@@ -307,5 +303,102 @@ public class CommonCacheAttributes {
         }
     }
 
+    class StoreFormWrapper {
+        private VerticalPanel formPanel;
+        private HTML heading;
+        private ToolButton addButton;
+        private ToolButton removeButton;
 
+        private String currentStore = null;
+
+        public StoreFormWrapper() {
+        }
+
+        Widget asWidget() {
+            VerticalPanel mainPanel = new VerticalPanel();
+            mainPanel.setStyleName("fill-layout-width");
+            ToolStrip tools = new ToolStrip();
+            heading = new HTML("<h3>Store: none</h3>");
+            addButton = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent clickEvent) {
+                    presenter.onLaunchAddStoreWizard(cacheType, selectionModel.getSelectedObject().getName());
+                }
+            });
+            removeButton = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent clickEvent) {
+                    Property selectedObject = selectionModel.getSelectedObject();
+                    String storeName = selectedObject.getValue().get("store").asProperty().getName();
+
+                    if(selectedObject!=null) {
+                        Feedback.confirm(Console.MESSAGES.deleteTitle("Cache Store"),
+                            Console.MESSAGES.deleteConfirm(storeName + " store"),
+                            new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if (isConfirmed) {
+                                        presenter.onRemoveResource(cacheType.append("store=" + storeName), selectedObject.getName());
+                                        heading.setText("Store: none");
+                                    }
+                                }
+                            });
+                    }
+                }
+            });
+
+            addButton.setEnabled(false);
+            removeButton.setEnabled(false);
+
+            tools.addToolButtonRight(addButton);
+            tools.addToolButtonRight(removeButton);
+            tools.addToolWidget(heading);
+            mainPanel.add(tools);
+            formPanel = new VerticalPanel();
+            formPanel.setStyleName("fill-layout-width");
+            mainPanel.add(formPanel);
+            return mainPanel;
+        }
+
+        public void edit(ModelNode payload) {
+            String storeName = payload != null ? payload.asProperty().getName() : "none";
+            boolean isNone = storeName.equals("none");
+
+            addButton.setEnabled(isNone);
+            removeButton.setEnabled(!isNone);
+            AddressTemplate address = null;
+            switch (storeName) {
+                case "binary-jdbc":
+                    address = BINARY_STORE;
+                    break;
+                case "custom":
+                    address = STORE;
+                    break;
+                case "file":
+                    address = FILE_STORE;
+                    break;
+                case "mixed-jdbc":
+                    address = MIXED_STORE;
+                    break;
+                case "string-jdbc":
+                    address = STRING_STORE;
+                    break;
+                case "remote":
+                    address = REMOTE_STORE;
+                    break;
+            }
+
+            if (!storeName.equals(currentStore)) {
+                heading.setHTML("<h3>Store: " + storeName + "</h3>");
+                formPanel.clear();
+                if (!isNone) {
+                    formPanel.add(formMapping.get(address).assets.getHelp().asWidget());
+                    formPanel.add(formMapping.get(address).assets.getForm());
+                }
+                currentStore = storeName;
+            }
+            if (!isNone)
+                formMapping.get(address).getForm().edit(payload.get(storeName));
+        }
+    }
 }

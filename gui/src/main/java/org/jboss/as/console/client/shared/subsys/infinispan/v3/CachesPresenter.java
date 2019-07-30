@@ -20,7 +20,6 @@ package org.jboss.as.console.client.shared.subsys.infinispan.v3;
  */
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -34,7 +33,6 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -256,13 +254,19 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
         return securityFramework;
     }
 
-
     public void onCreate(AddressTemplate address, String name, ModelNode entity) {
+        onCreate(address, name, entity, false);
+    }
+
+    public void onCreate(AddressTemplate address, String name, ModelNode entity, boolean allowRestart) {
 
         ResourceAddress fqAddress = address.resolve(statementContext, container,name);
 
         entity.get(OP).set(ADD);
         entity.get(ADDRESS).set(fqAddress);
+        if (allowRestart) {
+            entity.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
+        }
 
         dispatcher.execute(new DMRAction(entity), new SimpleCallback<DMRResponse>() {
 
@@ -363,7 +367,11 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
         dialog.center();
     }
 
-    public void onRemoveCache(AddressTemplate cacheType, String name) {
+    public void onLaunchAddStoreWizard(AddressTemplate storeType, String name) {
+        new NewCacheStoreWizard(this, storeType, name).open(Console.MESSAGES.createTitle("Store"));
+    }
+
+    public void onRemoveResource(AddressTemplate cacheType, String name) {
 
         ResourceAddress fqAddress = cacheType.resolve(statementContext, container, name);
 
