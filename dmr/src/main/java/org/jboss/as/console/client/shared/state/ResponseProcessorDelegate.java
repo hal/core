@@ -14,7 +14,9 @@ public class ResponseProcessorDelegate {
 
     static ResponseProcessor[] processors = {
             new DomainResponseProcessor(),
-            new StandaloneResponseProcessor()
+            new StandaloneResponseProcessor(),
+            new CompositeOperationWarningProcessor(),
+            new WarningProcessor()
     };
 
 
@@ -23,7 +25,6 @@ public class ResponseProcessorDelegate {
     }
 
     public void process(ModelNode response) {
-
         Map<String, ServerState> serverStates = new HashMap<String, ServerState>();
 
         for(ResponseProcessor proc : processors)
@@ -31,7 +32,7 @@ public class ResponseProcessorDelegate {
             if(proc.accepts(response))
             {
                 proc.process(response, serverStates);
-                break;
+                //break;
             }
         }
 

@@ -21,6 +21,7 @@ package org.jboss.as.console.client;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.logging.Level;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
@@ -52,7 +53,9 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
+import org.jboss.as.console.client.shared.state.WarningNotification;
 import org.jboss.as.console.spi.Entrypoint;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -64,7 +67,7 @@ import org.jboss.gwt.flow.client.Outcome;
  * @author Heiko Braun
  */
 @Entrypoint
-public class Console implements EntryPoint, ReloadNotification.Handler {
+public class Console implements EntryPoint, ReloadNotification.Handler, WarningNotification.Handler {
 
     public final static UIConstants CONSTANTS = GWT.create(UIConstants.class);
     public final static UIDebugConstants DEBUG_CONSTANTS = GWT.create(UIDebugConstants.class);
@@ -126,6 +129,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
             // DMR notifications
             Notifications.addReloadHandler(Console.this);
+            Notifications.addWarningHandler(Console.this);
 
            /* StringBuilder title = new StringBuilder();
             title.append(context.getProductName()).append(" Management");
@@ -149,6 +153,20 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         reloadState.propagateChanges();
     }
 
+    // ------------------------------------------------------ warning handler
+
+    public void onWarning(String warning, Level severity){
+        Message.Severity messsageSeverity = null;
+        if(severity == Level.SEVERE){
+            messsageSeverity = Message.Severity.Error;
+        } else if(severity == Level.WARNING){
+            messsageSeverity = Message.Severity.Warning;
+        } else {
+            messsageSeverity = Message.Severity.Info;
+        }
+
+        getMessageCenter().notify(new Message(warning.toString(), messsageSeverity));
+    }
 
     // ------------------------------------------------------ messages
 
