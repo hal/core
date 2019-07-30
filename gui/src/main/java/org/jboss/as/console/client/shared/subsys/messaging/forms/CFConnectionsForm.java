@@ -30,7 +30,7 @@ public class CFConnectionsForm {
         form.setNumColumns(2);
 
         NumberBoxItem callTimeout = new NumberBoxItem("callTimeout", "Call Timeout");
-        NumberBoxItem connectionTTL = new NumberBoxItem("connectionTTL", "Connection TTL");
+        NumberBoxItem connectionTTL = new NumberBoxItem("connectionTTL", "Connection TTL", -1, Integer.MAX_VALUE);
 
         NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry");
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
