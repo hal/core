@@ -36,10 +36,14 @@ public class DMRResponse implements Result<ModelNode> {
     private static final String FILTERED_ATTRIBUTES = "filtered-attributes";
     private static final String ABSOLUTE_ADDRESS = "absolute-address";
     private static final String RELATIVE_ADDRESS = "relative-address";
+    private static final String RESPONSE_HEADERS = "response-headers";
+    private static final String PROCESS_STATE = "process-state";
+    private static final String RESTART_NOT_REQUIRED = "restart-not-required";
 
     private String method;
     private String responseText;
     private String contentType;
+    private boolean ignoreRestartHeader = false;
 
     private ResponseProcessorDelegate processor;
 
@@ -49,6 +53,10 @@ public class DMRResponse implements Result<ModelNode> {
         this.contentType = contentType;
 
         this.processor = new ResponseProcessorDelegate();
+    }
+
+    public void setIgnoreRestartHeader(boolean ignoreRestartHeader) {
+        this.ignoreRestartHeader = ignoreRestartHeader;
     }
 
     @Override
@@ -111,6 +119,11 @@ public class DMRResponse implements Result<ModelNode> {
                     "Failed to decode response: "+
                             e.getClass().getName() +": "+e.getMessage());
             response = err;
+        }
+
+        //Do not show a restart modal window when an ignoreRestart is set to true
+        if (ignoreRestartHeader) {
+            response.get(RESPONSE_HEADERS).get(PROCESS_STATE).set(RESTART_NOT_REQUIRED);
         }
 
         processor.process(response);
