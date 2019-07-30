@@ -86,12 +86,14 @@ public class CredentialReferenceFormValidation implements FormValidator {
         if (aliasDefined && !storeDefined) {
             formValidation.addError(store);
             storeFormItem.setErrMessage("This is a required attribute if " + label(alias) + " is used.");
+            storeFormItem.focus();
             storeFormItem.setErroneous(true);
         }
         // validates the alias and store requires each other
         if (storeDefined && !aliasDefined) {
             formValidation.addError(alias);
             aliasFormItem.setErrMessage("This is a required attribute if " + label(store) + " is used.");
+            aliasFormItem.focus();
             aliasFormItem.setErroneous(true);
         }
 
@@ -99,6 +101,7 @@ public class CredentialReferenceFormValidation implements FormValidator {
         if (storeDefined && clearTextDefined) {
             formValidation.addError(clearText);
             clearTextFormItem.setErrMessage("This field should not be used if the following fields are used: " + label(store));
+            clearTextFormItem.focus();
             clearTextFormItem.setErroneous(true);
         }
 

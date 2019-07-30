@@ -681,6 +681,7 @@ public class ModelNodeFormBuilder {
                             formValidation.addError(requiredAttrName);
                             item.setErrMessage(
                                     "This is a required attribute if " + sourceFormItem.getTitle() + " is used.");
+                            item.focus();
                             item.setErroneous(true);
                             break;
                         }
