@@ -75,7 +75,7 @@ class ConnectionEditor extends RemotingEditor {
                 .setMasterTools(tools())
                 .setMaster(Console.MESSAGES.available(title), table())
                 .addDetail(Console.CONSTANTS.common_label_attributes(), formPanel())
-                .addDetail(Console.CONSTANTS.properties_global_desc(), propertyEditor().asWidget());
+                .addDetail(Console.CONSTANTS.common_label_properties(), propertyEditor().asWidget());
         return layoutBuilder.build();
     }
 
