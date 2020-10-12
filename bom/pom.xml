@@ -30,7 +30,7 @@
         <gwt-log.version>3.3.2</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
         <jgrapht.version>0.9.3-hal</jgrapht.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.13.1</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <protovis.version>0.4.1-jboss</protovis.version>
         <guided.tour.version>0.0.13</guided.tour.version>
